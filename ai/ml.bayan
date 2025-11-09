@@ -440,8 +440,365 @@ def k_means_pp(data, k, max_iters=10):
     return [centers, labels]
 }
 
+# --- Additional Metrics and Utilities ---
+
+def confusion_matrix(y_true, y_pred, pos_label=1, neg_label=0):
+{
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+    for i in range(len(y_true)):
+    {
+        if y_true[i] == pos_label and y_pred[i] == pos_label: { tp = tp + 1 }
+        elif y_true[i] == pos_label and y_pred[i] != pos_label: { fn = fn + 1 }
+        elif y_true[i] != pos_label and y_pred[i] == pos_label: { fp = fp + 1 }
+        else: { tn = tn + 1 }
+    }
+    return [[tn, fp], [fn, tp]]
+}
+
+# Probability outputs for logistic regression
+
+def logistic_regression_predict_proba(X, w, b):
+{
+    probs = []
+    e = 2.718281828
+    for i in range(len(X)):
+    {
+        z = b
+        for j in range(len(X[i])): { z = z + w[j] * X[i][j] }
+        p = 1.0 / (1.0 + pow(e, -z))
+        probs.append(p)
+    }
+    return probs
+}
+
+# ROC curve (binary): returns [FPR_list, TPR_list, thresholds]
+
+def roc_curve(y_true, y_scores, pos_label=1):
+{
+    # collect unique thresholds
+    seen = {}
+    thresholds = []
+    for i in range(len(y_scores)):
+    {
+        s = y_scores[i]
+        if s in seen:
+        {
+            # skip
+        }
+        else:
+        {
+            seen[s] = 1
+            thresholds.append(s)
+        }
+    }
+    # add sentinel thresholds to sweep from high to low
+    thresholds.append(1.01)
+    thresholds.append(-0.01)
+    thresholds = sorted(thresholds)
+    # reverse order to go from high threshold to low
+    thr_desc = []
+    for i in range(len(thresholds)):
+    {
+        thr_desc.append(thresholds[len(thresholds) - 1 - i])
+    }
+    fprs = []
+    tprs = []
+    out_thr = []
+    # count positives and negatives
+    P = 0
+    N = 0
+    for i in range(len(y_true)):
+    {
+        if y_true[i] == pos_label: { P = P + 1 }
+        else: { N = N + 1 }
+    }
+    for t in thr_desc:
+    {
+        tp = 0
+        fp = 0
+        fn = 0
+        tn = 0
+        for i in range(len(y_scores)):
+        {
+            pred = 0
+            if y_scores[i] >= t: { pred = 1 }
+            if y_true[i] == pos_label and pred == 1: { tp = tp + 1 }
+            elif y_true[i] == pos_label and pred == 0: { fn = fn + 1 }
+            elif y_true[i] != pos_label and pred == 1: { fp = fp + 1 }
+            else: { tn = tn + 1 }
+        }
+        fpr = 0.0
+        tpr = 0.0
+        if N > 0: { fpr = fp / N }
+        if P > 0: { tpr = tp / P }
+        fprs.append(fpr)
+        tprs.append(tpr)
+        out_thr.append(t)
+    }
+    return [fprs, tprs, out_thr]
+}
+
+# AUC using trapezoidal rule; inputs must be same-length lists
+
+def auc_roc(fprs, tprs):
+{
+    pairs = []
+    for i in range(len(fprs)):
+    {
+        pairs.append([fprs[i], tprs[i]])
+    }
+    pairs = sorted(pairs)
+    area = 0.0
+    for i in range(len(pairs) - 1):
+    {
+        x1 = pairs[i][0]
+        y1 = pairs[i][1]
+        x2 = pairs[i+1][0]
+        y2 = pairs[i+1][1]
+        dx = x2 - x1
+        area = area + dx * (y1 + y2) / 2.0
+    }
+    return area
+}
+
+# K-Means++ probabilistic initialization with simple PRNG (LCG)
+
+def k_means_pp_prob_init(data, k, seed=42):
+{
+    n = len(data)
+    if n == 0: { return [] }
+    d = len(data[0])
+    # LCG helpers
+    def _lcg_next(state):
+    {
+        a = 1103515245
+        c = 12345
+        m = 2147483648  # 2^31
+        state = (a * state + c) % m
+        u = state / m
+        return [state, u]
+    }
+    state = seed
+    centers = []
+    # choose first center randomly
+    st = _lcg_next(state)
+    state = st[0]
+    u = st[1]
+    t = u * n
+    idx = 0
+    while (idx + 1) <= t:
+    {
+        idx = idx + 1
+    }
+    centers.append(data[idx])
+    # choose remaining centers with probability proportional to D^2
+    while len(centers) < k:
+    {
+        # compute distances D[i]
+        D = []
+        total = 0.0
+        for i in range(n):
+        {
+            min_d = -1
+            for c in range(len(centers)):
+            {
+                dist = 0.0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[c][j]
+                    dist = dist + diff*diff
+                }
+                if min_d == -1 or dist < min_d: { min_d = dist }
+            }
+            D.append(min_d)
+            total = total + min_d
+        }
+        if total == 0.0:
+        {
+            # fallback to random index
+            st2 = _lcg_next(state)
+            state = st2[0]
+            u2 = st2[1]
+            tt = u2 * n
+            j = 0
+            while (j + 1) <= tt:
+            {
+                j = j + 1
+            }
+            centers.append(data[j])
+        }
+        else:
+        {
+            st3 = _lcg_next(state)
+            state = st3[0]
+            u3 = st3[1]
+            target = u3 * total
+            cum = 0.0
+            chosen = 0
+            for i in range(n):
+            {
+                cum = cum + D[i]
+                if cum >= target:
+                {
+                    chosen = i
+                    break
+                }
+            }
+            centers.append(data[chosen])
+        }
+    }
+    return centers
+}
+
+# Full k-means using probabilistic init
+
+def k_means_pp_prob(data, k, max_iters=10, seed=42):
+{
+    n = len(data)
+    if n == 0: { return [[], []] }
+    d = len(data[0])
+    # Inline probabilistic k-means++ initialization (avoid helper from-import issues)
+    centers = []
+    # LCG state
+    state = seed
+    # choose first center randomly
+    a = 1103515245
+    c = 12345
+    m = 2147483648
+    state = (a * state + c) % m
+    u = state / m
+    t = u * n
+    idx = 0
+    while (idx + 1) <= t:
+    {
+        idx = idx + 1
+    }
+    centers.append(data[idx])
+    # choose remaining centers with probability proportional to D^2
+    while len(centers) < k:
+    {
+        # compute distances D[i]
+        D = []
+        total = 0.0
+        for i in range(n):
+        {
+            min_d = -1
+            for cidx in range(len(centers)):
+            {
+                dist = 0.0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[cidx][j]
+                    dist = dist + diff*diff
+                }
+                if min_d == -1 or dist < min_d: { min_d = dist }
+            }
+            D.append(min_d)
+            total = total + min_d
+        }
+        if total == 0.0:
+        {
+            state = (a * state + c) % m
+            u2 = state / m
+            tt = u2 * n
+            j = 0
+            while (j + 1) <= tt:
+            {
+                j = j + 1
+            }
+            centers.append(data[j])
+        }
+        else:
+        {
+            state = (a * state + c) % m
+            u3 = state / m
+            target = u3 * total
+            cum = 0.0
+            chosen = 0
+            for i in range(n):
+            {
+                cum = cum + D[i]
+                if cum >= target:
+                {
+                    chosen = i
+                    break
+                }
+            }
+            centers.append(data[chosen])
+        }
+    }
+    labels = []
+    for i in range(n): { labels.append(0) }
+
+    for it in range(max_iters):
+    {
+        changed = 0
+        for i in range(n):
+        {
+            best = -1
+            best_dist = 0
+            for c in range(k):
+            {
+                dist = 0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[c][j]
+                    dist = dist + diff*diff
+                }
+                if best == -1 or dist < best_dist:
+                {
+                    best = c
+                    best_dist = dist
+                }
+            }
+            if labels[i] != best: { changed = changed + 1 }
+            labels[i] = best
+        }
+        new_centers = []
+        counts = []
+        for c in range(k):
+        {
+            vec = []
+            for j in range(d): { vec.append(0.0) }
+            new_centers.append(vec)
+            counts.append(0)
+        }
+        for i in range(n):
+        {
+            lbl = labels[i]
+            counts[lbl] = counts[lbl] + 1
+            for j in range(d): { new_centers[lbl][j] = new_centers[lbl][j] + data[i][j] }
+        }
+        for c in range(k):
+        {
+            if counts[c] > 0:
+            {
+                for j in range(d): { new_centers[c][j] = new_centers[c][j] / counts[c] }
+            }
+        }
+        centers = new_centers
+        if changed == 0: { break }
+    }
+    return [centers, labels]
+}
+
 # --- Arabic wrappers (new) ---
 
+
+def مصفوفة_الالتباس(الحقيقة, التوقع, pos_label=1, neg_label=0): { return confusion_matrix(الحقيقة, التوقع, pos_label, neg_label) }
+
+def توقع_انحدار_لوجستي_احتمال(س, اوزان, انحياز): { return logistic_regression_predict_proba(س, اوزان, انحياز) }
+
+def منحنى_ROC(حقيقة, درجات, pos_label=1): { return roc_curve(حقيقة, درجات, pos_label) }
+
+def مساحة_ROC(معدلات_موجبة_كاذبة, معدلات_حقيقية_موجبة): { return auc_roc(معدلات_موجبة_كاذبة, معدلات_حقيقية_موجبة) }
+
+def تجميع_كي_مينز_PP_احتمالي(بيانات, ك, مرات=10, بذرة=42): { return k_means_pp_prob(بيانات, ك, مرات, بذرة) }
+
+def مراكز_كي_مينز_PP_احتمالية_ابتدائية(بيانات, ك, بذرة=42): { return k_means_pp_prob_init(بيانات, ك, بذرة) }
 
 
 def تدريب_انحدار_لوجستي(س, ت, lr=0.1, epochs=200): { return logistic_regression_train(س, ت, lr, epochs) }

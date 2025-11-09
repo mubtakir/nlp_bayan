@@ -24,3 +24,74 @@ def threshold(image, t, high=1, low=0):
 
 def عتبة(صورة, حد, عالي=1, منخفض=0): { return threshold(صورة, حد, عالي, منخفض) }
 
+
+
+# 2D convolution (valid) with 3x3 kernel
+
+def conv2d_valid_3x3(image, kernel):
+{
+    h = len(image)
+    if h == 0: { return [] }
+    w = len(image[0])
+    out = []
+    for i in range(1, h - 1):
+    {
+        row = []
+        for j in range(1, w - 1):
+        {
+            s = 0.0
+            for di in range(-1, 2):
+            {
+                for dj in range(-1, 2):
+                {
+                    ki = di + 1
+                    kj = dj + 1
+                    s = s + kernel[ki][kj] * image[i + di][j + dj]
+                }
+            }
+            row.append(s)
+        }
+        out.append(row)
+    }
+    return out
+}
+
+# Sobel filters
+
+def sobel_x_kernel():
+{
+    return [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+}
+
+def sobel_y_kernel():
+{
+    return [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+}
+
+# Edge magnitude via Sobel (valid conv), returns float values
+
+def sobel_edges(image):
+{
+    gx = conv2d_valid_3x3(image, sobel_x_kernel())
+    gy = conv2d_valid_3x3(image, sobel_y_kernel())
+    out = []
+    for i in range(len(gx)):
+    {
+        row = []
+        for j in range(len(gx[0])):
+        {
+            vx = gx[i][j]
+            vy = gy[i][j]
+            mag2 = vx*vx + vy*vy
+            row.append(pow(mag2, 0.5))
+        }
+        out.append(row)
+    }
+    return out
+}
+
+# Arabic wrappers
+
+def التفاف3x3_صحيح(صورة, نواة): { return conv2d_valid_3x3(صورة, نواة) }
+
+def سوبل_حواف(صورة): { return sobel_edges(صورة) }

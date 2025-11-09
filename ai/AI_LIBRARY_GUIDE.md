@@ -38,6 +38,21 @@ hybrid {
 - ngrams_from_tokens(tokens, n)
 - compute_tfidf(docs: [str]) → [dict(term→score)]
 
+
+New (v2):
+- remove_stopwords(text, language="auto")
+- cosine_similarity_dicts(v1, v2)
+- naive_bayes_train_text(docs, labels, alpha=1.0)
+- naive_bayes_predict_text(model, doc)
+- naive_bayes_predict_proba_text(model, doc)
+
+Arabic wrappers (new):
+- إزالة_كلمات_شائعة(نص, لغة="auto")
+- تشابه_جيبي_قاموسي(قاموس1, قاموس2)
+- تدريب_نايف_بايز_نص(نصوص, تسميات, ألفا=1.0)
+- توقع_نايف_بايز_نص(نموذج, نص)
+- احتمال_نايف_بايز_نص(نموذج, نص)
+
 Arabic wrappers:
 - تجهيز_نص(نص, لغة="auto")
 - تجزئة_نص(نص, لغة="auto")
@@ -54,7 +69,41 @@ Notes:
 
 - linear_regression(x: [num], y: [num]) → [slope, intercept]
 - k_nearest_neighbors_predict(train_X, train_y, samples, k=3) → labels
+
+New (v2):
+- logistic_regression_predict_proba(X, w, b)
+- confusion_matrix(y_true, y_pred, pos_label=1, neg_label=0)
+- roc_curve(y_true, y_scores, pos_label=1) → [fprs, tprs, thresholds]
+- auc_roc(fprs, tprs)
+- k_means_pp_prob(data, k, max_iters=10, seed=42)
+
+Arabic wrappers (new):
+- توقع_انحدار_لوجستي_احتمال(س, اوزان, انحياز)
+- مصفوفة_الالتباس(الحقيقة, التوقع)
+- منحنى_ROC(حقيقة, درجات)
+- مساحة_ROC(معدلات_موجبة_كاذبة, معدلات_حقيقية_موجبة)
+- تجميع_كي_مينز_PP_احتمالي(بيانات, ك, مرات=10, بذرة=42)
+
 - k_means(data, k, max_iters=10) → [centers, labels]
+
+## 🧮 Data Module (ai.data)
+
+- random_permutation(n, seed=42)
+- train_test_split_shuffle(X, y, test_ratio=0.25, seed=42)
+
+Arabic wrappers:
+- ترتيب_عشوائي(n, بذرة=42)
+- تقسيم_عشوائي_تدريب_اختبار(س, ت, نسبة_اختبار=0.25, بذرة=42)
+
+## 👁️ Vision Module (ai.vision)
+
+- conv2d_valid_3x3(image, kernel)
+- sobel_edges(image)  → magnitude image
+
+Arabic wrappers:
+- التفاف3x3_صحيح(صورة, مرشح)
+- سوبل_حواف(صورة)
+
 - logistic_regression_train(X, y, lr=0.1, epochs=200) → [weights, bias]
 - logistic_regression_predict(X, weights, bias, threshold=0.5) → [0/1,...]
 

@@ -402,3 +402,33 @@ hybrid {
   م = nlp.كشف_مشاعر("هذا المنتج ممتاز ورائع")
 }
 ```
+
+
+## Example 16: AI Advanced — متقدم
+
+These show Naive Bayes text classification, Confusion Matrix, and ROC/AUC.
+
+```bayan
+hybrid {
+  # Naive Bayes (English)
+  from ai.nlp import naive_bayes_train_text, naive_bayes_predict_text, naive_bayes_predict_proba_text
+  docs = ["good movie", "excellent film", "bad film", "terrible movie"]
+  y = [1, 1, 0, 0]
+  m = naive_bayes_train_text(docs, y, 1.0)
+  p1 = naive_bayes_predict_text(m, "good excellent")
+  probs = naive_bayes_predict_proba_text(m, "good")
+}
+```
+
+```bayan
+hybrid {
+  # Confusion + ROC/AUC
+  from ai.ml import confusion_matrix, roc_curve, auc_roc
+  y_true = [0,0,1,1]
+  y_scores = [0.1, 0.4, 0.35, 0.8]
+  roc = roc_curve(y_true, y_scores, 1)
+  fprs = roc[0]; tprs = roc[1]
+  AUC = auc_roc(fprs, tprs)
+  cm = confusion_matrix([0,1,1,0], [0,1,0,0], 1, 0)
+}
+```

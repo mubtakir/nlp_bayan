@@ -92,3 +92,88 @@ def تباين(قائمة): { return variance(قائمة) }
 
 def انحراف_معياري(قائمة): { return stddev(قائمة) }
 
+
+# --- Simple PRNG (LCG) and shuffling/splitting ---
+
+def lcg_next(state):
+{
+    a = 1103515245
+    c = 12345
+    m = 2147483648  # 2^31
+    state = (a * state + c) % m
+    u = state / m
+    return [state, u]
+}
+
+# Inside-out Fisher–Yates to build a random permutation deterministically
+
+def random_permutation(n, seed=42):
+{
+    perm = []
+    for i in range(n): { perm.append(0) }
+    state = seed
+    for i in range(n):
+    {
+        perm[i] = i
+        a = 1103515245
+        c = 12345
+        m = 2147483648
+        state = (a * state + c) % m
+        u = state / m
+        t = u * (i + 1)
+        j = 0
+        while (j + 1) <= t:
+        {
+            j = j + 1
+        }
+        # swap perm[i], perm[j]
+        tmp = perm[i]
+        perm[i] = perm[j]
+        perm[j] = tmp
+    }
+    return perm
+}
+
+# Train/test split with shuffle using PRNG
+
+def train_test_split_shuffle(X, y, test_ratio=0.25, seed=42):
+{
+    n = len(X)
+    test_n = round(n * test_ratio)
+    if test_n < 0: { test_n = 0 }
+    if test_n > n: { test_n = n }
+    perm = random_permutation(n, seed)
+    X_shuf = []
+    y_shuf = []
+    for i in range(n):
+    {
+        idx = perm[i]
+        X_shuf.append(X[idx])
+        y_shuf.append(y[idx])
+    }
+    split_idx = n - test_n
+    X_train = []
+    X_test = []
+    y_train = []
+    y_test = []
+    for i in range(n):
+    {
+        if i < split_idx:
+        {
+            X_train.append(X_shuf[i])
+            y_train.append(y_shuf[i])
+        }
+        else:
+        {
+            X_test.append(X_shuf[i])
+            y_test.append(y_shuf[i])
+        }
+    }
+    return [X_train, X_test, y_train, y_test]
+}
+
+# Arabic wrappers
+
+def ترتيب_عشوائي(n, بذرة=42): { return random_permutation(n, بذرة) }
+
+def تقسيم_عشوائي_تدريب_اختبار(س, ت, نسبة_اختبار=0.25, بذرة=42): { return train_test_split_shuffle(س, ت, نسبة_اختبار, بذرة) }

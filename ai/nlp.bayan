@@ -261,3 +261,206 @@ def cosine_similarity_dicts(v1, v2):
 def إزالة_كلمات_شائعة(نص, لغة="auto"): { return remove_stopwords(نص, language=لغة) }
 
 def تشابه_جيبي_قاموسي(قاموس1, قاموس2): { return cosine_similarity_dicts(قاموس1, قاموس2) }
+
+
+# --- Naive Bayes Text Classification (multinomial, Laplace smoothing) ---
+
+def naive_bayes_train_text(docs, labels, alpha=1.0):
+{
+    N = len(docs)
+    classes = []
+    seen_cls = {}
+    for i in range(N):
+    {
+        c = labels[i]
+        if c in seen_cls:
+        {
+            seen_cls[c] = seen_cls[c]
+        }
+        else:
+        {
+            seen_cls[c] = 1
+            classes.append(c)
+        }
+    }
+    class_doc_counts = {}
+    token_counts = {}
+    class_token_totals = {}
+    vocab = {}
+    for i in range(N):
+    {
+        c = labels[i]
+        if c in class_doc_counts: { class_doc_counts[c] = class_doc_counts[c] + 1 }
+        else: { class_doc_counts[c] = 1 }
+        # inline preprocess/tokenize to avoid from-import scope issues
+        txt = docs[i]
+        punct = ".,!?;:"
+        chars = []
+        for ch in txt:
+        {
+            if punct.find(ch) == -1:
+            {
+                chars.append(ch)
+            }
+        }
+        sep0 = ""
+        txt2 = sep0.join(chars)
+        txt2 = txt2.lower()
+        toks = txt2.split()
+        if c in token_counts:
+        {
+            token_counts[c] = token_counts[c]
+        }
+        else:
+        {
+            token_counts[c] = {}
+            class_token_totals[c] = 0
+        }
+        for t in toks:
+        {
+            if t in vocab: { vocab[t] = vocab[t] }
+            else: { vocab[t] = 1 }
+            if t in token_counts[c]: { token_counts[c][t] = token_counts[c][t] + 1 }
+            else: { token_counts[c][t] = 1 }
+            class_token_totals[c] = class_token_totals[c] + 1
+        }
+    }
+    V = 0
+    for _ in vocab: { V = V + 1 }
+    model = {"classes": classes, "class_doc_counts": class_doc_counts, "token_counts": token_counts, "class_token_totals": class_token_totals, "vocab_size": V, "alpha": alpha}
+    return model
+}
+
+# Predict class label for a single document string
+
+def naive_bayes_predict_text(model, doc):
+{
+    classes = model["classes"]
+    class_doc_counts = model["class_doc_counts"]
+    token_counts = model["token_counts"]
+    class_token_totals = model["class_token_totals"]
+    V = model["vocab_size"]
+    alpha = model["alpha"]
+    # total documents
+    N = 0
+    for c in classes: { N = N + class_doc_counts[c] }
+    # inline preprocess/tokenize
+    txt = doc
+    punct = ".,!?;:"
+    chars = []
+    for ch in txt:
+    {
+        if punct.find(ch) == -1:
+        {
+            chars.append(ch)
+        }
+    }
+    sep0 = ""
+    txt2 = sep0.join(chars)
+    txt2 = txt2.lower()
+    toks = txt2.split()
+    best_c = classes[0]
+    best_score = -1.0
+    for ci in range(len(classes)):
+    {
+        c = classes[ci]
+        prior = class_doc_counts[c] / N
+        score = prior
+        total_c = class_token_totals[c]
+        for i in range(len(toks)):
+        {
+            t = toks[i]
+            count_tc = 0
+            if t in token_counts[c]: { count_tc = token_counts[c][t] }
+            num = count_tc + alpha
+            den = total_c + alpha * V
+            if den == 0: { den = 1.0 }
+            score = score * (num / den)
+        }
+        if best_score == -1.0 or score > best_score:
+        {
+            best_score = score
+            best_c = c
+        }
+    }
+    return best_c
+}
+
+# Predict probabilities per class for a single document string
+
+def naive_bayes_predict_proba_text(model, doc):
+{
+    classes = model["classes"]
+    class_doc_counts = model["class_doc_counts"]
+    token_counts = model["token_counts"]
+    class_token_totals = model["class_token_totals"]
+    V = model["vocab_size"]
+    alpha = model["alpha"]
+    N = 0
+    for c in classes: { N = N + class_doc_counts[c] }
+    # inline preprocess/tokenize
+    txt = doc
+    punct = ".,!?;:"
+    chars = []
+    for ch in txt:
+    {
+        if punct.find(ch) == -1:
+        {
+            chars.append(ch)
+        }
+    }
+    sep0 = ""
+    txt2 = sep0.join(chars)
+    txt2 = txt2.lower()
+    toks = txt2.split()
+    scores = {}
+    total = 0.0
+    for ci in range(len(classes)):
+    {
+        c = classes[ci]
+        prior = class_doc_counts[c] / N
+        s = prior
+        total_c = class_token_totals[c]
+        for i in range(len(toks)):
+        {
+            t = toks[i]
+            count_tc = 0
+            if t in token_counts[c]: { count_tc = token_counts[c][t] }
+            num = count_tc + alpha
+            den = total_c + alpha * V
+            if den == 0: { den = 1.0 }
+            s = s * (num / den)
+        }
+        scores[c] = s
+        total = total + s
+    }
+    # normalize
+    probs = {}
+    if total == 0.0:
+    {
+        # uniform
+        k = len(classes)
+        if k == 0: { return probs }
+        val = 1.0 / k
+        for ci in range(len(classes)):
+        {
+            c = classes[ci]
+            probs[c] = val
+        }
+        return probs
+    }
+    for ci in range(len(classes)):
+    {
+        c = classes[ci]
+        probs[c] = scores[c] / total
+    }
+    return probs
+}
+
+# Arabic wrappers
+
+def تدريب_نايف_بايز_نص(نصوص, تسميات, ألفا=1.0): { return naive_bayes_train_text(نصوص, تسميات, ألفا) }
+
+def توقع_نايف_بايز_نص(نموذج, نص): { return naive_bayes_predict_text(نموذج, نص) }
+
+def احتمال_نايف_بايز_نص(نموذج, نص): { return naive_bayes_predict_proba_text(نموذج, نص) }
