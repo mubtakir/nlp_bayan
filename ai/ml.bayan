@@ -1251,3 +1251,465 @@ def مراكز_كي_مينز_PP_ابتدائية(بيانات, ك): { return k_m
 
 def تدريب_انحدار_لوجستي_منظم(س, ت, lr=0.1, epochs=200, l2=0.1): { return logistic_regression_train(س, ت, lr, epochs, l2) }
 
+
+
+# Decision tree helpers (top-level; avoid closures)
+
+def _dtree_make_leaf(label):
+{
+    return {"is_leaf": True, "label": label}
+}
+
+
+def _dtree_majority(ys, labs):
+{
+    if len(ys) == 0: { return 0 }
+    cnt = {}
+    for i in range(len(ys)):
+    {
+        v = ys[i]
+        cnt[v] = cnt.get(v, 0) + 1
+    }
+    best = labs[0]
+    bestc = -1
+    for i in range(len(labs)):
+    {
+        lb = labs[i]
+        c = cnt.get(lb, 0)
+        if c > bestc:
+        {
+            bestc = c
+            best = lb
+        }
+    }
+    return best
+}
+
+
+def _dtree_all_same(ys):
+{
+    if len(ys) == 0: { return True }
+    a = ys[0]
+    for i in range(1, len(ys)):
+    {
+        if ys[i] != a: { return False }
+    }
+    return True
+}
+
+
+def _dtree_uniq_sorted_vals(Xv, j):
+{
+    seen = {}
+    arr = []
+    for i in range(len(Xv)):
+    {
+        v = Xv[i][j]
+        if seen.get(v, False) == False:
+        {
+            seen[v] = True
+            arr.append(v)
+        }
+    }
+    m = len(arr)
+    for p in range(m):
+    {
+        idx_min = p
+        for q in range(p+1, m):
+        {
+            if arr[q] < arr[idx_min]: { idx_min = q }
+        }
+        tmp = arr[p]
+        arr[p] = arr[idx_min]
+        arr[idx_min] = tmp
+    }
+    return arr
+}
+
+
+def _dtree_impurity_counts(counts, criterion):
+{
+    tot = 0.0
+    for k in counts: { tot = tot + counts[k] }
+    if tot == 0.0: { return 0.0 }
+    if criterion == "gini":
+    {
+        s = 0.0
+        for k in counts:
+        {
+            p = counts[k] / tot
+            s = s + p * p
+        }
+        return 1.0 - s
+    }
+    else:
+    {
+        # entropy
+        ee = 2.718281828
+        s = 0.0
+        for k in counts:
+        {
+            c = counts[k]
+            if c > 0:
+            {
+                p = c / tot
+                yv = p
+                lo = -50.0
+                hi = 50.0
+                it = 0
+                while it < 40:
+                {
+                    mid = (lo + hi) / 2.0
+                    val = pow(ee, mid)
+                    if val < yv: { lo = mid }
+                    else: { hi = mid }
+                    it = it + 1
+                }
+                ln_p = (lo + hi) / 2.0
+                s = s - p * ln_p
+            }
+        }
+        return s
+    }
+}
+
+
+def dtree_build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
+{
+    if depth >= max_depth or len(yv) < min_samples_split or _dtree_all_same(yv):
+    {
+        return _dtree_make_leaf(_dtree_majority(yv, labs))
+    }
+    nloc = len(yv)
+    m = 0
+    if len(Xv) > 0: { m = len(Xv[0]) }
+    best_imp = 1000000000.0
+    best_f = -1
+    best_thr = 0.0
+    best_left_idx = []
+    best_right_idx = []
+    for j in range(m):
+    {
+        uniq = _dtree_uniq_sorted_vals(Xv, j)
+        if len(uniq) > 1:
+        {
+            for t in range(len(uniq) - 1):
+            {
+                thr = (uniq[t] + uniq[t+1]) / 2.0
+                left_counts = {}
+                right_counts = {}
+                n_left = 0.0
+                n_right = 0.0
+                left_idx = []
+                right_idx = []
+                for i in range(len(Xv)):
+                {
+                    v = Xv[i][j]
+                    if v <= thr:
+                    {
+                        left_idx.append(i)
+                        n_left = n_left + 1.0
+                        lb = yv[i]
+                        left_counts[lb] = left_counts.get(lb, 0) + 1
+                    }
+                    else:
+                    {
+                        right_idx.append(i)
+                        n_right = n_right + 1.0
+                        lb = yv[i]
+                        right_counts[lb] = right_counts.get(lb, 0) + 1
+                    }
+                }
+                if n_left > 0.0 and n_right > 0.0:
+                {
+                    il = _dtree_impurity_counts(left_counts, criterion)
+                    ir = _dtree_impurity_counts(right_counts, criterion)
+                    wimp = (n_left / (1.0 * nloc)) * il + (n_right / (1.0 * nloc)) * ir
+                    if wimp < best_imp:
+                    {
+                        best_imp = wimp
+                        best_f = j
+                        best_thr = thr
+                        best_left_idx = left_idx
+                        best_right_idx = right_idx
+                    }
+                }
+            }
+        }
+    }
+    if best_f == -1:
+    {
+        return _dtree_make_leaf(_dtree_majority(yv, labs))
+    }
+    X_left = []
+    y_left = []
+    X_right = []
+    y_right = []
+    for ii in range(len(best_left_idx)):
+    {
+        idx = best_left_idx[ii]
+        X_left.append(Xv[idx])
+        y_left.append(yv[idx])
+    }
+    for ii in range(len(best_right_idx)):
+    {
+        idx = best_right_idx[ii]
+        X_right.append(Xv[idx])
+        y_right.append(yv[idx])
+    }
+    left_node = dtree_build(X_left, y_left, depth + 1, max_depth, min_samples_split, criterion, labs)
+    right_node = dtree_build(X_right, y_right, depth + 1, max_depth, min_samples_split, criterion, labs)
+    node = {"is_leaf": False, "feature": best_f, "threshold": best_thr, "left": left_node, "right": right_node}
+    return node
+}
+
+
+# --- Minimal Decision Tree (classification) ---
+# decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2)
+# decision_tree_predict(tree, X)
+
+
+def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2):
+{
+    # collect label order
+    labs = []
+    seen_lab = {}
+    for i in range(len(y)):
+    {
+        lb = y[i]
+        if seen_lab.get(lb, False) == False:
+        {
+            labs.append(lb)
+            seen_lab[lb] = True
+        }
+    }
+    def _make_leaf(label):
+    {
+        return {"is_leaf": True, "label": label}
+    }
+    def _majority(ys, labs):
+    {
+        if len(ys) == 0: { return 0 }
+        cnt = {}
+        for i in range(len(ys)):
+        {
+            v = ys[i]
+            cnt[v] = cnt.get(v, 0) + 1
+        }
+        best = labs[0]
+        bestc = -1
+        for i in range(len(labs)):
+        {
+            lb = labs[i]
+            c = cnt.get(lb, 0)
+            if c > bestc:
+            {
+                bestc = c
+                best = lb
+            }
+        }
+        return best
+    }
+    def _all_same(ys):
+    {
+        if len(ys) == 0: { return True }
+        a = ys[0]
+        for i in range(1, len(ys)):
+        {
+            if ys[i] != a: { return False }
+        }
+        return True
+    }
+    def _uniq_sorted_vals(Xv, j):
+    {
+        seen = {}
+        arr = []
+        for i in range(len(Xv)):
+        {
+            v = Xv[i][j]
+            if seen.get(v, False) == False:
+            {
+                seen[v] = True
+                arr.append(v)
+            }
+        }
+        m = len(arr)
+        for p in range(m):
+        {
+            idx_min = p
+            for q in range(p+1, m):
+            {
+                if arr[q] < arr[idx_min]: { idx_min = q }
+            }
+            tmp = arr[p]
+            arr[p] = arr[idx_min]
+            arr[idx_min] = tmp
+        }
+        return arr
+    }
+    def _impurity_counts(counts, criterion):
+    {
+        tot = 0.0
+        for k in counts: { tot = tot + counts[k] }
+        if tot == 0.0: { return 0.0 }
+        if criterion == "gini":
+        {
+            s = 0.0
+            for k in counts:
+            {
+                p = counts[k] / tot
+                s = s + p * p
+            }
+            return 1.0 - s
+        }
+        else:
+        {
+            # entropy
+            ee = 2.718281828
+            s = 0.0
+            for k in counts:
+            {
+                c = counts[k]
+                if c > 0:
+                {
+                    p = c / tot
+                    yv = p
+                    lo = -50.0
+                    hi = 50.0
+                    it = 0
+                    while it < 40:
+                    {
+                        mid = (lo + hi) / 2.0
+                        val = pow(ee, mid)
+                        if val < yv: { lo = mid }
+                        else: { hi = mid }
+                        it = it + 1
+                    }
+                    ln_p = (lo + hi) / 2.0
+                    s = s - p * ln_p
+                }
+            }
+            return s
+        }
+    }
+    def _build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
+    {
+        if depth >= max_depth or len(yv) < min_samples_split or _all_same(yv):
+        {
+            return _make_leaf(_majority(yv, labs))
+        }
+        nloc = len(yv)
+        m = 0
+        if len(Xv) > 0: { m = len(Xv[0]) }
+        best_imp = 1000000000.0
+        best_f = -1
+        best_thr = 0.0
+        best_left_idx = []
+        best_right_idx = []
+        for j in range(m):
+        {
+            uniq = _uniq_sorted_vals(Xv, j)
+            if len(uniq) > 1:
+            {
+                for t in range(len(uniq) - 1):
+                {
+                    thr = (uniq[t] + uniq[t+1]) / 2.0
+                    left_counts = {}
+                    right_counts = {}
+                    n_left = 0.0
+                    n_right = 0.0
+                    left_idx = []
+                    right_idx = []
+                    for i in range(len(Xv)):
+                    {
+                        v = Xv[i][j]
+                        if v <= thr:
+                        {
+                            left_idx.append(i)
+                            n_left = n_left + 1.0
+                            lb = yv[i]
+                            left_counts[lb] = left_counts.get(lb, 0) + 1
+                        }
+                        else:
+                        {
+                            right_idx.append(i)
+                            n_right = n_right + 1.0
+                            lb = yv[i]
+                            right_counts[lb] = right_counts.get(lb, 0) + 1
+                        }
+                    }
+                    if n_left > 0.0 and n_right > 0.0:
+                    {
+                        il = _impurity_counts(left_counts, criterion)
+                        ir = _impurity_counts(right_counts, criterion)
+                        wimp = (n_left / (1.0 * nloc)) * il + (n_right / (1.0 * nloc)) * ir
+                        if wimp < best_imp:
+                        {
+                            best_imp = wimp
+                            best_f = j
+                            best_thr = thr
+                            best_left_idx = left_idx
+                            best_right_idx = right_idx
+                        }
+                    }
+                }
+            }
+        }
+        if best_f == -1:
+        {
+            return _make_leaf(_majority(yv, labs))
+        }
+        X_left = []
+        y_left = []
+        X_right = []
+        y_right = []
+        for ii in range(len(best_left_idx)):
+        {
+            idx = best_left_idx[ii]
+            X_left.append(Xv[idx])
+            y_left.append(yv[idx])
+        }
+        for ii in range(len(best_right_idx)):
+        {
+            idx = best_right_idx[ii]
+            X_right.append(Xv[idx])
+            y_right.append(yv[idx])
+        }
+        left_node = _build(X_left, y_left, depth + 1, max_depth, min_samples_split, criterion, labs)
+        right_node = _build(X_right, y_right, depth + 1, max_depth, min_samples_split, criterion, labs)
+        node = {"is_leaf": False, "feature": best_f, "threshold": best_thr, "left": left_node, "right": right_node}
+        return node
+    }
+    return _build(X, y, 0, max_depth, min_samples_split, criterion, labs)
+}
+
+
+def decision_tree_predict(tree, X):
+{
+    n = len(X)
+    preds = []
+    for i in range(n):
+    {
+        node = tree
+        while True:
+        {
+            if node.get("is_leaf", False) == True:
+            {
+                preds.append(node.get("label", 0))
+                break
+            }
+            f = node.get("feature", 0)
+            thr = node.get("threshold", 0.0)
+            v = X[i][f]
+            if v <= thr: { node = node.get("left", {}) }
+            else: { node = node.get("right", {}) }
+        }
+    }
+    return preds
+}
+
+# Arabic wrappers
+
+def تدريب_شجرة_قرار(س, ت, أقصى_عمق=3, معيار="gini", حد_تقسيم=2): { return decision_tree_train(س, ت, أقصى_عمق, معيار, حد_تقسيم) }
+
+def توقع_شجرة_قرار(شجرة, س): { return decision_tree_predict(شجرة, س) }

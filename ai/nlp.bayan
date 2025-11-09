@@ -429,6 +429,131 @@ def compute_tfidf_log_norm(docs):
     return out
 }
 
+# TF-IDF with options: sublinear term frequency and smoothed IDF
+# compute_tfidf_options(docs, sublinear_tf=True, smooth_idf=True)
+# Returns list of dicts (one per doc)
+
+def compute_tfidf_options(docs, sublinear_tf=True, smooth_idf=True):
+{
+    # tokenize simple: lowercase, split on spaces after removing punctuation
+    def _is_letter_or_digit(c):
+    {
+        if c >= "a" and c <= "z": { return True }
+        if c >= "0" and c <= "9": { return True }
+        if c >= "A" and c <= "Z": { return True }
+        return False
+    }
+    n = len(docs)
+    tokens_list = []
+    for i in range(n):
+    {
+        s = docs[i]
+        t = ""
+        for j in range(len(s)):
+        {
+            c = s[j]
+            if _is_letter_or_digit(c): { t = t + c.lower() }
+            else: { t = t + " " }
+        }
+        parts = t.split(" ")
+        toks = []
+        for k in range(len(parts)):
+        {
+            if parts[k] != "": { toks.append(parts[k]) }
+        }
+        tokens_list.append(toks)
+    }
+    # document frequencies
+    df = {}
+    for i in range(n):
+    {
+        seen = {}
+        toks = tokens_list[i]
+        for j in range(len(toks)):
+        {
+            term = toks[j]
+            if seen.get(term, False) == False:
+            {
+                df[term] = df.get(term, 0) + 1
+                seen[term] = True
+            }
+        }
+    }
+    # idf
+    e = 2.718281828
+    idf = {}
+    for term in df:
+    {
+        if smooth_idf == True:
+        {
+            y = 1.0 + (1.0 * n) / (df[term] + 1.0)
+        }
+        else:
+        {
+            if df[term] == 0: { y = 1.0 }
+            else: { y = (1.0 * n) / df[term] }
+        }
+        # ln(y) via binary search
+        lo = -50.0
+        hi = 50.0
+        it = 0
+        while it < 40:
+        {
+            mid = (lo + hi) / 2.0
+            val = pow(e, mid)
+            if val < y: { lo = mid }
+            else: { hi = mid }
+            it = it + 1
+        }
+        idf[term] = (lo + hi) / 2.0
+    }
+    # tf * idf per doc
+    vecs = []
+    for i in range(n):
+    {
+        toks = tokens_list[i]
+        counts = {}
+        for j in range(len(toks)):
+        {
+            w = toks[j]
+            counts[w] = counts.get(w, 0) + 1
+        }
+        vec = {}
+        for w in counts:
+        {
+            cnt = 1.0 * counts[w]
+            tfw = cnt
+            if sublinear_tf == True:
+            {
+                # 1 + ln(cnt)
+                y = cnt
+                if y < 1.0: { y = 1.0 }
+                lo = -50.0
+                hi = 50.0
+                it = 0
+                while it < 40:
+                {
+                    mid = (lo + hi) / 2.0
+                    val = pow(e, mid)
+                    if val < y: { lo = mid }
+                    else: { hi = mid }
+                    it = it + 1
+                }
+                ln_cnt = (lo + hi) / 2.0
+                tfw = 1.0 + ln_cnt
+            }
+            vec[w] = tfw * idf.get(w, 0.0)
+        }
+        vecs.append(vec)
+    }
+    return vecs
+}
+
+# Arabic wrapper for options TF-IDF
+
+def حساب_tfidf_خيارات(نصوص, تحت_خطية=True, تمليس=True): { return compute_tfidf_options(نصوص, تحت_خطية, تمليس) }
+
+
 # Arabic wrapper
 
 def حساب_tfidf_لوغ_مطبع(نصوص): { return compute_tfidf_log_norm(نصوص) }

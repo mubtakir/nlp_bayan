@@ -423,6 +423,86 @@ def stddev(xs):
     return pow(v, 0.5)
 }
 
+# Additional descriptive stats: min/max/range and z-score normalization
+
+def min_value(xs):
+{
+    n = len(xs)
+    if n == 0: { return 0.0 }
+    m = xs[0]
+    for i in range(1, n):
+    {
+        if xs[i] < m: { m = xs[i] }
+    }
+    return m
+}
+
+
+def max_value(xs):
+{
+    n = len(xs)
+    if n == 0: { return 0.0 }
+    m = xs[0]
+    for i in range(1, n):
+    {
+        if xs[i] > m: { m = xs[i] }
+    }
+    return m
+}
+
+# Arabic wrappers for new stats helpers
+
+def أدنى(قائمة): { return min_value(قائمة) }
+
+def أقصى(قائمة): { return max_value(قائمة) }
+
+def مجال(قائمة): { return data_range(قائمة) }
+
+def تطبيع_Z(قائمة): { return zscore_normalize(قائمة) }
+
+
+
+def data_range(xs):
+{
+    n = len(xs)
+    if n == 0: { return 0.0 }
+    lo = min_value(xs)
+    hi = max_value(xs)
+    return hi - lo
+}
+
+
+def zscore_normalize(xs):
+{
+    n = len(xs)
+    if n == 0: { return [] }
+    # compute mean inline to avoid cross-module deps at import site
+    ssum = 0.0
+    for i in range(n): { ssum = ssum + xs[i] }
+    m = ssum / (1.0 * n)
+    # compute stddev inline
+    vsum = 0.0
+    for i in range(n):
+    {
+        d = xs[i] - m
+        vsum = vsum + d * d
+    }
+    v = vsum / (1.0 * n)
+    s = pow(v, 0.5)
+    out = []
+    if s == 0.0:
+    {
+        for i in range(n): { out.append(0.0) }
+        return out
+    }
+    for i in range(n):
+    {
+        out.append((xs[i] - m) / s)
+    }
+    return out
+}
+
+
 # Arabic wrappers
 
 def قراءة_CSV_سطور(سطور, فاصل=","):{ return parse_csv_rows(سطور, فاصل) }
