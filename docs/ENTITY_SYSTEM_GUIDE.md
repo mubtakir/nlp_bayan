@@ -266,6 +266,20 @@ hybrid {
   مالك البيت.                   # بدون معقوفات بفضل تلميح الرأس
 }
 ```
+### Built-in head hints — تلميحات رءوس جاهزة
+لتيسير الاستخدام مباشرة دون تعريف قوالب، تتوفر تلميحات افتراضية للرءوس الشائعة (يمكن تجاوزها بتعريفاتك):
+- مالك / owner → belongs (order=BA)
+- صاحب → belongs (order=BA)
+- عصير / juice → of (order=AB)
+- باب / door → of (order=AB)
+- صورة / picture → of (order=AB)
+- كاتب / writer → of (order=AB)
+- مدير / manager → of (order=AB)
+- رئيس → of (order=AB)
+- مؤلف / author → of (order=AB)
+- كتاب / book → of (order=AB)
+- صورة فوتوغرافية / photo → of (order=AB)
+
 
 
 - استخدم أسماء المفاتيح كمتغيرات داخل التعبير (تُسمح معرفات عربية/إنجليزية)

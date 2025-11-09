@@ -297,6 +297,37 @@ class HybridInterpreter:
         env['_nominal_templates'] = env.get('_nominal_templates', {})
         env['_nominal_head_hints'] = env.get('_nominal_head_hints', {})
 
+        # Built-in head hints (safe defaults) for common nominal heads (AR/EN)
+        _default_head_hints = {
+            # belongs: "X الY" → belongs_to(Y, X)
+            "مالك": {"relation": "belongs", "order": "BA", "strip_definite": True},
+            "صاحب": {"relation": "belongs", "order": "BA", "strip_definite": True},
+            "owner": {"relation": "belongs", "order": "BA", "strip_definite": True},
+            # of/genitive: "Head Genitive"
+            "عصير": {"relation": "of", "order": "AB", "strip_definite": True},
+            "juice": {"relation": "of", "order": "AB", "strip_definite": True},
+            "باب": {"relation": "of", "order": "AB", "strip_definite": True},
+            "door": {"relation": "of", "order": "AB", "strip_definite": True},
+            "صورة": {"relation": "of", "order": "AB", "strip_definite": True},
+            "picture": {"relation": "of", "order": "AB", "strip_definite": True},
+            # professional/role heads → of
+            "كاتب": {"relation": "of", "order": "AB", "strip_definite": True},
+            "writer": {"relation": "of", "order": "AB", "strip_definite": True},
+            "مدير": {"relation": "of", "order": "AB", "strip_definite": True},
+            "manager": {"relation": "of", "order": "AB", "strip_definite": True},
+            "رئيس": {"relation": "of", "order": "AB", "strip_definite": True},
+            # additional heads → of
+            "مؤلف": {"relation": "of", "order": "AB", "strip_definite": True},
+            "author": {"relation": "of", "order": "AB", "strip_definite": True},
+            "كتاب": {"relation": "of", "order": "AB", "strip_definite": True},
+            "book": {"relation": "of", "order": "AB", "strip_definite": True},
+            "photo": {"relation": "of", "order": "AB", "strip_definite": True},
+            "صورة فوتوغرافية": {"relation": "of", "order": "AB", "strip_definite": True},
+        }
+        for _k, _v in _default_head_hints.items():
+            if _k not in env['_nominal_head_hints']:
+                env['_nominal_head_hints'][_k] = _v
+
         def _normalize_relation(name: str) -> str:
             s = str(name)
             if s in ('يكون',):

@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-296%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-298%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -35,13 +35,15 @@
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
-- ✅ **100% Test Coverage** - 296 passing tests
+- ✅ **100% Test Coverage** - 298 passing tests
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
 - ✅ Linguistic Templates — Multi-valued facts/rules/queries with Arabic nominal patterns (صفات/ألقاب/إضافة/ملكية)
 - ✅ Grammar-level nominal phrases — Parser sugar inside hybrid: محمد الطبيب. عصير العنب[of]. مالك البيت[belongs].
 - ✅ Programmable templates — define_nominal_template / define_head_template for custom phrase mappings
+- ✅ Built-in head hints — common heads auto-map to relations (e.g., مالك/owner → belongs, عصير/juice → of)
+
 
 ---
 
@@ -240,7 +242,7 @@ Run all tests:
 python -m pytest tests/ -v
 ```
 
-**Result**: 296 tests passing (100% success rate) ✅
+**Result**: 298 tests passing (100% success rate) ✅
 
 ---
 
@@ -258,7 +260,7 @@ python -m pytest tests/ -v
 
 - **154 files** in the repository
 - **41,889 lines** of code and documentation
-- **296 tests** (100% passing)
+- **298 tests** (100% passing)
 - **5,594+ lines** of tutorials and guides
 - **10+ complete examples**
 - **3 programming paradigms** in one language
@@ -319,7 +321,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **ميزات حديثة** - Async/await، Generators، Decorators، Context Managers
 - ✅ **جاهزة للذكاء الاصطناعي** - دوال مدمجة لعلوم البيانات والتعلم الآلي
 - ✅ **قاعدة معرفة ديناميكية** - إضافة وحذف الحقائق أثناء التشغيل
-- ✅ **تغطية اختبارات 100%** - 267 اختبار ناجح
+- ✅ **تغطية اختبارات 100%** - 298 اختبار ناجح
 - ✅ **وثائق شاملة** - 5,594+ سطر من الدروس والأدلة
 - ✅ **تكامل مع النماذج اللغوية** - Prompts جاهزة لـ ChatGPT وClaude وغيرها
 
