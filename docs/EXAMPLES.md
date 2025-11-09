@@ -267,6 +267,9 @@ python main.py your_file.by
 - social_trust_en.by — Help increases trust (power + reaction)
 - bread_market_en.by — Micro-market: hunger and budget updates
 - moving_ball_en.by — Numeric coordinates (x,y), fuzzy energy, bounded temperature
+- action_centric_en.by — Action-first API demo (perform)
+
+- groups_discourse_en.by — Groups and pronoun-like "last" reuse
 
 - virtual_village_en.by — Virtual Village: multi-entity interactions
 
@@ -275,5 +278,8 @@ python main.py your_file.by
 
 ## أمثلة نظام الكيانات (بالعربية)
 - entity_food_interaction.by — مثال عربي بسيط
+- groups_discourse_ar.by — المجموعات ومرجع "last/هم" مع نفّذ
+
 - moving_ball_ar.by — إحداثيات عددية (س،ص)، طاقة ضبابية، حرارة بنطاق مخصص
+- action_centric_ar.by — نمط التنفيذ أولًا (نفذ)
 - virtual_village_ar.by — قرية افتراضية: كيانات متعددة وتفاعلات

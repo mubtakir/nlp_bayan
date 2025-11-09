@@ -122,3 +122,37 @@ def test_default_fuzzy_clamp_still_applies_for_plain_numbers():
     V = res[0]['V']
     vv = getattr(V, 'value', V)
     assert abs(vv - 1.0) < 1e-6
+
+
+
+def test_perform_action_multi_actors_self_target_and_preassignments():
+    code = """
+    engine = EntityEngine(logical)
+    # Define actions on actors: move increases x by sensitivity*delta
+    engine.create_entity("A", properties={"x": {"type": "numeric", "value": 0.0}})
+    engine.define_action("A", "move", effects=[{"on": "x", "formula": "value + 10*sensitivity"}])
+
+    engine.create_entity("B", properties={"x": {"type": "numeric", "value": 1.0}})
+    engine.define_action("B", "move", effects=[{"on": "x", "formula": "value + 10*sensitivity"}])
+
+    # Pre-assign via perform: set B.x to 5 before moving
+    res = engine.perform_action("move", participants=[("A", 1.0), ("B", 0.5)], properties=[("B", "x", 5.0)])
+
+    query property("A", "x", ?XA).
+    """
+    interp, resA = run(code)
+    assert resA, "Expected results for A.x"
+    XA = getattr(resA[0]['XA'], 'value', resA[0]['XA'])
+    # A: 0 + 10*1.0 = 10
+    assert abs(XA - 10.0) < 1e-6
+
+    # Query B.x
+    code2 = """
+    query property("B", "x", ?XB).
+    """
+    interp.traditional.set_source(code2, filename=None)
+    ast2 = HybridParser(HybridLexer(code2).tokenize()).parse()
+    resB = interp.interpret(ast2)
+    XB = getattr(resB[0]['XB'], 'value', resB[0]['XB'])
+    # B pre-assigned to 5, then + 10*0.5 = 10
+    assert abs(XB - 10.0) < 1e-6

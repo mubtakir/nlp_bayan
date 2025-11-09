@@ -83,7 +83,7 @@ query state("Ahmed", "hunger", ?V).
 - `power` (قوة الفعل)
 - `sensitivity` (حساسية الهدف)
 
-وتتوفر دوال: `min`, `max`, `clamp(x, lo, hi)`, `sqrt`, `rand()`.
+وتتوفر دوال: `min`, `max`, `clamp(x, lo, hi)`, `sqrt`, `abs`, `sin`, `cos`, `tan`, `exp`, `log`, `rand()`.
 
 أمثلة:
 - "value - 0.4*action_value"
@@ -91,6 +91,92 @@ query state("Ahmed", "hunger", ?V).
 - شرط: "value > 0.3"
 
 افتراضياً تُقصّ نتائج التأثير إلى [0..1] (نوع fuzzy). إذا عرّفت نوع "numeric" فلن يُطبَّق قصّ، وإذا عرّفت نوعاً "bounded" فسيُقصّ إلى [min,max].
+
+
+---
+
+## Action-centric API — نمط «نفّذ/perform»
+أحيانًا يكون من الأسهل التفكير بالفعل أولًا ثم من يشارك فيه. لهذا وفّرنا دالة مساعدة في البيئة العالمية:
+- English: `perform(action_name, participants, states=None, properties=None, action_value=1.0)`
+- العربية: `نفذ(اسم_الفعل, المشاركون, الحالات=None, الخصائص=None, قيمة_الفعل=1.0)`
+
+المشاركون يمكن أن يُكتبوا بعدة صيغ:
+- قائمة سلاسل نصية من الشكل `"Name.0.8"` أو `"Name:0.8"` (الرقم = درجة الاستجابة/الحساسية)
+- قائمة ثنائيات: `[ ("Name", 0.8), ... ]`
+- قاموس: `{ "Name": 0.8, ... }`
+
+كما يمكن ضبط قيم أولية قبل تنفيذ الفعل عبر:
+- states / "حالات": إسنادات من الشكل `[ ("Entity", "state", value), ... ]` أو `{ "Entity": {"state": value} }`
+- properties / "خصائص": نفس البنية.
+
+السلوك:
+- إذا كان جميع المشاركين Actors (أي يملكون الفعل المُسمّى)، فكل واحد «ينفذ» على نفسه فقط.
+- إذا وُجد مشاركون لا يملكون الفعل، فإن كل Actor يطبّق الفعل على جميع المشاركين (بمن فيهم نفسه)، وتُستخدم درجة استجابة الهدف كما جاءت في قائمة المشاركين.
+
+مثال EN:
+```bayan
+hybrid {
+  entity Ahmed { "properties": {"x": {"type": "numeric", "value": 0.0}},
+                 "actions": {"go": {"effects": [{"on": "x", "formula": "value + 3*sensitivity"}]}} }
+  entity Ali   { "properties": {"x": {"type": "numeric", "value": 1.0}} }
+
+  perform("go", ["Ahmed.1.0", "Ali.0.5"])  # Ahmed affects himself and Ali
+}
+
+query property("Ahmed", "x", ?AX).
+```
+
+مثال AR:
+```bayan
+hybrid {
+  كيان أحمد { "خصائص": {"س": {"نوع": "عددي", "قيمة": 0.0}},
+              "أفعال": {"اذهب": {"تأثيرات": [{"on": "س", "formula": "value + 3*sensitivity"}]}} }
+  كيان علي   { "خصائص": {"س": {"نوع": "عددي", "قيمة": 1.0}} }
+
+  نفذ("اذهب", ["أحمد.1.0", "علي.0.5"])  # يطبّق أحمد على نفسه وعلى علي
+}
+
+query property("أحمد", "س", ?V).
+```
+
+
+### Groups and pronoun-like references — المجموعات ومرجع "last/هم"
+للتيسير على بناء نماذج لغوية، يمكنك تعريف مجموعات وإعادة استخدام آخر مجموعة مشاركين:
+
+- تعريف مجموعة (داخل hybrid باستخدام الدالة المساعدة):
+  - EN: `define_group("Team", ["Ahmed", "Ali"])`
+  - AR: `عرّف_مجموعة("الفريق", ["أحمد", "علي"])`
+- استخدام المجموعة داخل المشاركين:
+  - كسلسلة: `"group:Team.0.7"` أو العربية: `"مجموعة:الفريق.0.7"`
+  - كثنائية: `("group:Team", 0.7)`
+- إعادة استخدام آخر مشاركين: `"last"` أو العربية `"هم"`
+  - يمكن تمرير درجة موحّدة: `"last:0.3"` أو `"last.0.3"`
+
+مثال EN:
+```bayan
+hybrid {
+  entity Ahmed { "properties": {"x": {"type": "numeric", "value": 0.0}},
+                 "actions": {"go": {"effects": [{"on": "x", "formula": "value + 2*sensitivity"}]}} }
+  entity Ali   { "properties": {"x": {"type": "numeric", "value": 1.0}} }
+
+  define_group("Team", ["Ahmed", "Ali"])    # Group definition
+  perform("go", ["group:Team.0.5"])          # Apply to group members
+  perform("go", ["last.0.2"])                # Reuse last participants
+}
+```
+
+مثال AR:
+```bayan
+hybrid {
+  كيان أحمد { "خصائص": {"س": {"نوع": "عددي", "قيمة": 0.0}},
+              "أفعال": {"اذهب": {"تأثيرات": [{"on": "س", "formula": "value + 2*sensitivity"}]}} }
+  كيان علي   { "خصائص": {"س": {"نوع": "عددي", "قيمة": 1.0}} }
+
+  عرّف_مجموعة("الفريق", ["أحمد", "علي"])
+  نفذ("اذهب", ["مجموعة:الفريق.0.5"])
+  نفذ("اذهب", ["last.0.2"])                    # أو "هم" بدرجة افتراضية 1.0
+}
+```
 
 ---
 ## Property/State Types (Optional) — أنواع الخصائص/الحالات (اختياري)

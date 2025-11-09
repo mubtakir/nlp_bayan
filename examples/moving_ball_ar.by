@@ -10,10 +10,10 @@ hybrid {
     },
     "أفعال": {
       "تحرك": {
-        "التأثيرات": [
-          {"على": "س", "صيغة": "value + 5.0*action_value"},
-          {"على": "ص", "صيغة": "value + 2.0*action_value"},
-          {"على": "طاقة", "صيغة": "value - 0.15*action_value"}
+        "تأثيرات": [
+          {"on": "س", "formula": "value + 5.0*action_value"},
+          {"on": "ص", "formula": "value + 2.0*action_value"},
+          {"on": "طاقة", "formula": "value - 0.15*action_value"}
         ]
       }
     }

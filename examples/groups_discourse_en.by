@@ -1,0 +1,14 @@
+hybrid {
+  entity Ahmed { "properties": {"x": {"type": "numeric", "value": 0.0}},
+                 "actions": {"go": {"effects": [{"on": "x", "formula": "value + 2*sensitivity"}]}} }
+  entity Ali   { "properties": {"x": {"type": "numeric", "value": 1.0}} }
+
+  define_group("Team", ["Ahmed", "Ali"])    # Define a group once
+  perform("go", ["group:Team.0.5"])          # Apply to Team members
+  perform("go", ["last.0.2"])                # Reuse last participants (Team)
+}
+
+# Inspect values
+query property("Ahmed", "x", ?AX).
+query property("Ali", "x", ?BX).
+

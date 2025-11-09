@@ -1,0 +1,15 @@
+hybrid {
+  entity Ahmed {
+    "properties": {"x": {"type": "numeric", "value": 0.0}},
+    "actions": {
+      "go": {"effects": [ {"on": "x", "formula": "value + 3*sensitivity"} ]}
+    }
+  }
+  entity Ali   { "properties": {"x": {"type": "numeric", "value": 1.0}} }
+
+  # Action-first: Ahmed applies to himself and Ali with given sensitivities
+  perform("go", ["Ahmed.1.0", "Ali.0.5"]) 
+}
+
+query property("Ahmed", "x", ?AX).
+

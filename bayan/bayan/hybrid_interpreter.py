@@ -34,6 +34,42 @@ class HybridInterpreter:
         cwd = os.getcwd()
         self._bayan_module_paths = [cwd, os.path.join(cwd, 'tests'), os.path.join(cwd, 'tests', 'bayan_modules')]
 
+        # Action-centric helper API (no grammar changes needed)
+        def _perform_api(action_name, participants, states=None, properties=None, action_value=1.0):
+            engine = self._get_or_create_engine()
+            return engine.perform_action(action_name, participants, states=states, properties=properties, action_value=float(action_value))
+        # English/Arabic aliases
+        env['perform'] = _perform_api
+        env['perform_action'] = _perform_api
+        env['do'] = _perform_api
+        env['execute'] = _perform_api
+        env['نفذ'] = _perform_api
+        env['افعل'] = _perform_api
+
+        # Groups helpers
+        def _define_group(name, members):
+            engine = self._get_or_create_engine()
+            engine.define_group(name, members)
+        def _add_to_group(name, members):
+            engine = self._get_or_create_engine()
+            engine.add_to_group(name, members)
+        env['define_group'] = _define_group
+        env['add_to_group'] = _add_to_group
+        env['عرّف_مجموعة'] = _define_group
+        env['أضف_إلى_مجموعة'] = _add_to_group
+
+        # Quick setters for states/properties
+        def _set_state(entity, key, value):
+            engine = self._get_or_create_engine()
+            return engine.set_state(entity, key, float(value))
+        def _set_property(entity, key, value):
+            engine = self._get_or_create_engine()
+            return engine.set_property(entity, key, float(value))
+        env['set_state'] = _set_state
+        env['set_property'] = _set_property
+        env['عين_حالة'] = _set_state
+        env['عين_خاصية'] = _set_property
+
     def interpret(self, node):
         """Interpret an AST node"""
         if isinstance(node, Program):

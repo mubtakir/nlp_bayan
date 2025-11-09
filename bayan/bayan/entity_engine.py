@@ -52,6 +52,12 @@ class _SafeExpr:
         'max': max,
         'clamp': _clamp,
         'sqrt': _math.sqrt,
+        'abs': abs,
+        'sin': _math.sin,
+        'cos': _math.cos,
+        'tan': _math.tan,
+        'exp': _math.exp,
+        'log': _math.log,
         'rand': lambda: _random.random(),
     }
 
@@ -139,6 +145,9 @@ class EntityEngine:
             raise ValueError("EntityEngine requires a logical engine (pass 'logical')")
         self.logical = logical_engine
         self.entities: Dict[str, _Entity] = {}
+        # Groups and discourse helpers
+        self.groups: Dict[str, List[str]] = {}
+        self._last_participants: List[str] = []
     # --------- Type handling (optional) ---------
     def _default_typeinfo(self, kind: str = 'fuzzy') -> Dict[str, Any]:
         if kind == 'numeric':
@@ -333,7 +342,7 @@ class EntityEngine:
         ent.actions[action_name] = {"power": _clamp(power), "effects": eff_list}
         # No facts asserted for actions for now (could add action/2 later)
 
-    def apply_action(self, actor_name: str, action_name: str, target_name: str, *, action_value: float = 1.0) -> Dict[str, float]:
+    def apply_action(self, actor_name: str, action_name: str, target_name: str, *, action_value: float = 1.0, override_sensitivity: float | None = None) -> Dict[str, float]:
         actor = self.entities.setdefault(actor_name, _Entity(name=actor_name))
         target = self.entities.setdefault(target_name, _Entity(name=target_name))
         spec = actor.actions.get(action_name)
@@ -343,9 +352,9 @@ class EntityEngine:
         power = float(spec.get('power', 1.0))
         results: Dict[str, float] = {}
 
-        # Reaction sensitivity on receiver
+        # Reaction sensitivity on receiver (allow override for single application)
         reaction = target.reactions.get(action_name, _Reaction())
-        sensitivity = float(reaction.sensitivity)
+        sensitivity = float(override_sensitivity if override_sensitivity is not None else reaction.sensitivity)
 
         for eff in spec['effects']:
             # Evaluate condition if present
@@ -402,6 +411,226 @@ class EntityEngine:
         # Record event
         self._assert_fact('event', actor_name, action_name, target_name, float(action_value))
         return results
+
+    # --------- Action-centric API (perform) ---------
+    def _normalize_participants(self, participants: Any) -> List[Tuple[str, float]]:
+        out: List[Tuple[str, float]] = []
+        if participants is None:
+            return out
+
+        def _add(name: str, deg: float):
+            out.append((str(name), float(deg)))
+
+        def _expand_group_spec(spec: str) -> Tuple[List[str], Optional[float]]:
+            s = spec.strip()
+            if s.startswith('group:'):
+                rest = s[len('group:'):]
+            elif s.startswith('مجموعة:'):
+                rest = s[len('مجموعة:'):]
+            else:
+                rest = s
+            deg = None
+            # Prefer explicit ':' separator for degree if present
+            idx = rest.rfind(':')
+            name_part = rest
+            if idx != -1:
+                name_part = rest[:idx].strip()
+                try:
+                    deg = float(rest[idx+1:].strip())
+                except Exception:
+                    deg = None
+            else:
+                # Fall back to using the FIRST '.' as separator (so 'Team.0.5' -> name 'Team', deg '0.5')
+                dot_idx = rest.find('.')
+                if dot_idx != -1:
+                    cand_name = rest[:dot_idx].strip()
+                    cand_deg = rest[dot_idx+1:].strip()
+                    try:
+                        deg = float(cand_deg)
+                        name_part = cand_name
+                    except Exception:
+                        # Not a degree; treat as name only
+                        name_part = rest
+                        deg = None
+            members = self.groups.get(name_part, [])
+            return (list(members), deg)
+
+        # dict form
+        if isinstance(participants, dict):
+            for k, v in participants.items():
+                if k in ('group', 'مجموعة'):
+                    members, gdeg = _expand_group_spec(f'group:{v}')
+                    for m in members:
+                        _add(m, gdeg if gdeg is not None else 1.0)
+                else:
+                    try:
+                        _add(k, float(v))
+                    except Exception:
+                        _add(k, 1.0)
+            return out
+
+        # list/tuple form
+        if isinstance(participants, (list, tuple)):
+            for item in participants:
+                if isinstance(item, (list, tuple)) and len(item) == 2:
+                    name, deg = item[0], item[1]
+                    if isinstance(name, str) and (name.startswith('group:') or name.startswith('مجموعة:')):
+                        members, _gdeg = _expand_group_spec(name)
+                        for m in members:
+                            _add(m, float(deg))
+                    elif isinstance(name, str) and (name.lower() == 'last' or name == 'هم'):
+                        for m in self._last_participants:
+                            _add(m, float(deg))
+                    else:
+                        _add(name, deg)
+                elif isinstance(item, str):
+                    s = item.strip()
+                    # group specs
+                    if s.startswith('group:') or s.startswith('مجموعة:'):
+                        members, gdeg = _expand_group_spec(s)
+                        for m in members:
+                            _add(m, gdeg if gdeg is not None else 1.0)
+                        continue
+                    # last pronoun / reference (supports last, last:0.5, last.0.5, and Arabic "هم")
+                    low = s.lower()
+                    if low.startswith('last') or s == 'هم':
+                        deg = None
+                        idx = s.rfind(':')
+                        if idx != -1 and low.startswith('last'):
+                            try:
+                                deg = float(s[idx+1:].strip())
+                            except Exception:
+                                deg = None
+                        else:
+                            # Use FIRST '.' so that 'last.0.2' -> 0.2 (not 2.0)
+                            dot_idx = s.find('.')
+                            if dot_idx != -1 and low.startswith('last'):
+                                try:
+                                    deg = float(s[dot_idx+1:].strip())
+                                except Exception:
+                                    deg = None
+                        for m in self._last_participants:
+
+
+                            _add(m, deg if deg is not None else 1.0)
+                        continue
+                    # Default: "Name:1.0" or "Name.1.0"
+                    sep_idx = s.rfind(':')
+                    if sep_idx == -1:
+                        # prefer first '.' that yields a valid float suffix
+                        dot_idx = s.find('.')
+                        if dot_idx != -1:
+                            candidate = s[dot_idx+1:]
+                            try:
+                                deg_val = float(candidate)
+                                _add(s[:dot_idx].strip(), deg_val)
+                                continue
+                            except Exception:
+                                sep_idx = -1
+                    if sep_idx != -1:
+                        try:
+                            _add(s[:sep_idx].strip(), float(s[sep_idx+1:]))
+                        except Exception:
+                            _add(s, 1.0)
+                    else:
+                        _add(s, 1.0)
+        return out
+
+    def _normalize_assignments(self, items: Any) -> List[Tuple[str, str, float]]:
+        out: List[Tuple[str, str, float]] = []
+        if not items:
+            return out
+        if isinstance(items, dict):
+            # { entity: {key: value} }
+            for ent, inner in items.items():
+                if isinstance(inner, dict):
+                    for k, v in inner.items():
+                        out.append((str(ent), str(k), float(v)))
+            return out
+        if isinstance(items, (list, tuple)):
+            for it in items:
+                if isinstance(it, (list, tuple)) and len(it) == 3:
+                    out.append((str(it[0]), str(it[1]), float(it[2])))
+                elif isinstance(it, str):
+                    s = it.strip()
+                    if '=' in s and '.' in s:
+                        # Entity.key=value
+                        left, val = s.split('=', 1)
+                        ent, key = left.split('.', 1)
+                        out.append((ent.strip(), key.strip(), float(val)))
+        return out
+
+    def perform_action(self, action_name: str, participants: Any, *, states: Any = None, properties: Any = None, action_value: float = 1.0) -> Dict[str, Dict[str, float]]:
+        """Action-first API:
+        - participants: list/dict of (entity, responsiveness)
+        - states/properties: pre-assignments before applying the action
+        Semantics:
+          * Identify actors as those who define the action; if none, use first participant as the sole actor.
+          * If there are no non-actor participants, each actor acts on self (self-target) using its own responsiveness.
+          * If there are non-actor participants, each actor applies the action to each non-actor target using that target's responsiveness.
+        Returns dict: target_name -> {key: new_value}
+        """
+        ptcs = self._normalize_participants(participants)
+        if not ptcs:
+            return {}
+        # Pre-assign states/properties
+        for ent, key, val in self._normalize_assignments(states):
+            self.set_state(ent, key, val)
+        for ent, key, val in self._normalize_assignments(properties):
+            self.set_property(ent, key, val)
+
+        # Identify actors
+        actors: List[str] = [n for (n, _deg) in ptcs if action_name in self.entities.setdefault(n, _Entity(name=n)).actions]
+        if not actors:
+            actors = [ptcs[0][0]]
+        actor_set = set(actors)
+        # Map degrees and ordered unique names
+        deg_map = {n: d for (n, d) in ptcs}
+        ordered_names: List[str] = []
+        _seen = set()
+        for n, _d in ptcs:
+            if n not in _seen:
+                _seen.add(n)
+                ordered_names.append(n)
+        # Targets follow the ordered unique names
+        all_targets = [(n, deg_map.get(n, 1.0)) for n in ordered_names]
+
+        all_results: Dict[str, Dict[str, float]] = {}
+        if len(actor_set) == len(ordered_names):
+            # Everyone is an actor -> each acts on self only
+            for a in actors:
+                res = self.apply_action(a, action_name, a, action_value=action_value, override_sensitivity=deg_map.get(a, 1.0))
+                all_results[a] = res
+        else:
+            # There are non-actors -> each actor applies to all participants (including self)
+            for a in actors:
+                for (t, s) in all_targets:
+                    res = self.apply_action(a, action_name, t, action_value=action_value, override_sensitivity=s)
+                    # Merge
+                    exist = all_results.setdefault(t, {})
+                    exist.update(res)
+        # Remember last participants (ordered unique) for pronoun-like references
+        self._last_participants = ordered_names
+        return all_results
+
+
+    # --------- Groups API ---------
+    def define_group(self, name: str, members: List[str]) -> None:
+        self.groups[str(name)] = [str(m) for m in members]
+
+    def add_to_group(self, name: str, members: List[str] | str) -> None:
+        nm = str(name)
+        existing = self.groups.setdefault(nm, [])
+        if isinstance(members, str):
+            members = [members]
+        for m in members:
+            sm = str(m)
+            if sm not in existing:
+                existing.append(sm)
+
+    def get_group_members(self, name: str) -> List[str]:
+        return list(self.groups.get(str(name), []))
+
 
     @staticmethod
     def _parse_response(s: str) -> (str, str, str):
