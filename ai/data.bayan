@@ -603,6 +603,219 @@ def minmax_normalize(xs):
     return out
 }
 
+# Wave 8: Scalers (fit/transform)
+
+# Standard Scaler: mean/std
+
+def standard_scaler_fit(xs):
+{
+    n = len(xs)
+    if n == 0: { return [0.0, 1.0] }
+    ssum = 0.0
+    for i in range(n): { ssum = ssum + xs[i] }
+    m = ssum / (1.0 * n)
+    vsum = 0.0
+    for i in range(n):
+    {
+        d = xs[i] - m
+        vsum = vsum + d * d
+    }
+    v = vsum / (1.0 * n)
+    s = pow(v, 0.5)
+    if s == 0.0: { s = 1.0 }
+    return [m, s]
+}
+
+
+def standard_scaler_transform(xs, mean_val, std_val):
+{
+    n = len(xs)
+    out = []
+    if n == 0: { return out }
+    s = std_val
+    if s == 0.0: { s = 1.0 }
+    for i in range(n):
+    {
+        out.append((xs[i] - mean_val) / s)
+    }
+    return out
+}
+
+
+# Robust Scaler: median/IQR
+
+def robust_scaler_fit(xs):
+{
+    n = len(xs)
+    if n == 0: { return [0.0, 1.0] }
+    # compute median inline: copy and selection sort
+    a = []
+    for i in range(n): { a.append(xs[i]) }
+    for i in range(n):
+    {
+        min_idx = i
+        for j in range(i + 1, n):
+        {
+            if a[j] < a[min_idx]: { min_idx = j }
+        }
+        tmp = a[i]
+        a[i] = a[min_idx]
+        a[min_idx] = tmp
+    }
+    q = 0
+    r = n
+    while r >= 2:
+    {
+        r = r - 2
+        q = q + 1
+    }
+    med = 0.0
+    if r == 1:
+    {
+        med = a[q]
+    }
+    else:
+    {
+        i1 = q - 1
+        if i1 < 0: { i1 = 0 }
+        med = (a[i1] + a[q]) / 2.0
+    }
+    # compute IQR inline (Tukey's hinges)
+    qh = 0
+    rh = n
+    while rh >= 2:
+    {
+        rh = rh - 2
+        qh = qh + 1
+    }
+    lower = []
+    upper = []
+    if rh == 1:
+    {
+        for i in range(qh): { lower.append(a[i]) }
+        for i in range(qh + 1, n): { upper.append(a[i]) }
+    }
+    else:
+    {
+        for i in range(qh): { lower.append(a[i]) }
+        for i in range(qh, n): { upper.append(a[i]) }
+    }
+    # median of lower
+    nl = len(lower)
+    ml = 0.0
+    if nl == 0: { ml = 0.0 }
+    else:
+    {
+        ql = 0
+        rl = nl
+        while rl >= 2:
+        {
+            rl = rl - 2
+            ql = ql + 1
+        }
+        if rl == 1: { ml = lower[ql] }
+        else:
+        {
+            i1 = ql - 1
+            if i1 < 0: { i1 = 0 }
+            ml = (lower[i1] + lower[ql]) / 2.0
+        }
+    }
+    # median of upper
+    nu = len(upper)
+    mu = 0.0
+    if nu == 0: { mu = 0.0 }
+    else:
+    {
+        qu = 0
+        ru = nu
+        while ru >= 2:
+        {
+            ru = ru - 2
+            qu = qu + 1
+        }
+        if ru == 1: { mu = upper[qu] }
+        else:
+        {
+            i1 = qu - 1
+            if i1 < 0: { i1 = 0 }
+            mu = (upper[i1] + upper[qu]) / 2.0
+        }
+    }
+    rq = mu - ml
+    if rq == 0.0: { rq = 1.0 }
+    return [med, rq]
+}
+
+
+def robust_scaler_transform(xs, median_val, iqr_val):
+{
+    n = len(xs)
+    out = []
+    if n == 0: { return out }
+    r = iqr_val
+    if r == 0.0: { r = 1.0 }
+    for i in range(n):
+    {
+        out.append((xs[i] - median_val) / r)
+    }
+    return out
+}
+
+
+# Min-Max Scaler: fit/transform pair
+
+def minmax_scaler_fit(xs):
+{
+    n = len(xs)
+    if n == 0: { return [0.0, 1.0] }
+    lo = xs[0]
+    hi = xs[0]
+    for i in range(1, n):
+    {
+        v = xs[i]
+        if v < lo: { lo = v }
+        if v > hi: { hi = v }
+    }
+    if hi <= lo: { return [lo, lo] }
+    return [lo, hi]
+}
+
+
+def minmax_scaler_transform(xs, lo, hi):
+{
+    n = len(xs)
+    out = []
+    if n == 0: { return out }
+    rng = hi - lo
+    if rng == 0.0:
+    {
+        for i in range(n): { out.append(0.0) }
+        return out
+    }
+    for i in range(n):
+    {
+        out.append((xs[i] - lo) / rng)
+    }
+    return out
+}
+
+
+# Wave 8 Arabic wrappers (Scalers)
+
+def ملاءمة_قياسي(قائمة): { return standard_scaler_fit(قائمة) }
+
+def تحويل_قياسي(قائمة, متوسط, انحراف): { return standard_scaler_transform(قائمة, متوسط, انحراف) }
+
+def ملاءمة_قوي(قائمة): { return robust_scaler_fit(قائمة) }
+
+def تحويل_قوي(قائمة, وسيط_قيمة, مدى_ربيعي_قيمة): { return robust_scaler_transform(قائمة, وسيط_قيمة, مدى_ربيعي_قيمة) }
+
+def ملاءمة_أدنى_أقصى(قائمة): { return minmax_scaler_fit(قائمة) }
+
+def تحويل_أدنى_أقصى(قائمة, أدنى, أقصى): { return minmax_scaler_transform(قائمة, أدنى, أقصى) }
+
+
 
 
 # Arabic wrappers

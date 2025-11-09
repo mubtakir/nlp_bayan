@@ -2333,3 +2333,65 @@ def random_forest_predict(model, X):
 def تدريب_غابة_عشوائية(س, ت, عدد_أشجار=5, أقصى_عمق=3, حد_تقسيم=2, نسبة_ميزات=1.0, نسبة_عينات=1.0, معيار="gini", بذرة=42): { return random_forest_train(س, ت, عدد_أشجار, أقصى_عمق, حد_تقسيم, نسبة_ميزات, نسبة_عينات, معيار, بذرة) }
 
 def توقع_غابة_عشوائية(نموذج, س): { return random_forest_predict(نموذج, س) }
+
+
+# --- Wave 8: Linear SVM (hinge loss, gradient descent) ---
+
+# linear_svm_train(X, y, lr=0.1, epochs=50, C=1.0)
+# y labels are 0/1; internally mapped to -1/+1
+
+def linear_svm_train(X, y, lr=0.1, epochs=50, C=1.0):
+{
+    n = len(X)
+    if n == 0: { return [[0.0], 0.0] }
+    d = len(X[0])
+    w = []
+    for j in range(d): { w.append(0.0) }
+    b = 0.0
+    for ep in range(epochs):
+    {
+        for i in range(n):
+        {
+            yi = y[i]
+            yi2 = -1
+            if yi != 0: { yi2 = 1 }
+            # dot
+            z = 0.0
+            for j in range(d): { z = z + w[j] * X[i][j] }
+            z = z + b
+            margin = yi2 * z
+            if margin >= 1.0:
+            {
+                # no update needed when correctly classified with margin
+            }
+            else:
+            {
+                # simple hinge SGD update without weight decay for stability on tiny datasets
+                for j in range(d): { w[j] = w[j] + lr * C * yi2 * X[i][j] }
+                b = b + lr * C * yi2
+            }
+        }
+    }
+    return [w, b]
+}
+
+
+def linear_svm_predict(X, w, b):
+{
+    n = len(X)
+    preds = []
+    for i in range(n):
+    {
+        z = 0.0
+        for j in range(len(w)): { z = z + w[j] * X[i][j] }
+        z = z + b
+        if z >= 0.0: { preds.append(1) } else: { preds.append(0) }
+    }
+    return preds
+}
+
+# Arabic wrappers (Wave 8)
+
+def تدريب_SVM_خطي(س, ت, lr=0.1, epochs=50, C=1.0): { return linear_svm_train(س, ت, lr, epochs, C) }
+
+def توقع_SVM_خطي(س, اوزان, انحياز): { return linear_svm_predict(س, اوزان, انحياز) }
