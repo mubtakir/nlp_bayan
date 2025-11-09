@@ -38,7 +38,7 @@ def euclidean_distance(a, b):
         d = a[i] - b[i]
         s = s + d * d
     }
-    return s ** 0.5
+    return pow(s, 0.5)
 }
 
 def k_nearest_neighbors_predict(train_data, train_labels, samples, k=3):
@@ -170,7 +170,7 @@ def k_means(data, k, max_iters=10):
 
 # --- Logistic Regression (binary, educational) ---
 
-def logistic_regression_train(X, y, lr=0.1, epochs=200):
+def logistic_regression_train(X, y, lr=0.1, epochs=200, l2=0.0):
 {
     n = len(X)
     if n == 0: { return [[0.0], 0.0] }
@@ -189,7 +189,11 @@ def logistic_regression_train(X, y, lr=0.1, epochs=200):
             for j in range(d): { z = z + w[j] * X[i][j] }
             p = 1.0 / (1.0 + pow(e, -z))
             err = p - y[i]
-            for j in range(d): { w[j] = w[j] - lr * err * X[i][j] }
+            for j in range(d):
+            {
+                # L2 regularization
+                w[j] = w[j] - lr * (err * X[i][j] + l2 * w[j])
+            }
             b = b - lr * err
         }
     }
@@ -226,6 +230,237 @@ def توقع_k_متجاور_أقرب(بيانات, تسميات, عينات, k=3
 
 def تجميع_كي_مينز(بيانات, ك, مرات=10): { return k_means(بيانات, ك, مرات) }
 
+
+# --- Train/Test Split (deterministic, no shuffle) ---
+
+def train_test_split(X, y, test_ratio=0.25):
+{
+    n = len(X)
+    # approximate integer using round
+    test_n = round(n * test_ratio)
+    if test_n < 0: { test_n = 0 }
+    if test_n > n: { test_n = n }
+    split_idx = n - test_n
+    X_train = []
+    X_test = []
+    y_train = []
+    y_test = []
+    for i in range(n):
+    {
+        if i < split_idx:
+        {
+            X_train.append(X[i])
+            y_train.append(y[i])
+        }
+        else:
+        {
+            X_test.append(X[i])
+            y_test.append(y[i])
+        }
+    }
+    return [X_train, X_test, y_train, y_test]
+}
+
+# --- Classification Metrics (binary, positive=1) ---
+
+def precision_score(y_true, y_pred, pos_label=1):
+{
+    tp = 0
+    fp = 0
+    for i in range(len(y_true)):
+    {
+        if y_pred[i] == pos_label:
+        {
+            if y_true[i] == pos_label: { tp = tp + 1 }
+            else: { fp = fp + 1 }
+        }
+    }
+    denom = tp + fp
+    if denom == 0: { return 0.0 }
+    return tp / denom
+}
+
+def recall_score(y_true, y_pred, pos_label=1):
+{
+    tp = 0
+    fn = 0
+    for i in range(len(y_true)):
+    {
+        if y_true[i] == pos_label:
+        {
+            if y_pred[i] == pos_label: { tp = tp + 1 }
+            else: { fn = fn + 1 }
+        }
+    }
+    denom = tp + fn
+    if denom == 0: { return 0.0 }
+    return tp / denom
+}
+
+def f1_score(y_true, y_pred, pos_label=1):
+{
+    p = precision_score(y_true, y_pred, pos_label)
+    r = recall_score(y_true, y_pred, pos_label)
+    denom = p + r
+    if denom == 0: { return 0.0 }
+    return 2 * p * r / denom
+}
+
+# --- K-Means++ (deterministic farthest-first) ---
+
+def k_means_pp_init(data, k):
+{
+    n = len(data)
+    if n == 0: { return [] }
+    d = len(data[0])
+    centers = []
+    centers.append(data[0])
+    while len(centers) < k:
+    {
+        best_idx = 0
+        best_min_dist = -1
+        for i in range(n):
+        {
+            # compute min squared distance to existing centers
+            min_d = -1
+            for c in range(len(centers)):
+            {
+                dist = 0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[c][j]
+                    dist = dist + diff*diff
+                }
+                if min_d == -1 or dist < min_d: { min_d = dist }
+            }
+            if best_min_dist == -1 or min_d > best_min_dist:
+            {
+                best_min_dist = min_d
+                best_idx = i
+            }
+        }
+        centers.append(data[best_idx])
+    }
+    return centers
+}
+
+def k_means_pp(data, k, max_iters=10):
+{
+    n = len(data)
+    if n == 0: { return [[], []] }
+    d = len(data[0])
+    centers = []
+    centers.append(data[0])
+    while len(centers) < k:
+    {
+        best_idx = 0
+        best_min_dist = -1
+        for i in range(n):
+        {
+            min_d = -1
+            for c in range(len(centers)):
+            {
+                dist = 0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[c][j]
+                    dist = dist + diff*diff
+                }
+                if min_d == -1 or dist < min_d: { min_d = dist }
+            }
+            if best_min_dist == -1 or min_d > best_min_dist:
+            {
+                best_min_dist = min_d
+                best_idx = i
+            }
+        }
+        centers.append(data[best_idx])
+    }
+    labels = []
+    for i in range(n): { labels.append(0) }
+
+    for it in range(max_iters):
+    {
+        changed = 0
+        for i in range(n):
+        {
+            best = -1
+            best_dist = 0
+            for c in range(k):
+            {
+                dist = 0
+                for j in range(d):
+                {
+                    diff = data[i][j] - centers[c][j]
+                    dist = dist + diff*diff
+                }
+                if best == -1 or dist < best_dist:
+                {
+                    best = c
+                    best_dist = dist
+                }
+            }
+            if labels[i] != best: { changed = changed + 1 }
+            labels[i] = best
+        }
+        new_centers = []
+        counts = []
+        for c in range(k):
+        {
+            vec = []
+            for j in range(d):
+            {
+                vec.append(0.0)
+            }
+            new_centers.append(vec)
+            counts.append(0)
+        }
+        for i in range(n):
+        {
+            lbl = labels[i]
+            counts[lbl] = counts[lbl] + 1
+            for j in range(d):
+            {
+                new_centers[lbl][j] = new_centers[lbl][j] + data[i][j]
+            }
+        }
+        for c in range(k):
+        {
+            if counts[c] > 0:
+            {
+                for j in range(d):
+                {
+                    new_centers[c][j] = new_centers[c][j] / counts[c]
+                }
+            }
+        }
+        centers = new_centers
+        if changed == 0: { break }
+    }
+    return [centers, labels]
+}
+
+# --- Arabic wrappers (new) ---
+
+
+
 def تدريب_انحدار_لوجستي(س, ت, lr=0.1, epochs=200): { return logistic_regression_train(س, ت, lr, epochs) }
 
 def توقع_انحدار_لوجستي(س, اوزان, انحياز, threshold=0.5): { return logistic_regression_predict(س, اوزان, انحياز, threshold) }
+
+# Arabic wrappers (continued)
+
+def تقسيم_تدريب_اختبار(س, ت, نسبة_اختبار=0.25): { return train_test_split(س, ت, نسبة_اختبار) }
+
+def دقة_تصنيف(الحقيقة, التوقع, pos_label=1): { return precision_score(الحقيقة, التوقع, pos_label) }
+
+def استرجاع_تصنيف(الحقيقة, التوقع, pos_label=1): { return recall_score(الحقيقة, التوقع, pos_label) }
+
+def اف1_تصنيف(الحقيقة, التوقع, pos_label=1): { return f1_score(الحقيقة, التوقع, pos_label) }
+
+def تجميع_كي_مينز_PP(بيانات, ك, مرات=10): { return k_means_pp(بيانات, ك, مرات) }
+
+def مراكز_كي_مينز_PP_ابتدائية(بيانات, ك): { return k_means_pp_init(بيانات, ك) }
+
+def تدريب_انحدار_لوجستي_منظم(س, ت, lr=0.1, epochs=200, l2=0.1): { return logistic_regression_train(س, ت, lr, epochs, l2) }
+

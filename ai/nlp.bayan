@@ -202,3 +202,62 @@ def compute_tfidf(docs):
 # Arabic wrapper
 
 def حساب_tfidf(نصوص): { return compute_tfidf(نصوص) }
+
+
+# --- Stopwords and Cosine Similarity ---
+
+# Small educational stopwords lists
+EN_STOPWORDS = {"the", "is", "a", "an", "and", "or", "to", "in", "of", "this", "that", "it", "for", "on", "with", "as", "by"}
+AR_STOPWORDS = {"هذا", "هذه", "ذلك", "تلك", "و", "أو", "في", "على", "من", "إلى", "عن", "مع", "كما", "ال", "هو", "هي", "أن", "إن", "كان"}
+
+# Remove stopwords from text after preprocessing
+
+def remove_stopwords(text, language="auto"):
+{
+    if language == "auto": { language = detect_language(text) }
+    p = preprocess_text(text, language)
+    toks = tokenize_text(p, language)
+    out = []
+    for w in toks:
+    {
+        if language == "arabic":
+        {
+            if w in AR_STOPWORDS: { continue }
+        }
+        else:
+        {
+            if w in EN_STOPWORDS: { continue }
+        }
+        out.append(w)
+    }
+    sep = " "
+    return sep.join(out)
+}
+
+# Cosine similarity for dictionary vectors term->weight
+
+def cosine_similarity_dicts(v1, v2):
+{
+    # dot
+    dot = 0.0
+    for k in v1:
+    {
+        if k in v2:
+        {
+            dot = dot + v1[k] * v2[k]
+        }
+    }
+    # norms
+    n1 = 0.0
+    for k in v1: { n1 = n1 + v1[k] * v1[k] }
+    n2 = 0.0
+    for k in v2: { n2 = n2 + v2[k] * v2[k] }
+    if n1 == 0 or n2 == 0: { return 0.0 }
+    return dot / (pow(n1, 0.5) * pow(n2, 0.5))
+}
+
+# Arabic wrappers
+
+def إزالة_كلمات_شائعة(نص, لغة="auto"): { return remove_stopwords(نص, language=لغة) }
+
+def تشابه_جيبي_قاموسي(قاموس1, قاموس2): { return cosine_similarity_dicts(قاموس1, قاموس2) }

@@ -1,0 +1,26 @@
+# Simple vision utilities (educational)
+
+# Threshold a grayscale image (2D list) into binary/high-low values
+def threshold(image, t, high=1, low=0):
+{
+    out = []
+    for i in range(len(image)):
+    {
+        row = image[i]
+        new_row = []
+        for j in range(len(row)):
+        {
+            v = row[j]
+            if v >= t: { new_row.append(high) }
+            else: { new_row.append(low) }
+        }
+        out.append(new_row)
+    }
+    return out
+}
+
+# Arabic wrapper
+
+
+def عتبة(صورة, حد, عالي=1, منخفض=0): { return threshold(صورة, حد, عالي, منخفض) }
+
