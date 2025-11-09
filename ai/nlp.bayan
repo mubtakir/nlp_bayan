@@ -204,11 +204,198 @@ def compute_tfidf(docs):
 def حساب_tfidf(نصوص): { return compute_tfidf(نصوص) }
 
 
+# --- Advanced N-grams, Log-TFIDF, Arabic normalization/stemming ---
+
+# Generate n-grams for a range [n_min, n_max]
+
+def ngrams_range_from_tokens(tokens, n_min, n_max):
+{
+    grams = []
+    for n in range(n_min, n_max + 1):
+    {
+        for i in range(len(tokens) - n + 1):
+        {
+            parts = []
+            j = 0
+            while j < n:
+            {
+                parts.append(tokens[i + j])
+                j = j + 1
+            }
+            sep = " "
+            grams.append(sep.join(parts))
+        }
+    }
+    return grams
+}
+
+# Compute TF-IDF with sublinear tf and log-like idf (using binary-search ln)
+# tf = 1 + ln(count), idf = ln(1 + N/(df+1)), smoothing by +1
+
+def compute_tfidf_log(docs):
+{
+    N = len(docs)
+    tokens_list = []
+    for i in range(N):
+    {
+        # inline preprocess/tokenize (portable)
+        txt = docs[i]
+        punct = ".,!?;:"
+        chars = []
+        for ch in txt:
+        {
+            if punct.find(ch) == -1:
+            {
+                chars.append(ch)
+            }
+        }
+        sep0 = ""
+        txt2 = sep0.join(chars)
+        txt2 = txt2.lower()
+        toks = txt2.split()
+        tokens_list.append(toks)
+    }
+    # document frequency
+    df = {}
+    for toks in tokens_list:
+    {
+        seen = {}
+        for w in toks:
+        {
+            if w in seen: { seen[w] = seen[w] }
+            else: { seen[w] = 1 }
+        }
+        for w in seen:
+        {
+            if w in df: { df[w] = df[w] + 1 }
+            else: { df[w] = 1 }
+        }
+    }
+    # ln via binary search over pow(e, x)
+    e = 2.718281828
+    def_ln = 0.0  # placeholder (not used as function)
+    # compute idf per term
+    idf = {}
+    for term in df:
+    {
+        # compute y = 1 + N/(df+1)
+        y = 1.0 + (N / (df[term] + 1.0))
+        # ln(y): binary search
+        lo = -50.0
+        hi = 50.0
+        it = 0
+        while it < 40:
+        {
+            mid = (lo + hi) / 2.0
+            val = pow(e, mid)
+            if val < y: { lo = mid }
+            else: { hi = mid }
+            it = it + 1
+        }
+        idf[term] = (lo + hi) / 2.0
+    }
+    # tf-idf per document with sublinear tf
+    out = []
+    for toks in tokens_list:
+    {
+        tf_counts = {}
+        for w in toks:
+        {
+            if w in tf_counts: { tf_counts[w] = tf_counts[w] + 1.0 }
+            else: { tf_counts[w] = 1.0 }
+        }
+        tfidf = {}
+        for w in tf_counts:
+        {
+            # tf_weight = 1 + ln(count)
+            cnt = tf_counts[w]
+            y = 1.0 + cnt
+            lo = -50.0
+            hi = 50.0
+            it = 0
+            while it < 40:
+            {
+                mid = (lo + hi) / 2.0
+                val = pow(e, mid)
+                if val < y: { lo = mid }
+                else: { hi = mid }
+                it = it + 1
+            }
+            tf_w = 1.0 + ( (lo + hi) / 2.0 )
+            if w in idf: { tfidf[w] = tf_w * idf[w] }
+            else: { tfidf[w] = tf_w }
+        }
+        out.append(tfidf)
+    }
+    return out
+}
+
+# Basic Arabic normalization and light stemming
+
+def normalize_arabic(text):
+{
+    # remove diacritics and tatweel
+    diac = "ًٌٍَُِّْـ"
+    chars = []
+    for ch in text:
+    {
+        if diac.find(ch) != -1: { continue }
+        # map common forms
+        if ch == "أ" or ch == "إ" or ch == "آ": { ch = "ا" }
+        elif ch == "ى": { ch = "ي" }
+        elif ch == "ؤ": { ch = "و" }
+        elif ch == "ئ": { ch = "ي" }
+        elif ch == "ة": { ch = "ه" }
+        chars.append(ch)
+    }
+    sep = ""
+    return sep.join(chars)
+}
+
+def arabic_light_stem_token(token):
+{
+    t = token
+    # remove common prefixes (order matters)
+    # combos with AL
+    if len(t) > 3 and (t.startswith("وال") or t.startswith("بال") or t.startswith("فال") or t.startswith("كال")): { t = t[3:] }
+    if len(t) > 2 and t.startswith("لل"): { t = t[2:] }
+    # bare AL
+    if len(t) > 3 and t.startswith("ال"): { t = t[2:] }
+    # single-letter clitics (do not strip ك/ل unless with AL already handled)
+    if len(t) > 2 and (t[0] == "و" or t[0] == "ف" or t[0] == "ب"): { t = t[1:] }
+    # remove common suffixes
+    if len(t) > 3 and (t.endswith("ات") or t.endswith("ون") or t.endswith("ان") or t.endswith("ين")): { t = t[0:len(t) - 2] }
+    elif len(t) > 2 and (t.endswith("ة") or t.endswith("ه")): { t = t[0:len(t) - 1] }
+    elif len(t) > 2 and (t.endswith("ي") or t.endswith("ك")): { t = t[0:len(t) - 1] }
+    return t
+}
+
+def arabic_light_stem_tokens(tokens):
+{
+    out = []
+    for w in tokens:
+    {
+        out.append(arabic_light_stem_token(w))
+    }
+    return out
+}
+
+# Arabic wrappers (new)
+
+def حساب_tfidf_لوغ(نصوص): { return compute_tfidf_log(نصوص) }
+
+def انجرام_مدى_من_كلمات(كلمات, ادنى, اقصى): { return ngrams_range_from_tokens(كلمات, ادنى, اقصى) }
+
+def تطبيع_عربي(نص): { return normalize_arabic(نص) }
+
+def تجذيع_عربي_خفيف_كلمات(كلمات): { return arabic_light_stem_tokens(كلمات) }
+
+
 # --- Stopwords and Cosine Similarity ---
 
 # Small educational stopwords lists
-EN_STOPWORDS = {"the", "is", "a", "an", "and", "or", "to", "in", "of", "this", "that", "it", "for", "on", "with", "as", "by"}
-AR_STOPWORDS = {"هذا", "هذه", "ذلك", "تلك", "و", "أو", "في", "على", "من", "إلى", "عن", "مع", "كما", "ال", "هو", "هي", "أن", "إن", "كان"}
+EN_STOPWORDS = {"the", "is", "a", "an", "and", "or", "to", "in", "of", "this", "that", "it", "for", "on", "with", "as", "by", "be", "are", "was", "were", "been", "has", "have", "had", "do", "does", "did", "not", "but", "if", "then", "so", "because", "very", "can", "could", "would", "should", "from", "into", "over", "under", "again", "further", "more", "most", "at", "about", "up", "down", "out", "off", "than"}
+AR_STOPWORDS = {"هذا", "هذه", "ذلك", "تلك", "و", "أو", "في", "على", "من", "إلى", "عن", "مع", "كما", "ال", "هو", "هي", "أن", "إن", "كان", "كانت", "يكون", "لقد", "لكن", "ليس", "بل", "ثم", "قد", "كل", "ما", "لم", "لن", "إنما", "إذا", "ف", "ب", "ك", "ل", "هناك", "هنا", "أيضا", "بين", "أكثر", "أقل"}
 
 # Remove stopwords from text after preprocessing
 

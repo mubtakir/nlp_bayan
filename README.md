@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-313%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-317%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -35,7 +35,7 @@
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
-- ✅ **100% Test Coverage** - 313 passing tests
+- ✅ **100% Test Coverage** - 317 passing tests
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
@@ -242,7 +242,7 @@ Run all tests:
 python -m pytest tests/ -v
 ```
 
-**Result**: 313 tests passing (100% success rate) ✅
+**Result**: 317 tests passing (100% success rate) ✅
 
 ---
 
@@ -260,7 +260,7 @@ python -m pytest tests/ -v
 
 - **154 files** in the repository
 - **41,889 lines** of code and documentation
-- **313 tests** (100% passing)
+- **317 tests** (100% passing)
 - **5,594+ lines** of tutorials and guides
 - **10+ complete examples**
 - **3 programming paradigms** in one language
@@ -377,7 +377,7 @@ python -m bayan examples/hello.by
 python -m pytest tests/ -v
 ```
 
-**النتيجة**: 313 اختبار ناجح (100% نجاح) ✅
+**النتيجة**: 317 اختبار ناجح (100% نجاح) ✅
 
 ---
 

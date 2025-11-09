@@ -564,6 +564,73 @@ def auc_roc(fprs, tprs):
     return area
 }
 
+
+# --- K-Fold Cross-Validation (indices only) ---
+
+def k_fold_indices(n, k, shuffle=True, seed=42):
+{
+    # build indices
+    idx = []
+    for i in range(n): { idx.append(i) }
+    # optional shuffle using inline LCG + Fisher–Yates
+    if shuffle:
+    {
+        a = 1103515245
+        c = 12345
+        m = 2147483648
+        state = seed
+        for i in range(n - 1, -1, -1):
+        {
+            state = (a * state + c) % m
+            u = state / m
+            t = u * (i + 1)
+            j = 0
+            while (j + 1) <= t:
+            {
+                j = j + 1
+            }
+            # swap idx[i], idx[j]
+            tmp = idx[i]
+            idx[i] = idx[j]
+            idx[j] = tmp
+        }
+    }
+    # fold sizes (avoid // by manual divmod)
+    q = 0
+    r = n
+    while r >= k:
+    {
+        r = r - k
+        q = q + 1
+    }
+    base = q
+    rem = r
+    start = 0
+    folds = []
+    for f in range(k):
+    {
+        size = base
+        if f < rem: { size = size + 1 }
+        # val indices [start, start+size)
+        val_idx = []
+        end = start + size
+        for i in range(start, end): { val_idx.append(idx[i]) }
+        # train = all others
+        train_idx = []
+        for i in range(0, start): { train_idx.append(idx[i]) }
+        for i in range(end, n): { train_idx.append(idx[i]) }
+        folds.append([train_idx, val_idx])
+        start = end
+    }
+    return folds
+}
+
+# Arabic wrapper
+
+def تقسيم_طي_تقاطعي_مؤشرات(ن, ك, عشوائي=True, بذرة=42): { return k_fold_indices(ن, ك, عشوائي, بذرة) }
+
+
+
 # K-Means++ probabilistic initialization with simple PRNG (LCG)
 
 def k_means_pp_prob_init(data, k, seed=42):
