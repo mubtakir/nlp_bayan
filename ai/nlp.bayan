@@ -1704,3 +1704,58 @@ def bm25_score_with_term_weights(model, qtext, weights):
     }
     return scores
 }
+
+
+
+# --- Wave 13 (A): TF-IDF cosine and BM25 top-k ---
+
+# Cosine similarity between two texts using TF-IDF (log + L2 norm)
+
+def tfidf_cosine_similarity(text1, text2):
+{
+    vecs = compute_tfidf_log_norm([text1, text2])
+    v1 = vecs[0]
+    v2 = vecs[1]
+    return cosine_similarity_dicts(v1, v2)
+}
+
+# BM25: return top-k documents as list of [index, score]
+
+def bm25_top_k(model, qtext, k=5):
+{
+    scores = bm25_score(model, qtext)
+    n = len(scores)
+    out = []
+    # Select top k via simple selection
+    kk = k
+    if kk > n: { kk = n }
+    i = 0
+    while i < kk:
+    {
+        # find max
+        max_idx = 0
+        max_val = -1.0
+        j = 0
+        while j < n:
+        {
+            val = scores[j]
+            if val > max_val:
+            {
+                max_val = val
+                max_idx = j
+            }
+            j = j + 1
+        }
+        out.append([max_idx, max_val])
+        # mark used
+        scores[max_idx] = -1.0
+        i = i + 1
+    }
+    return out
+}
+
+# Arabic wrappers
+
+def تشابه_جيبي_TFIDF(نص1, نص2): { return tfidf_cosine_similarity(نص1, نص2) }
+
+def أفضل_BM25(نموذج, استعلام, ك=5): { return bm25_top_k(نموذج, استعلام, ك) }

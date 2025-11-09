@@ -600,3 +600,22 @@ Refer to docs/developer_guide.md (handoff appendix) for details.
 - README badge updated to 347 passing tests; status now Waves 1–12 complete
 - ai/AI_LIBRARY_GUIDE.md: new v12 entries
 - docs/developer_guide.md: status and tests updated
+
+
+
+## 📎 Addendum — 2025-11-09 — AI Stdlib Wave 13
+
+### Summary
+- NLP: Added TF-IDF cosine similarity and BM25 top-k.
+  - tfidf_cosine_similarity(text1, text2)
+  - bm25_top_k(model, qtext, k=5)
+  - Arabic wrappers: تشابه_جيبي_TFIDF(نص1, نص2)، أفضل_BM25(نموذج, استعلام, ك=5)
+
+### Tests
+- tests/test_ai_nlp_wave13.py → PASS
+- Total: 350/350 tests passing
+
+### Docs
+- README badge updated to 350 passing tests; status now Waves 1–13 complete
+- ai/AI_LIBRARY_GUIDE.md: new v13 entries + updated handoff status
+- docs/developer_guide.md: status and tests updated

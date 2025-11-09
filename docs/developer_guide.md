@@ -172,7 +172,7 @@
 - لذلك تم بناء مكتبة AI/ML تعليمية بالكامل داخل بيان (بدون تبعيات خارجية)، بثنائية عربية/إنجليزية، مع اختبارات شاملة.
 
 ### أين وصلنا؟ (وضع الموجات)
-- Waves 1–12: مكتملة ومُوثّقة ومُمَرَّرة بالاختبارات (347/347 ناجحة).
+- Waves 1–13: مكتملة ومُوثّقة ومُمَرَّرة بالاختبارات (350/350 ناجحة).
   - Data: CSV/JSON I/O، إحصاء وصفي (mean/var/std/median/percentile)، PRNG، scalers (standard/robust/minmax) fit+transform.
   - NLP: TF-IDF (خيارات/لوغ/حدود مفردات)، BM25، تشابه Jaccard/Dice، تجهيز نص عربي أساسي.
   - ML: الانحدار الخطي/اللوجستي، KNN (عادي/موزون)، K-means (+k-means++ احتمال)، Perceptron (+OvR)، أشجار قرار، غابة عشوائية، قياسات ROC/AUC وتقارير تصنيف.
@@ -187,10 +187,11 @@
 - Wave 11: مكتملة (NLP: levenshtein_distance + مسافة_ليفنشتاين).
 
 - Wave 12: مكتملة (NLP: cosine_similarity + similarity() + bm25_score_with_term_weights).
+- Wave 13: مكتملة (NLP: tfidf_cosine_similarity + bm25_top_k + أغلفة عربية: تشابه_جيبي_TFIDF، أفضل_BM25).
 
 
 ### حالة الاختبارات (وقت التسليم)
-- المجموع المُمَرّر حالياً: 347/347 (Waves 1–12).
+- المجموع المُمَرّر حالياً: 350/350 (Waves 1–13).
 - Wave 9:
   - tests/test_ai_data_wave9.py: PASS.
   - tests/test_ai_ml_wave9.py: PASS.
@@ -199,6 +200,10 @@
   - tests/test_ai_data_wave10.py: PASS.
 - Wave 11:
   - tests/test_ai_nlp_wave11.py: PASS.
+- Wave 12:
+  - tests/test_ai_nlp_wave12.py: PASS.
+- Wave 13:
+  - tests/test_ai_nlp_wave13.py: PASS.
 
 ### إنجازات Wave 9
 
@@ -215,7 +220,7 @@
    - أُضيفت: تجزئة_عرض_متساوي، ترميز_واحد_ساخن في ai/data.bayan → PASS.
 
 4) التوثيق والشارات:
-   - ai/AI_LIBRARY_GUIDE.md و README.md محدّثان إلى 347/347.
+   - ai/AI_LIBRARY_GUIDE.md و README.md محدّثان إلى 350/350.
 
 ### تذكير مهم — «Cheat‑Sheet» نحو بيان
 - ضع ":" بعد كلمات التحكّم (if/elif/else/for/while).
