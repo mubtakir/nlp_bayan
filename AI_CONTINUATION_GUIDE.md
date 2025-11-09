@@ -1,11 +1,24 @@
 # 🤖 دليل الذكاء الاصطناعي لإكمال لغة البيان
 # AI Continuation Guide for Bayan Language
 
-**التاريخ | Date**: 2025-11-04  
-**الهدف | Goal**: إكمال تطوير لغة البيان لتصبح لغة برمجة عالمية متكاملة  
+**التاريخ | Date**: 2025-11-04
+**الهدف | Goal**: إكمال تطوير لغة البيان لتصبح لغة برمجة عالمية متكاملة
 **الجمهور | Audience**: نموذج ذكاء اصطناعي متقدم
 
 ---
+
+
+> Addendum (2025-11-09) — AI Stdlib Handoff Summary
+>
+> - Waves 1–8 complete and fully tested (338/338). Wave 9 code is added and pending final syntax polish in ai/ml.bayan.
+> - What’s in Wave 9: ML OvR SVM + Bagging (with Arabic wrappers), NLP overlap_coefficient, Data bin_equal_width + one_hot_encode (add Arabic wrappers).
+> - Immediate next steps:
+>   1) Fix remaining colons/semicolons in ai/ml.bayan (bagging section ~2506–2673), then run: pytest -q tests/test_ai_ml_wave9.py
+>   2) Run: pytest -q tests/test_ai_nlp_wave9.py
+>   3) Add Arabic wrappers in ai/data.bayan: تجزئة_عرض_متساوي, ترميز_واحد_ساخن
+>   4) If all green, update README badges/counts and commit Wave 9.
+> - Bayan syntax cheat-sheet: always put ':' after control keywords; do not use ';'; avoid 'query' as identifier; no list comprehensions; use pow() instead of **; avoid // and negative slicing; no ternary 'x if ... else ...'.
+> - See also: docs/developer_guide.md (handoff appendix), AI_HANDOFF_REPORT.md (addendum), ai/AI_LIBRARY_GUIDE.md (v9 update).
 
 ## 📖 التعريف بلغة البيان | Introduction to Bayan Language
 
@@ -70,7 +83,7 @@ class Person: {
         self.name = name
         self.age = age
     }
-    
+
     def greet(self): {
         return "Hello, " + self.name
     }
@@ -80,11 +93,11 @@ class Person: {
 hybrid {
     fact parent("أحمد", "محمد").
     fact parent("محمد", "علي").
-    
-    rule grandparent(?X, ?Z) :- 
+
+    rule grandparent(?X, ?Z) :-
         parent(?X, ?Y),
         parent(?Y, ?Z).
-    
+
     query grandparent("أحمد", ?Who).
 }
 ```
@@ -187,17 +200,17 @@ def _solve_goals(self, goals, bindings, depth=0):
     if not goals:
         yield bindings
         return
-    
+
     goal = goals[0]
     rest = goals[1:]
-    
+
     # Check for cut
     if isinstance(goal, Cut):
         # Execute remaining goals without backtracking
         for result in self._solve_goals(rest, bindings, depth):
             yield result
         return  # Prevent backtracking past this point
-    
+
     # ... rest of implementation
 ```
 
@@ -220,7 +233,7 @@ def visit_function_def(self, node):
     """Visit function definition with decorator support"""
     # Create function
     func = self._create_function(node)
-    
+
     # Apply decorators (bottom to top)
     for decorator in reversed(node.decorators):
         decorator_func = self.visit(Identifier(decorator.name))
@@ -229,7 +242,7 @@ def visit_function_def(self, node):
             args = [self.visit(arg) for arg in decorator.args]
             decorator_func = decorator_func(*args)
         func = decorator_func(func)
-    
+
     # Store decorated function
     self.env[node.name] = func
 ```
@@ -256,11 +269,11 @@ def visit_async_function_def(self, node):
     async def async_func(*args):
         # Create new environment
         local_env = Environment(parent=self.env)
-        
+
         # Bind parameters
         for param, arg in zip(node.params, args):
             local_env[param] = arg
-        
+
         # Execute body
         old_env = self.env
         self.env = local_env
@@ -269,7 +282,7 @@ def visit_async_function_def(self, node):
             return result
         finally:
             self.env = old_env
-    
+
     self.env[node.name] = async_func
 
 def visit_await_expr(self, node):
@@ -299,7 +312,7 @@ def visit_function_def(self, node):
     """Visit function definition (check for yield)"""
     # Check if function contains yield
     has_yield = self._contains_yield(node.body)
-    
+
     if has_yield:
         # Create generator function
         def generator_func(*args):
@@ -331,17 +344,17 @@ def visit_with_statement(self, node):
     """Visit with statement"""
     # Evaluate context expression
     context = self.visit(node.context_expr)
-    
+
     # Call __enter__
     if hasattr(context, '__enter__'):
         value = context.__enter__()
     else:
         value = context
-    
+
     # Bind to variable if specified
     if node.var_name:
         self.env[node.var_name] = value
-    
+
     # Execute body
     try:
         result = self.visit(node.body)
@@ -354,7 +367,7 @@ def visit_with_statement(self, node):
         # Call __exit__ without exception
         if hasattr(context, '__exit__'):
             context.__exit__(None, None, None)
-    
+
     return result
 ```
 
@@ -551,10 +564,10 @@ def test_feature_1():
 if __name__ == "__main__":
     print("Testing [Feature]")
     print("=" * 50)
-    
+
     test_feature_1()
     # ... run all tests
-    
+
     print("=" * 50)
     print("✅ All tests passed!")
 ```
@@ -659,7 +672,7 @@ code_here()
 
 ---
 
-**آخر تحديث**: 2025-11-04  
-**الحالة**: جاهز للاستمرار  
+**آخر تحديث**: 2025-11-04
+**الحالة**: جاهز للاستمرار
 **التقدم**: 20% → الهدف: 100%
 

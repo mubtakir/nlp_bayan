@@ -1264,6 +1264,30 @@ def dice_similarity(list1, list2):
     return (2.0 * inter) / (1.0 * denom)
 }
 
+# Overlap coefficient for token lists (sets)
+
+def overlap_coefficient(list1, list2):
+{
+    a = {}
+    b = {}
+    for i in range(len(list1)): { a[list1[i]] = True }
+    for j in range(len(list2)): { b[list2[j]] = True }
+    inter = 0
+    sa = 0
+    sb = 0
+    for k in a:
+    {
+        sa = sa + 1
+        if b.get(k, False): { inter = inter + 1 }
+    }
+    for k in b: { sb = sb + 1 }
+    denom = sa
+    if sb < denom: { denom = sb }
+    if denom == 0: { return 0.0 }
+    return inter / (1.0 * denom)
+}
+
+
 # Arabic wrappers (Wave 7)
 
 

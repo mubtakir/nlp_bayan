@@ -1,9 +1,9 @@
 # 🤖 تقرير التسليم للذكاء الاصطناعي
 # AI Handoff Report
 
-**التاريخ | Date**: 2025-11-04  
-**من | From**: Augment Agent  
-**إلى | To**: نموذج ذكاء اصطناعي متقدم  
+**التاريخ | Date**: 2025-11-04
+**من | From**: Augment Agent
+**إلى | To**: نموذج ذكاء اصطناعي متقدم
 **الموضوع | Subject**: إكمال تطوير لغة البيان
 
 ---
@@ -158,16 +158,16 @@ def _solve_goals(self, goals, bindings, depth=0):
     if not goals:
         yield bindings
         return
-    
+
     goal = goals[0]
     rest = goals[1:]
-    
+
     # Handle cut operator
     if isinstance(goal, Cut):
         for result in self._solve_goals(rest, bindings, depth):
             yield result
         return  # Stop backtracking
-    
+
     # Regular goals
     for new_bindings in self._solve_goal(goal, bindings, depth):
         has_cut = any(isinstance(g, Cut) for g in rest)
@@ -206,7 +206,7 @@ def visit_functiondef(self, node):
     def base_function(*args, **kwargs):
         # ... implementation
         pass
-    
+
     # Apply decorators (bottom to top)
     func = base_function
     for decorator in reversed(node.decorators):
@@ -215,7 +215,7 @@ def visit_functiondef(self, node):
             args = [self.visit(arg) for arg in decorator.args]
             decorator_func = decorator_func(*args)
         func = decorator_func(func)
-    
+
     self.env[node.name] = func
 ```
 
@@ -248,7 +248,7 @@ def visit_asyncfunctiondef(self, node):
     async def async_function(*args, **kwargs):
         # ... implementation
         pass
-    
+
     self.env[node.name] = async_function
 
 def visit_awaitexpr(self, node):
@@ -280,7 +280,7 @@ def _contains_yield(self, node):
 def visit_functiondef(self, node):
     """Visit function definition (check for yield)"""
     has_yield = self._contains_yield(node.body)
-    
+
     if has_yield:
         def generator_function(*args, **kwargs):
             # ... implementation
@@ -307,15 +307,15 @@ def visit_functiondef(self, node):
 def visit_withstatement(self, node):
     """Visit with statement"""
     context = self.visit(node.context_expr)
-    
+
     if hasattr(context, '__enter__'):
         value = context.__enter__()
     else:
         value = context
-    
+
     if node.var_name:
         self.env[node.var_name] = value
-    
+
     try:
         result = None
         for stmt in node.body:
@@ -503,10 +503,45 @@ def visit_withstatement(self, node):
 
 ---
 
-**التاريخ**: 2025-11-04  
-**الحالة**: جاهز للتسليم  
+**التاريخ**: 2025-11-04
+**الحالة**: جاهز للتسليم
 **التقدم**: 20% → الهدف: 100%
 
-**من**: Augment Agent  
+**من**: Augment Agent
 **إلى**: نموذج ذكاء اصطناعي متقدم
 
+
+
+---
+
+## 📎 Addendum — 2025-11-09 — AI Stdlib Waves 1–9
+
+### Summary
+- Waves 1–9 for the AI standard library are complete and fully passing (341/341).
+
+
+### What’s in Wave 9
+- ML: linear_svm_ovr_train/predict (with inline binary SVM to avoid import-scope issues), bagging_train/predict (educational decision stumps). Arabic wrappers added.
+- NLP: overlap_coefficient(list1, list2).
+- Data: bin_equal_width(xs, bins), one_hot_encode(indices, num_classes) — Arabic wrappers added.
+
+### Current Test Status
+- tests/test_ai_data_wave9.py → PASS
+- tests/test_ai_ml_wave9.py → PASS
+- tests/test_ai_nlp_wave9.py → PASS
+
+### Status
+- All Wave 9 tests are passing; docs and badges updated (341/341).
+
+### Bayan Syntax Reminders
+- Always place a colon after if/elif/else/for/while; never use semicolons.
+- Reserved: "query"; avoid as identifiers.
+- No list comprehensions; use explicit loops.
+- Use pow() instead of **; avoid //; avoid negative slicing; avoid ternary expressions.
+
+### Proposed Next Waves (10–12)
+- Data: Label/Frequency/Target Encoding; simple transformer objects.
+- NLP: BM25 enhancements; Levenshtein (approx.); overlap metrics pack.
+- ML: Platt scaling; multiclass logistic OvR; generic Bagging wrapper.
+
+Refer to docs/developer_guide.md (handoff appendix) for details.

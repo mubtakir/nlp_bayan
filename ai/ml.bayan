@@ -2395,3 +2395,293 @@ def linear_svm_predict(X, w, b):
 def تدريب_SVM_خطي(س, ت, lr=0.1, epochs=50, C=1.0): { return linear_svm_train(س, ت, lr, epochs, C) }
 
 def توقع_SVM_خطي(س, اوزان, انحياز): { return linear_svm_predict(س, اوزان, انحياز) }
+
+
+# --- Wave 9: Linear SVM One-vs-Rest (multi-class) and Bagging wrapper ---
+
+# Train OvR SVM: returns {"labels": [...], "weights": [[...],...], "biases": [...]}
+
+def linear_svm_ovr_train(X, y, lr=0.1, epochs=50, C=1.0):
+{
+    n = len(y)
+    labs = []
+    seen = {}
+    for i in range(n):
+    {
+        lb = y[i]
+        if seen.get(lb, False) == False:
+        {
+            seen[lb] = True
+            labs.append(lb)
+        }
+    }
+    m = len(labs)
+    d = 0
+    if n > 0: { d = len(X[0]) }
+    Ws = []
+    Bs = []
+    for k in range(m):
+    {
+        # build binary labels 0/1 for class labs[k]
+        yb = []
+        for i in range(n):
+        {
+            if y[i] == labs[k]: { yb.append(1) } else: { yb.append(0) }
+        }
+        # inline binary linear SVM training (hinge loss SGD)
+        w = []
+        for j in range(d): { w.append(0.0) }
+        b = 0.0
+        for ep in range(epochs):
+        {
+            for i in range(n):
+            {
+                yi = yb[i]
+                yi2 = -1
+                if yi != 0: { yi2 = 1 }
+                z = 0.0
+                for j in range(d): { z = z + w[j] * X[i][j] }
+                z = z + b
+                margin = yi2 * z
+                if margin >= 1.0:
+                {
+                }
+                else:
+                {
+                    for j in range(d): { w[j] = w[j] + lr * C * yi2 * X[i][j] }
+                    b = b + lr * C * yi2
+                }
+            }
+        }
+        Ws.append(w)
+        Bs.append(b)
+    }
+    return {"labels": labs, "weights": Ws, "biases": Bs}
+}
+
+
+# Predict with OvR model
+
+def linear_svm_ovr_predict(model, X):
+{
+    labs = model.get("labels", [])
+    Ws = model.get("weights", [])
+    Bs = model.get("biases", [])
+    m = len(labs)
+    n = len(X)
+    preds = []
+    for i in range(n):
+    {
+        best_j = 0
+        best_z = -1000000000.0
+        for k in range(m):
+        {
+            w = Ws[k]
+            b = Bs[k]
+            z = 0.0
+            for j in range(len(w)): { z = z + w[j] * X[i][j] }
+            z = z + b
+            if k == 0:
+            {
+                best_z = z
+                best_j = 0
+            }
+            else:
+            {
+                if z > best_z:
+                {
+                    best_z = z
+                    best_j = k
+                }
+            }
+        }
+        preds.append(labs[best_j])
+    }
+    return preds
+}
+
+
+# Simple Bagging wrapper over decision trees (uses all features)
+
+def bagging_train(X, y, n_estimators=5, max_depth=3, min_samples_split=2, sample_ratio=1.0, seed=42):
+{
+    n = len(X)
+    if n == 0: { return {"trees": []} }
+    d = len(X[0])
+    trees = []
+    # number of samples per bootstrap
+    m = n
+    if sample_ratio < 1.0:
+    {
+        t = sample_ratio * n
+        mm = 0
+        while (mm + 1) <= t: { mm = mm + 1 }
+        if mm < 1: { mm = 1 }
+        m = mm
+    }
+    for t in range(n_estimators):
+    {
+        # bootstrap indices (deterministic PRNG based on seed)
+        idxs = []
+        for i in range(m):
+        {
+            seed = (seed * 1664525 + 1013904223) % 4294967296
+            k = seed % n
+            idxs.append(k)
+        }
+        # find a best decision stump (feature j and threshold thr)
+        best_feat = 0
+        best_thr = 0.0
+        best_acc = -1.0
+        best_left = 0
+        best_right = 0
+        for j in range(d):
+        {
+            # collect unique values for feature j
+            uniq = {}
+            vals = []
+            for ii in range(m):
+            {
+                v = X[idxs[ii]][j]
+                vals.append(v)
+                if uniq.get(v, False) == False: { uniq[v] = True }
+            }
+            # build sorted unique list
+            uniq_list = []
+            for ii in range(len(vals)):
+            {
+                vv = vals[ii]
+                if uniq.get(vv, False):
+                {
+                    # mark consumed
+                    uniq[vv] = False
+                    uniq_list.append(vv)
+                }
+            }
+            uniq_list = sorted(uniq_list)
+            # candidate thresholds
+            cands = []
+            if len(uniq_list) <= 1:
+            {
+                if len(uniq_list) == 1: { cands.append(uniq_list[0]) }
+            }
+            else:
+            {
+                for u in range(len(uniq_list) - 1):
+                {
+                    cands.append((uniq_list[u] + uniq_list[u+1]) / 2.0)
+                }
+            }
+            for ci in range(len(cands)):
+            {
+                thr = cands[ci]
+                # majority labels on both sides
+                left_counts = {}
+                right_counts = {}
+                for ii in range(m):
+                {
+                    idx = idxs[ii]
+                    val = X[idx][j]
+                    label = y[idx]
+                    if val < thr:
+                    {
+                        left_counts[label] = left_counts.get(label, 0) + 1
+                    }
+                    else:
+                    {
+                        right_counts[label] = right_counts.get(label, 0) + 1
+                    }
+                }
+                left_label = 0
+                left_best = -1
+                for lb in left_counts:
+                {
+                    c = left_counts.get(lb, 0)
+                    if c > left_best:
+                    {
+                        left_best = c
+                        left_label = lb
+                    }
+                }
+                right_label = 0
+                right_best = -1
+                for lb in right_counts:
+                {
+                    c = right_counts.get(lb, 0)
+                    if c > right_best:
+                    {
+                        right_best = c
+                        right_label = lb
+                    }
+                }
+                # accuracy on bootstrap
+                acc = 0
+                for ii in range(m):
+                {
+                    idx = idxs[ii]
+                    val = X[idx][j]
+                    pred = left_label
+                    if val >= thr: { pred = right_label }
+                    if pred == y[idx]: { acc = acc + 1 }
+                }
+                if acc > best_acc:
+                {
+                    best_acc = acc
+                    best_feat = j
+                    best_thr = thr
+                    best_left = left_label
+                    best_right = right_label
+                }
+            }
+        }
+        trees.append({"j": best_feat, "thr": best_thr, "left": best_left, "right": best_right})
+    }
+    return {"trees": trees}
+}
+
+
+def bagging_predict(model, X):
+{
+    trees = model.get("trees", [])
+    n = len(X)
+    preds = []
+    for i in range(n):
+    {
+        votes = {}
+        for t in range(len(trees)):
+        {
+            tr = trees[t]
+            j = tr.get("j", 0)
+            thr = tr.get("thr", 0.0)
+            left = tr.get("left", 0)
+            right = tr.get("right", 0)
+            val = X[i][j]
+            lab = left
+            if val >= thr: { lab = right }
+            votes[lab] = votes.get(lab, 0) + 1
+        }
+        best_lab = 0
+        best_cnt = -1
+        for lb in votes:
+        {
+            c = votes.get(lb, 0)
+            if c > best_cnt:
+            {
+                best_cnt = c
+                best_lab = lb
+            }
+        }
+        preds.append(best_lab)
+    }
+    return preds
+}
+
+# Arabic wrappers (Wave 9)
+
+def تدريب_SVM_OVR(س, ت, lr=0.1, epochs=50, C=1.0): { return linear_svm_ovr_train(س, ت, lr, epochs, C) }
+
+def توقع_SVM_OVR(نموذج, س): { return linear_svm_ovr_predict(نموذج, س) }
+
+def تدريب_باغينغ(س, ت, عدد_نماذج=5, أقصى_عمق=3, حد_تقسيم=2, نسبة_عينات=1.0, بذرة=42): { return bagging_train(س, ت, عدد_نماذج, أقصى_عمق, حد_تقسيم, نسبة_عينات, بذرة) }
+
+def توقع_باغينغ(نموذج, س): { return bagging_predict(نموذج, س) }

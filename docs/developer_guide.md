@@ -159,3 +159,73 @@
 
 انتهى.
 
+
+
+---
+
+## ملحق تسليم — مكتبة الذكاء الاصطناعي (AI Stdlib) — 2025-11-09
+
+هذا الملحق يوجّه المطوّر التالي المستلم للمشروع بخصوص مكتبة الذكاء الاصطناعي القياسية داخل بيان، وما أُنجز وما تبقّى.
+
+### الغاية العامة
+- الهدف العملي الذي تبنّيناه: «كل تعبير برمجي يفيد لاحقاً في بناء نموذج لغوي».
+- لذلك تم بناء مكتبة AI/ML تعليمية بالكامل داخل بيان (بدون تبعيات خارجية)، بثنائية عربية/إنجليزية، مع اختبارات شاملة.
+
+### أين وصلنا؟ (وضع الموجات)
+- Waves 1–9: مكتملة ومُوثّقة ومُمَرَّرة بالاختبارات (341/341 ناجحة).
+  - Data: CSV/JSON I/O، إحصاء وصفي (mean/var/std/median/percentile)، PRNG، scalers (standard/robust/minmax) fit+transform.
+  - NLP: TF-IDF (خيارات/لوغ/حدود مفردات)، BM25، تشابه Jaccard/Dice، تجهيز نص عربي أساسي.
+  - ML: الانحدار الخطي/اللوجستي، KNN (عادي/موزون)، K-means (+k-means++ احتمال)، Perceptron (+OvR)، أشجار قرار، غابة عشوائية، قياسات ROC/AUC وتقارير تصنيف.
+- Wave 9: مكتملة (ML OvR + Bagging، NLP overlap_coefficient، Data bin_equal_width + one_hot_encode).
+  - ML: linear_svm_ovr_train/predict + Arabic wrappers (تدريب_SVM_OVR/توقع_SVM_OVR).
+  - ML: bagging_train/predict (تجميع قائم على «stumps» تعليمية) + Arabic wrappers (تدريب_باغينغ/توقع_باغينغ).
+  - NLP: overlap_coefficient(list1, list2) — PASS.
+  - Data: bin_equal_width و one_hot_encode — مع أغلفة عربية: تجزئة_عرض_متساوي، ترميز_واحد_ساخن.
+
+
+### حالة الاختبارات (وقت التسليم)
+- المجموع المُمَرّر حالياً: 341/341 (Waves 1–9).
+- Wave 9:
+  - tests/test_ai_data_wave9.py: PASS.
+  - tests/test_ai_ml_wave9.py: PASS.
+  - tests/test_ai_nlp_wave9.py: PASS.
+
+### إنجازات Wave 9
+1) إتمام ML OvR + Bagging:
+   - ملف: ai/ml.bayan
+   - التحقّقات النحوية: وُضعت ":" بعد كل if/elif/else/for/while وبدون ";".
+   - استبدال int(...) بحساب أرضي يدوي لقيمة m.
+   - pytest -q tests/test_ai_ml_wave9.py → PASS.
+
+2) NLP Wave 9:
+   - overlap_coefficient → PASS (pytest -q tests/test_ai_nlp_wave9.py).
+
+3) Data Wave 9 — أغلفة عربية:
+   - أُضيفت: تجزئة_عرض_متساوي، ترميز_واحد_ساخن في ai/data.bayan → PASS.
+
+4) التوثيق والشارات:
+   - ai/AI_LIBRARY_GUIDE.md و README.md محدّثان إلى 341/341.
+
+### تذكير مهم — «Cheat‑Sheet» نحو بيان
+- ضع ":" بعد كلمات التحكّم (if/elif/else/for/while).
+- لا يوجد ";" للفصل بين الجمل.
+- الكلمة المحجوزة "query" لا تُستخدم كاسم متغيّر/معامل.
+- لا توجد list comprehensions؛ استخدم حلقات صريحة.
+- استخدم pow() بدل **، ولا يوجد //؛ عالج القسمة الصحيحة/الباقي يدوياً عند الحاجة.
+- لا تستخدم شرائح سالبة المؤشّر؛ استخدم [0:len(x)-n].
+- لا توجد ternary expressions؛ استخدم if/else كاملة.
+
+### ما بعد Wave 9 (مقترح موجات تالية)
+- Wave 10:
+  - Data: LabelEncoder بسيط، Frequency/Target Encoding (تعليمي)، كائنات fit/transform خفيفة.
+  - NLP: Levenshtein (تقريبي)، تحسين BM25 بخيارات stopwords/normalization hooks، حزمة مقاييس overlap/dice/coef موسّعة.
+  - ML: Platt scaling (معايرة احتمالات)، One‑vs‑Rest للأصناف المتعدّدة للوجستي، Bagging عام لواجهات قابلة للتمرير.
+- Wave 11–12:
+  - Data: Binning موسّع + One‑hot/Ordinal/Hashing.
+  - NLP: Soundex/Metaphone تقريبي عربي/إنجليزي.
+  - ML: AdaBoost تعليمي، SVM خطي مع تدرّج منظّم أفضل، تقارير متقدّمة.
+
+### روابط سريعة
+- دليل مكتبة الذكاء: ai/AI_LIBRARY_GUIDE.md
+- الاختبارات الجديدة: tests/test_ai_data_wave9.py, tests/test_ai_ml_wave9.py, tests/test_ai_nlp_wave9.py
+- الملفات ذات الصلة: ai/data.bayan, ai/ml.bayan, ai/nlp.bayan

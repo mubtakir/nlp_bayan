@@ -801,6 +801,69 @@ def minmax_scaler_transform(xs, lo, hi):
 }
 
 
+# Wave 9: Equal-width binning and one-hot encoding
+
+def bin_equal_width(xs, bins):
+{
+    n = len(xs)
+    out = []
+    if n == 0: { return out }
+    if bins < 1: { bins = 1 }
+    lo = xs[0]
+    hi = xs[0]
+    for i in range(1, n):
+    {
+        v = xs[i]
+        if v < lo: { lo = v }
+        if v > hi: { hi = v }
+    }
+    if hi == lo:
+    {
+        for i in range(n): { out.append(0) }
+        return out
+    }
+    width = (hi - lo) / (1.0 * bins)
+    for i in range(n):
+    {
+        t = (xs[i] - lo) / width
+        j = 0
+        while (j + 1) <= t: { j = j + 1 }
+        if j < 0: { j = 0 }
+        if j >= bins: { j = bins - 1 }
+        out.append(j)
+    }
+    return out
+}
+
+
+def one_hot_encode(indices, num_classes):
+{
+    n = len(indices)
+    k = num_classes
+    out = []
+    if k < 1: { k = 1 }
+    for i in range(n):
+    {
+        row = []
+        for j in range(k): { row.append(0) }
+        idx = indices[i]
+        if idx < 0: { idx = 0 }
+        if idx >= k: { idx = k - 1 }
+        row[idx] = 1
+        out.append(row)
+    }
+    return out
+}
+
+# Arabic wrappers (Wave 9)
+
+def تجزئة_عرض_متساوي(قائمة, صناديق): { return bin_equal_width(قائمة, صناديق) }
+
+def ترميز_واحد_ساخن(فهارس, عدد_فئات): { return one_hot_encode(فهارس, عدد_فئات) }
+
+
+
+
 # Wave 8 Arabic wrappers (Scalers)
 
 def ملاءمة_قياسي(قائمة): { return standard_scaler_fit(قائمة) }
