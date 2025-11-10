@@ -611,11 +611,19 @@ Refer to docs/developer_guide.md (handoff appendix) for details.
   - bm25_top_k(model, qtext, k=5)
   - Arabic wrappers: تشابه_جيبي_TFIDF(نص1, نص2)، أفضل_BM25(نموذج, استعلام, ك=5)
 
+- ML: Added AdaBoost (binary classification with decision stumps).
+  - adaboost_train(X, y, n_estimators=10)
+  - adaboost_predict(model, X)
+  - Arabic wrappers: تدريب_ادابوست(س, ت, عدد_مصنفات=10)، توقع_ادابوست(نموذج, س)
+
+
 ### Tests
 - tests/test_ai_nlp_wave13.py → PASS
-- Total: 350/350 tests passing
+- tests/test_ai_ml_wave13.py: PASS
+
+- Total: 353/353 tests passing
 
 ### Docs
-- README badge updated to 350 passing tests; status now Waves 1–13 complete
+- README badge updated to 353 passing tests; status now Waves 1–13 complete
 - ai/AI_LIBRARY_GUIDE.md: new v13 entries + updated handoff status
 - docs/developer_guide.md: status and tests updated

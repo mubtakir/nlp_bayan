@@ -1,0 +1,60 @@
+name: Create Release for Wave 13b (ai-stdlib-v13b)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - ai-stdlib-v13b
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Wave 13b release exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ai-stdlib-v13b
+        run: |
+          set -e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
+          code=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+                   -H "Authorization: Bearer ${GH_TOKEN}" \
+                   -H "Accept: application/vnd.github+json" \
+                   "$API")
+          if [ "$code" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Wave 13b release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cat > /tmp/release.json << 'JSON'
+          {
+            "tag_name": "ai-stdlib-v13b",
+            "name": "AI stdlib Wave 13b — NLP + ML: AdaBoost (353/353)",
+            "body": "- NLP: tfidf_cosine_similarity(text1, text2)\n- NLP: bm25_top_k(model, qtext, k=5)\n- ML: adaboost_train(X, y, n_estimators=10), adaboost_predict(model, X)\n- Arabic wrappers: تشابه_جيبي_TFIDF(نص1, نص2)، أفضل_BM25(نموذج, استعلام, ك=5)، تدريب_ادابوست(س, ت, عدد_مصنفات=10)، توقع_ادابوست(نموذج, س)\n- Tests: tests/test_ai_nlp_wave13.py → PASS; tests/test_ai_ml_wave13.py → PASS\n- Total tests: 353/353\n- Docs updated: README, AI_LIBRARY_GUIDE.md, developer_guide.md, AI_HANDOFF_REPORT.md",
+            "draft": false,
+            "prerelease": false
+          }
+          JSON
+
+          code=$(curl -s -o /tmp/create.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -d @/tmp/release.json)
+          echo "Create release HTTP: $code"
+          test "$code" = "201"
+          jq -r '.html_url // ""' /tmp/create.json || true
+
