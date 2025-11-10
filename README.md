@@ -245,6 +245,10 @@ hybrid {
 - [LLM Complete Guide](docs/LLM_REFERENCE_GUIDE.md) - Comprehensive guide with 10 examples
 - [How to Use with LLMs](docs/HOW_TO_USE_WITH_LLMS.md) - Complete usage guide
 
+- LLM‑friendly one‑pager (RAW links for models):
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain version: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+
 ### Technical Documentation
 - [Language Guide](docs/LANGUAGE_GUIDE.md) - Complete language reference
 - [Architecture](docs/ARCHITECTURE.md) - Internal architecture
@@ -452,6 +456,10 @@ python web_ide/app.py
 - [الجزء الرابع: الاستدلال الاحتمالي والتشكيك](docs/04_PROBABILISTIC_REASONING_AR.md) - التعبير عن عدم اليقين 🎲 (جديد!)
 
 ### التكامل مع النماذج اللغوية
+- روابط جاهزة للنماذج (صفحة واحدة - RAW):
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
+  - نسخة GitHub البسيطة: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+
 - [System Prompt للنماذج](docs/LLM_SYSTEM_PROMPT.txt) - Prompt جاهز للاستخدام
 - [مرجع سريع](docs/LLM_QUICK_REFERENCE.md) - مرجع سريع للصيغة
 - [دليل شامل](docs/LLM_REFERENCE_GUIDE.md) - دليل شامل مع 10 أمثلة
