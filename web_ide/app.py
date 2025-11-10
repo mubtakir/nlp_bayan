@@ -253,6 +253,68 @@ def api_ide_example_get():
         abort(404, description='No Bayan code block in example')
     return jsonify({'name': name, 'code': code})
 
+# ----------------------------------
+# Routes: AI functions listing for IDE autocomplete
+# ----------------------------------
+AI_FILES = [
+    ('ai.ml', os.path.join(PROJECT_ROOT, 'ai', 'ml.bayan')),
+    ('ai.nlp', os.path.join(PROJECT_ROOT, 'ai', 'nlp.bayan')),
+    ('ai.data', os.path.join(PROJECT_ROOT, 'ai', 'data.bayan')),
+]
+
+
+def _collect_ai_functions():
+    items = []
+    for meta, fpath in AI_FILES:
+        try:
+            with open(fpath, 'r', encoding='utf-8') as f:
+                lines = f.read().splitlines()
+        except Exception:
+            continue
+        docbuf = []
+        for ln in lines:
+            s = ln.strip()
+            if s.startswith('#'):
+                # accumulate contiguous comment lines (without leading '#')
+                docbuf.append(s[1:].strip())
+                # keep only last few lines to limit size
+                if len(docbuf) > 4:
+                    docbuf = docbuf[-4:]
+                continue
+            if s.startswith('def ') and '(' in s:
+                name = s[4:s.find('(')].strip()
+                if not name:
+                    docbuf = []
+                    continue
+                is_ar = any(ord(c) > 127 for c in name)
+                # build short doc from last comment lines
+                doc = ''
+                if docbuf:
+                    short = [d for d in docbuf if d]
+                    doc = ' '.join(short[-2:])
+                    if len(doc) > 200:
+                        doc = doc[:200]
+                items.append({'name': name, 'meta': meta, 'ar': is_ar, 'doc': doc})
+                docbuf = []
+            else:
+                # reset when encountering non-comment/non-def
+                docbuf = []
+    # de-duplicate by name
+    dedup = {}
+    for it in items:
+        if it['name'] not in dedup:
+            dedup[it['name']] = it
+    return list(dedup.values())
+
+
+@app.get('/api/ide/ai_functions')
+def api_ai_functions():
+    try:
+        return jsonify(_collect_ai_functions())
+    except Exception:
+        return jsonify([])
+
+
 
 # -----------------------------
 # Route: Run Bayan code

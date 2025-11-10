@@ -240,6 +240,26 @@
   };
   langTools.addCompleter(aiCompleter);
 
+
+  // Dynamic: load all AI functions (English + Arabic) from backend and merge
+  try {
+    fetch('/api/ide/ai_functions').then(r => r.json()).then(items => {
+      const seen = new Set(aiCompletions.map(c => c.caption));
+      items.forEach(fn => {
+        if (!seen.has(fn.name)) {
+          aiCompletions.push({
+            caption: fn.name,
+            value: fn.name,
+            meta: fn.meta || 'ai',
+            score: fn.ar ? 92 : 85,
+            docText: fn.doc || ''
+          });
+          seen.add(fn.name);
+        }
+      });
+    }).catch(() => {});
+  } catch (e) {}
+
   editor.setValue(`# مثال سريع\n\nprint("Hello Bayan!\n")\n\nclass A:{\n  def who():{ print("A") }\n}\n\nb = A()\nb.who()\n\n# منطق\nhybrid{\n  fact edge(a,b).\n  fact edge(b,c).\n  rule reachable(X,Y) :- edge(X,Y).\n  rule reachable(X,Y) :- edge(X,Z), reachable(Z,Y).\n  print("reachable(a, ?Y):")\n  query reachable(a, ?Y).\n}\n`, 1);
 
   const outputPre = document.getElementById('output');
