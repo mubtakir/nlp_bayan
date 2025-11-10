@@ -790,3 +790,59 @@ Steps format: [name, fit_fn, transform_fn, params]
 - Grid search uses stratified_k_fold_indices returning [train_idx, val_idx] pairs; folds unpacked explicitly; tie‑break prefers higher epochs on equal scores.
 - Bayan constraints respected: full block if/else with colons/braces, no semicolons, no scientific notation; pow() instead of **; dictionary .get() membership style.
 - Documentation updated: README badge/status (375), AI_LIBRARY_GUIDE.md (v19 ML), docs/developer_guide (status 375/375), this addendum.
+
+
+
+---
+
+## 🤝 Handoff to Next AI — Current Status and Remaining Work (Wave 20)
+
+### Current status
+- Repository: github.com/mubtakir/bayaan-lang (branch: main)
+- AI stdlib Waves: 1–19 complete
+- Tests: 375/375 passing (pytest -q)
+- Latest tag: ai-stdlib-v19
+- Key files:
+  - ai/ml.bayan (ML algorithms + Arabic wrappers)
+  - ai/nlp.bayan (Soft TF‑IDF + Arabic wrappers)
+  - ai/data.bayan (simple pipelines)
+  - tests/ (Wave‑scoped test files)
+
+### Bayan coding constraints (must follow)
+- Always use colon after if/elif/else/for/while; use braces for blocks; no semicolons
+- No list comprehensions; no inline ternary; no scientific notation; use pow() not **
+- Avoid in‑operator on dicts; prefer d.get(key, default)
+- No negative slicing; prefer explicit loops
+- Provide Arabic wrappers mirroring English APIs
+
+### Remaining scope — Wave 20 (Polish + v1.0)
+1) Stabilize interfaces
+   - Review naming/parameters across ai.ml/ai.nlp/ai.data for consistency
+   - Ensure every public English API has an Arabic wrapper (validate for Wave 17–19)
+   - Normalize return shapes and key names (e.g., {"labels","W","b"} for classifiers)
+2) Educational examples
+   - Add 3–5 minimal, runnable examples demonstrating: softmax multiclass, voting/stacking, soft TF‑IDF similarity, PCA + variance threshold + simple pipeline
+3) Performance pass (lightweight)
+   - Hotspots: softmax_train loops, soft_tfidf_vector token matching; micro‑optimizations only if simple (remove redundant allocations, reuse buffers)
+4) Documentation finalization
+   - Update README: “Waves 1–20 complete”, badge count, brief changelog
+   - Update ai/AI_LIBRARY_GUIDE.md: add v20 notes (examples + any API tweaks)
+   - Update docs/developer_guide.md: finalize status + quickstart for contributors
+   - Add this Wave 20 addendum here
+5) Release
+   - Run tests: pytest -q (expect 375+; add new tests if examples are validated)
+   - Commit, tag ai-stdlib-v20, push branch + tag
+
+### Suggested execution plan
+- Step 1: Audit wrappers
+  - Search ai/*.bayan for English APIs without Arabic wrappers (focus: v17–v19)
+  - Add missing Arabic functions with identical parameter order
+- Step 2: Examples and tests
+  - Place tiny end‑to‑end examples under examples/ or tests/examples_*
+  - Prefer tests that assert outputs (keeps CI green)
+- Step 3: Docs and release
+  - Update counts, wave numbers; re‑run pytest; commit + tag v20
+
+### Notes
+- The ensemble/grid code assumes labels array passed to voting/stacking aligns with model label order; keep consistent ordering when constructing labels.
+- Grid search tie‑break prefers higher epochs when average CV accuracy ties.
