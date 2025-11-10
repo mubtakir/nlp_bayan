@@ -2048,3 +2048,91 @@ def تشابه_جارو(نص1, نص2): { return jaro_similarity(نص1, نص2) }
 def تشابه_جارو_وينكلر(نص1, نص2, معامل=0.1, حد_بادئة=4): { return jaro_winkler_similarity(نص1, نص2, معامل, حد_بادئة) }
 
 def دايس_محارف(نص1, نص2, ن=2): { return dice_char_ngrams(نص1, نص2, ن) }
+
+
+# --- Wave 18: Soft TF-IDF (with Jaro-Winkler similarity) ---
+
+# Build soft TF-IDF model: returns {"terms": list, "idf": dict, "threshold": thr}
+# Tokenization uses _tok_simple (ASCII letters/digits, lowercase)
+
+def soft_tfidf_build(docs, sim_threshold=0.9):
+{
+    N = len(docs)
+    tokens_list = []
+    for i in range(N): { tokens_list.append(_tok_simple(docs[i])) }
+    # document frequency
+    df = {}
+    terms_seen = {}
+    for i in range(N):
+    {
+        seen = {}
+        toks = tokens_list[i]
+        for j in range(len(toks)):
+        {
+            w = toks[j]
+            if seen.get(w, 0) == 0:
+            {
+                df[w] = df.get(w, 0) + 1
+                seen[w] = 1
+            }
+        }
+    }
+    # terms list
+    terms = []
+    for t in df: { terms.append(t) }
+    # idf without log for portability: 1 + N/(df+1)
+    idf = {}
+    for t in df:
+    {
+        idf[t] = 1.0 + (1.0 * N) / (df[t] + 1.0)
+    }
+    model = {"terms": terms, "idf": idf, "threshold": sim_threshold}
+    return model
+}
+
+# Vectorize a text using soft TF-IDF
+
+def soft_tfidf_vector(text, model):
+{
+    terms = model["terms"]
+    idf = model["idf"]
+    thr = model["threshold"]
+    toks = _tok_simple(text)
+    m = len(toks)
+    if m == 0: { return {} }
+    vec = {}
+    for ti in range(len(terms)):
+    {
+        t = terms[ti]
+        tf_soft = 0.0
+        for i in range(m):
+        {
+            w = toks[i]
+            # Jaro-Winkler similarity
+            s = jaro_winkler_similarity(w, t, 0.1, 4)
+            if s >= thr: { tf_soft = tf_soft + s }
+        }
+        if tf_soft > 0.0:
+        {
+            vec[t] = (tf_soft / m) * idf.get(t, 1.0)
+        }
+    }
+    return vec
+}
+
+# Cosine similarity between two texts using soft TF-IDF model
+
+def soft_tfidf_cosine_similarity(text1, text2, model):
+{
+    v1 = soft_tfidf_vector(text1, model)
+    v2 = soft_tfidf_vector(text2, model)
+    return cosine_similarity_dicts(v1, v2)
+}
+
+# Arabic wrappers (Wave 18)
+
+def بناء_TFIDF_ناعم(نصوص, عتبة=0.9): { return soft_tfidf_build(نصوص, عتبة) }
+
+def متجه_TFIDF_ناعم(نص, نموذج): { return soft_tfidf_vector(نص, نموذج) }
+
+def تشابه_جيبي_TFIDF_ناعم(نص1, نص2, نموذج): { return soft_tfidf_cosine_similarity(نص1, نص2, نموذج) }

@@ -731,3 +731,32 @@ Steps format: [name, fit_fn, transform_fn, params]
 - Avoided inline one-line if/else; used full block form with colons and braces.
 - Added pipeline-friendly wrappers (fit_params/transform_model) in ai/ml.bayan.
 - Documentation updated: README badge/status, AI_LIBRARY_GUIDE.md (v17), developer_guide status.
+
+
+## 📎 Addendum — 2025-11-10 — AI Stdlib Wave 18
+
+### Summary
+- ML: Softmax (multi-class logistic regression) with train/predict/proba.
+- NLP: Soft TF–IDF using Jaro–Winkler token similarity (thresholded) and cosine similarity.
+
+### APIs
+- softmax_train(X, y, lr=0.1, epochs=200, l2=0.0) → {"labels", "W", "b"}
+- softmax_predict_proba(X, model) → [[p_class,...], ...]
+- softmax_predict(X, model) → [label, ...]
+- Arabic: تدريب_Softmax / توقع_Softmax_احتمال / توقع_Softmax
+
+- soft_tfidf_build(docs, sim_threshold=0.9) → model {"terms", "idf", "threshold"}
+- soft_tfidf_vector(text, model) → dict(term→weight)
+- soft_tfidf_cosine_similarity(text1, text2, model) → float
+- Arabic: بناء_TFIDF_ناعم / متجه_TFIDF_ناعم / تشابه_جيبي_TFIDF_ناعم
+
+### Tests
+- tests/test_ai_ml_wave18_softmax.py → PASS
+- tests/test_ai_nlp_wave18_soft_tfidf.py → PASS
+- Total: 371/371 tests passing
+
+### Notes
+- Softmax uses per-sample SGD with numerical stability via max-score subtraction; optional L2 weight decay.
+- Probabilities sum to 1 for each sample; argmax maps back to original label order.
+- Soft TF–IDF computes soft term frequency by summing token similarity ≥ threshold to each vocab term, then scales by idf = 1 + N/(df+1). Cosine over sparse dicts reused from existing utility.
+- Documentation updated: README badge/status, AI_LIBRARY_GUIDE.md (v18 ML/NLP), developer_guide status.

@@ -160,6 +160,17 @@ Arabic wrappers (v16):
 - مسافة_دامراو_ليفنشتاين(نص1, نص2)
 
 
+
+New (v18):
+- soft_tfidf_build(docs, sim_threshold=0.9)
+- soft_tfidf_vector(text, model)
+- soft_tfidf_cosine_similarity(text1, text2, model)
+
+Arabic wrappers (v18):
+- بناء_TFIDF_ناعم(نصوص, عتبة=0.9)
+- متجه_TFIDF_ناعم(نص, نموذج)
+- تشابه_جيبي_TFIDF_ناعم(نص1, نص2, نموذج)
+
 Arabic wrappers:
 - تجهيز_نص(نص, لغة="auto")
 - تجزئة_نص(نص, لغة="auto")
@@ -275,6 +286,13 @@ New (v17):
 - variance_threshold_fit(X, thr) → mask
 - variance_threshold_transform(X, mask)
 - Arabic wrappers: تدريب_PCA/تحويل_PCA، تدريب_عتبة_تباين/تحويل_عتبة_تباين
+
+New (v18):
+- softmax_train(X, y, lr=0.1, epochs=200, l2=0.0)
+- softmax_predict_proba(X, model)
+- softmax_predict(X, model)
+- Arabic wrappers: تدريب_Softmax / توقع_Softmax / توقع_Softmax_احتمال
+
 
 ## 🧮 Data Module (ai.data)
 
@@ -516,5 +534,5 @@ Arabic wrappers:
 - مسافة_ليفنشتاين(نص1, نص2)
 
 ### Handoff status
-- Waves 1–17: complete, 367 tests passing.
+- Waves 1–18: complete, 371 tests passing.
 - All Wave 9–16 tests are passing.

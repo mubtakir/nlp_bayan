@@ -3580,3 +3580,179 @@ def تدريب_عتبة_تباين(س, عتبة): { return variance_threshold_fi
 
 def تحويل_عتبة_تباين(س, قناع): { return variance_threshold_transform(س, قناع) }
 
+
+
+# --- Wave 18: Softmax (multi-class logistic regression) ---
+
+# Train softmax classifier: returns {"labels": labs, "W": W, "b": b}
+# X: list of samples, each sample a list length d
+# y: list of labels (any comparable type)
+# lr: learning rate; epochs: number of passes; l2: L2 regularization
+
+def softmax_train(X, y, lr=0.1, epochs=200, l2=0.0):
+{
+    n = len(X)
+    if n == 0:
+    {
+        return {"labels": [], "W": [], "b": []}
+    }
+    d = len(X[0])
+    # collect labels in order of appearance
+    labs = []
+    seen = {}
+    for i in range(len(y)):
+    {
+        L = y[i]
+        if seen.get(L, 0) == 0:
+        {
+            labs.append(L)
+            seen[L] = 1
+        }
+    }
+    K = len(labs)
+    # map label to index
+    lab_to_idx = {}
+    for k in range(K): { lab_to_idx[labs[k]] = k }
+    # init parameters
+    W = []
+    for k in range(K):
+    {
+        row = []
+        for j in range(d): { row.append(0.0) }
+        W.append(row)
+    }
+    b = []
+    for k in range(K): { b.append(0.0) }
+    e = 2.718281828
+    # SGD over epochs
+    for ep in range(epochs):
+    {
+        for i in range(n):
+        {
+            # scores = W x + b
+            scores = []
+            for k in range(K):
+            {
+                s = b[k]
+                for j in range(d): { s = s + W[k][j] * X[i][j] }
+                scores.append(s)
+            }
+            # softmax
+            mmax = scores[0]
+            for k in range(1, K):
+            {
+                if scores[k] > mmax: { mmax = scores[k] }
+            }
+            exps = []
+            sumexp = 0.0
+            for k in range(K):
+            {
+                val = pow(e, scores[k] - mmax)
+                exps.append(val)
+                sumexp = sumexp + val
+            }
+            probs = []
+            if sumexp == 0.0:
+            {
+                for k in range(K): { probs.append(1.0 / (1.0 * K)) }
+            }
+            else:
+            {
+                for k in range(K): { probs.append(exps[k] / sumexp) }
+            }
+            yi = lab_to_idx[y[i]]
+            # gradient update per class
+            for k in range(K):
+            {
+                err = probs[k]
+                if k == yi: { err = err - 1.0 }
+                # update weights and bias
+                for j in range(d):
+                {
+                    W[k][j] = W[k][j] - lr * (err * X[i][j] + l2 * W[k][j])
+                }
+                b[k] = b[k] - lr * err
+            }
+        }
+    }
+    return {"labels": labs, "W": W, "b": b}
+}
+
+# Predict class probabilities: returns list of length-n, each is list length K matching model["labels"]
+
+def softmax_predict_proba(X, model):
+{
+    labs = model["labels"]
+    W = model["W"]
+    b = model["b"]
+    K = len(labs)
+    e = 2.718281828
+    out = []
+    for i in range(len(X)):
+    {
+        scores = []
+        for k in range(K):
+        {
+            s = b[k]
+            for j in range(len(X[i])): { s = s + W[k][j] * X[i][j] }
+            scores.append(s)
+        }
+        mmax = scores[0]
+        for k in range(1, K):
+        {
+            if scores[k] > mmax: { mmax = scores[k] }
+        }
+        exps = []
+        sumexp = 0.0
+        for k in range(K):
+        {
+            val = pow(e, scores[k] - mmax)
+            exps.append(val)
+            sumexp = sumexp + val
+        }
+        probs = []
+        if sumexp == 0.0:
+        {
+            for k in range(K): { probs.append(1.0 / (1.0 * K)) }
+        }
+        else:
+        {
+            for k in range(K): { probs.append(exps[k] / sumexp) }
+        }
+        out.append(probs)
+    }
+    return out
+}
+
+# Predict labels by argmax
+
+def softmax_predict(X, model):
+{
+    labs = model["labels"]
+    probs_list = softmax_predict_proba(X, model)
+    preds = []
+    for i in range(len(probs_list)):
+    {
+        p = probs_list[i]
+        best_k = 0
+        best_v = p[0]
+        for k in range(1, len(p)):
+        {
+            if p[k] > best_v:
+            {
+                best_v = p[k]
+                best_k = k
+            }
+        }
+        preds.append(labs[best_k])
+    }
+    return preds
+}
+
+# Arabic wrappers (Wave 18)
+
+def تدريب_Softmax(س, ت, lr=0.1, epochs=200, l2=0.0): { return softmax_train(س, ت, lr, epochs, l2) }
+
+def توقع_Softmax_احتمال(س, نموذج): { return softmax_predict_proba(س, نموذج) }
+
+def توقع_Softmax(س, نموذج): { return softmax_predict(س, نموذج) }

@@ -295,12 +295,12 @@ hybrid {
 - الاختبارات أولًا قدر الإمكان (TDD)، ثم تنفيذ الدوال، ثم تحديث الوثائق.
 
 ### 3) أين وصلنا الآن؟
-- Waves 1–17: مكتملة.
+- Waves 1–18: مكتملة.
   - Wave 16 (جديد):
     - ML: stratified_k_fold_indices, train_test_split_stratified
     - ML Metrics: matthews_corrcoef, cohen_kappa_score
     - NLP: damerau_levenshtein_distance + غلاف عربي: مسافة_دامراو_ليفنشتاين
-- الحالة: 367/367 اختبار ناجح.
+- الحالة: 371/371 اختبار ناجح.
 
 ### 4) ما الذي يجب عليك فعله الآن (خارطة الطريق المختصرة)
 - Wave 17 — PCA + VarianceThreshold + Pipelines بسيطة:
@@ -330,7 +330,7 @@ hybrid {
 2. نفّذ الدوال داخل `ai/*.bayan`، وأضِف الأغلفة العربية إذا لزم.
 3. شغّل: `pytest -q tests/test_ai_..._waveXX.py` ثم `pytest -q` كاملًا.
 4. حدّث الوثائق:
-   - README: الشارة وعدّاد الاختبارات (367 → 3 أرقام جديدة عند الحاجة).
+   - README: الشارة وعدّاد الاختبارات (371 → 3 أرقام جديدة عند الحاجة).
    - ai/AI_LIBRARY_GUIDE.md: قسم vXX الجديد + حالة التسليم Waves 1–XX complete.
    - docs/developer_guide.md: أضف ملحق موجة جديدة إذا كانت كبيرة.
    - AI_HANDOFF_REPORT.md: Addendum للموجة.
