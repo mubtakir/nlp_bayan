@@ -231,5 +231,9 @@ https://github.com/mubtakir/bayaan-lang/archive/refs/heads/main.zip
   - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/cli.py
 - Eval README:
   - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/README.md
+- Baseline (echo reference):
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/baselines/echo_ref.py
 - Sample predictions (JSONL):
   - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/examples/predictions.sample.jsonl
+- Results (v1.2 metrics JSON):
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/results/metrics_v1.2.json
