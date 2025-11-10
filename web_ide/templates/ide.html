@@ -38,6 +38,15 @@
         <select id="sel-examples" class="form-select form-select-sm" style="width:auto; min-width: 220px"></select>
         <a class="btn btn-sm btn-outline-info" id="btn-load-example">تحميل</a>
 <input id="inp-example-filter" class="form-control form-control-sm" style="width: 160px" placeholder="بحث..." />
+        <label class="form-label m-0 me-1">مجال الأمثلة</label>
+        <select id="sel-examples-domain" class="form-select form-select-sm" style="width:auto">
+          <option value="all" selected>الكل</option>
+          <option value="ai.ml">ai.ml</option>
+          <option value="ai.nlp">ai.nlp</option>
+          <option value="ai.data">ai.data</option>
+          <option value="mixed">mixed</option>
+          <option value="unknown">unknown</option>
+        </select>
         <label class="form-label m-0 me-1">لغة الإكمال</label>
         <select id="sel-ac-lang" class="form-select form-select-sm" style="width:auto">
           <option value="all" selected>الكل</option>
@@ -430,9 +439,11 @@
 
   function applyExamplesFilter() {
     const q = (document.getElementById('inp-example-filter').value || '').toLowerCase();
-    if (!q) { renderExamples(examplesMaster); return; }
-    const filtered = examplesMaster.filter(it => (it.name || '').toLowerCase().includes(q));
-    renderExamples(filtered);
+    const dom = (document.getElementById('sel-examples-domain').value || 'all');
+    let list = examplesMaster || [];
+    if (dom !== 'all') list = list.filter(it => (it.domain || 'unknown') === dom);
+    if (q) list = list.filter(it => (it.name || '').toLowerCase().includes(q));
+    renderExamples(list);
   }
 
   function setupShortcuts() {
@@ -490,6 +501,7 @@
     if (!name) return;
     const r = await fetch(`/api/ide/example?name=${encodeURIComponent(name)}`);
     if (r.ok) {
+
       const data = await r.json();
       editor.setValue(data.code, 1);
       currentFile = null;
@@ -503,6 +515,7 @@
 
   document.getElementById('sel-ac-domain').onchange = (e) => { completionDomainMode = e.target.value; };
   document.getElementById('sel-ac-lang').onchange = (e) => { completionLangMode = e.target.value; };
+  document.getElementById('sel-examples-domain').onchange = applyExamplesFilter;
   document.getElementById('inp-example-filter').oninput = applyExamplesFilter;
 
   // init

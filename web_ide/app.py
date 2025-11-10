@@ -231,6 +231,26 @@ def _extract_first_heading(text: str) -> str | None:
 
 
 
+def _infer_example_domain(text: str) -> str:
+    try:
+        code = _extract_first_bayan_block(text) or ''
+        domains = set()
+        if 'include "ai/ml.bayan"' in code or "include 'ai/ml.bayan'" in code:
+            domains.add('ai.ml')
+        if 'include "ai/nlp.bayan"' in code or "include 'ai/nlp.bayan'" in code:
+            domains.add('ai.nlp')
+        if 'include "ai/data.bayan"' in code or "include 'ai/data.bayan'" in code:
+            domains.add('ai.data')
+        if len(domains) == 1:
+            return next(iter(domains))
+        if len(domains) > 1:
+            return 'mixed'
+        return 'unknown'
+    except Exception:
+        return 'unknown'
+
+
+
 @app.get('/api/ide/examples')
 def api_ide_examples():
     items = []
@@ -246,7 +266,8 @@ def api_ide_examples():
                     has_bayan = ("```bayan" in txt)
                     if has_bayan:
                         desc = _extract_first_heading(txt) or ''
-                        items.append({'name': name, 'desc': desc})
+                        domain = _infer_example_domain(txt)
+                        items.append({'name': name, 'desc': desc, 'domain': domain})
                 except Exception:
                     continue
     except Exception:
