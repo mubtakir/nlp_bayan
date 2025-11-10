@@ -37,6 +37,13 @@
         <label class="form-label m-0 me-1">أمثلة</label>
         <select id="sel-examples" class="form-select form-select-sm" style="width:auto; min-width: 220px"></select>
         <a class="btn btn-sm btn-outline-info" id="btn-load-example">تحميل</a>
+<input id="inp-example-filter" class="form-control form-control-sm" style="width: 160px" placeholder="بحث..." />
+        <label class="form-label m-0 me-1">لغة الإكمال</label>
+        <select id="sel-ac-lang" class="form-select form-select-sm" style="width:auto">
+          <option value="all" selected>الكل</option>
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
         <div class="vr mx-2"></div>
         <label class="form-label m-0 me-1">السمة</label>
         <select id="sel-theme" class="form-select form-select-sm" style="width:auto">
@@ -232,13 +239,25 @@
     {caption:'ترتيب_عشوائي', value:'ترتيب_عشوائي', meta:'ai.ar', docText:'Arabic alias: random_permutation.'},
     {caption:'تقسيم_عشوائي_تدريب_اختبار', value:'تقسيم_عشوائي_تدريب_اختبار', meta:'ai.ar', docText:'Arabic alias: train_test_split_shuffle.'}
   ];
-  const aiCompleter = {
-    getCompletions: function(editor, session, pos, prefix, callback) {
-      const comps = aiCompletions.map(it => ({ caption: it.caption, value: it.value, meta: it.meta, score: it.score || 80, docText: it.docText }));
-      callback(null, comps);
-    }
-  };
-  langTools.addCompleter(aiCompleter);
+  const isArabicName = (s) => /[^\x00-\x7F]/.test(s || '');
+let completionLangMode = 'all';
+const aiCompleter = {
+  getCompletions: function(editor, session, pos, prefix, callback) {
+    const compsRaw = aiCompletions.map(it => ({
+      caption: it.caption,
+      value: it.value,
+      meta: it.meta,
+      score: it.score || 80,
+      docText: it.docText,
+      ar: (typeof it.ar === 'boolean' ? it.ar : isArabicName(it.caption))
+    }));
+    let comps = compsRaw;
+    if (completionLangMode === 'ar') comps = compsRaw.filter(c => c.ar);
+    else if (completionLangMode === 'en') comps = compsRaw.filter(c => !c.ar);
+    callback(null, comps);
+  }
+};
+langTools.addCompleter(aiCompleter);
 
 
   // Dynamic: load all AI functions (English + Arabic) from backend and merge
@@ -252,7 +271,8 @@
             value: fn.name,
             meta: fn.meta || 'ai',
             score: fn.ar ? 92 : 85,
-            docText: fn.doc || ''
+            docText: fn.doc || '',
+            ar: !!fn.ar
           });
           seen.add(fn.name);
         }
@@ -370,19 +390,31 @@
     } catch (e) {}
   }
 
+  let examplesMaster = [];
   async function refreshExamples() {
     try {
       const res = await fetch('/api/ide/examples');
-      const items = await res.json();
-      const sel = document.getElementById('sel-examples');
-      sel.innerHTML = '';
-      items.forEach(it => {
-        const opt = document.createElement('option');
-        opt.value = it.name;
-        opt.textContent = it.name;
-        sel.appendChild(opt);
-      });
+      examplesMaster = await res.json();
+      applyExamplesFilter();
     } catch (e) {}
+  }
+
+  function renderExamples(list) {
+    const sel = document.getElementById('sel-examples');
+    sel.innerHTML = '';
+    list.forEach(it => {
+      const opt = document.createElement('option');
+      opt.value = it.name;
+      opt.textContent = it.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function applyExamplesFilter() {
+    const q = (document.getElementById('inp-example-filter').value || '').toLowerCase();
+    if (!q) { renderExamples(examplesMaster); return; }
+    const filtered = examplesMaster.filter(it => (it.name || '').toLowerCase().includes(q));
+    renderExamples(filtered);
   }
 
   function setupShortcuts() {
@@ -398,6 +430,7 @@
       name: 'runSelection', bindKey: { win: 'Shift-Ctrl-Enter', mac: 'Shift-Command-Enter' },
       exec: () => {
         const sel = editor.session.getTextRange(editor.getSelectionRange());
+
         run(sel || editor.getValue());
       }
     });
@@ -450,6 +483,8 @@
   document.getElementById('sel-theme').onchange = (e) => editor.setTheme(e.target.value);
   document.getElementById('sel-fontsize').onchange = (e) => editor.setFontSize(parseInt(e.target.value, 10) || 14);
 
+  document.getElementById('sel-ac-lang').onchange = (e) => { completionLangMode = e.target.value; };
+  document.getElementById('inp-example-filter').oninput = applyExamplesFilter;
 
   // init
   refreshFiles();
