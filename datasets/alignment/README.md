@@ -41,12 +41,13 @@ Example (EN):
   - `--start-index` لتحديد بداية الترقيم (1-based)
   - `--out-jsonl` مسار ملف JSONL مخصص، و`--out-csv` لمسار CSV
   - `--append` لضم النتائج إلى JSONL بدلاً من الاستبدال (CSV يُتجاوز في هذه الحالة)
+  - `--dedup-on-append` عند استخدامه مع `--append` يتجاوز تلقائيًا أي أمثلة مكرّرة بالمعرّف (id)
 
 أمثلة:
 - shard 1 (ex001..ex1000):
   - `python datasets/alignment/generate_dataset.py --total 1000 --seed 42 --start-index 1 --out-jsonl data_sharded.jsonl`
-- shard 2 (ex1001..ex2000) مع إضافة:
-  - `python datasets/alignment/generate_dataset.py --total 1000 --seed 43 --start-index 1001 --out-jsonl data_sharded.jsonl --append`
+- shard 2 (ex1001..ex2000) مع إضافة وتجاوز المكرر تلقائيًا:
+  - `python datasets/alignment/generate_dataset.py --total 1000 --seed 43 --start-index 1001 --out-jsonl data_sharded.jsonl --append --dedup-on-append`
 
 ## Notes
 - Keep numbers in [0,1] when modeling fuzzy states

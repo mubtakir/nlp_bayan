@@ -532,6 +532,7 @@ def gen_examples(n: int = 500, weights_str: str | None = None, start_index: int 
 
 
 def write_jsonl(examples: list[Example], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as f:
         for ex in examples:
             obj = {
@@ -545,12 +546,43 @@ def write_jsonl(examples: list[Example], path: Path) -> None:
                 "states": ex.states,
                 "split": ex.split,
             }
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
-def append_jsonl(examples: list[Example], path: Path) -> None:
+def _read_existing_ids(path: Path) -> set[str]:
+    ids: set[str] = set()
+    if not path.exists():
+        return ids
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    rid = obj.get("id")
+                    if isinstance(rid, str):
+                        ids.add(rid)
+                except Exception:
+                    continue
+    except FileNotFoundError:
+        return ids
+    return ids
+
+
+def append_jsonl(examples: list[Example], path: Path, dedup: bool = False) -> tuple[int, int]:
+    """Append examples to JSONL. If dedup=True, skip examples whose id already exists.
+    Returns (written, skipped)."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    existing: set[str] = _read_existing_ids(path) if dedup else set()
+    written = 0
+    skipped = 0
     with path.open("a", encoding="utf-8", newline="\n") as f:
         for ex in examples:
+            if dedup and ex.id in existing:
+                skipped += 1
+                continue
             obj = {
                 "id": ex.id,
                 "lang": ex.lang,
@@ -563,6 +595,10 @@ def append_jsonl(examples: list[Example], path: Path) -> None:
                 "split": ex.split,
             }
             f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+            written += 1
+            if dedup:
+                existing.add(ex.id)
+    return written, skipped
 
 
 def write_csv(examples: list[Example], path: Path) -> None:
@@ -603,6 +639,7 @@ def main() -> None:
     parser.add_argument("--out-jsonl", type=str, default="", help="Optional output JSONL path (default: datasets/alignment/sample_social_interactions.jsonl)")
     parser.add_argument("--out-csv", type=str, default="", help="Optional output CSV path (default: datasets/alignment/sample_social_interactions.csv)")
     parser.add_argument("--append", action="store_true", help="Append to JSONL (skip CSV) for sharded generation")
+    parser.add_argument("--dedup-on-append", action="store_true", help="When used with --append, skip examples whose id already exists in the output JSONL")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -614,8 +651,8 @@ def main() -> None:
     examples = gen_examples(args.total, args.weights, start_index=args.start_index)
 
     if args.append:
-        append_jsonl(examples, out_jsonl)
-        print(f"Appended: {len(examples)} -> {out_jsonl}")
+        written, skipped = append_jsonl(examples, out_jsonl, dedup=args.dedup_on_append)
+        print(f"Appended: {written} written, {skipped} skipped (dedup={'on' if args.dedup_on_append else 'off'}) -> {out_jsonl}")
     else:
         write_jsonl(examples, out_jsonl)
         write_csv(examples, out_csv)
