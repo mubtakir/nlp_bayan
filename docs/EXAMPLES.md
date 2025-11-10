@@ -21,6 +21,28 @@ Examples:
 - Bouncing ball GIF: examples/gif_bouncing_ball.md
 
 
+### 🎛️ Graphics — When to use SMIL vs Multi‑frame vs GIF
+```mermaid
+flowchart TD
+    A[What do you need to animate/render?] --> B{Vector shapes inside SVG?}
+    B -- Yes --> C[Use SMIL in SVG\nsvg_animate · svg_animate_motion · svg_animate_transform · svg_rotating_group]
+    C --> C1[Good for: rotations, opacity, path following]
+    B -- No --> D{Pixel/raster or heavy per‑frame math?}
+    D -- Yes --> E[Use Multi‑frame sequence\nPrint many frames; IDE Play/Pause + FPS]
+    E --> E1[Good for: simulations, particles, 3D projections]
+    D -- Need portable artifact? --> F[Use Animated GIF export\nimg_gif_from_frames / صورة_متحركة_من_إطارات]
+    F --> F1[Good for: sharing/embedding; not interactive]
+    C --> G{Need downloadable looping image?}
+    G -- Yes --> F
+    E --> G
+```
+
+Notes:
+- SMIL: inline SVG animation, no JS, compact and smooth for shape/transform/path.
+- Multi‑frame: generate frames with Bayan/Python math; previewed with IDE Play/Pause+FPS.
+- GIF: final artifact for sharing; larger sizes; not interactive; palette‑based.
+
+
 ### New — Graphics/Animation examples (2025-11-10)
 - examples/svg_rotating_logo.md — SMIL rotation
 - examples/svg_wave_autoplay.md — multi-frame sine wave (use Play/Pause + FPS)
