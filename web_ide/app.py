@@ -283,6 +283,7 @@ def api_ide_run():
             SCRIPTS_DIR,
             os.path.join(PROJECT_ROOT, 'examples'),
             os.path.join(PROJECT_ROOT, 'bayan_solutions'),
+            os.path.join(PROJECT_ROOT, 'ai'),
         }:
             if os.path.isdir(extra) and extra not in bayan_module_paths:
                 bayan_module_paths.insert(0, extra)

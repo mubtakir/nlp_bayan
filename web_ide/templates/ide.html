@@ -107,17 +107,134 @@
     rtl: true
   });
 
-  // Additional static completions for AI stdlib and common aliases
-  const aiItems = [
-    'ML.softmax_train','ML.softmax_predict','ML.accuracy_score',
-    'NLP.soft_tfidf_vector','NLP.jaro_winkler',
-    'DATA.pipeline_fit_transform','DATA.pipeline_transform',
-    'PCA_fit','PCA_transform','VarianceThreshold_fit','VarianceThreshold_transform',
-    'VotingClassifier','StackingClassifier','grid_search_cv_softmax'
+  // Autocomplete: AI stdlib (English + Arabic) — curated popular entries
+  const langTools = ace.require('ace/ext/language_tools');
+  const aiCompletions = [
+    // ML (supervised/unsupervised)
+    {caption:'softmax_train', value:'softmax_train', meta:'ai.ml', score:90, docText:'Train softmax (multi-class logistic) classifier.'},
+    {caption:'softmax_predict', value:'softmax_predict', meta:'ai.ml', score:90, docText:'Predict class labels using softmax model.'},
+    {caption:'logistic_regression_train', value:'logistic_regression_train', meta:'ai.ml', docText:'Train binary logistic regression; returns [w,b].'},
+    {caption:'logistic_regression_predict', value:'logistic_regression_predict', meta:'ai.ml', docText:'Predict 0/1 labels with threshold (default 0.5).'},
+    {caption:'logistic_regression_predict_proba', value:'logistic_regression_predict_proba', meta:'ai.ml', docText:'Return probabilities for logistic regression.'},
+    {caption:'k_nearest_neighbors_predict', value:'k_nearest_neighbors_predict', meta:'ai.ml', docText:'KNN classification for batch of samples.'},
+    {caption:'k_means', value:'k_means', meta:'ai.ml', docText:'K-means clustering (deterministic init).'},
+    {caption:'k_means_pp', value:'k_means_pp', meta:'ai.ml', docText:'K-means with k-means++ init (deterministic).'},
+    {caption:'random_forest_train', value:'random_forest_train', meta:'ai.ml', docText:'Train simple random forest (educational).'},
+    {caption:'random_forest_predict', value:'random_forest_predict', meta:'ai.ml', docText:'Predict with random forest model.'},
+    {caption:'decision_tree_train', value:'decision_tree_train', meta:'ai.ml', docText:'Train decision tree classifier.'},
+    {caption:'decision_tree_predict', value:'decision_tree_predict', meta:'ai.ml', docText:'Predict using decision tree.'},
+    {caption:'accuracy_score', value:'accuracy_score', meta:'ai.ml', docText:'Classification accuracy.'},
+    {caption:'precision_score', value:'precision_score', meta:'ai.ml', docText:'Precision for positive class.'},
+    {caption:'recall_score', value:'recall_score', meta:'ai.ml', docText:'Recall for positive class.'},
+    {caption:'f1_score', value:'f1_score', meta:'ai.ml', docText:'F1 = 2PR/(P+R).'},
+    {caption:'confusion_matrix', value:'confusion_matrix', meta:'ai.ml', docText:'Binary confusion matrix [[tn,fp],[fn,tp]].'},
+    {caption:'classification_report', value:'classification_report', meta:'ai.ml', docText:'Per-class precision/recall/F1 + averages.'},
+    {caption:'pca_fit', value:'pca_fit', meta:'ai.ml', docText:'Compute PCA components.'},
+    {caption:'pca_transform', value:'pca_transform', meta:'ai.ml', docText:'Project onto PCA components.'},
+    {caption:'variance_threshold_fit', value:'variance_threshold_fit', meta:'ai.ml', docText:'Select features above variance threshold.'},
+    {caption:'variance_threshold_transform', value:'variance_threshold_transform', meta:'ai.ml', docText:'Apply feature mask from fit.'},
+    {caption:'train_test_split', value:'train_test_split', meta:'ai.ml', docText:'Deterministic split without shuffle.'},
+    {caption:'train_test_split_stratified', value:'train_test_split_stratified', meta:'ai.ml', docText:'Label-stratified split; optional shuffle.'},
+    {caption:'k_fold_indices', value:'k_fold_indices', meta:'ai.ml', docText:'K-fold indices generator.'},
+    {caption:'stratified_k_fold_indices', value:'stratified_k_fold_indices', meta:'ai.ml', docText:'Stratified k-fold indices by labels.'},
+    {caption:'grid_search_cv_softmax', value:'grid_search_cv_softmax', meta:'ai.ml', docText:'Grid search for softmax hyperparameters.'},
+    {caption:'stacking_train', value:'stacking_train', meta:'ai.ml', docText:'Train simple stacking ensemble.'},
+    {caption:'stacking_predict', value:'stacking_predict', meta:'ai.ml', docText:'Predict with stacking ensemble.'},
+    {caption:'voting_classifier_predict', value:'voting_classifier_predict', meta:'ai.ml', docText:'Hard/soft voting across estimators.'},
+
+    // NLP
+    {caption:'preprocess_text', value:'preprocess_text', meta:'ai.nlp', docText:'Lowercase, remove punctuation, normalize spaces.'},
+    {caption:'tokenize_text', value:'tokenize_text', meta:'ai.nlp', docText:'Naive whitespace tokenizer.'},
+    {caption:'compute_tfidf', value:'compute_tfidf', meta:'ai.nlp', docText:'TF-IDF without logs (portable).'},
+    {caption:'compute_tfidf_log', value:'compute_tfidf_log', meta:'ai.nlp', docText:'Log TF and smoothed IDF via binary-search ln.'},
+    {caption:'compute_tfidf_log_norm', value:'compute_tfidf_log_norm', meta:'ai.nlp', docText:'TF-IDF (log) with L2 normalization.'},
+    {caption:'compute_tfidf_options', value:'compute_tfidf_options', meta:'ai.nlp', docText:'TF-IDF with options: sublinear_tf, smooth_idf.'},
+    {caption:'compute_tfidf_vocab_limit', value:'compute_tfidf_vocab_limit', meta:'ai.nlp', docText:'TF-IDF limited to top-k vocabulary.'},
+    {caption:'soft_tfidf_build', value:'soft_tfidf_build', meta:'ai.nlp', docText:'Build Soft TF-IDF model with Jaro–Winkler.'},
+    {caption:'soft_tfidf_vector', value:'soft_tfidf_vector', meta:'ai.nlp', docText:'Compute soft TF-IDF vector for text.'},
+    {caption:'soft_tfidf_cosine_similarity', value:'soft_tfidf_cosine_similarity', meta:'ai.nlp', docText:'Cosine similarity using soft TF-IDF.'},
+    {caption:'bm25_build', value:'bm25_build', meta:'ai.nlp', docText:'Build BM25 data from docs.'},
+    {caption:'bm25_score', value:'bm25_score', meta:'ai.nlp', docText:'BM25 scores for a query over docs.'},
+    {caption:'bm25_top_k', value:'bm25_top_k', meta:'ai.nlp', docText:'Top-k docs by BM25 score.'},
+    {caption:'bm25_score_with_term_weights', value:'bm25_score_with_term_weights', meta:'ai.nlp', docText:'BM25 with query-term weights.'},
+    {caption:'tfidf_cosine_similarity', value:'tfidf_cosine_similarity', meta:'ai.nlp', docText:'Cosine similarity between two texts via TF-IDF.'},
+    {caption:'cosine_similarity', value:'cosine_similarity', meta:'ai.nlp', docText:'Cosine over token lists (bag-of-words).'},
+    {caption:'cosine_similarity_dicts', value:'cosine_similarity_dicts', meta:'ai.nlp', docText:'Cosine for term->weight dictionaries.'},
+    {caption:'jaro_winkler_similarity', value:'jaro_winkler_similarity', meta:'ai.nlp', docText:'Jaro–Winkler string similarity.'},
+    {caption:'jaro_similarity', value:'jaro_similarity', meta:'ai.nlp', docText:'Jaro string similarity.'},
+    {caption:'levenshtein_distance', value:'levenshtein_distance', meta:'ai.nlp', docText:'Edit distance (Levenshtein).'},
+    {caption:'damerau_levenshtein_distance', value:'damerau_levenshtein_distance', meta:'ai.nlp', docText:'Edit distance with transposition.'},
+    {caption:'lcs_length', value:'lcs_length', meta:'ai.nlp', docText:'Longest Common Subsequence length.'},
+    {caption:'jaccard_char_ngrams', value:'jaccard_char_ngrams', meta:'ai.nlp', docText:'Jaccard over character n-grams.'},
+    {caption:'dice_char_ngrams', value:'dice_char_ngrams', meta:'ai.nlp', docText:'Sørensen–Dice over character n-grams.'},
+    {caption:'normalize_arabic', value:'normalize_arabic', meta:'ai.nlp', docText:'Normalize Arabic forms and diacritics.'},
+    {caption:'arabic_light_stem_tokens', value:'arabic_light_stem_tokens', meta:'ai.nlp', docText:'Light stemming for Arabic tokens.'},
+    {caption:'remove_stopwords', value:'remove_stopwords', meta:'ai.nlp', docText:'Remove stopwords (auto language).'},
+    {caption:'remove_stopwords_extended', value:'remove_stopwords_extended', meta:'ai.nlp', docText:'Remove stopwords with extended lists.'},
+
+    // DATA
+    {caption:'parse_csv_rows', value:'parse_csv_rows', meta:'ai.data', docText:'Parse CSV into list of fields per row.'},
+    {caption:'read_csv_string', value:'read_csv_string', meta:'ai.data', docText:'Parse CSV from a single string.'},
+    {caption:'write_csv_string', value:'write_csv_string', meta:'ai.data', docText:'Serialize rows to CSV string.'},
+    {caption:'read_json_string', value:'read_json_string', meta:'ai.data', docText:'Parse simple JSON (educational).'},
+    {caption:'write_json_array_string', value:'write_json_array_string', meta:'ai.data', docText:'Serialize string list to JSON array.'},
+    {caption:'write_json_object_string', value:'write_json_object_string', meta:'ai.data', docText:'Serialize dict(str->str) to JSON object.'},
+    {caption:'mean', value:'mean', meta:'ai.data', docText:'Arithmetic mean.'},
+    {caption:'variance', value:'variance', meta:'ai.data', docText:'Population variance.'},
+    {caption:'stddev', value:'stddev', meta:'ai.data', docText:'Standard deviation.'},
+    {caption:'median', value:'median', meta:'ai.data', docText:'Median (selection sort based).'},
+    {caption:'percentile', value:'percentile', meta:'ai.data', docText:'Linear interpolation percentile.'},
+    {caption:'quantiles', value:'quantiles', meta:'ai.data', docText:'Multiple percentiles from [0,1] list.'},
+    {caption:'iqr', value:'iqr', meta:'ai.data', docText:'Interquartile range (Tukey).'},
+    {caption:'pearson_r', value:'pearson_r', meta:'ai.data', docText:'Pearson correlation coefficient.'},
+    {caption:'minmax_normalize', value:'minmax_normalize', meta:'ai.data', docText:'Scale to [0,1].'},
+    {caption:'zscore_normalize', value:'zscore_normalize', meta:'ai.data', docText:'Standardize array using mean/std.'},
+    {caption:'standard_scaler_fit', value:'standard_scaler_fit', meta:'ai.data', docText:'Compute mean/std.'},
+    {caption:'standard_scaler_transform', value:'standard_scaler_transform', meta:'ai.data', docText:'Apply standard scaling.'},
+    {caption:'robust_scaler_fit', value:'robust_scaler_fit', meta:'ai.data', docText:'Compute median/IQR.'},
+    {caption:'robust_scaler_transform', value:'robust_scaler_transform', meta:'ai.data', docText:'Apply robust scaling.'},
+    {caption:'minmax_scaler_fit', value:'minmax_scaler_fit', meta:'ai.data', docText:'Compute min/max.'},
+    {caption:'minmax_scaler_transform', value:'minmax_scaler_transform', meta:'ai.data', docText:'Apply min-max scaling.'},
+    {caption:'bin_equal_width', value:'bin_equal_width', meta:'ai.data', docText:'Equal-width discretization to bin indices.'},
+    {caption:'one_hot_encode', value:'one_hot_encode', meta:'ai.data', docText:'One-hot encode integer indices.'},
+    {caption:'label_encoder_fit', value:'label_encoder_fit', meta:'ai.data', docText:'Build label vocabulary.'},
+    {caption:'label_encoder_transform', value:'label_encoder_transform', meta:'ai.data', docText:'Map labels to indices.'},
+    {caption:'frequency_encoder_fit', value:'frequency_encoder_fit', meta:'ai.data', docText:'Compute label frequencies.'},
+    {caption:'frequency_encoder_transform', value:'frequency_encoder_transform', meta:'ai.data', docText:'Map labels to frequency.'},
+    {caption:'target_encoder_fit', value:'target_encoder_fit', meta:'ai.data', docText:'Mean encoding per category.'},
+    {caption:'target_encoder_transform', value:'target_encoder_transform', meta:'ai.data', docText:'Map by learned means (fallback global).'},
+    {caption:'random_permutation', value:'random_permutation', meta:'ai.data', docText:'Deterministic Fisher–Yates perm.'},
+    {caption:'set_seed', value:'set_seed', meta:'ai.data', docText:'Set global PRNG seed.'},
+    {caption:'rand', value:'rand', meta:'ai.data', docText:'Uniform random in [0,1).'},
+    {caption:'randint', value:'randint', meta:'ai.data', docText:'Random integer in [a,b].'},
+    {caption:'shuffle_list', value:'shuffle_list', meta:'ai.data', docText:'Shuffle copy using PRNG.'},
+    {caption:'sample_list', value:'sample_list', meta:'ai.data', docText:'Sample k unique elements.'},
+    {caption:'train_test_split_shuffle', value:'train_test_split_shuffle', meta:'ai.data', docText:'Shuffle split using PRNG.'},
+    {caption:'pipeline_fit_transform', value:'pipeline_fit_transform', meta:'ai.data', docText:'Fit sequential steps; returns [X_out, models].'},
+    {caption:'pipeline_transform', value:'pipeline_transform', meta:'ai.data', docText:'Transform using fitted models.'},
+
+    // Arabic wrappers (selected)
+    {caption:'تدريب_انحدار_لوجستي', value:'تدريب_انحدار_لوجستي', meta:'ai.ar', docText:'Arabic alias: logistic_regression_train.'},
+    {caption:'توقع_انحدار_لوجستي', value:'توقع_انحدار_لوجستي', meta:'ai.ar', docText:'Arabic alias: logistic_regression_predict.'},
+    {caption:'انحدار_خطي', value:'انحدار_خطي', meta:'ai.ar', docText:'Arabic alias: linear_regression.'},
+    {caption:'تجميع_كي_مينز', value:'تجميع_كي_مينز', meta:'ai.ar', docText:'Arabic alias: k_means.'},
+    {caption:'مصفوفة_الالتباس', value:'مصفوفة_الالتباس', meta:'ai.ar', docText:'Arabic alias: confusion_matrix.'},
+    {caption:'تشابه_جيبي', value:'تشابه_جيبي', meta:'ai.ar', docText:'Arabic alias: cosine_similarity (lists).'},
+    {caption:'حساب_tfidf', value:'حساب_tfidf', meta:'ai.ar', docText:'Arabic alias: compute_tfidf.'},
+    {caption:'حساب_tfidf_لوغ', value:'حساب_tfidf_لوغ', meta:'ai.ar', docText:'Arabic alias: compute_tfidf_log.'},
+    {caption:'حساب_tfidf_لوغ_مطبع', value:'حساب_tfidf_لوغ_مطبع', meta:'ai.ar', docText:'Arabic alias: compute_tfidf_log_norm.'},
+    {caption:'ملاءمة_تحويل_أنبوب', value:'ملاءمة_تحويل_أنبوب', meta:'ai.ar', docText:'Arabic alias: pipeline_fit_transform.'},
+    {caption:'تحويل_أنبوب', value:'تحويل_أنبوب', meta:'ai.ar', docText:'Arabic alias: pipeline_transform.'},
+    {caption:'قراءة_CSV_نص', value:'قراءة_CSV_نص', meta:'ai.ar', docText:'Arabic alias: read_csv_string.'},
+    {caption:'كتابة_CSV_نص', value:'كتابة_CSV_نص', meta:'ai.ar', docText:'Arabic alias: write_csv_string.'},
+    {caption:'تطبيع_أدنى_أقصى', value:'تطبيع_أدنى_أقصى', meta:'ai.ar', docText:'Arabic alias: minmax_normalize.'},
+    {caption:'تطبيع_Z', value:'تطبيع_Z', meta:'ai.ar', docText:'Arabic alias: zscore_normalize.'},
+    {caption:'ترتيب_عشوائي', value:'ترتيب_عشوائي', meta:'ai.ar', docText:'Arabic alias: random_permutation.'},
+    {caption:'تقسيم_عشوائي_تدريب_اختبار', value:'تقسيم_عشوائي_تدريب_اختبار', meta:'ai.ar', docText:'Arabic alias: train_test_split_shuffle.'}
   ];
   const aiCompleter = {
     getCompletions: function(editor, session, pos, prefix, callback) {
-      const comps = aiItems.map(v => ({ caption: v, value: v, meta: 'ai', score: 80 }));
+      const comps = aiCompletions.map(it => ({ caption: it.caption, value: it.value, meta: it.meta, score: it.score || 80, docText: it.docText }));
       callback(null, comps);
     }
   };
@@ -136,8 +253,7 @@
   };
   updateDirty();
 
-  // Static completions
-  const langTools = ace.require('ace/ext/language_tools');
+  // Static keyword completer
   const keywords = [
     'class','def','return','if','elif','else','while','for','break','continue','try','except','finally','raise','assert','with','yield','async','await','import','from','as','pass','True','False','None','hybrid','fact','rule','query','print','super'
   ];
