@@ -1,0 +1,60 @@
+name: Create Release for Wave 16 (ai-stdlib-v16)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - ai-stdlib-v16
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Wave 16 release exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ai-stdlib-v16
+        run: |
+          set -e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
+          code=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+                   -H "Authorization: Bearer ${GH_TOKEN}" \
+                   -H "Accept: application/vnd.github+json" \
+                   "$API")
+          if [ "$code" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Wave 16 release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cat > /tmp/release.json << 'JSON'
+          {
+            "tag_name": "ai-stdlib-v16",
+            "name": "AI stdlib Wave 16 — ML: Stratified K-Fold + MCC + Kappa; NLP: Damerau–Levenshtein (364/364)",
+            "body": "- ML: stratified_k_fold_indices(y, k, shuffle=True, seed=42)\n- ML: train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42)\n- ML Metrics: matthews_corrcoef(y_true, y_pred, pos_label=1, neg_label=0); cohen_kappa_score(y_true, y_pred, labels)\n- NLP: damerau_levenshtein_distance(s1, s2) + Arabic wrapper: مسافة_دامراو_ليفنشتاين(نص1, نص2)\n- Tests: tests/test_ai_ml_wave16_metrics.py; tests/test_ai_ml_wave16_stratified.py; tests/test_ai_nlp_wave16.py — PASS\n- Total tests: 364/364\n- Docs updated: README, AI_LIBRARY_GUIDE.md, developer_guide.md, AI_HANDOFF_REPORT.md",
+            "draft": false,
+            "prerelease": false
+          }
+          JSON
+
+          code=$(curl -s -o /tmp/create.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -d @/tmp/release.json)
+          echo "Create release HTTP: $code"
+          test "$code" = "201"
+          jq -r '.html_url // ""' /tmp/create.json || true
+

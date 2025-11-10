@@ -671,3 +671,32 @@ Refer to docs/developer_guide.md (handoff appendix) for details.
 ### Notes
 - Kept implementations educational and dependency-free.
 - similarity() router left unchanged to avoid type ambiguity (list vs string). Direct functions provided with Arabic wrappers.
+
+
+
+## 📎 Addendum — 2025-11-10 — AI Stdlib Wave 16
+
+### Summary
+- ML: stratified_k_fold_indices(y, k, shuffle=True, seed=42); train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42)
+- ML Metrics: matthews_corrcoef(y_true, y_pred, pos_label=1, neg_label=0); cohen_kappa_score(y_true, y_pred, labels)
+- NLP: damerau_levenshtein_distance(s1, s2) + Arabic wrapper: مسافة_دامراو_ليفنشتاين(نص1, نص2)
+
+### Tests
+- tests/test_ai_ml_wave16_metrics.py → PASS
+- tests/test_ai_ml_wave16_stratified.py → PASS
+- tests/test_ai_nlp_wave16.py → PASS
+- Total: 364/364 tests passing
+
+### Notes
+- Stratified split uses per-class rounding to nearest integer via +0.5 then integer-increment loop (no int()).
+- For shuffling, LCG (a=1103515245, c=12345, m=2^31) + Fisher–Yates used to stay dependency-free.
+- Bayan syntax strictly enforced: colon after control keywords; no semicolons; avoid using "query" as identifier.
+
+### Next Steps (handoff to next model)
+- Wave 17 (PCA + VarianceThreshold + simple pipelines):
+  - Implement pca_fit(X, n_components) → [components, mean], pca_transform(X, components, mean)
+  - Implement variance_threshold_fit(X, thr) → mask; variance_threshold_transform(X, mask)
+  - Add a minimal Pipeline pattern (list of (name, fit_fn, transform_fn, params)) with run order and simple checks
+  - Tests: small numeric matrices with known projections; verify reconstruction error monotonic with n_components; unit tests for masks
+  - Docs: add v17 to AI_LIBRARY_GUIDE.md; README badges; add release workflow
+- Wave 18–20: follow roadmap in docs/developer_guide.md addendum (Softmax + micro/macro, Soft TF‑IDF, Voting/Stacking + grid search, polish + v1.0)

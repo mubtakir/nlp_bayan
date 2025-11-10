@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-361%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-364%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -17,7 +17,7 @@
 
 ---
 
-> Status update (2025-11-10): AI stdlib Waves 1–15 complete (361 tests passing). Wave 15: NLP (Jaro, Jaro–Winkler, Dice char-ngrams).
+> Status update (2025-11-10): AI stdlib Waves 1–16 complete (364 tests passing). Wave 16: ML (MCC + Cohen’s Kappa + Stratified K-Fold/Split) and NLP (Damerau–Levenshtein).
 
 
 <a name="english"></a>
@@ -38,7 +38,7 @@
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
-- ✅ **100% Test Coverage** - 361 passing tests
+- ✅ **100% Test Coverage** - 364 passing tests
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
@@ -245,7 +245,7 @@ Run all tests:
 python -m pytest tests/ -v
 ```
 
-**Result**: 361 tests passing (100% success rate) ✅
+**Result**: 364 tests passing (100% success rate) ✅
 
 ---
 
@@ -263,7 +263,7 @@ python -m pytest tests/ -v
 
 - **154 files** in the repository
 - **41,889 lines** of code and documentation
-- **361 tests** (100% passing)
+- **364 tests** (100% passing)
 - **5,594+ lines** of tutorials and guides
 - **10+ complete examples**
 - **3 programming paradigms** in one language
@@ -324,7 +324,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **ميزات حديثة** - Async/await، Generators، Decorators، Context Managers
 - ✅ **جاهزة للذكاء الاصطناعي** - دوال مدمجة لعلوم البيانات والتعلم الآلي
 - ✅ **قاعدة معرفة ديناميكية** - إضافة وحذف الحقائق أثناء التشغيل
-- ✅ **تغطية اختبارات 100%** - 361 اختبار ناجح
+- ✅ **تغطية اختبارات 100%** - 364 اختبار ناجح
 - ✅ **وثائق شاملة** - 5,594+ سطر من الدروس والأدلة
 - ✅ **تكامل مع النماذج اللغوية** - Prompts جاهزة لـ ChatGPT وClaude وغيرها
 
@@ -380,7 +380,7 @@ python -m bayan examples/hello.by
 python -m pytest tests/ -v
 ```
 
-**النتيجة**: 361 اختبار ناجح (100% نجاح) ✅
+**النتيجة**: 364 اختبار ناجح (100% نجاح) ✅
 
 ---
 

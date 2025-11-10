@@ -153,6 +153,13 @@ Arabic wrappers (v15):
 - دايس_محارف(نص1, نص2, ن=2)
 
 
+New (v16):
+- damerau_levenshtein_distance(s1, s2)
+
+Arabic wrappers (v16):
+- مسافة_دامراو_ليفنشتاين(نص1, نص2)
+
+
 Arabic wrappers:
 - تجهيز_نص(نص, لغة="auto")
 - تجزئة_نص(نص, لغة="auto")
@@ -242,6 +249,16 @@ Arabic wrappers (v7):
 - مدى_ربيعي(قائمة)
 - ارتباط_بيرسون(س, ص)
 - تطبيع_أدنى_أقصى(قائمة)
+
+New (v16):
+- stratified_k_fold_indices(y, k, shuffle=True, seed=42)
+- train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42)
+- matthews_corrcoef(y_true, y_pred, pos_label=1, neg_label=0)
+- cohen_kappa_score(y_true, y_pred, labels)
+
+Arabic wrappers (v16):
+- تقسيم_طي_تقاطعي_طبقي_مؤشرات(ت, ك, عشوائي=True, بذرة=42)
+
 
 - توقع_انحدار_لوجستي_احتمال(س, اوزان, انحياز)
 - مصفوفة_الالتباس(الحقيقة, التوقع)
@@ -485,5 +502,5 @@ Arabic wrappers:
 - مسافة_ليفنشتاين(نص1, نص2)
 
 ### Handoff status
-- Waves 1–15: complete, 361 tests passing.
-- All Wave 9–15 tests are passing.
+- Waves 1–16: complete, 364 tests passing.
+- All Wave 9–16 tests are passing.

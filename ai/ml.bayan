@@ -261,6 +261,87 @@ def train_test_split(X, y, test_ratio=0.25):
     return [X_train, X_test, y_train, y_test]
 }
 
+# --- Stratified Train/Test Split (preserve label proportions) ---
+
+def train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42):
+{
+    n = len(X)
+    # group indices by label
+    groups = {}
+    for i in range(n):
+    {
+        L = y[i]
+        if L in groups:
+        {
+            groups[L].append(i)
+        }
+        else:
+        {
+            lst = []
+            lst.append(i)
+            groups[L] = lst
+        }
+    }
+    # optional shuffle within each label group (LCG + Fisher–Yates)
+    if shuffle:
+    {
+        a = 1103515245
+        c = 12345
+        m = 2147483648
+        state = seed
+        for L in groups:
+        {
+            idxs = groups[L]
+            gn = len(idxs)
+            for ii in range(gn - 1, -1, -1):
+            {
+                state = (a * state + c) % m
+                u = state / m
+                t = u * (ii + 1)
+                j = 0
+                while (j + 1) <= t: { j = j + 1 }
+                # swap
+                tmp = idxs[ii]
+                idxs[ii] = idxs[j]
+                idxs[j] = tmp
+            }
+            groups[L] = idxs
+        }
+    }
+    # compute per-class test sizes
+    X_train = []
+    X_test = []
+    y_train = []
+    y_test = []
+    for L in groups:
+    {
+        idxs = groups[L]
+        g = len(idxs)
+        t = (g * test_ratio) + 0.5
+        tcount = 0
+        while (tcount + 1) <= t: { tcount = tcount + 1 }
+        if tcount < 0: { tcount = 0 }
+        if tcount > g: { tcount = g }
+        # split: first tcount -> test, rest -> train
+        for ii in range(g):
+        {
+            gi = idxs[ii]
+            if ii < tcount:
+            {
+                X_test.append(X[gi])
+                y_test.append(y[gi])
+            }
+            else:
+            {
+                X_train.append(X[gi])
+                y_train.append(y[gi])
+            }
+        }
+    }
+    return [X_train, X_test, y_train, y_test]
+}
+
+
 # --- Classification Metrics (binary, positive=1) ---
 
 def precision_score(y_true, y_pred, pos_label=1):
@@ -588,6 +669,8 @@ def classification_report(y_true, y_pred, labels):
             if y_true[i] == L:
             {
                 supp = supp + 1
+
+
                 if y_pred[i] == L: { tp = tp + 1 } else: { fn = fn + 1 }
             }
             else:
@@ -668,6 +751,76 @@ def classification_report(y_true, y_pred, labels):
     return rep
 }
 
+# --- Advanced Metrics ---
+
+def matthews_corrcoef(y_true, y_pred, pos_label=1, neg_label=0):
+{
+    cm = confusion_matrix(y_true, y_pred, pos_label, neg_label)
+    tn = cm[0][0]
+    fp = cm[0][1]
+    fn = cm[1][0]
+    tp = cm[1][1]
+    num = (tp * tn) - (fp * fn)
+    a = tp + fp
+    b = tp + fn
+    c = tn + fp
+    d = tn + fn
+    prod = a * b
+    prod = prod * c
+    prod = prod * d
+    if prod <= 0: { return 0.0 }
+    denom = pow(prod * 1.0, 0.5)
+    if denom == 0.0: { return 0.0 }
+    return num / denom
+}
+
+
+def cohen_kappa_score(y_true, y_pred, labels):
+{
+    res = confusion_matrix_multi(y_true, y_pred, labels)
+    mat = res[0]
+    labs = res[1]
+    m = len(labs)
+    # totals
+    total = 0
+    for i in range(m):
+    {
+        for j in range(m): { total = total + mat[i][j] }
+    }
+    if total == 0: { return 0.0 }
+    # observed agreement (Po)
+    diag = 0
+    for i in range(m): { diag = diag + mat[i][i] }
+    po = diag / (total * 1.0)
+    # expected agreement (Pe) from marginals
+    row_sum = []
+    col_sum = []
+    for i in range(m):
+    {
+        row_sum.append(0)
+        col_sum.append(0)
+    }
+    for i in range(m):
+    {
+        rs = 0
+        for j in range(m): { rs = rs + mat[i][j] }
+        row_sum[i] = rs
+    }
+    for j in range(m):
+    {
+        cs = 0
+        for i in range(m): { cs = cs + mat[i][j] }
+        col_sum[j] = cs
+    }
+    pe_num = 0.0
+    for i in range(m): { pe_num = pe_num + (row_sum[i] * col_sum[i] * 1.0) }
+    pe = pe_num / ( (total * 1.0) * (total * 1.0) )
+    one_minus_pe = 1.0 - pe
+    if one_minus_pe == 0.0: { return 0.0 }
+    return (po - pe) / one_minus_pe
+}
+
+
 
 # Probability outputs for logistic regression
 
@@ -694,6 +847,8 @@ def roc_curve(y_true, y_scores, pos_label=1):
     thresholds = []
     for i in range(len(y_scores)):
     {
+
+
         s = y_scores[i]
         if s in seen:
         {
@@ -839,6 +994,101 @@ def k_fold_indices(n, k, shuffle=True, seed=42):
 # Arabic wrapper
 
 def تقسيم_طي_تقاطعي_مؤشرات(ن, ك, عشوائي=True, بذرة=42): { return k_fold_indices(ن, ك, عشوائي, بذرة) }
+
+
+# --- Stratified K-Fold Cross-Validation (by labels) ---
+
+def stratified_k_fold_indices(y, k, shuffle=True, seed=42):
+{
+    n = len(y)
+    # group indices by label
+    groups = {}
+    for i in range(n):
+    {
+        L = y[i]
+        if L in groups:
+        {
+            groups[L].append(i)
+        }
+        else:
+        {
+            lst = []
+            lst.append(i)
+            groups[L] = lst
+        }
+    }
+    # initialize val lists per fold
+    val_lists = []
+    for f in range(k): { val_lists.append([]) }
+    # optional shuffle per label group (LCG + Fisher–Yates)
+    a = 1103515245
+    c = 12345
+    m = 2147483648
+    state = seed
+    for L in groups:
+    {
+        idxs = groups[L]
+        if shuffle:
+        {
+            gn = len(idxs)
+            for ii in range(gn - 1, -1, -1):
+            {
+                state = (a * state + c) % m
+                u = state / m
+                t = u * (ii + 1)
+                j = 0
+                while (j + 1) <= t: { j = j + 1 }
+                # swap
+                tmp = idxs[ii]
+                idxs[ii] = idxs[j]
+                idxs[j] = tmp
+            }
+        }
+        # round-robin assignment
+        gi = 0
+        while gi < len(idxs):
+        {
+            f = gi
+            # modulo without %: f = gi - k * floor(gi/k)
+            q = 0
+            r = gi
+            while r >= k:
+            {
+                r = r - k
+                q = q + 1
+            }
+            f = r
+            val_lists[f].append(idxs[gi])
+            gi = gi + 1
+        }
+    }
+    # build folds [train_idx, val_idx]
+    folds = []
+    for f in range(k):
+    {
+        val_idx = val_lists[f]
+        seen = {}
+        for i in range(len(val_idx)): { seen[val_idx[i]] = 1 }
+        train_idx = []
+        for i in range(n):
+        {
+            if i in seen:
+            {
+                # skip
+            }
+            else:
+            {
+                train_idx.append(i)
+            }
+        }
+        folds.append([train_idx, val_idx])
+    }
+    return folds
+}
+
+# Arabic wrapper
+
+def تقسيم_طي_تقاطعي_طبقي_مؤشرات(ت, ك, عشوائي=True, بذرة=42): { return stratified_k_fold_indices(ت, ك, عشوائي, بذرة) }
 
 
 # K-Fold evaluation for logistic regression (binary). Returns [precision, recall, f1, accuracy] averages
@@ -1005,6 +1255,15 @@ def k_means_pp_prob_init(data, k, seed=42):
     }
     state = seed
     centers = []
+
+# Arabic wrappers (new, Wave 16)
+
+def معامل_ارتباط_ماثيوز(الحقيقة, التوقع, pos_label=1, neg_label=0): { return matthews_corrcoef(الحقيقة, التوقع, pos_label, neg_label) }
+
+def كابا_كوهين(الحقيقة, التوقع, تسميات): { return cohen_kappa_score(الحقيقة, التوقع, تسميات) }
+
+def تقسيم_تدريب_اختبار_طبقي(س, ت, نسبة_اختبار=0.25, عشوائي=True, بذرة=42): { return train_test_split_stratified(س, ت, نسبة_اختبار, عشوائي, بذرة) }
+
     # choose first center randomly
     st = _lcg_next(state)
     state = st[0]

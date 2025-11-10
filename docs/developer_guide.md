@@ -256,3 +256,109 @@
 - دليل مكتبة الذكاء: ai/AI_LIBRARY_GUIDE.md
 - الاختبارات الجديدة: tests/test_ai_data_wave9.py, tests/test_ai_ml_wave9.py, tests/test_ai_nlp_wave9.py
 - الملفات ذات الصلة: ai/data.bayan, ai/ml.bayan, ai/nlp.bayan
+
+
+---
+
+## ملحق تسليم — مكتبة الذكاء الاصطناعي (Wave 16) + دليل استلام للمطوّر التالي (نموذج ذكي)
+
+هذا الملحق موجّه مباشرةً للمطوّر/النموذج الذكي الذي سيُكمل بقية الموجات. ستجد هنا تعريفًا سريعًا بلغة البيان، قواعدها العملية داخل هذا المستودع، وما أُنجز وما ينبغي عليك فعله خطوة بخطوة.
+
+### 1) تعريف سريع بلغة البيان (Cheat‑Sheet عملي)
+- البيان لغة هجينة: تقليدي + كائني + منطقي داخل كتلة واحدة `hybrid { ... }`.
+- القواعد النحوية الحرجة:
+  - ضع دائمًا `:` بعد `if/elif/else/for/while`.
+  - لا تستخدم `;` مطلقاً (كل جملة في سطر مستقل).
+  - الكلمة `query` محجوزة (لا تستخدمها كاسم متغيّر).
+  - لا توجد list comprehensions: استخدم حلقات صريحة.
+  - استخدم `pow()` بدل `**`؛ تجنب `//`؛ لا تستخدم شرائح سالبة؛ لا توجد تعابير ثلاثية.
+  - تجنّب `None` كقيمة تشغيلية؛ استخدم أعداد/قوائم مناسبة.
+- الأمثلة التالية هي النمط المعتمد في هذا المشروع:
+
+```bayan
+hybrid {
+  # حلقة مع شرط
+  s = 0
+  for i in range(5): {
+    if i > 2: {
+      s = s + i
+    }
+  }
+}
+```
+
+### 2) معايير الكود الخاصة بمكتبة AI التعليمية
+- بدون تبعيات خارجية (لا NumPy/SciPy): اكتب كل شيء بوضوح وباستخدام قوائم/حلقات.
+- العشوائية: إن احتجت، استخدم LCG (a=1103515245, c=12345, m=2^31) + Fisher–Yates.
+- القسمة الصحيحة/التقريب: لا تستخدم تحويلات `int(...)`; اعتمد على عمليات تراكمية أو حلقات للاقتراب العددي (مثال: التقريب إلى الأقرب عبر `t = x + 0.5` ثم زيادة عدّاد صحيح حتى ≤ t).
+- دوال عربية: إن أضفت وظيفة إنجليزية عامة، أضف غلافًا عربيًا عند الحاجة (نفس التواقيع بالعربية قدر الإمكان).
+- الاختبارات أولًا قدر الإمكان (TDD)، ثم تنفيذ الدوال، ثم تحديث الوثائق.
+
+### 3) أين وصلنا الآن؟
+- Waves 1–16: مكتملة.
+  - Wave 16 (جديد):
+    - ML: stratified_k_fold_indices, train_test_split_stratified
+    - ML Metrics: matthews_corrcoef, cohen_kappa_score
+    - NLP: damerau_levenshtein_distance + غلاف عربي: مسافة_دامراو_ليفنشتاين
+- الحالة: 364/364 اختبار ناجح.
+
+### 4) ما الذي يجب عليك فعله الآن (خارطة الطريق المختصرة)
+- Wave 17 — PCA + VarianceThreshold + Pipelines بسيطة:
+  - ML:
+    - pca_fit(X, n_components) → [components, mean]
+    - pca_transform(X, components, mean)
+    - variance_threshold_fit(X, thr) → mask
+    - variance_threshold_transform(X, mask)
+  - Data/Pipeline: كائن تحويل بسيط (قائمة من (name, fit_fn, transform_fn, params)) يُنفَّذ بالتتابع.
+  - اختبارات: مصفوفات صغيرة للتحقّق من إسقاطات PCA والمعاد بناء (تناقص الخطأ مع زيادة المكوّنات)، وأقنعة variance.
+  - توثيق: تحديث README/AI_LIBRARY_GUIDE/AI_HANDOFF_REPORT + إضافة release workflow.
+
+- Wave 18 — Softmax متعدد الفئات + متوسطات micro/macro، وNLP: Soft TF‑IDF:
+  - ML: لوغستي متعدد (softmax) train/predict + قياسات micro/macro (precision/recall/f1/accuracy).
+  - NLP: Soft TF‑IDF (ادماج تشابه رموز مثل Jaro‑Winkler داخل وزن المصطلح).
+  - اختبارات شاملة، أمثلة صغيرة.
+
+- Wave 19 — Ensembles + اختيار نموذج:
+  - VotingClassifier (hard/soft) + Stacking بسيط.
+  - Grid search صغيرة للمعاملات.
+
+- Wave 20 — Polish + v1.0:
+  - تثبيت الواجهات، أمثلة تعليمية، تحسين الأداء حيث يلزم، التوثيق النهائي.
+
+### 5) سير العمل لكل موجة (خطوات ثابتة)
+1. أضِف الاختبارات في `tests/` (اسم يبدأ بـ `test_ai_*_waveXX.py`).
+2. نفّذ الدوال داخل `ai/*.bayan`، وأضِف الأغلفة العربية إذا لزم.
+3. شغّل: `pytest -q tests/test_ai_..._waveXX.py` ثم `pytest -q` كاملًا.
+4. حدّث الوثائق:
+   - README: الشارة وعدّاد الاختبارات (364 → 3 أرقام جديدة عند الحاجة).
+   - ai/AI_LIBRARY_GUIDE.md: قسم vXX الجديد + حالة التسليم Waves 1–XX complete.
+   - docs/developer_guide.md: أضف ملحق موجة جديدة إذا كانت كبيرة.
+   - AI_HANDOFF_REPORT.md: Addendum للموجة.
+5. أضِف ملف إصدار: `.github/workflows/release-waveXX.yml` (نفس نمط الأمواج السابقة).
+6. التزم وسِم وادفع (حسب سياسة المستودع):
+   - الرسالة: `AI stdlib Wave XX — ...; tests: NNN/NNN passing`.
+   - الوسم: `ai-stdlib-vXX`.
+
+### 6) أمثلة صغيرة قد تنفعك أثناء التطوير
+- مصفوفات/قوائم ومقارنة عناصر:
+```bayan
+hybrid {
+  X = []
+  row = []; row.append(1); row.append(2); X.append(row)
+  row = []; row.append(3); row.append(4); X.append(row)
+}
+```
+
+- عدّاد/شرط بدون فواصل منقوطة:
+```bayan
+hybrid {
+  c = 0
+  for i in range(3): {
+    if i == 1: {
+      c = c + 1
+    }
+  }
+}
+```
+
+> تذكير نهائي: راعِ قواعد بيان بحزم (النقطتان بعد تراكيب التحكّم، عدم استخدام `;`، عدم استخدام `query` كمُعرّف، وتفادي التحويلات السريعة لأنواع الأعداد عبر int()).
