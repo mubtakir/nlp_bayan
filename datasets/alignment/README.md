@@ -37,6 +37,17 @@ Example (EN):
   - `python datasets/alignment/generate_dataset.py --total 1000 --seed 42 --weights 'social=0.30 physical=0.20 mixed=0.20 transport=0.10 health=0.08 education=0.05 work=0.04 market=0.02 public=0.01'`
 - Supported domains: social, physical, mixed, transport, health, education, work, market, public
 
+- Sharded/append mode (optional, لا يغيّر السلوك الافتراضي):
+  - `--start-index` لتحديد بداية الترقيم (1-based)
+  - `--out-jsonl` مسار ملف JSONL مخصص، و`--out-csv` لمسار CSV
+  - `--append` لضم النتائج إلى JSONL بدلاً من الاستبدال (CSV يُتجاوز في هذه الحالة)
+
+أمثلة:
+- shard 1 (ex001..ex1000):
+  - `python datasets/alignment/generate_dataset.py --total 1000 --seed 42 --start-index 1 --out-jsonl data_sharded.jsonl`
+- shard 2 (ex1001..ex2000) مع إضافة:
+  - `python datasets/alignment/generate_dataset.py --total 1000 --seed 43 --start-index 1001 --out-jsonl data_sharded.jsonl --append`
+
 ## Notes
 - Keep numbers in [0,1] when modeling fuzzy states
 - Prefer short, concrete sentences

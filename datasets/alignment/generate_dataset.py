@@ -449,10 +449,13 @@ def en_mixed_example(i: int) -> Example:
     )
 
 
-def gen_examples(n: int = 500, weights_str: str | None = None) -> list[Example]:
-    """Generate examples with weighted domain distribution and 50/50 AR/EN balance."""
+def gen_examples(n: int = 500, weights_str: str | None = None, start_index: int = 1) -> list[Example]:
+    """Generate examples with weighted domain distribution and 50/50 AR/EN balance.
+
+    start_index allows sharded generation with correct ids/splits.
+    """
     global N_TOTAL
-    N_TOTAL = n
+    N_TOTAL = (start_index - 1) + n
 
     # Allowed domains and default weights
     domains = [
@@ -517,7 +520,7 @@ def gen_examples(n: int = 500, weights_str: str | None = None) -> list[Example]:
     }
 
     examples: list[Example] = []
-    for i in range(1, n + 1):
+    for i in range(start_index, start_index + n):
         d = pick_domain()
         lang = "ar" if (i % 2 == 1) else "en"
         ex = gens[d][lang](i)
@@ -542,7 +545,23 @@ def write_jsonl(examples: list[Example], path: Path) -> None:
                 "states": ex.states,
                 "split": ex.split,
             }
-            # ensure_ascii=False to keep Arabic readable
+
+
+def append_jsonl(examples: list[Example], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8", newline="\n") as f:
+        for ex in examples:
+            obj = {
+                "id": ex.id,
+                "lang": ex.lang,
+                "natural_text": ex.natural_text,
+                "bayan_code": ex.bayan_code,
+                "logic_explanation": ex.logic_explanation,
+                "entities": ex.entities,
+                "actions": ex.actions,
+                "states": ex.states,
+                "split": ex.split,
+            }
             f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
@@ -580,21 +599,32 @@ def main() -> None:
     parser.add_argument("--total", type=int, default=500, help="Total number of examples (default: 500)")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed (default: 42)")
     parser.add_argument("--weights", type=str, default="", help="Domain weights, e.g. 'social=0.35 physical=0.25 transport=0.1' or comma-separated")
+    parser.add_argument("--start-index", type=int, default=1, help="1-based starting id index for sharding (default: 1)")
+    parser.add_argument("--out-jsonl", type=str, default="", help="Optional output JSONL path (default: datasets/alignment/sample_social_interactions.jsonl)")
+    parser.add_argument("--out-csv", type=str, default="", help="Optional output CSV path (default: datasets/alignment/sample_social_interactions.csv)")
+    parser.add_argument("--append", action="store_true", help="Append to JSONL (skip CSV) for sharded generation")
     args = parser.parse_args()
 
     random.seed(args.seed)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    examples = gen_examples(args.total, args.weights)
-    write_jsonl(examples, JSONL_PATH)
-    write_csv(examples, CSV_PATH)
+    out_jsonl = Path(args.out_jsonl) if args.out_jsonl else JSONL_PATH
+    out_csv = Path(args.out_csv) if args.out_csv else CSV_PATH
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
 
-    # Quick validation
-    assert JSONL_PATH.exists() and CSV_PATH.exists()
-    with JSONL_PATH.open("r", encoding="utf-8") as f:
-        cnt = sum(1 for _ in f)
-    assert cnt == args.total, f"Expected {args.total} lines, got {cnt}"
-    print("Generated:", JSONL_PATH, CSV_PATH, "(total=", args.total, ")")
+    examples = gen_examples(args.total, args.weights, start_index=args.start_index)
+
+    if args.append:
+        append_jsonl(examples, out_jsonl)
+        print(f"Appended: {len(examples)} -> {out_jsonl}")
+    else:
+        write_jsonl(examples, out_jsonl)
+        write_csv(examples, out_csv)
+        # Quick validation
+        assert out_jsonl.exists() and out_csv.exists()
+        with out_jsonl.open("r", encoding="utf-8") as f:
+            cnt = sum(1 for _ in f)
+        assert cnt == args.total, f"Expected {args.total} lines, got {cnt}"
+        print("Generated:", out_jsonl, out_csv, "(total=", args.total, ")")
 
 
 if __name__ == "__main__":
