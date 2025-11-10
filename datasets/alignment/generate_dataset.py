@@ -571,6 +571,32 @@ def _read_existing_ids(path: Path) -> set[str]:
     return ids
 
 
+def _max_existing_index(path: Path) -> int:
+    """Return the maximum numeric index seen in ids like 'ex001' in JSONL, or 0 if none."""
+    if not path.exists():
+        return 0
+    max_i = 0
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    rid = obj.get("id")
+                    if isinstance(rid, str) and rid.startswith("ex"):
+                        num = rid[2:]
+                        if num.isdigit():
+                            max_i = max(max_i, int(num))
+                except Exception:
+                    continue
+    except FileNotFoundError:
+        return 0
+    return max_i
+
+
+
 def append_jsonl(examples: list[Example], path: Path, dedup: bool = False) -> tuple[int, int]:
     """Append examples to JSONL. If dedup=True, skip examples whose id already exists.
     Returns (written, skipped)."""
@@ -640,6 +666,7 @@ def main() -> None:
     parser.add_argument("--out-csv", type=str, default="", help="Optional output CSV path (default: datasets/alignment/sample_social_interactions.csv)")
     parser.add_argument("--append", action="store_true", help="Append to JSONL (skip CSV) for sharded generation")
     parser.add_argument("--dedup-on-append", action="store_true", help="When used with --append, skip examples whose id already exists in the output JSONL")
+    parser.add_argument("--resume-auto", action="store_true", help="Auto-detect start index from existing JSONL (implies --append)")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -648,11 +675,18 @@ def main() -> None:
     out_csv = Path(args.out_csv) if args.out_csv else CSV_PATH
     out_jsonl.parent.mkdir(parents=True, exist_ok=True)
 
-    examples = gen_examples(args.total, args.weights, start_index=args.start_index)
+    # Determine start index (support auto-resume)
+    start_index = args.start_index
+    if args.resume_auto:
+        last = _max_existing_index(out_jsonl)
+        start_index = (last + 1) if last >= 0 else args.start_index
+        args.append = True  # auto-resume implies append mode
+
+    examples = gen_examples(args.total, args.weights, start_index=start_index)
 
     if args.append:
         written, skipped = append_jsonl(examples, out_jsonl, dedup=args.dedup_on_append)
-        print(f"Appended: {written} written, {skipped} skipped (dedup={'on' if args.dedup_on_append else 'off'}) -> {out_jsonl}")
+        print(f"Appended: {written} written, {skipped} skipped (dedup={'on' if args.dedup_on_append else 'off'}; start_index={start_index}) -> {out_jsonl}")
     else:
         write_jsonl(examples, out_jsonl)
         write_csv(examples, out_csv)

@@ -42,10 +42,15 @@ Example (EN):
   - `--out-jsonl` مسار ملف JSONL مخصص، و`--out-csv` لمسار CSV
   - `--append` لضم النتائج إلى JSONL بدلاً من الاستبدال (CSV يُتجاوز في هذه الحالة)
   - `--dedup-on-append` عند استخدامه مع `--append` يتجاوز تلقائيًا أي أمثلة مكرّرة بالمعرّف (id)
+  - `--resume-auto` يستكشف ملف JSONL الهدف ويكمل تلقائيًا من آخر معرّف (يعني ضمنيًا التشغيل بوضع `--append`)
+
 
 أمثلة:
 - shard 1 (ex001..ex1000):
   - `python datasets/alignment/generate_dataset.py --total 1000 --seed 42 --start-index 1 --out-jsonl data_sharded.jsonl`
+- shard N (auto-resume من آخر id موجود):
+  - `python datasets/alignment/generate_dataset.py --total 1000 --seed 44 --out-jsonl data_sharded.jsonl --resume-auto --dedup-on-append`
+
 - shard 2 (ex1001..ex2000) مع إضافة وتجاوز المكرر تلقائيًا:
   - `python datasets/alignment/generate_dataset.py --total 1000 --seed 43 --start-index 1001 --out-jsonl data_sharded.jsonl --append --dedup-on-append`
 
