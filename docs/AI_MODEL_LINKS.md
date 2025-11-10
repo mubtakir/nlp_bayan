@@ -217,6 +217,8 @@ https://github.com/mubtakir/bayaan-lang/archive/refs/heads/main.zip
   - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/datasets/alignment/sample_social_interactions.csv
 - Dataset README (RAW):
   - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/datasets/alignment/README.md
+- Hugging Face page:
+  - https://huggingface.co/datasets/Mubtakir/bayaan-alignment-sample
 
 ### Eval framework (coming soon)
 - https://github.com/mubtakir/bayaan-lang/tree/main/eval_framework
