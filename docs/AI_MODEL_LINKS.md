@@ -220,5 +220,14 @@ https://github.com/mubtakir/bayaan-lang/archive/refs/heads/main.zip
 - Hugging Face page:
   - https://huggingface.co/datasets/Mubtakir/bayaan-alignment-sample
 
-### Eval framework (coming soon)
-- https://github.com/mubtakir/bayaan-lang/tree/main/eval_framework
+### Eval framework (RAW)
+- Syntax checker:
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/syntax_checker.py
+- Logic validator:
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/logic_validator.py
+- Metrics:
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/metrics.py
+- CLI:
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/cli.py
+- Eval README:
+  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/README.md
