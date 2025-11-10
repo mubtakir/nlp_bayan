@@ -7,6 +7,30 @@ Bayan is a hybrid programming language that combines traditional imperative prog
 بيان هي لغة برمجية هجينة تجمع بين البرمجة الإجرائية التقليدية والبرمجة المنطقية. تدعم كلا من بناء جملة يشبه Python والبنى المنطقية التي تشبه Prolog.
 
 ## Basic Syntax - بناء الجملة الأساسي
+### Block Syntax and Indentation - صيغة الكتل والمسافات
+
+- Bayan does NOT require indentation; block boundaries are defined by a colon `:` after control flow keywords and curly braces `{}`.
+- لا تعتمد بيان على المسافات البادئة؛ تُحدَّد الكتل بالنقطتين بعد تراكيب التحكّم وبالأقواس المعقوفة `{}`.
+- No semicolons; each statement goes on its own line.
+- بلا فواصل منقوطة؛ كل تعليمة في سطر مستقل.
+
+```bayan
+# Blocks = colon + braces; indentation optional
+if x > 0:
+{
+    print("positive")
+}
+```
+Equivalent without indentation:
+
+```bayan
+if x > 0:
+{
+print("positive")
+}
+```
+
+
 
 ### Variables and Assignment - المتغيرات والإسناد
 

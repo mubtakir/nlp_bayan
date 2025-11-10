@@ -27,11 +27,30 @@
         <div>
           <span class="badge text-bg-dark" id="current-file">غير محفوظ</span>
         </div>
-        <div>
+        <div class="d-flex gap-2 align-items-center">
           <a class="btn btn-sm btn-primary" id="btn-run">تشغيل</a>
           <a class="btn btn-sm btn-secondary" id="btn-run-selection">تشغيل التحديد</a>
           <a class="btn btn-sm btn-success" id="btn-save">حفظ</a>
         </div>
+      </div>
+      <div class="px-3 py-2 d-flex flex-wrap align-items-center gap-2">
+        <label class="form-label m-0 me-1">أمثلة</label>
+        <select id="sel-examples" class="form-select form-select-sm" style="width:auto; min-width: 220px"></select>
+        <a class="btn btn-sm btn-outline-info" id="btn-load-example">تحميل</a>
+        <div class="vr mx-2"></div>
+        <label class="form-label m-0 me-1">السمة</label>
+        <select id="sel-theme" class="form-select form-select-sm" style="width:auto">
+          <option value="ace/theme/monokai" selected>Monokai</option>
+          <option value="ace/theme/chrome">Chrome</option>
+          <option value="ace/theme/dracula">Dracula</option>
+        </select>
+        <label class="form-label m-0 ms-2 me-1">حجم الخط</label>
+        <select id="sel-fontsize" class="form-select form-select-sm" style="width:auto">
+          <option>12</option>
+          <option selected>14</option>
+          <option>16</option>
+          <option>18</option>
+        </select>
       </div>
       <div id="editor" style="height: 55vh; width: 100%"></div>
       <div class="card-body">
@@ -54,8 +73,9 @@
     var BayanHighlightRules = function() {
       var keywords = (
         'and|as|assert|async|await|break|class|continue|def|del|elif|else|except|'
-        + 'False|finally|for|from|global|if|import|in|is|lambda|None|nonlocal|'
-        + 'not|or|pass|raise|return|True|try|while|with|yield|hybrid|fact|rule|query'
+        + 'False|finally|for|from|global|if|import|include|in|is|lambda|None|nonlocal|'
+        + 'not|or|pass|raise|return|True|try|while|with|yield|hybrid|fact|rule|query|assertz|retract|entity|apply|'
+        + 'إذا|وإلا|لكل|بينما|حقيقة|قاعدة|استعلام|كيان|طبق|إدراج|استيراد'
       );
       this.$rules = { start: [
         { token: 'comment.line.number-sign.bayan', regex: '#.*$' },
@@ -86,11 +106,35 @@
     wrap: true,
     rtl: true
   });
+
+  // Additional static completions for AI stdlib and common aliases
+  const aiItems = [
+    'ML.softmax_train','ML.softmax_predict','ML.accuracy_score',
+    'NLP.soft_tfidf_vector','NLP.jaro_winkler',
+    'DATA.pipeline_fit_transform','DATA.pipeline_transform',
+    'PCA_fit','PCA_transform','VarianceThreshold_fit','VarianceThreshold_transform',
+    'VotingClassifier','StackingClassifier','grid_search_cv_softmax'
+  ];
+  const aiCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+      const comps = aiItems.map(v => ({ caption: v, value: v, meta: 'ai', score: 80 }));
+      callback(null, comps);
+    }
+  };
+  langTools.addCompleter(aiCompleter);
+
   editor.setValue(`# مثال سريع\n\nprint("Hello Bayan!\n")\n\nclass A:{\n  def who():{ print("A") }\n}\n\nb = A()\nb.who()\n\n# منطق\nhybrid{\n  fact edge(a,b).\n  fact edge(b,c).\n  rule reachable(X,Y) :- edge(X,Y).\n  rule reachable(X,Y) :- edge(X,Z), reachable(Z,Y).\n  print("reachable(a, ?Y):")\n  query reachable(a, ?Y).\n}\n`, 1);
 
   const outputPre = document.getElementById('output');
   const currentFileBadge = document.getElementById('current-file');
   let currentFile = null;
+
+  editor.session.getUndoManager().markClean();
+  const updateDirty = () => {
+    const clean = editor.session.getUndoManager().isClean();
+    window.onbeforeunload = clean ? null : function(e){ e.preventDefault(); e.returnValue=''; };
+  };
+  updateDirty();
 
   // Static completions
   const langTools = ace.require('ace/ext/language_tools');
@@ -119,12 +163,16 @@
       a.textContent = f.name;
       a.onclick = async (e) => {
         e.preventDefault();
+
         const r = await fetch(`/api/ide/file?name=${encodeURIComponent(f.name)}`);
         if (r.ok) {
           const data = await r.json();
           editor.setValue(data.content, 1);
           currentFile = data.name;
           currentFileBadge.textContent = currentFile;
+              editor.session.getUndoManager().markClean();
+              updateDirty();
+
         }
       };
       list.appendChild(a);
@@ -143,6 +191,8 @@
     });
     if (res.ok) {
       currentFile = name; currentFileBadge.textContent = name; refreshFiles();
+      editor.session.getUndoManager().markClean();
+      updateDirty();
     } else {
       alert('فشل الحفظ');
     }
@@ -156,6 +206,7 @@
     });
     const data = await res.json();
     if (data.success) {
+      editor.session.clearAnnotations();
       let out = '';
       if (data.stdout) out += data.stdout;
       if (data.result !== null && data.result !== undefined) {
@@ -165,13 +216,62 @@
       }
       outputPre.textContent = out;
     } else {
+      annotateError(data.error, data.traceback);
       outputPre.textContent = `Error: ${data.error_type}: ${data.error}\n${data.traceback || ''}`;
     }
   }
 
+  function annotateError(errorText, traceback) {
+    try {
+      const text = (traceback || '') + '\n' + (errorText || '');
+      const m = text.match(/line\s+(\d+)/i);
+      if (m) {
+        const row = Math.max(0, parseInt(m[1], 10) - 1);
+        editor.session.setAnnotations([{ row, column: 0, text: errorText || 'Error', type: 'error' }]);
+        editor.scrollToLine(row, true, true, function(){});
+        editor.gotoLine(row + 1, 0, true);
+      }
+    } catch (e) {}
+  }
+
+  async function refreshExamples() {
+    try {
+      const res = await fetch('/api/ide/examples');
+      const items = await res.json();
+      const sel = document.getElementById('sel-examples');
+      sel.innerHTML = '';
+      items.forEach(it => {
+        const opt = document.createElement('option');
+        opt.value = it.name;
+        opt.textContent = it.name;
+        sel.appendChild(opt);
+      });
+    } catch (e) {}
+  }
+
+  function setupShortcuts() {
+    editor.commands.addCommand({
+      name: 'save', bindKey: { win: 'Ctrl-S', mac: 'Command-S' },
+      exec: () => saveFile(false)
+    });
+    editor.commands.addCommand({
+      name: 'run', bindKey: { win: 'Ctrl-Enter', mac: 'Command-Enter' },
+      exec: () => run(editor.getValue())
+    });
+    editor.commands.addCommand({
+      name: 'runSelection', bindKey: { win: 'Shift-Ctrl-Enter', mac: 'Shift-Command-Enter' },
+      exec: () => {
+        const sel = editor.session.getTextRange(editor.getSelectionRange());
+        run(sel || editor.getValue());
+      }
+    });
+    editor.session.on('change', updateDirty);
+  }
+
+
   // Buttons
   document.getElementById('btn-refresh').onclick = refreshFiles;
-  document.getElementById('btn-new').onclick = () => { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('',1); };
+  document.getElementById('btn-new').onclick = () => { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('',1); updateDirty(); };
   document.getElementById('btn-save').onclick = () => saveFile(false);
   document.getElementById('btn-save-as').onclick = () => saveFile(true);
   document.getElementById('btn-rename').onclick = async () => {
@@ -196,8 +296,30 @@
     run(sel || editor.getValue());
   };
 
+  // Toolbar handlers
+  document.getElementById('btn-load-example').onclick = async () => {
+    const sel = document.getElementById('sel-examples');
+    const name = sel.value;
+    if (!name) return;
+    const r = await fetch(`/api/ide/example?name=${encodeURIComponent(name)}`);
+    if (r.ok) {
+      const data = await r.json();
+      editor.setValue(data.code, 1);
+      currentFile = null;
+      currentFileBadge.textContent = 'غير محفوظ';
+      editor.session.getUndoManager().markClean();
+      updateDirty();
+    }
+  };
+  document.getElementById('sel-theme').onchange = (e) => editor.setTheme(e.target.value);
+  document.getElementById('sel-fontsize').onchange = (e) => editor.setFontSize(parseInt(e.target.value, 10) || 14);
+
+
   // init
   refreshFiles();
+  refreshExamples();
+  setupShortcuts();
+
 </script>
 {% endblock %}
 

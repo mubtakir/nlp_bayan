@@ -38,9 +38,13 @@
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
+- ✅ **Block Syntax** - Colon `:` + braces `{}`; indentation optional; no semicolons
+
 - ✅ **100% Test Coverage** - 379 passing tests
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
+
+- ✅ Built-in Web IDE — run Bayan in your browser; great if you can't install dev tools
 
 - ✅ Linguistic Templates — Multi-valued facts/rules/queries with Arabic nominal patterns (صفات/ألقاب/إضافة/ملكية)
 - ✅ Grammar-level nominal phrases — Parser sugar inside hybrid: محمد الطبيب. عصير العنب[of]. مالك البيت[belongs].
@@ -73,6 +77,44 @@ hybrid {
 ```bash
 python -m bayan examples/hello.by
 ```
+
+## 🧰 Built-in Web IDE (no install)
+
+If you can’t install development tools, Bayan ships with a simple Web IDE you can run locally:
+
+```bash
+python web_ide/app.py
+# then open your browser: http://127.0.0.1:5001/ide
+```
+
+- Create/rename/delete/save files (stored under web_ide/user_scripts)
+- Run whole file or only the selected code
+- Error messages with stack traces, RTL-friendly UI
+- Theme and font controls, keyboard shortcuts (Ctrl/Cmd+S to save, Ctrl/Cmd+Enter to run)
+
+## 🧩 Syntax: Blocks and Indentation
+
+Unlike Python, Bayan does NOT require indentation. Blocks are defined by a colon `:` after control keywords and braces `{}`. No semicolons; each statement on its own line.
+
+Formatted (readable):
+
+```bayan
+if x > 0:
+{
+  print("positive")
+}
+```
+
+Unformatted (still valid):
+
+```bayan
+if x > 0:
+{
+print("positive")
+}
+```
+
+---
 
 ---
 
@@ -295,6 +337,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+- ✅ محرر ويب مدمج — شغّل بيان في المتصفح؛ مناسب لمن لا يستطيع تثبيت بيئات عمل أخرى
+
 ## 🙏 Acknowledgments
 
 - Thanks to the open-source community
@@ -329,6 +373,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **دعم النصوص العربية** - معالجة مثالية للنصوص العربية بدون مكتبات خارجية
 - ✅ **ميزات حديثة** - Async/await، Generators، Decorators، Context Managers
 - ✅ **جاهزة للذكاء الاصطناعي** - دوال مدمجة لعلوم البيانات والتعلم الآلي
+- ✅ **صيغة الكتل** - نقطتان `:` وأقواس `{}`؛ المسافات البادئة اختيارية؛ بلا فواصل منقوطة
+
 - ✅ **قاعدة معرفة ديناميكية** - إضافة وحذف الحقائق أثناء التشغيل
 - ✅ **تغطية اختبارات 100%** - 379 اختبار ناجح
 - ✅ **وثائق شاملة** - 5,594+ سطر من الدروس والأدلة

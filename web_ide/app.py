@@ -195,6 +195,65 @@ def api_ide_rename():
     return jsonify({'success': True})
 
 
+# ----------------------------------
+# Routes: Examples browser for IDE
+# ----------------------------------
+EXAMPLES_DIR = os.path.join(PROJECT_ROOT, 'examples')
+SAFE_MD_NAME = re.compile(r'^[A-Za-z0-9_\-.]+\.md$')
+
+
+def _extract_first_bayan_block(text: str) -> str | None:
+    start = text.find("```bayan")
+    if start == -1:
+        return None
+    nl = text.find("\n", start)
+    if nl == -1:
+        return None
+    start = nl + 1
+    end = text.find("```", start)
+    if end == -1:
+        return None
+    return text[start:end].strip()
+
+
+@app.get('/api/ide/examples')
+def api_ide_examples():
+    items = []
+    try:
+        if os.path.isdir(EXAMPLES_DIR):
+            for name in sorted(os.listdir(EXAMPLES_DIR)):
+                if not name.endswith('.md'):
+                    continue
+                path = os.path.join(EXAMPLES_DIR, name)
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        txt = f.read()
+                    has_bayan = ("```bayan" in txt)
+                    if has_bayan:
+                        items.append({'name': name})
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    return jsonify(items)
+
+
+@app.get('/api/ide/example')
+def api_ide_example_get():
+    name = request.args.get('name') or ''
+    if not SAFE_MD_NAME.fullmatch(name):
+        abort(400, description='Invalid example name')
+    path = os.path.join(EXAMPLES_DIR, name)
+    if not os.path.isfile(path):
+        abort(404, description='Example not found')
+    with open(path, 'r', encoding='utf-8') as f:
+        txt = f.read()
+    code = _extract_first_bayan_block(txt)
+    if not code:
+        abort(404, description='No Bayan code block in example')
+    return jsonify({'name': name, 'code': code})
+
+
 # -----------------------------
 # Route: Run Bayan code
 # -----------------------------
