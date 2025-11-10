@@ -106,6 +106,17 @@
 - يتم عرض محتوى الوحدة عبر Proxy يتيح الوصول إلى الأصناف/الدوال/المتغيرات التي عرّفتها الوحدة.
 
 ## الإبلاغ عن الأخطاء (Bayan stack + code frames)
+
+## ملاحظات الواجهة الأمامية (Web IDE) — أمثلة ومعاينة ورسوميات
+- أمثلة IDE تُستكشف تلقائيًا من المجلد `examples/` لأي ملف `.md` يحتوي على كتلة ```bayan.
+- الاستدلال على المجال (domain) يتم من أول كتلة كود: أي `include "gfx/..."` ⇒ `gfx`، وتُستخدم لتصفية القائمة.
+- المعاينة تدعم تعدد المخرجات (SVG وdata:image/*) مع أدوات: السابق/التالي، تشغيل/إيقاف + FPS، نسخ، تنزيل.
+- أساليب التحريك الموصى بها اليوم داخل النموذج الحالي:
+  - SMIL داخل SVG: `svg_animate`, `svg_animate_transform`, `svg_animate_motion`, `svg_rotating_group` (+ أغلفة عربية).
+  - أطر متعددة: اطبع عدة SVG/صور وسيقوم شريط المعاينة بتدويرها.
+  - GIF متحرك: `img_gif_from_frames` (وأغلفته العربية) لإنتاج data:image/gif.
+- الإكمال التلقائي (Autocomplete) مُنسَّق يدويًا في `web_ide/templates/ide.html` ضمن مصفوفة `aiCompletions`، مع أعلام لغة (ar) ومجال (meta=gfx/ai/...).
+
 - كل زيارة لعقدة تضيف إطارًا إلى `_call_stack` بصيغة `(NodeType, line, column, filename)`، ويزال بعد التقييم.
 - عند التقاط خطأ، يُبنى `BayanRuntimeError` مع:
   - Bayan stack: `Node@file:line:col -> ...`

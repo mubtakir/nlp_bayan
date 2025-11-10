@@ -4,6 +4,15 @@
 > IDE Preview Tips (2025-11-10) — نصيحة معاينة IDE:
 > The Web IDE supports multi‑output preview (SVG and data:image/*). Use the toolbar: Prev/Next, Play/Pause with FPS, Copy, and Download.
 
+
+### New — Graphics/Animation examples (2025-11-10)
+- examples/svg_rotating_logo.md — SMIL rotation
+- examples/svg_wave_autoplay.md — multi-frame sine wave (use Play/Pause + FPS)
+- examples/svg_particle_sparkles.md — particle sparkles (multi-frame)
+- examples/svg_motion_path.md — SMIL animateMotion along path
+- examples/svg_3d_cube_frames.md — rotating 3D wireframe via multi-frames
+- examples/gif_bouncing_ball.md — animated GIF export (data:image/gif)
+
 ## Example 1: Family Relations - العلاقات العائلية
 
 This example demonstrates logical programming with facts and rules.

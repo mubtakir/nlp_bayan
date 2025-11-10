@@ -17,7 +17,7 @@ def run(code, filename="<mem>"):
 
 ---
 
-> IDE Tip (2025-11-10): In the Web IDE, outputs like SVG and data:image/* appear in the Preview panel. Use the toolbar (Prev/Next, Copy, Download) when multiple outputs are printed.
+> IDE Tip (2025-11-10): In the Web IDE, outputs like SVG and data:image/* appear in the Preview panel. Use the toolbar (Prev/Next, Play/Pause with FPS, Copy, Download) when multiple outputs are printed.
 
 
 ## 1) مرحبًا يا عالم
@@ -201,6 +201,17 @@ for _ in [1, 2, 3]:
 }
 print(repr(c))
 ```
+
+
+## 16) رسومات وتحريك سريع (SVG)
+```bayan
+include "gfx/svg.bayan"
+w = 200; h = 200; cx = 100; cy = 100
+ring = svg_circle(cx, cy, 70, "none", "#2980b9", 8)
+dot  = svg_circle(cx + 40, cy, 10, "#e74c3c", "none", 0)
+print(svg_wrap(w, h, svg_rotating_group(ring + dot, cx, cy, 0, 360, "4s", "indefinite")))
+```
+> ملاحظة: يمكنك أيضًا استخدام `svg_animate_motion` لتحريك عنصر على مسار.
 
 انتهى.
 
