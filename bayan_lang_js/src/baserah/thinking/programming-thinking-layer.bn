@@ -1,481 +1,0 @@
-/*
- * ==================== طبقة التفكير البرمجي ====================
- * Programming Thinking Layer - Revolutionary Baserah AI System
- *
- * المطور: باسل يحيى عبدالله
- * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
- *
- * طبقة تفكير متخصصة في التحليل البرمجي والخوارزميات
- * الطبقة الثانية عشرة (12) في نظام التفكير متعدد الطبقات
- */
-
-import { ThinkingLayerType, LayerState } from "./thinking-layer-base.bn";
-
-// ==================== أنواع التحليل البرمجي ====================
-
-enum ProgrammingAnalysisType {
-    ALGORITHM = "خوارزمية",
-    DATA_STRUCTURE = "بنية_بيانات",
-    COMPLEXITY = "تعقيد",
-    PATTERN = "نمط_برمجي",
-    OPTIMIZATION = "تحسين",
-    DEBUGGING = "تصحيح",
-    ARCHITECTURE = "معمارية",
-    LOGIC_FLOW = "تدفق_منطقي"
-}
-
-// ==================== مستوى التعقيد البرمجي ====================
-
-enum ProgrammingComplexity {
-    O_1 = "O(1) - ثابت",
-    O_LOG_N = "O(log n) - لوغاريتمي",
-    O_N = "O(n) - خطي",
-    O_N_LOG_N = "O(n log n) - خطي_لوغاريتمي",
-    O_N2 = "O(n²) - تربيعي",
-    O_N3 = "O(n³) - تكعيبي",
-    O_2N = "O(2^n) - أسي",
-    O_N_FACTORIAL = "O(n!) - عاملي"
-}
-
-// ==================== نمط البرمجة ====================
-
-enum ProgrammingParadigm {
-    PROCEDURAL = "إجرائي",
-    OOP = "كائني",
-    FUNCTIONAL = "وظيفي",
-    LOGIC = "منطقي",
-    DECLARATIVE = "تصريحي",
-    IMPERATIVE = "أمري",
-    REACTIVE = "تفاعلي",
-    EVENT_DRIVEN = "موجه_بالأحداث"
-}
-
-// ==================== بنية البيانات ====================
-
-enum DataStructureType {
-    ARRAY = "مصفوفة",
-    LIST = "قائمة",
-    STACK = "كومة",
-    QUEUE = "طابور",
-    TREE = "شجرة",
-    GRAPH = "رسم_بياني",
-    HASH_TABLE = "جدول_تجزئة",
-    HEAP = "كومة_ثنائية",
-    SET = "مجموعة",
-    MAP = "خريطة"
-}
-
-// ==================== نتيجة التحليل البرمجي ====================
-
-class ProgrammingAnalysisResult {
-    analysisType: ProgrammingAnalysisType;
-    codeSnippet: string;
-    language: string;
-    paradigm: ProgrammingParadigm;
-    complexity: ProgrammingComplexity;
-    dataStructures: DataStructureType[];
-    algorithms: string[];
-    patterns: string[];
-    suggestions: string[];
-    optimizations: string[];
-    bugs: string[];
-    confidence: number;
-    
-    constructor() {
-        this.analysisType = ProgrammingAnalysisType.ALGORITHM;
-        this.codeSnippet = "";
-        this.language = "bayan";
-        this.paradigm = ProgrammingParadigm.PROCEDURAL;
-        this.complexity = ProgrammingComplexity.O_N;
-        this.dataStructures = [];
-        this.algorithms = [];
-        this.patterns = [];
-        this.suggestions = [];
-        this.optimizations = [];
-        this.bugs = [];
-        this.confidence = 0.0;
-    }
-}
-
-// ==================== طبقة التفكير البرمجي ====================
-
-class ProgrammingThinkingLayer extends ThinkingLayerBase {
-    /*
-     * الطبقة البرمجية - التحليل البرمجي والخوارزمي
-     * الطبقة الثانية عشرة في النظام
-     */
-
-    knownPatterns: Map<string, any>;
-    knownAlgorithms: Map<string, any>;
-    codeHistory: any[];
-    
-    constructor(name: string = "ProgrammingLayer") {
-        super(ThinkingLayerType.PROGRAMMING, name);
-        this.knownPatterns = new Map();
-        this.knownAlgorithms = new Map();
-        this.codeHistory = [];
-        
-        this.initializeKnownPatterns();
-        this.initializeKnownAlgorithms();
-    }
-    
-    function initializeKnownPatterns(): void {
-        // أنماط التصميم الشهيرة
-        this.knownPatterns.set("singleton", {
-            name: "نمط المفرد",
-            category: "إنشائي",
-            description: "ضمان وجود نسخة واحدة فقط من الكائن"
-        });
-        
-        this.knownPatterns.set("factory", {
-            name: "نمط المصنع",
-            category: "إنشائي",
-            description: "إنشاء الكائنات دون تحديد الفئة الدقيقة"
-        });
-        
-        this.knownPatterns.set("observer", {
-            name: "نمط المراقب",
-            category: "سلوكي",
-            description: "إشعار الكائنات بالتغييرات"
-        });
-        
-        this.knownPatterns.set("strategy", {
-            name: "نمط الاستراتيجية",
-            category: "سلوكي",
-            description: "تغيير السلوك في وقت التشغيل"
-        });
-        
-        this.knownPatterns.set("decorator", {
-            name: "نمط المزخرف",
-            category: "بنيوي",
-            description: "إضافة وظائف جديدة للكائنات"
-        });
-    }
-    
-    function initializeKnownAlgorithms(): void {
-        // خوارزميات شهيرة
-        this.knownAlgorithms.set("binary_search", {
-            name: "البحث الثنائي",
-            complexity: ProgrammingComplexity.O_LOG_N,
-            category: "بحث",
-            description: "بحث في مصفوفة مرتبة"
-        });
-        
-        this.knownAlgorithms.set("quick_sort", {
-            name: "الترتيب السريع",
-            complexity: ProgrammingComplexity.O_N_LOG_N,
-            category: "ترتيب",
-            description: "ترتيب باستخدام التقسيم"
-        });
-        
-        this.knownAlgorithms.set("merge_sort", {
-            name: "ترتيب الدمج",
-            complexity: ProgrammingComplexity.O_N_LOG_N,
-            category: "ترتيب",
-            description: "ترتيب بالدمج"
-        });
-        
-        this.knownAlgorithms.set("dijkstra", {
-            name: "خوارزمية ديكسترا",
-            complexity: ProgrammingComplexity.O_N2,
-            category: "رسم_بياني",
-            description: "أقصر مسار في رسم بياني"
-        });
-        
-        this.knownAlgorithms.set("dynamic_programming", {
-            name: "البرمجة الديناميكية",
-            complexity: ProgrammingComplexity.O_N2,
-            category: "تحسين",
-            description: "حل المسائل بتقسيمها لمسائل فرعية"
-        });
-    }
-    
-    function specializedProcessing(inputData: any): object {
-        try {
-            let result = new ProgrammingAnalysisResult();
-            
-            // تحديد نوع المدخل
-            if (typeof inputData === "string") {
-                result.codeSnippet = inputData;
-                result.language = this.detectLanguage(inputData);
-            } else if (typeof inputData === "object") {
-                result.codeSnippet = JSON.stringify(inputData);
-                result.language = "json";
-            }
-            
-            // تحليل النمط البرمجي
-            result.paradigm = this.detectParadigm(result.codeSnippet);
-            
-            // تحليل التعقيد
-            result.complexity = this.analyzeComplexity(result.codeSnippet);
-            
-            // كشف بنى البيانات
-            result.dataStructures = this.detectDataStructures(result.codeSnippet);
-            
-            // كشف الخوارزميات
-            result.algorithms = this.detectAlgorithms(result.codeSnippet);
-            
-            // كشف الأنماط
-            result.patterns = this.detectPatterns(result.codeSnippet);
-            
-            // توليد الاقتراحات
-            result.suggestions = this.generateSuggestions(result);
-            
-            // توليد التحسينات
-            result.optimizations = this.generateOptimizations(result);
-            
-            // كشف الأخطاء المحتملة
-            result.bugs = this.detectPotentialBugs(result.codeSnippet);
-            
-            // حساب الثقة
-            result.confidence = this.calculateConfidence(result);
-            
-            // حفظ في السجل
-            this.codeHistory.push({
-                code: result.codeSnippet,
-                analysis: result,
-                timestamp: new Date()
-            });
-            
-            return {
-                type: "programming_analysis",
-                result: result,
-                confidence: result.confidence
-            };
-            
-        } catch (e) {
-            return {
-                type: "programming_error",
-                error: String(e),
-                confidence: 0.1
-            };
-        }
-    }
-    
-    function detectLanguage(code: string): string {
-        // كشف لغة البرمجة
-        if (code.includes("دالة") || code.includes("function")) {
-            return "bayan";
-        } else if (code.includes("def ")) {
-            return "python";
-        } else if (code.includes("function ") || code.includes("const ")) {
-            return "javascript";
-        } else if (code.includes("public class")) {
-            return "java";
-        } else if (code.includes("#include")) {
-            return "c++";
-        }
-        return "unknown";
-    }
-    
-    function detectParadigm(code: string): ProgrammingParadigm {
-        // كشف النمط البرمجي
-        if (code.includes("class ") || code.includes("صنف")) {
-            return ProgrammingParadigm.OOP;
-        } else if (code.includes("map") || code.includes("filter") || code.includes("reduce")) {
-            return ProgrammingParadigm.FUNCTIONAL;
-        } else if (code.includes("fact(") || code.includes("rule(")) {
-            return ProgrammingParadigm.LOGIC;
-        }
-        return ProgrammingParadigm.PROCEDURAL;
-    }
-
-    function analyzeComplexity(code: string): ProgrammingComplexity {
-        // تحليل التعقيد الزمني
-        let loopCount = (code.match(/for|while|loop|حلقة/g) || []).length;
-
-        if (loopCount === 0) {
-            return ProgrammingComplexity.O_1;
-        } else if (loopCount === 1) {
-            if (code.includes("binary") || code.includes("ثنائي")) {
-                return ProgrammingComplexity.O_LOG_N;
-            }
-            return ProgrammingComplexity.O_N;
-        } else if (loopCount === 2) {
-            return ProgrammingComplexity.O_N2;
-        } else if (loopCount === 3) {
-            return ProgrammingComplexity.O_N3;
-        } else if (code.includes("recursive") || code.includes("تكراري")) {
-            return ProgrammingComplexity.O_2N;
-        }
-
-        return ProgrammingComplexity.O_N;
-    }
-
-    function detectDataStructures(code: string): DataStructureType[] {
-        let structures: DataStructureType[] = [];
-
-        if (code.includes("[]") || code.includes("array") || code.includes("مصفوفة")) {
-            structures.push(DataStructureType.ARRAY);
-        }
-        if (code.includes("list") || code.includes("قائمة")) {
-            structures.push(DataStructureType.LIST);
-        }
-        if (code.includes("stack") || code.includes("كومة")) {
-            structures.push(DataStructureType.STACK);
-        }
-        if (code.includes("queue") || code.includes("طابور")) {
-            structures.push(DataStructureType.QUEUE);
-        }
-        if (code.includes("tree") || code.includes("شجرة")) {
-            structures.push(DataStructureType.TREE);
-        }
-        if (code.includes("graph") || code.includes("رسم")) {
-            structures.push(DataStructureType.GRAPH);
-        }
-        if (code.includes("map") || code.includes("hash") || code.includes("خريطة")) {
-            structures.push(DataStructureType.MAP);
-        }
-        if (code.includes("set") || code.includes("مجموعة")) {
-            structures.push(DataStructureType.SET);
-        }
-
-        return structures;
-    }
-
-    function detectAlgorithms(code: string): string[] {
-        let algorithms: string[] = [];
-
-        if (code.includes("binary") && code.includes("search")) {
-            algorithms.push("البحث الثنائي");
-        }
-        if (code.includes("quick") && code.includes("sort")) {
-            algorithms.push("الترتيب السريع");
-        }
-        if (code.includes("merge") && code.includes("sort")) {
-            algorithms.push("ترتيب الدمج");
-        }
-        if (code.includes("bubble") && code.includes("sort")) {
-            algorithms.push("الترتيب الفقاعي");
-        }
-        if (code.includes("dijkstra")) {
-            algorithms.push("خوارزمية ديكسترا");
-        }
-        if (code.includes("dynamic") || code.includes("dp")) {
-            algorithms.push("البرمجة الديناميكية");
-        }
-        if (code.includes("greedy")) {
-            algorithms.push("الخوارزمية الجشعة");
-        }
-        if (code.includes("backtrack")) {
-            algorithms.push("التراجع");
-        }
-
-        return algorithms;
-    }
-
-    function detectPatterns(code: string): string[] {
-        let patterns: string[] = [];
-
-        // كشف أنماط التصميم
-        if (code.includes("getInstance") || code.includes("احصل_على_النسخة")) {
-            patterns.push("نمط المفرد (Singleton)");
-        }
-        if (code.includes("factory") || code.includes("مصنع")) {
-            patterns.push("نمط المصنع (Factory)");
-        }
-        if (code.includes("observer") || code.includes("مراقب")) {
-            patterns.push("نمط المراقب (Observer)");
-        }
-        if (code.includes("strategy") || code.includes("استراتيجية")) {
-            patterns.push("نمط الاستراتيجية (Strategy)");
-        }
-        if (code.includes("decorator") || code.includes("مزخرف")) {
-            patterns.push("نمط المزخرف (Decorator)");
-        }
-        if (code.includes("adapter") || code.includes("محول")) {
-            patterns.push("نمط المحول (Adapter)");
-        }
-
-        return patterns;
-    }
-
-    function generateSuggestions(result: ProgrammingAnalysisResult): string[] {
-        let suggestions: string[] = [];
-
-        // اقتراحات بناءً على التعقيد
-        if (result.complexity === ProgrammingComplexity.O_N3 ||
-            result.complexity === ProgrammingComplexity.O_2N) {
-            suggestions.push("⚠️ التعقيد عالي جداً - فكر في تحسين الخوارزمية");
-        }
-
-        // اقتراحات بناءً على النمط
-        if (result.paradigm === ProgrammingParadigm.PROCEDURAL) {
-            suggestions.push("💡 يمكن تحويل الكود إلى نمط كائني لتحسين القابلية للصيانة");
-        }
-
-        // اقتراحات بناءً على بنى البيانات
-        if (result.dataStructures.length === 0) {
-            suggestions.push("📊 لم يتم كشف بنى بيانات واضحة - فكر في استخدام بنى مناسبة");
-        }
-
-        return suggestions;
-    }
-
-    function generateOptimizations(result: ProgrammingAnalysisResult): string[] {
-        let optimizations: string[] = [];
-
-        // تحسينات بناءً على التعقيد
-        if (result.complexity === ProgrammingComplexity.O_N2) {
-            optimizations.push("🚀 يمكن تحسين التعقيد باستخدام جدول تجزئة (Hash Table)");
-        }
-
-        if (result.complexity === ProgrammingComplexity.O_N3) {
-            optimizations.push("🚀 يمكن تحسين التعقيد باستخدام البرمجة الديناميكية");
-        }
-
-        // تحسينات بناءً على بنى البيانات
-        if (result.dataStructures.includes(DataStructureType.ARRAY)) {
-            optimizations.push("💾 إذا كان البحث متكرر، استخدم Map بدلاً من Array");
-        }
-
-        return optimizations;
-    }
-
-    function detectPotentialBugs(code: string): string[] {
-        let bugs: string[] = [];
-
-        // كشف أخطاء محتملة
-        if (code.includes("==") && !code.includes("===")) {
-            bugs.push("⚠️ استخدام == بدلاً من === قد يسبب مشاكل في المقارنة");
-        }
-
-        if (code.includes("var ")) {
-            bugs.push("⚠️ استخدام var قديم - استخدم let أو const");
-        }
-
-        if (code.includes("eval(")) {
-            bugs.push("🔴 استخدام eval() خطير أمنياً");
-        }
-
-        if (code.includes("while(true)") && !code.includes("break")) {
-            bugs.push("⚠️ حلقة لا نهائية محتملة - تأكد من وجود شرط خروج");
-        }
-
-        return bugs;
-    }
-
-    function calculateConfidence(result: ProgrammingAnalysisResult): number {
-        let confidence = 0.5; // قيمة أساسية
-
-        // زيادة الثقة بناءً على عدد العناصر المكتشفة
-        if (result.algorithms.length > 0) confidence += 0.1;
-        if (result.patterns.length > 0) confidence += 0.1;
-        if (result.dataStructures.length > 0) confidence += 0.1;
-        if (result.language !== "unknown") confidence += 0.1;
-
-        return Math.min(confidence, 1.0);
-    }
-}
-
-// ==================== تصدير ====================
-
-export {
-    ProgrammingThinkingLayer,
-    ProgrammingAnalysisType,
-    ProgrammingComplexity,
-    ProgrammingParadigm,
-    DataStructureType,
-    ProgrammingAnalysisResult
-};
-

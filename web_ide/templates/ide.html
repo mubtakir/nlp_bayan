@@ -312,10 +312,10 @@
     {caption:'svg_sphere', value:'svg_sphere(', meta:'gfx', score:85, docText:'2D sphere (circle with highlight).'},
 
     // GFX SVG animation (SMIL)
-    {caption:'svg_animate', value:'svg_animate(', meta:'gfx', score:84, docText:'<animate> element: attribute/values/dur/repeatCount...'},
-    {caption:'svg_animate_transform', value:'svg_animate_transform(', meta:'gfx', score:84, docText:'<animateTransform> rotate/scale/translate/skew...'},
-    {caption:'svg_animate_motion', value:'svg_animate_motion(', meta:'gfx', score:84, docText:'<animateMotion> follow a path (Bezier) with rotate=auto'},
-    {caption:'svg_rotating_group', value:'svg_rotating_group(', meta:'gfx', score:83, docText:'Wrap inner SVG in a rotating <g> (cx,cy, from→to, dur)'},
+    {caption:'svg_animate', value:'svg_animate(', meta:'gfx', score:84, docText:'<animate> attr+values; e.g. svg_animate("opacity","0;1","2s","indefinite")'},
+    {caption:'svg_animate_transform', value:'svg_animate_transform(', meta:'gfx', score:84, docText:'<animateTransform> e.g. rotate: svg_animate_transform("rotate","0 100 100","360 100 100","4s","indefinite")'},
+    {caption:'svg_animate_motion', value:'svg_animate_motion(', meta:'gfx', score:84, docText:'<animateMotion> path_d + dur + repeat + rotate; e.g. "M 20,100 C 80,20 140,180 200,100"'},
+    {caption:'svg_rotating_group', value:'svg_rotating_group(', meta:'gfx', score:83, docText:'Wrap inner in rotating <g>(inner,cx,cy,from,to,dur,repeat) → simple spin'},
 
     {caption:'pen_new', value:'pen_new(', meta:'gfx', score:82, docText:'New free-draw pen (path builder).'},
     {caption:'pen_move', value:'pen_move(', meta:'gfx', score:82, docText:'Move pen to (x,y).'},
@@ -347,10 +347,10 @@
     {caption:'كرة', value:'كرة(', meta:'gfx', score:85, docText:'كرة ثنائية الأبعاد (دائرة مع إضاءة).', ar:true},
 
     // تحريك SVG (SMIL) — Arabic wrappers
-    {caption:'حرك_SVG', value:'حرك_SVG(', meta:'gfx', score:84, docText:'عنصر <animate> لأي خاصية SVG (attribute/values/dur...).', ar:true},
-    {caption:'تحويل_متحرك', value:'تحويل_متحرك(', meta:'gfx', score:84, docText:'<animateTransform> دوران/تحجيم/إزاحة/ميل.', ar:true},
-    {caption:'تحريك_مسار', value:'تحريك_مسار(', meta:'gfx', score:84, docText:'<animateMotion> تحريك تابع على مسار مع rotate=auto.', ar:true},
-    {caption:'مجموعة_دوران', value:'مجموعة_دوران(', meta:'gfx', score:83, docText:'لفّ محتوى داخل مجموعة دوّارة حول (cx,cy).', ar:true},
+    {caption:'حرك_SVG', value:'حرك_SVG(', meta:'gfx', score:84, docText:'<animate> خاصية + قيم؛ مثال: حرك_SVG("opacity","0;1","2s","indefinite")', ar:true},
+    {caption:'تحويل_متحرك', value:'تحويل_متحرك(', meta:'gfx', score:84, docText:'<animateTransform> مثال دوران: تحويل_متحرك("rotate","0 100 100","360 100 100","4s","indefinite")', ar:true},
+    {caption:'تحريك_مسار', value:'تحريك_مسار(', meta:'gfx', score:84, docText:'<animateMotion> مسار + مدة + تكرار + تدوير؛ مثال مسار Bezier.', ar:true},
+    {caption:'مجموعة_دوران', value:'مجموعة_دوران(', meta:'gfx', score:83, docText:'مجموعة <g> تدور: (داخل، مركز_س، مركز_ص، من، إلى، مدة، تكرار).', ar:true},
 
     // GFX raster (Pillow)
     {caption:'img_canvas', value:'img_canvas(', meta:'gfx', score:84, docText:'Create a new RGBA canvas (requires Pillow).'},
@@ -368,8 +368,8 @@
     {caption:'نص_صورة', value:'نص_صورة(', meta:'gfx', score:84, docText:'رسم نص على الصورة.', ar:true},
     {caption:'صورة_إلى_URI', value:'صورة_إلى_URI(', meta:'gfx', score:84, docText:'تصدير الصورة كسلسلة data URI.', ar:true},
     // Raster GIF export
-    {caption:'img_gif_from_frames', value:'img_gif_from_frames(', meta:'gfx', score:83, docText:'Animated GIF (data URI) from list of frames.'},
-    {caption:'صورة_متحركة_من_إطارات', value:'صورة_متحركة_من_إطارات(', meta:'gfx', score:83, docText:'توليد GIF متحرك (data URI) من إطارات.', ar:true},
+    {caption:'img_gif_from_frames', value:'img_gif_from_frames(', meta:'gfx', score:83, docText:'Animated GIF (data URI) from frames[list of PIL Images]; duration_ms per frame.'},
+    {caption:'صورة_متحركة_من_إطارات', value:'صورة_متحركة_من_إطارات(', meta:'gfx', score:83, docText:'GIF متحرك (data URI) من قائمة صور؛ المدة بالمللي ثانية لكل إطار.', ar:true},
 
     {caption:'قلم_جديد', value:'قلم_جديد(', meta:'gfx', score:82, docText:'قلم رسم حر (مسار).' , ar:true},
     {caption:'قلم_تحرك', value:'قلم_تحرك(', meta:'gfx', score:82, docText:'تحريك القلم إلى (x,y).' , ar:true},

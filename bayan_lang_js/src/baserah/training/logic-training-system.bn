@@ -1,389 +1,0 @@
-/**
- * نظام التدريب المنطقي للنموذج اللغوي
- * Logic-Based Training System for Language Model
- * 
- * @author Basel Yahya Abdullah
- * @description نظام تدريب يستخدم البرمجة المنطقية (مثل Prolog) لتعليم النموذج
- */
-
-استيراد { IdeaKnowledgeBase } من "../ai/languageGenerator/ideaKnowledgeBase";
-
-// ==================== قواعد منطقية أساسية ====================
-
-/**
- * قاعدة منطقية
- */
-صنف LogicRule {
-  متغير id: نص;
-  متغير head: نص;           // الرأس (النتيجة)
-  متغير body: مصفوفة;       // الجسم (الشروط)
-  متغير confidence: رقم;    // مستوى الثقة
-  
-  دالة constructor(id: نص, head: نص, body: مصفوفة, confidence: رقم = 1.0) {
-    هذا.id = id;
-    هذا.head = head;
-    هذا.body = body;
-    هذا.confidence = confidence;
-  }
-  
-  دالة toString(): نص {
-    متغير bodyStr = هذا.body.join(" و ");
-    ارجع `${هذا.head} :- ${bodyStr}. [${هذا.confidence}]`;
-  }
-}
-
-/**
- * حقيقة منطقية
- */
-صنف LogicFact {
-  متغير predicate: نص;      // المحمول
-  متغير arguments: مصفوفة;  // المعاملات
-  متغير confidence: رقم;    // مستوى الثقة
-  
-  دالة constructor(predicate: نص, args: مصفوفة, confidence: رقم = 1.0) {
-    هذا.predicate = predicate;
-    هذا.arguments = args;
-    هذا.confidence = confidence;
-  }
-  
-  دالة toString(): نص {
-    متغير argsStr = هذا.arguments.join(", ");
-    ارجع `${هذا.predicate}(${argsStr}). [${هذا.confidence}]`;
-  }
-}
-
-// ==================== قاعدة المعرفة المنطقية ====================
-
-/**
- * قاعدة المعرفة المنطقية
- */
-صنف LogicKnowledgeBase {
-  متغير facts: مصفوفة;      // الحقائق
-  متغير rules: مصفوفة;      // القواعد
-  
-  دالة constructor() {
-    هذا.facts = [];
-    هذا.rules = [];
-    هذا.initializeBasicKnowledge();
-  }
-  
-  /**
-   * تهيئة المعرفة الأساسية
-   */
-  دالة initializeBasicKnowledge(): فارغ {
-    // حقائق عن الكلمات العربية
-    هذا.addFact("كلمة", ["ماء", "اسم", "مذكر"]);
-    هذا.addFact("كلمة", ["شمس", "اسم", "مؤنث"]);
-    هذا.addFact("كلمة", ["كتب", "فعل", "ماضي"]);
-    هذا.addFact("كلمة", ["يكتب", "فعل", "مضارع"]);
-    
-    // حقائق عن العلاقات الدلالية
-    هذا.addFact("مترادف", ["ماء", "H2O"], 0.9);
-    هذا.addFact("مترادف", ["كتاب", "مؤلف"], 0.8);
-    هذا.addFact("متضاد", ["ساخن", "بارد"], 1.0);
-    هذا.addFact("متضاد", ["كبير", "صغير"], 1.0);
-    
-    // حقائق عن الفئات
-    هذا.addFact("فئة", ["ماء", "سائل"]);
-    هذا.addFact("فئة", ["سائل", "مادة"]);
-    هذا.addFact("فئة", ["كتاب", "شيء"]);
-    
-    // قواعد الاستدلال
-    هذا.addRule(
-      "متعدي",
-      "فئة(X, Z)",
-      ["فئة(X, Y)", "فئة(Y, Z)"],
-      0.9
-    );
-    
-    هذا.addRule(
-      "تماثل_الترادف",
-      "مترادف(Y, X)",
-      ["مترادف(X, Y)"],
-      1.0
-    );
-    
-    هذا.addRule(
-      "تماثل_التضاد",
-      "متضاد(Y, X)",
-      ["متضاد(X, Y)"],
-      1.0
-    );
-  }
-  
-  /**
-   * إضافة حقيقة
-   */
-  دالة addFact(predicate: نص, args: مصفوفة, confidence: رقم = 1.0): فارغ {
-    متغير fact = جديد LogicFact(predicate, args, confidence);
-    هذا.facts.push(fact);
-  }
-  
-  /**
-   * إضافة قاعدة
-   */
-  دالة addRule(id: نص, head: نص, body: مصفوفة, confidence: رقم = 1.0): فارغ {
-    متغير rule = جديد LogicRule(id, head, body, confidence);
-    هذا.rules.push(rule);
-  }
-  
-  /**
-   * البحث عن حقائق
-   */
-  دالة query(predicate: نص, args: مصفوفة = []): مصفوفة {
-    متغير results = [];
-    
-    // البحث في الحقائق المباشرة
-    لكل (متغير fact من هذا.facts) {
-      إذا (fact.predicate === predicate) {
-        إذا (args.length === 0 || هذا.matchArguments(fact.arguments, args)) {
-          results.push(fact);
-        }
-      }
-    }
-    
-    // البحث باستخدام القواعد
-    متغير inferredFacts = هذا.applyRules(predicate, args);
-    results = results.concat(inferredFacts);
-    
-    ارجع results;
-  }
-  
-  /**
-   * مطابقة المعاملات
-   */
-  دالة matchArguments(factArgs: مصفوفة, queryArgs: مصفوفة): منطقي {
-    إذا (factArgs.length !== queryArgs.length) ارجع خطأ;
-    
-    لكل (متغير i = 0; i < factArgs.length; i++) {
-      إذا (queryArgs[i] !== "_" && factArgs[i] !== queryArgs[i]) {
-        ارجع خطأ;
-      }
-    }
-    
-    ارجع صحيح;
-  }
-  
-  /**
-   * تطبيق القواعد للاستدلال
-   */
-  دالة applyRules(predicate: نص, args: مصفوفة): مصفوفة {
-    متغير inferred = [];
-    
-    لكل (متغير rule من هذا.rules) {
-      // تحقق إذا كانت القاعدة تنتج المحمول المطلوب
-      إذا (rule.head.startsWith(predicate)) {
-        // تحقق من شروط الجسم
-        متغير satisfied = صحيح;
-        لكل (متغير condition من rule.body) {
-          متغير condPredicate = condition.split("(")[0];
-          // بحث مبسط
-          متغير found = هذا.facts.some(f => f.predicate === condPredicate);
-          إذا (!found) {
-            satisfied = خطأ;
-            break;
-          }
-        }
-        
-        إذا (satisfied) {
-          // إنشاء حقيقة مستنتجة
-          متغير inferredFact = جديد LogicFact(
-            predicate,
-            args,
-            rule.confidence
-          );
-          inferred.push(inferredFact);
-        }
-      }
-    }
-    
-    ارجع inferred;
-  }
-  
-  /**
-   * عرض قاعدة المعرفة
-   */
-  دالة display(): فارغ {
-    console.log("\n╔════════════════════════════════════════════════════════════════╗");
-    console.log("║                  قاعدة المعرفة المنطقية                      ║");
-    console.log("╚════════════════════════════════════════════════════════════════╝\n");
-    
-    console.log("📋 الحقائق:");
-    لكل (متغير fact من هذا.facts) {
-      console.log(`  ${fact.toString()}`);
-    }
-    
-    console.log("\n📐 القواعد:");
-    لكل (متغير rule من هذا.rules) {
-      console.log(`  ${rule.toString()}`);
-    }
-    
-    console.log();
-  }
-}
-
-// ==================== نظام التدريب المنطقي ====================
-
-/**
- * نظام التدريب المنطقي
- */
-صنف LogicTrainingSystem {
-  متغير knowledgeBase: LogicKnowledgeBase;
-  متغير trainingData: مصفوفة;
-  متغير learnedRules: مصفوفة;
-  
-  دالة constructor() {
-    هذا.knowledgeBase = جديد LogicKnowledgeBase();
-    هذا.trainingData = [];
-    هذا.learnedRules = [];
-  }
-  
-  /**
-   * تحميل بيانات التدريب
-   */
-  دالة loadTrainingData(data: مصفوفة): فارغ {
-    هذا.trainingData = data;
-    console.log(`✅ تم تحميل ${data.length} عينة تدريب`);
-  }
-  
-  /**
-   * استخراج الأنماط من البيانات
-   */
-  دالة extractPatterns(): مصفوفة {
-    متغير patterns = [];
-    
-    لكل (متغير sample من هذا.trainingData) {
-      // استخراج الكلمات
-      متغير words = sample.split(/\s+/);
-      
-      // استخراج أنماط ثنائية (bigrams)
-      لكل (متغير i = 0; i < words.length - 1; i++) {
-        patterns.push({
-          type: "bigram",
-          pattern: [words[i], words[i + 1]],
-          frequency: 1
-        });
-      }
-      
-      // استخراج أنماط ثلاثية (trigrams)
-      لكل (متغير i = 0; i < words.length - 2; i++) {
-        patterns.push({
-          type: "trigram",
-          pattern: [words[i], words[i + 1], words[i + 2]],
-          frequency: 1
-        });
-      }
-    }
-    
-    ارجع patterns;
-  }
-  
-  /**
-   * تعلم قواعد جديدة من البيانات
-   */
-  دالة learnRules(): فارغ {
-    console.log("\n🧠 جاري تعلم القواعد من البيانات...\n");
-    
-    متغير patterns = هذا.extractPatterns();
-    
-    // تجميع الأنماط المتكررة
-    متغير patternCounts = {};
-    لكل (متغير pattern من patterns) {
-      متغير key = JSON.stringify(pattern.pattern);
-      إذا (patternCounts[key]) {
-        patternCounts[key]++;
-      } وإلا {
-        patternCounts[key] = 1;
-      }
-    }
-    
-    // إنشاء قواعد من الأنماط المتكررة
-    لكل (متغير key من Object.keys(patternCounts)) {
-      متغير count = patternCounts[key];
-      إذا (count >= 3) {  // نمط متكرر
-        متغير pattern = JSON.parse(key);
-        متغير confidence = Math.min(count / 10, 1.0);
-        
-        // إنشاء قاعدة
-        متغير ruleId = `learned_${هذا.learnedRules.length}`;
-        متغير head = `نمط_شائع(${pattern.join(", ")})`;
-        متغير body = [`تكرار >= ${count}`];
-        
-        هذا.learnedRules.push({
-          id: ruleId,
-          pattern: pattern,
-          frequency: count,
-          confidence: confidence
-        });
-        
-        console.log(`✅ تعلمت قاعدة: ${pattern.join(" ")} [${count} مرات، ثقة: ${confidence.toFixed(2)}]`);
-      }
-    }
-    
-    console.log(`\n📊 إجمالي القواعد المتعلمة: ${هذا.learnedRules.length}\n`);
-  }
-  
-  /**
-   * التدريب الكامل
-   */
-  دالة train(): فارغ {
-    console.log("\n🚀 بدء التدريب المنطقي...\n");
-    
-    // عرض قاعدة المعرفة الأولية
-    هذا.knowledgeBase.display();
-    
-    // تعلم قواعد جديدة
-    هذا.learnRules();
-    
-    // إضافة القواعد المتعلمة إلى قاعدة المعرفة
-    لكل (متغير rule من هذا.learnedRules) {
-      هذا.knowledgeBase.addFact(
-        "نمط_متعلم",
-        rule.pattern,
-        rule.confidence
-      );
-    }
-    
-    console.log("✅ اكتمل التدريب!\n");
-  }
-  
-  /**
-   * اختبار النموذج
-   */
-  دالة test(query: نص): كائن {
-    console.log(`\n🔍 اختبار: "${query}"\n`);
-    
-    // البحث في قاعدة المعرفة
-    متغير results = هذا.knowledgeBase.query("كلمة", [query, "_", "_"]);
-    
-    إذا (results.length > 0) {
-      console.log("✅ نتائج من قاعدة المعرفة:");
-      لكل (متغير result من results) {
-        console.log(`  ${result.toString()}`);
-      }
-    } وإلا {
-      console.log("❌ لم يتم العثور على نتائج مباشرة");
-    }
-    
-    // البحث في الأنماط المتعلمة
-    متغير learnedMatches = هذا.learnedRules.filter(r => 
-      r.pattern.includes(query)
-    );
-    
-    إذا (learnedMatches.length > 0) {
-      console.log("\n✅ أنماط متعلمة تحتوي على الكلمة:");
-      لكل (متغير match من learnedMatches) {
-        console.log(`  ${match.pattern.join(" ")} [ثقة: ${match.confidence.toFixed(2)}]`);
-      }
-    }
-    
-    ارجع {
-      directResults: results,
-      learnedPatterns: learnedMatches
-    };
-  }
-}
-
-// تصدير
-تصدير { LogicRule, LogicFact, LogicKnowledgeBase, LogicTrainingSystem };
-

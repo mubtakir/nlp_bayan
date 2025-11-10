@@ -1,275 +1,0 @@
-// ============================================
-// مثال شامل: التكامل بين جميع الأنظمة
-// Comprehensive Example: Integration of All Systems
-// ============================================
-
-// ============================================
-// 1. محرك الاستدلال الموحد
-// Unified Inference Engine
-// ============================================
-
-// إنشاء محرك موحد يجمع كل أنواع الاستدلال
-const unifiedEngine = new UnifiedInferenceEngine();
-
-// إضافة بعض الحقائق المنطقية
-unifiedEngine.getLogicEngine().assertFact(
-  new Predicate('والد', [new Term('أحمد', false), new Term('محمد', false)])
-);
-
-// إضافة علاقات سببية
-unifiedEngine.getCausalEngine().addRelation('حرارة_عالية', 'احتراق', RelationType.CAUSES, 0.9);
-unifiedEngine.getCausalEngine().addRelation('احتراق', 'دخان', RelationType.CAUSES, 0.95);
-
-// استعلام موحد - يبحث في جميع الأنظمة
-const result1 = unifiedEngine.query('لماذا دخان؟', QueryType.ALL);
-console.log(result1.toString());
-// سيبحث في: المنطق + السببي + اللغوي + المعرفي
-
-// استعلام سببي محدد
-const result2 = unifiedEngine.query('لماذا احتراق؟', QueryType.CAUSAL);
-console.log(`الأسباب: ${result2.causalResults.length}`);
-
-// استعلام لغوي
-const result3 = unifiedEngine.query('ما معنى كلمة شجرة؟', QueryType.LINGUISTIC);
-console.log(`المعاني: ${result3.linguisticResults[0].meanings.join(', ')}`);
-
-// ============================================
-// 2. التكامل اللغوي
-// Linguistic Integration
-// ============================================
-
-// إنشاء محرك التكامل اللغوي
-const integration = new LinguisticIntegration();
-
-// تحليل كلمة عربية وإنشاء Thing تلقائياً
-const tree = integration.createThingFromWord('شجرة');
-console.log(`تم إنشاء: ${tree.name} من فئة ${tree.category}`);
-
-// الخصائص المستنتجة من معاني الحروف
-const meanings = tree.getProperty('معاني_الكلمة');
-console.log(`المعاني: ${meanings.value.join(', ')}`);
-
-const confidence = tree.getProperty('ثقة_التحليل');
-console.log(`درجة الثقة: ${confidence.value}%`);
-
-// تحليل جملة كاملة
-const things = integration.analyzeSentence('الشجرة في الحديقة تحمل ثماراً');
-console.log(`تم استخراج ${things.length} أشياء من الجملة`);
-
-for (const thing of things) {
-  console.log(`- ${thing.name}: ${thing.category}`);
-}
-
-// البحث عن أشياء بناءً على معنى كلمة
-const similarThings = integration.findThingsByWordMeaning('شجرة');
-console.log(`وجدنا ${similarThings.length} أشياء مشابهة`);
-
-// ============================================
-// 3. نظام الزمن
-// Time System
-// ============================================
-
-// إنشاء محرك الزمن
-const timeEngine = new TimeEngine();
-
-// إنشاء شخص
-const ahmed = new Thing('أحمد', 'إنسان');
-ahmed.addProperty(new ThingProperty('عمر', 25, PropertyType.BIOLOGICAL, 'سنة'));
-ahmed.addProperty(new ThingProperty('طول', 175, PropertyType.PHYSICAL, 'سم'));
-
-// أخذ لقطة في البداية
-timeEngine.takeSnapshot(ahmed, 'البداية');
-console.log(`لقطة 1: عمر أحمد = ${ahmed.getProperty('عمر').value} سنة`);
-
-// تقدم الزمن سنتين
-timeEngine.advance(2, TimeUnit.YEAR);
-
-// تغيير العمر
-ahmed.updateProperty('عمر', 27);
-
-// أخذ لقطة ثانية
-timeEngine.takeSnapshot(ahmed, 'بعد سنتين');
-console.log(`لقطة 2: عمر أحمد = ${ahmed.getProperty('عمر').value} سنة`);
-
-// استعلام تاريخي: ما كان عمر أحمد قبل سنتين؟
-const ageBeforeTwoYears = timeEngine.queryHistory('أحمد', 'عمر', 2, TimeUnit.YEAR);
-console.log(`عمر أحمد قبل سنتين كان: ${ageBeforeTwoYears} سنة`);
-
-// تسجيل الأحداث
-const event1 = new Event('تخرج', EventType.ACTION, 'أحمد');
-timeEngine.recordEvent(event1, 'أحمد تخرج من الجامعة');
-
-timeEngine.advance(1, TimeUnit.YEAR);
-
-const event2 = new Event('توظيف', EventType.ACTION, 'أحمد');
-timeEngine.recordEvent(event2, 'أحمد حصل على وظيفة');
-
-// الحصول على تاريخ الأحداث
-const history = timeEngine.getEventHistory();
-console.log(`\nتاريخ الأحداث:`);
-for (const record of history) {
-  console.log(record.toString());
-}
-
-// ============================================
-// 4. نظام التخزين
-// Storage System
-// ============================================
-
-// إنشاء نظام التخزين
-const storage = new KnowledgeStorage('./my-knowledge.json', StorageFormat.JSON);
-
-// حفظ جميع المعرفة
-storage.save({
-  things: [tree, ahmed],
-  events: [event1, event2],
-  facts: unifiedEngine.getLogicEngine().getAllFacts(),
-  causalRelations: unifiedEngine.getCausalEngine().getRelationsFrom('حرارة_عالية')
-});
-
-console.log('\nتم حفظ المعرفة في الملف!');
-
-// تحميل المعرفة
-const loaded = storage.load();
-if (loaded) {
-  console.log(`تم تحميل:`);
-  console.log(`- ${loaded.things.length} أشياء`);
-  console.log(`- ${loaded.events.length} أحداث`);
-  console.log(`- ${loaded.facts.length} حقائق`);
-  console.log(`- ${loaded.causalRelations.length} علاقات سببية`);
-}
-
-// إحصائيات الملف
-const stats = storage.getStatistics();
-console.log(`\nإحصائيات الملف:`);
-console.log(`- الحجم: ${stats.size} بايت`);
-console.log(`- التنسيق: ${stats.format}`);
-
-// ============================================
-// 5. مثال متقدم: نظام ذكي متكامل
-// Advanced Example: Integrated Smart System
-// ============================================
-
-// سيناريو: نظام ذكي لتتبع نمو النباتات
-
-// 1. إنشاء نبات من تحليل لغوي
-const plant = integration.createThingFromWord('شجرة');
-
-// 2. إضافة خصائص إضافية
-plant.addProperty(new ThingProperty('طول', 50, PropertyType.PHYSICAL, 'سم'));
-plant.addProperty(new ThingProperty('عمر', 1, PropertyType.BIOLOGICAL, 'سنة'));
-plant.addProperty(new ThingProperty('عدد_الأوراق', 20, PropertyType.BIOLOGICAL));
-
-// 3. أخذ لقطة أولية
-timeEngine.takeSnapshot(plant, 'زراعة');
-
-// 4. محاكاة النمو عبر الزمن
-for (let year = 1; year <= 5; year++) {
-  // تقدم سنة
-  timeEngine.advance(1, TimeUnit.YEAR);
-  
-  // تحديث الخصائص (نمو)
-  const currentHeight = plant.getProperty('طول').value;
-  const currentAge = plant.getProperty('عمر').value;
-  const currentLeaves = plant.getProperty('عدد_الأوراق').value;
-  
-  plant.updateProperty('طول', currentHeight + 30);
-  plant.updateProperty('عمر', currentAge + 1);
-  plant.updateProperty('عدد_الأوراق', currentLeaves * 2);
-  
-  // أخذ لقطة
-  timeEngine.takeSnapshot(plant, `السنة ${year + 1}`);
-  
-  // تسجيل حدث
-  const growthEvent = new Event('نمو', EventType.TRANSFORMATION, plant.name);
-  timeEngine.recordEvent(growthEvent, `الشجرة نمت في السنة ${year + 1}`);
-}
-
-// 5. تحليل التطور
-console.log(`\n=== تحليل نمو الشجرة ===`);
-const snapshots = timeEngine.getSnapshots(plant.name);
-for (const snapshot of snapshots) {
-  const height = snapshot.properties.get('طول');
-  const age = snapshot.properties.get('عمر');
-  console.log(`${snapshot.timePoint.label}: طول=${height}سم، عمر=${age}سنة`);
-}
-
-// 6. استعلام تاريخي
-const heightThreeYearsAgo = timeEngine.queryHistory(plant.name, 'طول', 3, TimeUnit.YEAR);
-console.log(`\nطول الشجرة قبل 3 سنوات: ${heightThreeYearsAgo} سم`);
-
-// 7. حفظ كل شيء
-storage.save({
-  things: [plant],
-  events: timeEngine.getEventHistory().map(r => r.event)
-});
-
-console.log('\n✅ تم حفظ جميع البيانات!');
-
-// ============================================
-// 6. مثال: نظام استنتاج ذكي
-// Example: Smart Inference System
-// ============================================
-
-// إنشاء قاعدة معرفية
-const thingEngine = new ThingEngine();
-const inferenceEngine = new InferenceEngine();
-
-// إضافة أشياء
-const paper = new Thing('ورقة', 'مادة');
-paper.addProperty(new ThingProperty('درجة_الاحتراق', 233, PropertyType.CHEMICAL, '°C'));
-paper.addProperty(new ThingProperty('درجة_الحرارة_الحالية', 250, PropertyType.PHYSICAL, '°C'));
-
-thingEngine.addThing(paper);
-
-// الاستنتاج التلقائي
-const inferences = inferenceEngine.autoCheckThing(paper);
-
-console.log(`\n=== الاستنتاجات التلقائية ===`);
-for (const inference of inferences) {
-  console.log(inference.toString());
-}
-
-// ============================================
-// 7. مثال: معادلات منطقية
-// Example: Logical Equations
-// ============================================
-
-const equationEngine = new EquationEngine();
-
-// معادلة: أحمد + أكل + تفاحة = أحمد(شبع) + تفاحة(مستهلكة)
-const equation = new LogicalEquation('معادلة_الأكل');
-
-// إضافة المدخلات
-equation.addInput('أحمد', 'فاعل');
-equation.addInput('أكل', 'فعل');
-equation.addInput('تفاحة', 'مفعول_به');
-
-// إضافة المخرجات
-equation.addOutput('أحمد', 'شبع');
-equation.addOutput('تفاحة', 'مستهلكة');
-
-equationEngine.addEquation(equation);
-
-// تطبيق المعادلة
-const result = equationEngine.applyEquation('معادلة_الأكل', {
-  'أحمد': new Thing('أحمد', 'إنسان'),
-  'تفاحة': new Thing('تفاحة', 'فاكهة')
-});
-
-console.log(`\n=== نتيجة المعادلة ===`);
-console.log(result.toString());
-
-// ============================================
-// النهاية - End
-// ============================================
-
-console.log('\n🎉 انتهى المثال الشامل!');
-console.log('لقد رأيت كيف تتكامل جميع الأنظمة معاً:');
-console.log('✅ محرك الاستدلال الموحد');
-console.log('✅ التكامل اللغوي');
-console.log('✅ نظام الزمن');
-console.log('✅ نظام التخزين');
-console.log('✅ الاستنتاج الذكي');
-console.log('✅ المعادلات المنطقية');
-

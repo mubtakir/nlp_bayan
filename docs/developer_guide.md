@@ -117,6 +117,14 @@
   - GIF متحرك: `img_gif_from_frames` (وأغلفته العربية) لإنتاج data:image/gif.
 - الإكمال التلقائي (Autocomplete) مُنسَّق يدويًا في `web_ide/templates/ide.html` ضمن مصفوفة `aiCompletions`، مع أعلام لغة (ar) ومجال (meta=gfx/ai/...).
 
+
+## Python ↔ Bayan Interop — Quick Reference
+- في ملفات «بيان»: لا ن嵌ِّن بايثون بسينتاكسه مباشرة، بل نستورد وحداته ونستدعيها (`import myutils`, `import math`, `import random` ...). انظر المثال: examples/python_integration.bayan.
+- من بايثون إلى «بيان»: شغّل النص عبر `HybridLexer` و`HybridParser` و`HybridInterpreter` (انظر Basics «داخل الاختبارات/الأمثلة»).
+- محاذير:
+  - يسمح نظام الاستيراد أولًا بوحدات «بيان» ثم يحاول الاستيراد من بايثون وفق بيئة التنفيذ (قد تكون هناك قوائم سماح/حظر).
+  - لا توجد كتل «Python raw» داخل `.bayan`؛ استخدم الاستيراد أو اجعل بايثون هو السائق (driver) الذي يستدعي «بيان».
+
 - كل زيارة لعقدة تضيف إطارًا إلى `_call_stack` بصيغة `(NodeType, line, column, filename)`، ويزال بعد التقييم.
 - عند التقاط خطأ، يُبنى `BayanRuntimeError` مع:
   - Bayan stack: `Node@file:line:col -> ...`

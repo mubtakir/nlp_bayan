@@ -13,6 +13,11 @@
 - examples/svg_3d_cube_frames.md — rotating 3D wireframe via multi-frames
 - examples/gif_bouncing_ball.md — animated GIF export (data:image/gif)
 
+
+### Interoperability (Bayan ↔ Python)
+- examples/python_integration.bayan — import local/stdlib Python modules from Bayan; plus hybrid block demo.
+- examples/myutils.py — simple Python module consumed by the above example.
+
 ## Example 1: Family Relations - العلاقات العائلية
 
 This example demonstrates logical programming with facts and rules.
