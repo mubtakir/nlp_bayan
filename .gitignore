@@ -143,3 +143,6 @@ bayan_python0/
 
 # Local dev app (excluded)
 repo/
+
+# Conversation files (internal use only)
+ملف_المحاورة.md
