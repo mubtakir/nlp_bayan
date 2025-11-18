@@ -1,0 +1,12 @@
+import nlp_bayan.core.dialogue_state as ds
+import nlp_bayan.core.generator_pipeline as gen
+
+hybrid {
+  ds.reset()
+  docs = ["سعد ذهب المدرسة", "سعد رجع المدرسة"]
+  tok = {"سعد":"person", "المدرسة":"school"}
+  # الجولة الأولى
+  s1 = gen.generate_trigram_kb_from_docs("سعد","ذهب", docs, 1, 1, "maybe","is_green", tok, 0.0, 11, 0.0, False, [], 0, 0, -1, True, "")
+  # الجولة الثانية: يُفترض تفضيل آخر مكان من الحالة مع "رجع"
+  s2 = gen.generate_trigram_kb_from_docs("سعد","رجع", docs, 1, 1, "maybe","is_green", tok, 0.0, 22, 0.0, False, [], 0, 0, -1, True, "")
+}

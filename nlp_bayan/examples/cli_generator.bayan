@@ -1,0 +1,18 @@
+# Example CLI-like entry (callable) for NLP Bayan generation
+# يمكن استدعاؤه من الاختبارات أو من سطر أوامر بايان
+
+import nlp_bayan.api.simple_api as api
+
+# دالة ديمو بسيطة تعيد الجملة المتولدة
+# (يمكن لاحقًا تحويلها إلى CLI حقيقي عند توفر مكتبة بارس للأوامر)
+
+def demo():
+{
+    docs = ["سعد مر السوق", "السوق مزدحم"]
+    tok_map = {"سعد":"person", "السوق":"market"}
+    s = api.gen_sentence("سعد", "مر", docs, tok_map,
+                         5, 3, 0.0, 7, 0.0,
+                         True, [], 0, 0, 5)
+    return s
+}
+

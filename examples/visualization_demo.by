@@ -1,0 +1,273 @@
+"""
+أمثلة تصور النموذج الوجودي
+Existential Model Visualization Examples
+=========================================
+
+هذا الملف يوضح كيفية استخدام أدوات التصور لـ:
+1. تصور البيئات (Environment Visualization)
+2. تصور العلاقات (Relations Visualization)
+3. تصور الكائنات في سياقها (Beings in Context)
+4. تصور المجال الكامل (Domain Overview)
+
+This file demonstrates how to use visualization tools for:
+1. Environment Visualization
+2. Relations Visualization
+3. Beings in Context
+4. Domain Overview
+"""
+
+# ============================================================================
+# إعداد مجال بسيط للتصور
+# Setup a simple domain for visualization
+# ============================================================================
+
+مجال "كيمياء_بسيطة":
+{
+    "كائن_أساسي": "عنصر",
+    "بيئة": "محلول",
+    "معانٍ_أساسية": ["تفاعل", "ذوبان", "ترسيب"],
+    "علاقات": ["يتفاعل_مع", "يذوب_في"],
+    "خصائص": ["نشاط", "كتلة_ذرية", "عدد_ذري"]
+}
+
+# تعريف بيئة
+بيئة "محلول_مائي" من_نوع "محلول" في_مجال "كيمياء_بسيطة":
+{
+    "أبعاد": {
+        "مكاني": {
+            "حجم": "1 لتر",
+            "درجة_حرارة": "25 درجة مئوية"
+        },
+        "زماني": {
+            "زمن_التفاعل": "10 دقائق"
+        },
+        "مجالي": {
+            "pH": 7.0,
+            "تركيز": "1 مولار"
+        }
+    }
+}
+
+# تعريف عناصر
+كائن_وجودي "صوديوم" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول_مائي",
+    "خصائص_ذاتية": {
+        "نشاط": "عالي",
+        "كتلة_ذرية": 23,
+        "عدد_ذري": 11,
+        "رمز": "Na",
+        "مجموعة": "فلزات_قلوية"
+    },
+    "معانٍ_ذاتية": [
+        "فلز_نشط",
+        "يتفاعل_بسرعة_مع_الماء",
+        "يعطي_لهب_أصفر"
+    ],
+    "علاقات": {
+        "يتفاعل_مع": ["كلور", "ماء", "أكسجين"],
+        "يذوب_في": ["ماء"]
+    }
+}
+
+كائن_وجودي "كلور" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول_مائي",
+    "خصائص_ذاتية": {
+        "نشاط": "عالي",
+        "كتلة_ذرية": 35.5,
+        "عدد_ذري": 17,
+        "رمز": "Cl",
+        "مجموعة": "هالوجينات"
+    },
+    "معانٍ_ذاتية": [
+        "غاز_سام",
+        "مؤكسد_قوي",
+        "لون_أصفر_مخضر"
+    ],
+    "علاقات": {
+        "يتفاعل_مع": ["صوديوم", "هيدروجين"],
+        "يذوب_في": ["ماء"]
+    }
+}
+
+كائن_وجودي "ذهب" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول_مائي",
+    "خصائص_ذاتية": {
+        "نشاط": "منخفض",
+        "كتلة_ذرية": 197,
+        "عدد_ذري": 79,
+        "رمز": "Au",
+        "مجموعة": "فلزات_نبيلة"
+    },
+    "معانٍ_ذاتية": [
+        "فلز_نبيل",
+        "لا_يتفاعل_بسهولة",
+        "لون_أصفر_لامع"
+    ],
+    "علاقات": {
+        "يتفاعل_مع": [],
+        "يذوب_في": []
+    }
+}
+
+# ============================================================================
+# مثال 1: تصور البيئة
+# Example 1: Environment Visualization
+# ============================================================================
+
+print("=" * 60)
+print("مثال 1: تصور البيئة")
+print("Example 1: Environment Visualization")
+print("=" * 60)
+
+# تصور البيئة المائية
+env_diagram = visualize_environment("محلول_مائي")
+print("\nرسم البيئة (Mermaid):")
+print(env_diagram)
+
+# حفظ كملف HTML
+save_visualization(env_diagram, "environment_viz.html", "تصور البيئة المائية")
+print("\n✅ تم حفظ التصور في: environment_viz.html")
+
+# ============================================================================
+# مثال 2: تصور العلاقات
+# Example 2: Relations Visualization
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 2: تصور العلاقات")
+print("Example 2: Relations Visualization")
+print("=" * 60)
+
+# تصور العلاقات بين العناصر
+relations_diagram = visualize_relations("كيمياء_بسيطة")
+print("\nرسم العلاقات (Mermaid):")
+print(relations_diagram)
+
+# حفظ كملف HTML
+save_visualization(relations_diagram, "relations_viz.html", "تصور العلاقات بين العناصر")
+print("\n✅ تم حفظ التصور في: relations_viz.html")
+
+# ============================================================================
+# مثال 3: تصور كائن في سياقه
+# Example 3: Being in Context Visualization
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 3: تصور كائن في سياقه")
+print("Example 3: Being in Context Visualization")
+print("=" * 60)
+
+# تصور الصوديوم مع جميع خصائصه وعلاقاته
+being_diagram = visualize_being("صوديوم")
+print("\nرسم الكائن (Mermaid):")
+print(being_diagram)
+
+# حفظ كملف HTML
+save_visualization(being_diagram, "being_viz.html", "تصور الصوديوم في سياقه")
+print("\n✅ تم حفظ التصور في: being_viz.html")
+
+# ============================================================================
+# مثال 4: تصور المجال الكامل
+# Example 4: Domain Overview Visualization
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 4: تصور المجال الكامل")
+print("Example 4: Domain Overview Visualization")
+print("=" * 60)
+
+# تصور المجال الكيميائي بالكامل
+domain_diagram = visualize_domain("كيمياء_بسيطة")
+print("\nرسم المجال (Mermaid):")
+print(domain_diagram)
+
+# حفظ كملف HTML
+save_visualization(domain_diagram, "domain_viz.html", "تصور مجال الكيمياء البسيطة")
+print("\n✅ تم حفظ التصور في: domain_viz.html")
+
+# ============================================================================
+# مثال 5: تصور متعدد - مقارنة كائنات
+# Example 5: Multiple Visualizations - Comparing Beings
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 5: مقارنة كائنات")
+print("Example 5: Comparing Beings")
+print("=" * 60)
+
+# تصور الصوديوم
+sodium_diagram = visualize_being("صوديوم")
+save_visualization(sodium_diagram, "sodium_viz.html", "الصوديوم - عنصر نشط")
+
+# تصور الذهب
+gold_diagram = visualize_being("ذهب")
+save_visualization(gold_diagram, "gold_viz.html", "الذهب - عنصر خامل")
+
+print("\n✅ تم إنشاء تصورات للمقارنة:")
+print("   - sodium_viz.html (عنصر نشط)")
+print("   - gold_viz.html (عنصر خامل)")
+
+# ============================================================================
+# مثال 6: استخدام التصور مع الاستعلامات
+# Example 6: Using Visualization with Queries
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 6: تصور نتائج الاستعلامات")
+print("Example 6: Visualizing Query Results")
+print("=" * 60)
+
+# استعلام عن العناصر النشطة
+active_elements = استعلام_وجودي:
+{
+    "في_مجال": "كيمياء_بسيطة",
+    "عن": "عنصر",
+    "شروط": {"نشاط": "عالي"}
+}
+
+print(f"\nالعناصر النشطة: {active_elements}")
+
+# تصور العلاقات بين العناصر النشطة فقط
+# (في التطبيق الحقيقي، يمكن تصفية الرسم البياني)
+print("\nيمكن استخدام نتائج الاستعلامات لتصفية التصورات")
+
+# ============================================================================
+# مثال 7: تصور مع مكتبة مجالية
+# Example 7: Visualization with Domain Library
+# ============================================================================
+
+print("\n" + "=" * 60)
+print("مثال 7: تصور مكتبة مجالية")
+print("Example 7: Domain Library Visualization")
+print("=" * 60)
+
+# ملاحظة: يمكن تحميل مكتبة مجالية كاملة وتصورها
+# load "bayan/libraries/chemistry_domain.by"
+# chemistry_viz = visualize_domain("الكيمياء")
+# save_visualization(chemistry_viz, "chemistry_full_viz.html", "مجال الكيمياء الكامل")
+
+print("\nلتصور مكتبة مجالية كاملة:")
+print('1. load "bayan/libraries/chemistry_domain.by"')
+print('2. viz = visualize_domain("الكيمياء")')
+print('3. save_visualization(viz, "output.html", "العنوان")')
+
+print("\n" + "=" * 60)
+print("✅ انتهت أمثلة التصور!")
+print("✅ Visualization examples completed!")
+print("=" * 60)
+
+print("\nالملفات المنشأة:")
+print("Generated files:")
+print("  - environment_viz.html")
+print("  - relations_viz.html")
+print("  - being_viz.html")
+print("  - domain_viz.html")
+print("  - sodium_viz.html")
+print("  - gold_viz.html")
+
+print("\nافتح هذه الملفات في المتصفح لرؤية التصورات التفاعلية!")
+print("Open these files in a browser to see interactive visualizations!")
+

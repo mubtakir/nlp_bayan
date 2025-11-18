@@ -1,0 +1,135 @@
+# ============================================
+# محلل الجمل - Sentence Parser
+# يحلل الجمل العربية ويستخرج المعلومات
+# ============================================
+
+# دالة: تحليل جملة "X هو Y"
+def parse_is_sentence(sentence):
+{
+    # إزالة المسافات الزائدة
+    sentence = sentence.strip()
+    
+    # البحث عن "هو"
+    parts = sentence.split(" هو ")
+    
+    if len(parts) == 2:
+    {
+        subject = parts[0].strip()
+        predicate = parts[1].strip()
+        
+        # إزالة علامات الترقيم
+        predicate = predicate.replace(".", "")
+        predicate = predicate.replace("،", "")
+        predicate = predicate.replace("!", "")
+        
+        result = {}
+        result["subject"] = subject
+        result["predicate"] = "هو"
+        result["value"] = predicate
+        result["success"] = True
+        
+        return result
+    }
+    
+    # فشل التحليل
+    fail_result = {}
+    fail_result["success"] = False
+    return fail_result
+}
+
+# دالة: تحليل جملة "أخبرك أن X هو Y"
+def parse_tell_sentence(sentence):
+{
+    # إزالة "أخبرك أن" من البداية
+    if sentence.startswith("أخبرك أن "):
+    {
+        # استخرج الباقي
+        rest = sentence.replace("أخبرك أن ", "")
+        
+        # حلل كجملة "X هو Y"
+        return parse_is_sentence(rest)
+    }
+    
+    # فشل التحليل
+    fail_result = {}
+    fail_result["success"] = False
+    return fail_result
+}
+
+# دالة: تحليل سؤال "ما هو X؟"
+def parse_what_question(question):
+{
+    # إزالة المسافات
+    question = question.strip()
+    
+    # إزالة ؟
+    question = question.replace("؟", "")
+    
+    if question.startswith("ما هو "):
+    {
+        subject = question.replace("ما هو ", "")
+        subject = subject.strip()
+        
+        result = {}
+        result["type"] = "what_is"
+        result["subject"] = subject
+        result["success"] = True
+        
+        return result
+    }
+    
+    # فشل التحليل
+    fail_result = {}
+    fail_result["success"] = False
+    return fail_result
+}
+
+# دالة: اختبار المحلل
+def test_parser():
+{
+    print("=" * 70)
+    print("🧪 اختبار محلل الجمل")
+    print("=" * 70)
+    print("")
+    
+    # اختبار 1
+    print("اختبار 1: تحليل جملة إخبارية")
+    sentence1 = "أخبرك أن Python هو لغة برمجة"
+    result1 = parse_tell_sentence(sentence1)
+    
+    if result1["success"]:
+    {
+        print("✓ نجح التحليل!")
+        print("  الموضوع:", result1["subject"])
+        print("  الفعل:", result1["predicate"])
+        print("  القيمة:", result1["value"])
+    }
+    else:
+    {
+        print("✗ فشل التحليل")
+    }
+    print("")
+    
+    # اختبار 2
+    print("اختبار 2: تحليل سؤال")
+    question1 = "ما هو Python؟"
+    result2 = parse_what_question(question1)
+    
+    if result2["success"]:
+    {
+        print("✓ نجح التحليل!")
+        print("  نوع السؤال:", result2["type"])
+        print("  الموضوع:", result2["subject"])
+    }
+    else:
+    {
+        print("✗ فشل التحليل")
+    }
+    print("")
+    
+    print("=" * 70)
+}
+
+# تشغيل الاختبار
+test_parser()
+

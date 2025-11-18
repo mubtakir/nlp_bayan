@@ -1,0 +1,184 @@
+"""
+Reactive Programming Demo - عرض توضيحي للبرمجة التفاعلية
+Demonstrates reactive variables, watch blocks, and computed properties
+"""
+
+print("=== Reactive Programming Demo ===")
+print("")
+
+# ============================================================================
+# 1. Reactive Variables - المتغيرات التفاعلية
+# ============================================================================
+
+print("1. Reactive Variables:")
+print("   المتغيرات التفاعلية:")
+print("")
+
+# English example
+reactive temperature = 20
+print("Initial temperature: " + str(temperature))
+
+temperature = 25
+print("Updated temperature: " + str(temperature))
+
+# Arabic example
+تفاعلي درجة_الحرارة = 30
+print("درجة الحرارة الأولية: " + str(درجة_الحرارة))
+
+درجة_الحرارة = 35
+print("درجة الحرارة المحدثة: " + str(درجة_الحرارة))
+
+print("")
+
+# ============================================================================
+# 2. Watch Blocks - كتل المراقبة
+# ============================================================================
+
+print("2. Watch Blocks:")
+print("   كتل المراقبة:")
+print("")
+
+# English example - watch a single variable
+reactive counter = 0
+log = []
+
+watch counter:
+{
+    log = log + [counter]
+    print("Counter changed to: " + str(counter))
+}
+
+counter = 1
+counter = 2
+counter = 3
+
+print("Log: " + str(log))
+print("")
+
+# Arabic example - watch multiple variables
+تفاعلي س = 10
+تفاعلي ص = 20
+سجل = []
+
+راقب س, ص:
+{
+    سجل = سجل + [س + ص]
+    print("س أو ص تغيرت. المجموع: " + str(س + ص))
+}
+
+س = 15
+ص = 25
+
+print("السجل: " + str(سجل))
+print("")
+
+# ============================================================================
+# 3. Computed Properties - الخصائص المحسوبة
+# ============================================================================
+
+print("3. Computed Properties:")
+print("   الخصائص المحسوبة:")
+print("")
+
+# English example
+reactive width = 10
+reactive height = 20
+computed area = width * height
+
+print("Width: " + str(width) + " Height: " + str(height) + " Area: " + str(area))
+
+width = 15
+print("After width change - Area: " + str(area))
+
+height = 30
+print("After height change - Area: " + str(area))
+
+print("")
+
+# Arabic example
+تفاعلي طول = 5
+تفاعلي عرض = 8
+محسوب مساحة = طول * عرض
+
+print("الطول: " + str(طول) + " العرض: " + str(عرض) + " المساحة: " + str(مساحة))
+
+طول = 10
+print("بعد تغيير الطول - المساحة: " + str(مساحة))
+
+عرض = 12
+print("بعد تغيير العرض - المساحة: " + str(مساحة))
+
+print("")
+
+# ============================================================================
+# 4. Combined Example - مثال مركب
+# ============================================================================
+
+print("4. Combined Example:")
+print("   مثال مركب:")
+print("")
+
+# Temperature monitoring system
+reactive celsius = 25
+computed fahrenheit = (celsius * 9 / 5) + 32
+computed kelvin = celsius + 273.15
+
+alerts = []
+
+watch celsius:
+{
+    if celsius > 30:
+    {
+        alerts = alerts + ["High temperature warning!"]
+    }
+    print("Temperature changed:")
+    print("  Celsius: " + str(celsius))
+    print("  Fahrenheit: " + str(fahrenheit))
+    print("  Kelvin: " + str(kelvin))
+}
+
+print("Initial temperature:")
+print("  Celsius: " + str(celsius))
+print("  Fahrenheit: " + str(fahrenheit))
+print("  Kelvin: " + str(kelvin))
+print("")
+
+celsius = 35
+print("")
+
+celsius = 40
+print("")
+
+print("Alerts: " + str(alerts))
+print("")
+
+# ============================================================================
+# 5. Reactive Counter with History - عداد تفاعلي مع سجل
+# ============================================================================
+
+print("5. Reactive Counter with History:")
+print("   عداد تفاعلي مع سجل:")
+print("")
+
+reactive count = 0
+history = []
+computed double = count * 2
+
+watch count:
+{
+    history = history + [count]
+}
+
+count = 1
+count = 2
+count = 3
+count = 4
+count = 5
+
+print("Final count: " + str(count))
+print("Double: " + str(double))
+print("History: " + str(history))
+print("")
+
+print("=== Demo Complete ===")
+

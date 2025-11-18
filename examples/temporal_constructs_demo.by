@@ -1,0 +1,129 @@
+# Temporal Constructs Demo - البنى الزمنية
+# Demonstrates temporal programming features in Bayan
+
+print("=== Temporal Constructs Demo ===")
+print("")
+
+# 1. Temporal Block - كتلة زمنية
+# Execute actions in sequence with labeled steps
+print("1. Temporal Block (English):")
+temporal {
+    first: x = 10,
+    then: y = x * 2,
+    lastly: z = y + 5
+}
+print("Result: x=" + str(x) + ", y=" + str(y) + ", z=" + str(z))
+print("")
+
+# Arabic version
+print("2. Temporal Block (Arabic):")
+زمنيا {
+    أولا: أ = 5,
+    ثم: ب = أ + 10,
+    أخيرا: ج = ب * 2
+}
+print("النتيجة: أ=" + str(أ) + ", ب=" + str(ب) + ", ج=" + str(ج))
+print("")
+
+# 3. Delay Statement - تأخير
+# Pause execution for a specified duration
+print("3. Delay Statement:")
+print("Starting delay...")
+import time
+start = time.time()
+delay 0.5 seconds
+end = time.time()
+elapsed = end - start
+print("Delayed for " + str(elapsed) + " seconds")
+print("")
+
+# Arabic version
+print("4. Delay Statement (Arabic):")
+print("بدء التأخير...")
+بداية = time.time()
+تأخير 0.3 ثانية
+نهاية = time.time()
+مضى = نهاية - بداية
+print("تأخير لمدة " + str(مضى) + " ثانية")
+print("")
+
+# 5. Within Block - خلال
+# Execute code with a time constraint
+print("5. Within Block:")
+within 2.0 seconds {
+    result = 0
+    for i in range(100):
+        result = result + i
+}
+print("Completed within time limit. Result: " + str(result))
+print("")
+
+# Arabic version
+print("6. Within Block (Arabic):")
+خلال 1.0 ثانية {
+    مجموع = 0
+    for عدد in range(50):
+        مجموع = مجموع + عدد
+}
+print("اكتمل خلال الوقت المحدد. المجموع: " + str(مجموع))
+print("")
+
+# 7. Schedule Block - جدولة
+# Schedule repeated execution (simplified - executes once in current implementation)
+print("7. Schedule Block:")
+counter = 0
+schedule every 1.0 seconds {
+    counter = counter + 1
+    print("Scheduled task executed. Counter: " + str(counter))
+}
+print("")
+
+# Arabic version
+print("8. Schedule Block (Arabic):")
+عداد = 0
+جدولة كل 0.5 ثانية {
+    عداد = عداد + 1
+    print("تم تنفيذ المهمة المجدولة. العداد: " + str(عداد))
+}
+print("")
+
+# 9. Complex Example - مثال معقد
+# Combining multiple temporal constructs
+print("9. Complex Temporal Example:")
+temporal {
+    first: {
+        print("Step 1: Initializing...")
+        data = []
+    },
+    then: {
+        print("Step 2: Processing...")
+        delay 0.2 seconds
+        within 1.0 seconds {
+            for i in range(10):
+                data.append(i * 2)
+        }
+    },
+    lastly: {
+        print("Step 3: Finalizing...")
+        total = sum(data)
+        print("Total: " + str(total))
+    }
+}
+print("")
+
+# 10. Time Units - وحدات الوقت
+# Demonstrating different time units
+print("10. Different Time Units:")
+print("Delaying 0.1 seconds...")
+delay 0.1 seconds
+print("Done!")
+
+# Note: minutes and hours also supported
+# delay 1.5 minutes
+# delay 0.5 hours
+# تأخير 2 دقائق
+# تأخير 1 ساعة
+
+print("")
+print("=== Demo Complete ===")
+

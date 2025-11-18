@@ -35,5 +35,5 @@ def test_event_texts_en_and_ar():
     ar = env['نص_الأحداث']('ar')
     assert len(en) == len(ar) >= 2
     assert 'Ahmed' in en[0] and 'go' in en[0]
-    assert '' not in ar[0]  # quick sanity: should be printable
+    assert '\x7f' not in ar[0]  # quick sanity: should be printable
 

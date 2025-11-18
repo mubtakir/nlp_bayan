@@ -3,6 +3,9 @@ Traditional Interpreter for Bayan Language
 مفسر تقليدي للغة بيان
 """
 
+import random
+import re
+
 from .ast_nodes import *
 from .object_system import ClassSystem, BayanObject
 from .import_system import ImportSystem
@@ -114,6 +117,40 @@ class TraditionalInterpreter:
         self._source_filename = None
         # Track async functions
         self._async_functions = set()
+        # Reactive programming state
+        self._reactive_vars = set()  # Set of reactive variable names
+        self._watchers = []  # List of (variables, callback) tuples
+        self._computed_props = {}  # Dict of {prop_name: (expression, dependencies)}
+
+        # Cognitive-Semantic Model state
+        self._cognitive_entities = {}  # Dict of {name: {properties}}
+        self._cognitive_events = {}  # Dict of {name: event_config}
+        self._linguistic_patterns = {}  # Dict of {name: pattern_config}
+        self._ideas = {}  # Dict of {name: idea_config}
+        self._conceptual_blueprints = {}  # Dict of {name: blueprint_config}
+
+        # Semantic Programming & Knowledge Management state
+        self._semantic_meanings = {}  # Dict of {name: {relationships}}
+        self._knowledge_info = {}  # Dict of {name: {content, context}}
+        self._inference_rules = {}  # Dict of {name: {if, then}}
+        self._evolving_knowledge = {}  # Dict of {name: {current, history, future}}
+        self._ontologies = {}  # Dict of {name: {root, taxonomy}}
+        self._semantic_memory = []  # List of stored memories
+        self._concepts = {}  # Dict of {name: properties}
+        self._narratives = {}  # Dict of {name: {characters, events, structure}}
+        self._current_context = {}  # Current context state
+
+        # Existential Model state
+        self._domains = {}  # Dict of {name: domain_config}
+        self._environments = {}  # Dict of {name: environment_config}
+        self._existential_beings = {}  # Dict of {name: being_config}
+        self._domain_relations = {}  # Dict of {name: relation_config}
+        self._domain_actions = {}  # Dict of {name: action_config}
+        self._metaphorical_meanings = {}  # Dict of {name: meaning_config}
+        self._domain_laws = {}  # Dict of {name: law_config}
+
+        # RNG for sampling features
+        self._rng = random.Random()
 
         # Error reporting configuration
         self._err_color = False
@@ -131,6 +168,195 @@ class TraditionalInterpreter:
         self.global_env['set'] = set
         self.global_env['type'] = type
         self.global_env['object'] = object
+        # Conceptual blueprint registry for conceptual LM tooling
+        self.global_env['_conceptual_blueprints'] = self._conceptual_blueprints
+
+        # Sampling helpers
+        self.global_env['seed'] = self._rng.seed
+        self.global_env['uniform'] = lambda a, b: self._rng.uniform(float(a), float(b))
+        self.global_env['normal'] = lambda mu, sigma: self._rng.gauss(float(mu), float(sigma))
+        self.global_env['bernoulli'] = lambda p: 1 if self._rng.random() < float(p) else 0
+
+        def _categorical(mapping: dict):
+            """Sample from categorical distribution: Categorical({"A": 0.6, "B": 0.3, "C": 0.1})"""
+            items = list(mapping.items())
+            if not items:
+                return None
+            # Normalize weights and sample
+            values, weights = zip(*items)
+            total = sum(float(w) for w in weights)
+            if total <= 0:
+                # fallback: uniform over items
+                # Use data.rand() if available (for reproducibility with data.set_seed)
+                try:
+                    rand_fn = self.global_env.get('rand', self._rng.random)
+                    idx = int(rand_fn() * len(values))
+                except:
+                    idx = int(self._rng.random() * len(values))
+                return values[idx]
+            # Use data.rand() if available (for reproducibility with data.set_seed)
+            try:
+                rand_fn = self.global_env.get('rand', self._rng.random)
+                r = rand_fn() * total
+            except:
+                r = self._rng.random() * total
+            acc = 0.0
+            for v, w in zip(values, weights):
+                acc += float(w)
+                if r <= acc:
+                    return v
+            return values[-1]
+
+        self.global_env['Categorical'] = _categorical
+        self.global_env['categorical'] = _categorical
+        def _choose_weighted(mapping: dict):
+            items = list(mapping.items())
+            if not items:
+                return None
+            # Normalize weights and sample
+            values, weights = zip(*items)
+            total = sum(float(w) for w in weights)
+            if total <= 0:
+                # fallback: uniform over items
+                idx = int(self._rng.random() * len(values))
+                return values[idx]
+            r = self._rng.random() * total
+            acc = 0.0
+            for v, w in zip(values, weights):
+                acc += float(w)
+                if r <= acc:
+                    return v
+            return values[-1]
+        self.global_env['choose_weighted'] = _choose_weighted
+
+        # Approximate equality helper
+        def _approx_eq(a, b, eps=None, kind=None):
+            # Numeric approx
+            def _is_number(x):
+                return isinstance(x, (int, float))
+            if eps is None:
+                eps = self.global_env.get('approx_eps', 1e-6)
+            if kind is None:
+                kind = self.global_env.get('similarity_kind_default', 'syn')
+            # If both are numeric or can be coerced
+            if _is_number(a) and _is_number(b):
+                return abs(float(a) - float(b)) <= float(eps)
+            # String-like semantic approx via logical 'close/3'
+            if (isinstance(a, str) or isinstance(a, (int, float))) and (isinstance(b, str) or isinstance(b, (int, float))):
+                sa = str(a)
+                sb = str(b)
+                eng = self.logical_engine
+                if eng is not None and 'close' in eng.knowledge_base:
+                    # Try close/3 using default threshold for kind
+                    from .logical_engine import Predicate, Term
+                    goal = Predicate('close', [Term(sa), Term(sb), Term(str(kind))])
+                    sols = eng.query(goal)
+                    return len(sols) > 0
+                # Fallback: plain equality
+                return sa == sb
+            # Fallback
+            return a == b
+        self.global_env['approx_eq'] = _approx_eq
+        self.global_env['approx_eps'] = 1e-2
+        self.global_env['similarity_kind_default'] = 'syn'
+
+        # Template/Match helpers
+        def _compile_template(tpl: str):
+            if not isinstance(tpl, str):
+                tpl = str(tpl)
+            s = tpl
+            parts = []
+            fields = []
+            i = 0
+            last = 0
+            while i < len(s):
+                if s[i] == '{':
+                    # flush preceding text
+                    if i > last:
+                        parts.append(re.escape(s[last:i]))
+                    j = s.find('}', i + 1)
+                    if j == -1:
+                        # no closing brace; treat literally
+                        parts.append(re.escape(s[i:]))
+                        i = len(s)
+                        break
+                    content = s[i + 1:j]
+                    # parse name[:regex]
+                    if ':' in content:
+                        name, rx = content.split(':', 1)
+                        name = name.strip()
+                        rx = rx.strip()
+                        if not rx:
+                            rx = '.+?'
+                    else:
+                        name = content.strip()
+                        rx = '.+?'
+                    if not name:
+                        # anonymous hole: generate a name
+                        name = f"_f{len(fields)}"
+                    fields.append(name)
+                    parts.append(f"(?P<{name}>{rx})")
+                    i = j + 1
+                    last = i
+                else:
+                    i += 1
+            if last < len(s):
+                parts.append(re.escape(s[last:]))
+            pattern = '^' + ''.join(parts) + '$'
+            try:
+                regex = re.compile(pattern)
+            except re.error:
+                # fallback: match literally if user provided broken regex
+                regex = re.compile('^' + re.escape(s) + '$')
+                fields = []
+            return {'__template__': True, 'src': tpl, 'fields': fields, 'regex': regex}
+
+        def _is_template(obj):
+            return isinstance(obj, dict) and obj.get('__template__') is True and 'regex' in obj
+
+        def _match_template(tpl_or_str, text):
+            tpl_obj = tpl_or_str if _is_template(tpl_or_str) else _compile_template(tpl_or_str)
+            m = tpl_obj['regex'].match(str(text))
+            if not m:
+                return None
+            return dict(m.groupdict())
+
+        def _render_template(tpl_or_str, mapping: dict):
+            tpl_obj = tpl_or_str if _is_template(tpl_or_str) else _compile_template(tpl_or_str)
+            src = tpl_obj.get('src') if _is_template(tpl_or_str) else str(tpl_or_str)
+            s = src
+            out = []
+            i = 0
+            last = 0
+            while i < len(s):
+                if s[i] == '{':
+                    if i > last:
+                        out.append(s[last:i])
+                    j = s.find('}', i + 1)
+                    if j == -1:
+                        out.append(s[i:])
+                        i = len(s)
+                        break
+                    content = s[i + 1:j]
+                    name = content.split(':', 1)[0].strip()
+                    val = mapping.get(name)
+                    if val is None:
+                        # keep placeholder if missing
+                        out.append(s[i:j + 1])
+                    else:
+                        out.append(str(val))
+                    i = j + 1
+                    last = i
+                else:
+                    i += 1
+            if last < len(s):
+                out.append(s[last:])
+            return ''.join(out)
+
+        self.global_env['template'] = _compile_template
+        self.global_env['match'] = _match_template
+        self.global_env['render'] = _render_template
+
 
     def set_source(self, code: str, filename: str | None = None):
         """Set current source buffer for error code-frames."""
@@ -189,7 +415,7 @@ class TraditionalInterpreter:
             return self._interpret_core(node)
         except Exception as e:
             # Control-flow exceptions should not be wrapped
-            if isinstance(e, (ReturnValue, BreakException, ContinueException, YieldValue, BayanException, BayanRuntimeError)):
+            if isinstance(e, (ReturnValue, BreakException, ContinueException, YieldValue, BayanException, BayanRuntimeError, ContractError)):
                 raise
             frames = list(self._call_stack)
             trace = " -> ".join(
@@ -299,6 +525,20 @@ class TraditionalInterpreter:
             return node.value
         elif isinstance(node, Boolean):
             return node.value
+        elif isinstance(node, NoneLiteral):
+            # Bayan None literal maps directly to Python None
+            return None
+
+        elif isinstance(node, CollectExpr):
+            return self.visit_collect_expr(node)
+        elif isinstance(node, TopkExpr):
+            return self.visit_topk_expr(node)
+        elif isinstance(node, ArgmaxExpr):
+            return self.visit_argmax_expr(node)
+        elif isinstance(node, ChooseExpr):
+            return self.visit_choose_expr(node)
+        elif isinstance(node, SampleAssign):
+            return self.visit_sample_assign(node)
         elif isinstance(node, Variable):
             return self.visit_variable(node)
         elif isinstance(node, List):
@@ -331,6 +571,8 @@ class TraditionalInterpreter:
             raise ContinueException()
         elif isinstance(node, PrintStatement):
             return self.visit_print_statement(node)
+        elif isinstance(node, SimilarityDecl):
+            return self.visit_similarity_decl(node)
         elif isinstance(node, AttributeAccess):
             return self.visit_attribute_access(node)
         elif isinstance(node, SubscriptAccess):
@@ -361,6 +603,104 @@ class TraditionalInterpreter:
             return self.visit_yield_expr(node)
         elif isinstance(node, WithStatement):
             return self.visit_with_statement(node)
+        elif isinstance(node, OnceStatement):
+            return self.visit_once_statement(node)
+        elif isinstance(node, OnceGoal):
+            return self.visit_once_goal(node)
+        elif isinstance(node, LimitStatement):
+            return self.visit_limit_statement(node)
+        elif isinstance(node, LimitGoal):
+            return self.visit_limit_goal(node)
+        elif isinstance(node, MatchInAs):
+            return self.visit_match_in_as(node)
+        elif isinstance(node, MatchStatement):
+            return self.visit_match_statement(node)
+        elif isinstance(node, TemporalBlock):
+            return self.visit_temporal_block(node)
+        elif isinstance(node, WithinBlock):
+            return self.visit_within_block(node)
+        elif isinstance(node, ScheduleBlock):
+            return self.visit_schedule_block(node)
+        elif isinstance(node, ReactiveDeclaration):
+            return self.visit_reactive_declaration(node)
+        elif isinstance(node, WatchBlock):
+            return self.visit_watch_block(node)
+        elif isinstance(node, ComputedProperty):
+            return self.visit_computed_property(node)
+        elif isinstance(node, DelayStatement):
+            return self.visit_delay_statement(node)
+        elif isinstance(node, WhereClause):
+            return self.visit_where_clause(node)
+        elif isinstance(node, RequiresClause):
+            return self.visit_requires_clause(node)
+        elif isinstance(node, EnsuresClause):
+            return self.visit_ensures_clause(node)
+        elif isinstance(node, InvariantClause):
+            return self.visit_invariant_clause(node)
+        elif isinstance(node, PipelineOp):
+            return self.visit_pipeline_op(node)
+        elif isinstance(node, ComposeOp):
+            return self.visit_compose_op(node)
+        elif isinstance(node, CognitiveEntity):
+            return self.visit_cognitive_entity(node)
+        elif isinstance(node, CognitiveEvent):
+            return self.visit_cognitive_event(node)
+        elif isinstance(node, TriggerEvent):
+            return self.visit_trigger_event(node)
+        elif isinstance(node, ConcurrentEvents):
+            return self.visit_concurrent_events(node)
+        elif isinstance(node, LinguisticPattern):
+            return self.visit_linguistic_pattern(node)
+        elif isinstance(node, IdeaDef):
+            return self.visit_idea_def(node)
+        elif isinstance(node, ConceptualBlueprint):
+            return self.visit_conceptual_blueprint(node)
+        # Semantic Programming & Knowledge Management
+        elif isinstance(node, SemanticMeaning):
+            return self.visit_semantic_meaning(node)
+        elif isinstance(node, SemanticQuery):
+            return self.visit_semantic_query(node)
+        elif isinstance(node, KnowledgeInfo):
+            return self.visit_knowledge_info(node)
+        elif isinstance(node, InferenceRule):
+            return self.visit_inference_rule(node)
+        elif isinstance(node, InferFrom):
+            return self.visit_infer_from(node)
+        elif isinstance(node, Contradiction):
+            return self.visit_contradiction(node)
+        elif isinstance(node, EvolvingKnowledge):
+            return self.visit_evolving_knowledge(node)
+        elif isinstance(node, Ontology):
+            return self.visit_ontology(node)
+        elif isinstance(node, SemanticMemory):
+            return self.visit_semantic_memory(node)
+        elif isinstance(node, SemanticSimilarity):
+            return self.visit_semantic_similarity(node)
+        elif isinstance(node, Concept):
+            return self.visit_concept(node)
+        elif isinstance(node, Narrative):
+            return self.visit_narrative(node)
+        elif isinstance(node, GenerateNarrative):
+            return self.visit_generate_narrative(node)
+        elif isinstance(node, CurrentContext):
+            return self.visit_current_context(node)
+        # Existential Model
+        elif isinstance(node, Domain):
+            return self.visit_domain(node)
+        elif isinstance(node, GenericEnvironment):
+            return self.visit_generic_environment(node)
+        elif isinstance(node, ExistentialBeing):
+            return self.visit_existential_being(node)
+        elif isinstance(node, DomainRelation):
+            return self.visit_domain_relation(node)
+        elif isinstance(node, DomainAction):
+            return self.visit_domain_action(node)
+        elif isinstance(node, MetaphoricalMeaning):
+            return self.visit_metaphorical_meaning(node)
+        elif isinstance(node, DomainLaw):
+            return self.visit_domain_law(node)
+        elif isinstance(node, ExistentialQuery):
+            return self.visit_existential_query(node)
         else:
             raise RuntimeError(f"Unknown node type: {type(node)}")
 
@@ -400,8 +740,8 @@ class TraditionalInterpreter:
                     obj.set_attribute(attr_name, value)
                     return value
 
-        env = self.local_env if self.local_env is not None else self.global_env
-        env[node.name] = value
+        # Use set_variable to trigger reactive updates
+        self.set_variable(node.name, value)
         return value
 
     def visit_binary_op(self, node):
@@ -454,6 +794,11 @@ class TraditionalInterpreter:
         elif node.operator == '>=':
             res = _try_dunder(left, right, '__ge__')
             return res if res is not None else (left >= right)
+        elif node.operator in ('~=','≈'):
+            approx = self.global_env.get('approx_eq')
+            if not callable(approx):
+                raise RuntimeError("approx_eq runtime is not available")
+            return approx(left, right)
         elif node.operator == 'in':
             # membership: left in right
             if isinstance(right, BayanObject) and right.has_method('__contains__'):
@@ -659,6 +1004,57 @@ class TraditionalInterpreter:
 
             # Return True if there are solutions, False otherwise
             return len(solutions) > 0
+
+        # Check for semantic query functions
+        if node.name in ['من_يدرس', 'who_studies', 'ما_هو', 'what_is']:
+            args = [self.interpret(arg) for arg in node.arguments]
+            return self._query_semantic_network(node.name, *args)
+        elif node.name in ['تشابه', 'similarity']:
+            if len(node.arguments) >= 2:
+                concept1_name = self.interpret(node.arguments[0])
+                concept2_name = self.interpret(node.arguments[1])
+
+                # Get concepts from storage
+                concept1 = self._concepts.get(concept1_name, concept1_name)
+                concept2 = self._concepts.get(concept2_name, concept2_name)
+
+                # Calculate similarity
+                if isinstance(concept1, dict) and isinstance(concept2, dict):
+                    # Count shared keys
+                    keys1 = set(concept1.keys())
+                    keys2 = set(concept2.keys())
+                    shared = keys1.intersection(keys2)
+                    total = keys1.union(keys2)
+
+                    if len(total) == 0:
+                        return 0.0
+
+                    # Jaccard similarity
+                    similarity = len(shared) / len(total)
+
+                    # Also check value similarity for shared keys
+                    value_matches = 0
+                    for key in shared:
+                        if concept1[key] == concept2[key]:
+                            value_matches += 1
+
+                    if len(shared) > 0:
+                        value_similarity = value_matches / len(shared)
+                        # Combine both similarities
+                        similarity = (similarity + value_similarity) / 2
+
+                    return similarity
+                else:
+                    # For non-dict concepts, just check equality
+                    return 1.0 if concept1 == concept2 else 0.0
+            else:
+                raise RuntimeError(f"similarity() requires 2 arguments")
+        elif node.name in ['بناءً_على', 'based_on']:
+            # This is used in generate_narrative context
+            if len(node.arguments) >= 1:
+                return self.interpret(node.arguments[0])
+            else:
+                raise RuntimeError(f"based_on() requires 1 argument")
 
         # Check for built-in functions
         if node.name == 'len':
@@ -888,8 +1284,9 @@ class TraditionalInterpreter:
 
         # Check if function is decorated (stored in environment)
         env = self.local_env if self.local_env is not None else self.global_env
-        if node.name in env:
-            target = env[node.name]
+        # Fallback to global_env when symbol not found in local env (mirrors variable lookup behavior)
+        if node.name in env or (self.local_env is not None and node.name in self.global_env):
+            target = env[node.name] if node.name in env else self.global_env[node.name]
             # Check if it's a decorated function (callable)
             if callable(target) and not isinstance(target, type):
                 args = [self.interpret(arg) for arg in node.arguments]
@@ -991,22 +1388,46 @@ class TraditionalInterpreter:
                             raise RuntimeError(f"Missing required parameter: {param.name}")
 
             try:
+                # Check requires clauses (preconditions)
+                if hasattr(func_def, 'requires') and func_def.requires:
+                    for requires_clause in func_def.requires:
+                        self.visit_requires_clause(requires_clause)
+
+                # Execute function body
                 result = self.interpret(func_def.body)
+
+                # Check ensures clauses (postconditions)
+                if hasattr(func_def, 'ensures') and func_def.ensures:
+                    # Make result available as 'result' variable for ensures clauses
+                    self.local_env['result'] = result
+                    for ensures_clause in func_def.ensures:
+                        self.visit_ensures_clause(ensures_clause)
             except ReturnValue as ret:
                 result = ret.value
+
+                # Check ensures clauses for early returns
+                if hasattr(func_def, 'ensures') and func_def.ensures:
+                    self.local_env['result'] = result
+                    for ensures_clause in func_def.ensures:
+                        self.visit_ensures_clause(ensures_clause)
             finally:
                 self.local_env = old_local_env
 
             return result
 
         # Python/global environment callable or BayanObject __call__
-        if node.name in env:
-            target = env[node.name]
+        if node.name in env or (self.local_env is not None and node.name in self.global_env):
+            target = env[node.name] if node.name in env else self.global_env[node.name]
             args = [self.interpret(arg) for arg in node.arguments]
             if isinstance(target, BayanObject) and target.has_method('__call__'):
                 return target.call_method('__call__', args)
             if callable(target):
-                return target(*args)
+                # Support named arguments for Python callables as well
+                kwargs = {}
+                if hasattr(node, 'named_arguments') and node.named_arguments:
+                    for name, value in node.named_arguments.items():
+                        kwargs[name] = self.interpret(value)
+                return target(*args, **kwargs)
 
         raise NameError(f"Undefined function or class: {node.name}")
 
@@ -1126,9 +1547,28 @@ class TraditionalInterpreter:
                     pass  # Already stored in local_env
 
         try:
+            # Check requires clauses (preconditions)
+            if hasattr(func_def, 'requires') and func_def.requires:
+                for requires_clause in func_def.requires:
+                    self.visit_requires_clause(requires_clause)
+
+            # Execute function body
             result = self.interpret(func_def.body)
+
+            # Check ensures clauses (postconditions)
+            if hasattr(func_def, 'ensures') and func_def.ensures:
+                # Make result available as 'result' variable for ensures clauses
+                self.local_env['result'] = result
+                for ensures_clause in func_def.ensures:
+                    self.visit_ensures_clause(ensures_clause)
         except ReturnValue as ret:
             result = ret.value
+
+            # Check ensures clauses for early returns
+            if hasattr(func_def, 'ensures') and func_def.ensures:
+                self.local_env['result'] = result
+                for ensures_clause in func_def.ensures:
+                    self.visit_ensures_clause(ensures_clause)
         finally:
             self.local_env = old_local_env
 
@@ -1221,7 +1661,7 @@ class TraditionalInterpreter:
         return None
 
     def visit_for_loop(self, node):
-        """Visit a for loop node"""
+        """Visit a for loop node (with optional invariants)"""
         iterable = self._to_iterable(self.interpret(node.iterable))
         result = None
 
@@ -1229,25 +1669,58 @@ class TraditionalInterpreter:
 
         for value in iterable:
             env[node.variable] = value
+
+            # Check invariants at start of each iteration
+            if hasattr(node, 'invariants') and node.invariants:
+                for invariant in node.invariants:
+                    self.visit_invariant_clause(invariant)
+            elif hasattr(node, 'invariant') and node.invariant:
+                # Backward compatibility
+                self.visit_invariant_clause(node.invariant)
+
             try:
                 result = self.interpret(node.body)
             except BreakException:
                 break
             except ContinueException:
                 continue
+
+            # Check invariants at end of each iteration
+            if hasattr(node, 'invariants') and node.invariants:
+                for invariant in node.invariants:
+                    self.visit_invariant_clause(invariant)
+            elif hasattr(node, 'invariant') and node.invariant:
+                # Backward compatibility
+                self.visit_invariant_clause(node.invariant)
 
         return result
 
     def visit_while_loop(self, node):
-        """Visit a while loop node"""
+        """Visit a while loop node (with optional invariants)"""
         result = None
         while self._truthy(self.interpret(node.condition)):
+            # Check invariants at start of each iteration
+            if hasattr(node, 'invariants') and node.invariants:
+                for invariant in node.invariants:
+                    self.visit_invariant_clause(invariant)
+            elif hasattr(node, 'invariant') and node.invariant:
+                # Backward compatibility
+                self.visit_invariant_clause(node.invariant)
+
             try:
                 result = self.interpret(node.body)
             except BreakException:
                 break
             except ContinueException:
                 continue
+
+            # Check invariants at end of each iteration
+            if hasattr(node, 'invariants') and node.invariants:
+                for invariant in node.invariants:
+                    self.visit_invariant_clause(invariant)
+            elif hasattr(node, 'invariant') and node.invariant:
+                # Backward compatibility
+                self.visit_invariant_clause(node.invariant)
         return result
 
     def visit_return_statement(self, node):
@@ -1316,10 +1789,197 @@ class TraditionalInterpreter:
         return result
 
     def visit_print_statement(self, node):
-        """Visit a print statement node"""
-        value = self.interpret(node.value)
-        print(value)
+        """Visit a print statement node with support for multiple values"""
+        # Check if node.value is a list (multiple arguments)
+        if isinstance(node.value, list):
+            # Multiple values - evaluate each and print with space separator
+            values = [self.interpret(v) for v in node.value]
+            # Convert all to strings and join with space
+            output = ' '.join(str(v) for v in values)
+            print(output)
+        else:
+            # Single value - old behavior
+            value = self.interpret(node.value)
+            print(value)
         return None
+
+    def visit_similarity_decl(self, node):
+        """Handle SimilarityDecl sugar by asserting similar facts (including reverse)."""
+        # Prefer using the runtime helper assert_fact if available
+        env = self.local_env if self.local_env is not None else self.global_env
+        af = None
+        try:
+            cand = env.get('assert_fact') if isinstance(env, dict) else None
+            if callable(cand):
+                af = cand
+            elif 'assert_fact' in self.global_env and callable(self.global_env['assert_fact']):
+                af = self.global_env['assert_fact']
+        except Exception:
+            af = None
+
+        head = str(getattr(node, 'head', ''))
+        kind = str(node.kind) if getattr(node, 'kind', None) is not None else "syn"
+        domain = str(node.domain) if getattr(node, 'domain', None) is not None else "lexicon"
+        default = float(node.default) if getattr(node, 'default', None) is not None else 0.7
+
+        for pair in getattr(node, 'pairs', []):
+            key_val = self.interpret(pair.key)
+            score_val = self.interpret(pair.value) if hasattr(pair, 'value') else default
+            try:
+                s = float(score_val)
+            except Exception:
+                raise RuntimeError(f"SimilarityDecl score must be numeric, got: {score_val}")
+            y = str(key_val)
+            if af is not None:
+                af('similar', head, y, s, kind, domain)
+                af('similar', y, head, s, kind, domain)
+            else:
+                # Fallback to direct logical assertion
+                from .logical_engine import Predicate, Fact, Term, LogicalEngine
+                if self.logical_engine is None:
+                    self.logical_engine = LogicalEngine()
+                pred1 = Predicate('similar', [Term(head), Term(y), Term(s), Term(kind), Term(domain)])
+                pred2 = Predicate('similar', [Term(y), Term(head), Term(s), Term(kind), Term(domain)])
+                self.logical_engine.assertz(Fact(pred1))
+                self.logical_engine.assertz(Fact(pred2))
+        return True
+
+    # ---- Sugar visitors: collect/topk/argmax ----
+    def _deref_value(self, term_or_val, subst=None):
+        try:
+            # Try logical deref if available
+            if subst is not None and hasattr(self.logical_engine, '_deref'):
+                resolved = self.logical_engine._deref(term_or_val, subst)
+            else:
+                resolved = term_or_val
+        except Exception:
+            resolved = term_or_val
+        return getattr(resolved, 'value', resolved)
+
+    def _query_solutions(self, goal, max_solutions=None):
+        if self.logical_engine is None:
+            raise RuntimeError("collect/topk/argmax require a logical engine (use inside hybrid)")
+        solutions = self.logical_engine.query(goal)
+        if max_solutions is not None:
+            # Limit the number of solutions
+            limited = []
+            for i, sol in enumerate(solutions):
+                if i >= max_solutions:
+                    break
+                limited.append(sol)
+            return limited
+        return solutions
+
+    def visit_collect_expr(self, node):
+        sols = self._query_solutions(node.goal)
+        out = []
+        seen = set()
+        for subst in sols:
+            if hasattr(subst, 'bindings'):
+                val = subst.bindings.get(node.var_name)
+                final = self._deref_value(val, subst)
+                if node.unique:
+                    key = str(final)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                out.append(final)
+            if node.limit is not None and len(out) >= node.limit:
+                break
+        return out
+
+    def visit_topk_expr(self, node):
+        sols = self._query_solutions(node.goal)
+        pairs = []
+        for subst in sols:
+            v = subst.bindings.get(node.var_name)
+            s = subst.bindings.get(node.score_name)
+            v_final = self._deref_value(v, subst)
+            s_final = self._deref_value(s, subst)
+            s_num = None
+            try:
+                s_num = float(s_final)
+            except Exception:
+                # If score var is unbound or non-numeric, fallback to solution probability
+                try:
+                    s_num = float(getattr(subst, 'probability', 1.0))
+                except Exception:
+                    s_num = None
+            if s_num is None:
+                continue
+            pairs.append((v_final, s_num))
+        pairs.sort(key=lambda x: x[1], reverse=True)
+        return [v for (v, _) in pairs[:max(0, int(node.k))]]
+
+    def visit_argmax_expr(self, node):
+        lst = self.visit_topk_expr(type('Tmp', (), {
+            'k': 1,
+            'var_name': node.var_name,
+            'score_name': node.score_name,
+            'goal': node.goal
+        }))
+        return lst[0] if lst else None
+
+    # ---- Sugar visitors: choose and sampling ----
+    def visit_choose_expr(self, node):
+        # node.mapping is a Dict AST node of choices->weights
+        mapping = self.visit_dict(node.mapping)
+        chooser = self.global_env.get('choose_weighted')
+        if not callable(chooser):
+            raise RuntimeError("choose_weighted runtime is not available")
+        return chooser(mapping)
+
+    def visit_sample_assign(self, node):
+        # Evaluate distribution call (a function returning a sampled value)
+        val = self.visit_function_call(node.dist_call) if isinstance(node.dist_call, FunctionCall) else self.interpret(node.dist_call)
+        # Assign to variable in current env
+        target_env = self.local_env if self.local_env is not None else self.global_env
+        target_env[node.var_name] = val
+        return val
+
+    # ---- Once and Limit visitors ----
+    def visit_once_statement(self, node):
+        """Visit once { block } - execute block with max_solutions=1"""
+        # Execute the block normally (traditional code)
+        return self.interpret(node.body)
+
+    def visit_once_goal(self, node):
+        """Visit once goal. - single logical goal with limit 1"""
+        # Query with limit 1
+        sols = self._query_solutions(node.goal, max_solutions=1)
+        return sols[0] if sols else None
+
+    def visit_limit_statement(self, node):
+        """Visit limit N { block }"""
+        # Execute the block normally (traditional code)
+        return self.interpret(node.body)
+
+    def visit_limit_goal(self, node):
+        """Visit limit N goal. - logical goal with limit N"""
+        # Query with limit N
+        sols = self._query_solutions(node.goal, max_solutions=node.limit)
+        return sols
+
+    def visit_match_in_as(self, node):
+        """Visit match pattern in text as var_name
+        Syntactic sugar for: var_name = match(pattern, text)
+        """
+        # Evaluate pattern and text
+        pattern = self.interpret(node.pattern)
+        text = self.interpret(node.text)
+
+        # Call match function
+        match_fn = self.global_env.get('match')
+        if not callable(match_fn):
+            raise RuntimeError("match runtime function is not available")
+
+        result = match_fn(pattern, text)
+
+        # Assign to variable
+        target_env = self.local_env if self.local_env is not None else self.global_env
+        target_env[node.var_name] = result
+
+        return result
 
     def visit_class_def(self, node):
         """Visit a class definition node"""
@@ -1739,3 +2399,1456 @@ class TraditionalInterpreter:
             yield from self._gen_run_block(func_def.body, gen_env)
 
         return generator()
+
+    # ============ Temporal Constructs Visitors ============
+
+    def visit_temporal_block(self, node):
+        """Visit temporal block: temporal { first: stmt, then: stmt, lastly: stmt }
+
+        Executes steps in sequence. Each step is labeled (first, then, lastly).
+        For now, we execute them sequentially without actual timing.
+        Future enhancement: add actual timing/scheduling support.
+        """
+        import time
+
+        results = []
+        for label, stmt in node.steps:
+            # Execute each step in sequence
+            result = self.interpret(stmt)
+            results.append((label, result))
+
+            # Optional: add small delay between steps for demonstration
+            # time.sleep(0.01)
+
+        # Return the last result (or all results as a list)
+        return results[-1][1] if results else None
+
+    def visit_within_block(self, node):
+        """Visit within block: within 5.0 seconds { ... }
+
+        Executes block with a timeout constraint.
+        If block takes longer than specified duration, raises TimeoutError.
+        """
+        import time
+        import signal
+
+        # Convert duration to seconds
+        duration_seconds = self._convert_to_seconds(node.duration, node.unit)
+
+        # For simplicity, we'll use a basic timeout mechanism
+        # Note: signal.alarm only works on Unix systems and only with integer seconds
+        # For production, consider using threading.Timer or asyncio
+
+        start_time = time.time()
+
+        try:
+            result = self.interpret(node.body)
+
+            elapsed = time.time() - start_time
+            if elapsed > duration_seconds:
+                raise TimeoutError(f"Block exceeded time limit of {node.duration} {node.unit}")
+
+            return result
+        except Exception as e:
+            # Re-raise the exception
+            raise
+
+    def visit_schedule_block(self, node):
+        """Visit schedule block: schedule every 2.0 seconds { ... }
+
+        Schedules repeated execution of a block.
+        Note: This is a simplified implementation that executes once.
+        For actual scheduling, you would need a background scheduler.
+        """
+        import time
+
+        # Convert interval to seconds
+        interval_seconds = self._convert_to_seconds(node.interval, node.unit)
+
+        # For now, we'll just execute once and return a message
+        # In a real implementation, this would register a scheduled task
+        result = self.interpret(node.body)
+
+        # Store scheduling info for potential future use
+        schedule_info = {
+            'interval': interval_seconds,
+            'unit': node.unit,
+            'body': node.body,
+            'last_result': result
+        }
+
+        # You could store this in a scheduler registry
+        # self.scheduler.register(schedule_info)
+
+        return result
+
+    def visit_delay_statement(self, node):
+        """Visit delay statement: delay 1.5 seconds
+
+        Pauses execution for the specified duration.
+        """
+        import time
+
+        # Convert duration to seconds
+        duration_seconds = self._convert_to_seconds(node.duration, node.unit)
+
+        # Sleep for the specified duration
+        time.sleep(duration_seconds)
+
+        return None
+
+    def _convert_to_seconds(self, duration, unit):
+        """Convert duration to seconds based on unit
+
+        Args:
+            duration: numeric value
+            unit: 'seconds', 'minutes', 'hours' (or Arabic equivalents)
+
+        Returns:
+            float: duration in seconds
+        """
+        # Normalize unit to English
+        unit_lower = unit.lower()
+
+        if unit_lower in ['seconds', 'second', 'ثانية', 'ثواني']:
+            return float(duration)
+        elif unit_lower in ['minutes', 'minute', 'دقيقة', 'دقائق']:
+            return float(duration) * 60
+        elif unit_lower in ['hours', 'hour', 'ساعة', 'ساعات']:
+            return float(duration) * 3600
+        else:
+            raise ValueError(f"Unknown time unit: {unit}")
+
+    # ========================================================================
+    # Constraint & Validation Visitors
+    # ========================================================================
+
+    def visit_where_clause(self, node):
+        """Execute where clause (filter expression based on condition)
+
+        Examples:
+            x = [1, 2, 3, 4, 5] where item > 2  # Not implemented yet - needs special handling
+            result = compute(x) where x > 0     # Evaluates compute(x) if x > 0, else raises error
+
+        For now, we evaluate the expression and check the condition.
+        If condition is false, we raise an error.
+        """
+        # Evaluate the main expression
+        result = self.interpret(node.expression)
+
+        # Evaluate the condition
+        condition_result = self.interpret(node.condition)
+
+        # Check if condition is true
+        if not condition_result:
+            raise ValueError(f"Where clause condition failed: {node.condition}")
+
+        return result
+
+    def visit_requires_clause(self, node):
+        """Check requires clause (precondition)
+
+        This is typically called at the start of a function.
+        """
+        condition_result = self.interpret(node.condition)
+
+        if not condition_result:
+            message = node.message if node.message else f"Precondition failed: {node.condition}"
+            raise ContractError(f"Requires clause violated: {message}")
+
+        return True
+
+    def visit_ensures_clause(self, node):
+        """Check ensures clause (postcondition)
+
+        This is typically called at the end of a function.
+        """
+        condition_result = self.interpret(node.condition)
+
+        if not condition_result:
+            message = node.message if node.message else f"Postcondition failed: {node.condition}"
+            raise ContractError(f"Ensures clause violated: {message}")
+
+        return True
+
+    def visit_invariant_clause(self, node):
+        """Check invariant clause
+
+        This is typically called in loops or class methods.
+        """
+        condition_result = self.interpret(node.condition)
+
+        if not condition_result:
+            message = node.message if node.message else f"Invariant failed: {node.condition}"
+            raise ContractError(f"Invariant violated: {message}")
+
+        return True
+
+    def visit_match_statement(self, node):
+        """Execute match statement for pattern matching
+
+        Evaluates the value and tries to match it against each case.
+        Executes the first matching case's body.
+        """
+        # Evaluate the value to match
+        value = self.interpret(node.value)
+
+        # Get current environment
+        env = self.local_env if self.local_env is not None else self.global_env
+
+        # Try each case
+        for case in node.cases:
+            if isinstance(case, DefaultClause):
+                # Default case always matches
+                return self.interpret(case.body)
+            elif isinstance(case, CaseClause):
+                # Try to match pattern
+                bindings = self._match_pattern(case.pattern, value)
+
+                if bindings is not None:
+                    # Pattern matched, check guard if present
+                    if case.guard:
+                        # Add bindings to environment temporarily for guard evaluation
+                        saved_values = {}
+                        for var_name, var_value in bindings.items():
+                            if var_name in env:
+                                saved_values[var_name] = env[var_name]
+                            env[var_name] = var_value
+
+                        # Evaluate guard
+                        guard_result = self.interpret(case.guard)
+
+                        # Restore saved values
+                        for var_name in bindings.keys():
+                            if var_name in saved_values:
+                                env[var_name] = saved_values[var_name]
+                            else:
+                                del env[var_name]
+
+                        if not guard_result:
+                            # Guard failed, try next case
+                            continue
+
+                    # Pattern matched (and guard passed if present)
+                    # Add bindings to environment and execute body
+                    for var_name, var_value in bindings.items():
+                        env[var_name] = var_value
+
+                    result = self.interpret(case.body)
+                    return result
+
+        # No case matched
+        raise ValueError(f"No matching case for value: {value}")
+
+    def _match_pattern(self, pattern, value):
+        """Try to match a pattern against a value
+
+        Returns a dictionary of variable bindings if match succeeds,
+        or None if match fails.
+        """
+        if isinstance(pattern, ListPattern):
+            # Match list pattern
+            if not isinstance(value, list):
+                return None
+
+            if len(pattern.elements) != len(value):
+                return None
+
+            bindings = {}
+            for i, elem_pattern in enumerate(pattern.elements):
+                elem_bindings = self._match_pattern(elem_pattern, value[i])
+                if elem_bindings is None:
+                    return None
+                bindings.update(elem_bindings)
+
+            return bindings
+
+        elif isinstance(pattern, DictPattern):
+            # Match dict pattern
+            if not isinstance(value, dict):
+                return None
+
+            bindings = {}
+            for key, key_pattern in zip(pattern.keys, pattern.patterns):
+                if key not in value:
+                    return None
+
+                key_bindings = self._match_pattern(key_pattern, value[key])
+                if key_bindings is None:
+                    return None
+                bindings.update(key_bindings)
+
+            return bindings
+
+        elif isinstance(pattern, Variable):
+            # Variable pattern - always matches and binds
+            return {pattern.name: value}
+
+        else:
+            # Literal pattern - must equal value
+            pattern_value = self.interpret(pattern)
+            if pattern_value == value:
+                return {}  # Match with no bindings
+            else:
+                return None  # No match
+
+    def visit_case_clause(self, node):
+        """Case clause should not be visited directly"""
+        raise RuntimeError("CaseClause should not be visited directly")
+
+    def visit_default_clause(self, node):
+        """Default clause should not be visited directly"""
+        raise RuntimeError("DefaultClause should not be visited directly")
+
+    def visit_list_pattern(self, node):
+        """List pattern should not be visited directly"""
+        raise RuntimeError("ListPattern should not be visited directly")
+
+    def visit_dict_pattern(self, node):
+        """Dict pattern should not be visited directly"""
+        raise RuntimeError("DictPattern should not be visited directly")
+    # ========================================================================
+    # Reactive Programming Visitors - زوار البرمجة التفاعلية
+    # ========================================================================
+
+    def visit_reactive_declaration(self, node):
+        """Visit reactive variable declaration
+
+        Declares a variable as reactive and sets up tracking.
+        """
+        # Evaluate initial value
+        value = self.interpret(node.value)
+
+        # Store in environment
+        env = self.local_env if self.local_env is not None else self.global_env
+        env[node.variable] = value
+
+        # Mark as reactive
+        self._reactive_vars.add(node.variable)
+
+        return None
+
+    def visit_watch_block(self, node):
+        """Visit watch block
+
+        Registers a watcher that executes when watched variables change.
+        """
+        # Store the watcher
+        self._watchers.append((node.variables, node.body))
+
+        return None
+
+    def visit_computed_property(self, node):
+        """Visit computed property
+
+        Defines a computed property that auto-updates when dependencies change.
+        """
+        # Evaluate initial value
+        value = self.interpret(node.expression)
+
+        # Store in environment
+        env = self.local_env if self.local_env is not None else self.global_env
+        env[node.variable] = value
+
+        # Store computed property info
+        self._computed_props[node.variable] = (node.expression, node.dependencies)
+
+        # Mark computed property as reactive so it can trigger watchers
+        self._reactive_vars.add(node.variable)
+
+        return None
+
+    def set_variable(self, name, value):
+        """Set a variable and trigger reactive updates if needed"""
+        env = self.local_env if self.local_env is not None else self.global_env
+        old_value = env.get(name)
+        env[name] = value
+
+        # If this is a reactive variable and value changed, trigger updates
+        if name in self._reactive_vars and old_value != value:
+            self._trigger_reactive_updates(name)
+
+    def _trigger_reactive_updates(self, changed_var):
+        """Trigger reactive updates when a variable changes
+
+        1. Recompute all computed properties that depend on this variable
+        2. Execute all watchers that watch this variable
+        """
+        # Recompute computed properties first
+        for prop_name, (expression, dependencies) in self._computed_props.items():
+            if changed_var in dependencies:
+                new_value = self.interpret(expression)
+                env = self.local_env if self.local_env is not None else self.global_env
+                old_value = env.get(prop_name)
+                env[prop_name] = new_value
+
+                # If computed property changed, trigger its watchers
+                if old_value != new_value:
+                    for watched_vars, body in self._watchers:
+                        if prop_name in watched_vars:
+                            self.interpret(body)
+
+        # Execute watchers for the changed variable
+        for watched_vars, body in self._watchers:
+            if changed_var in watched_vars:
+                self.interpret(body)
+
+    # ============================================
+    # Pipeline and Composition Operators
+    # ============================================
+
+    def visit_pipeline_op(self, node):
+        """Visit pipeline operator: value |> function
+
+        Evaluates value and applies function to it.
+        Examples:
+            5 |> double        -> double(5)
+            [1,2,3] |> sum     -> sum([1,2,3])
+            x |> f |> g        -> g(f(x))
+        """
+        # Evaluate the value
+        value = self.interpret(node.value)
+
+        # Handle function reference
+        # If node.function is a Variable, we need to look it up
+        if isinstance(node.function, Variable):
+            func_name = node.function.name
+
+            # Try to find function in functions dict first
+            if func_name in self.functions:
+                func = self.functions[func_name]
+            else:
+                # Try local/global environment
+                env = self.local_env if self.local_env is not None else self.global_env
+                if func_name in env:
+                    func = env[func_name]
+                else:
+                    # Try Python built-ins
+                    import builtins
+                    if hasattr(builtins, func_name):
+                        func = getattr(builtins, func_name)
+                    else:
+                        raise NameError(f"Undefined function: {func_name}")
+        else:
+            # Otherwise evaluate it
+            func = self.interpret(node.function)
+
+        # Apply function to value
+        if callable(func):
+            return func(value)
+        elif isinstance(func, FunctionDef):
+            # Call user-defined function
+            return self._execute_function(func, [value])
+        else:
+            raise RuntimeError(f"Pipeline operator |> requires a callable function, got {type(func)}")
+
+    def visit_compose_op(self, node):
+        """Visit composition operator: f >> g
+
+        Creates a new function that applies f then g.
+        Examples:
+            double >> increment  -> λx. increment(double(x))
+            f >> g >> h          -> λx. h(g(f(x)))
+        """
+        # Handle function references
+        # If node.first is a Variable, look it up
+        if isinstance(node.first, Variable):
+            func_name = node.first.name
+
+            # Try to find function in functions dict first
+            if func_name in self.functions:
+                first_func = self.functions[func_name]
+            else:
+                # Try local/global environment
+                env = self.local_env if self.local_env is not None else self.global_env
+                if func_name not in env:
+                    raise NameError(f"Undefined function: {func_name}")
+                first_func = env[func_name]
+        else:
+            first_func = self.interpret(node.first)
+
+        # If node.second is a Variable, look it up
+        if isinstance(node.second, Variable):
+            func_name = node.second.name
+
+            # Try to find function in functions dict first
+            if func_name in self.functions:
+                second_func = self.functions[func_name]
+            else:
+                # Try local/global environment
+                env = self.local_env if self.local_env is not None else self.global_env
+                if func_name not in env:
+                    raise NameError(f"Undefined function: {func_name}")
+                second_func = env[func_name]
+        else:
+            second_func = self.interpret(node.second)
+
+        # Store reference to self for use in nested function
+        interpreter = self
+
+        # Create a composed function
+        def composed(x):
+            # Apply first function
+            if callable(first_func):
+                intermediate = first_func(x)
+            elif isinstance(first_func, FunctionDef):
+                intermediate = interpreter._execute_function(first_func, [x])
+            else:
+                raise RuntimeError(f"Composition operator >> requires callable functions")
+
+            # Apply second function to result
+            if callable(second_func):
+                return second_func(intermediate)
+            elif isinstance(second_func, FunctionDef):
+                return interpreter._execute_function(second_func, [intermediate])
+            else:
+                raise RuntimeError(f"Composition operator >> requires callable functions")
+
+        return composed
+
+    # ============ Cognitive-Semantic Model Visitors ============
+
+    def visit_cognitive_entity(self, node):
+        """Visit cognitive entity definition
+
+        Creates an entity with dynamic properties that can be modified by events.
+        """
+        # Evaluate properties dict
+        properties = self.interpret(node.properties)
+
+        if not isinstance(properties, dict):
+            raise RuntimeError(f"Cognitive entity properties must be a dict, got {type(properties)}")
+
+        # Store entity
+        self._cognitive_entities[node.name] = properties
+
+        # Also store in global environment for easy access
+        self.global_env[node.name] = properties
+
+        return None
+
+    def visit_cognitive_event(self, node):
+        """Visit cognitive event definition
+
+        Defines an event with participants, strength, transformations, and reactions.
+        """
+        # Evaluate config dict
+        config = self.interpret(node.config)
+
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Cognitive event config must be a dict, got {type(config)}")
+
+        # Store event definition
+        self._cognitive_events[node.name] = config
+
+        return None
+
+    def visit_conceptual_blueprint(self, node):
+        """Visit conceptual blueprint definition
+
+        Stores the blueprint configuration in a registry accessible to conceptual LM tooling.
+        """
+        config = self.interpret(node.config)
+
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Conceptual blueprint config must be a dict, got {type(config)}")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store blueprint definition
+        self._conceptual_blueprints[name] = config
+
+        # Also store in global environment for direct access
+        self.global_env[name] = config
+
+        return None
+
+    def visit_trigger_event(self, node):
+        """Visit trigger event statement
+
+        Triggers a cognitive event, applying its transformations and reactions.
+        """
+        # Get event definition
+        if node.event_name not in self._cognitive_events:
+            raise RuntimeError(f"Undefined cognitive event: {node.event_name}")
+
+        event_config = self._cognitive_events[node.event_name]
+
+        # Evaluate params if provided
+        params = {}
+        if node.params:
+            params = self.interpret(node.params)
+            if not isinstance(params, dict):
+                raise RuntimeError(f"Event params must be a dict, got {type(params)}")
+
+        # Execute event
+        self._execute_cognitive_event(node.event_name, event_config, params)
+
+        return None
+
+    def _execute_cognitive_event(self, event_name, config, params):
+        """Execute a cognitive event
+
+        Applies transformations to entities based on participants and their degrees.
+        """
+        # Get participants
+        participants = config.get('participants', {}) or config.get('مشاركون', {})
+
+        # Get strength (default 1.0 for actions, 0.5 for others)
+        strength = config.get('strength', 1.0) or config.get('قوة', 1.0)
+
+        # Get transformations
+        transform = config.get('transform', {}) or config.get('تحويل', {})
+
+        # Apply transformations
+        if transform:
+            # Save current environment
+            old_local_env = self.local_env
+            self.local_env = {}
+
+            # Add participants to local environment
+            for entity_name, participant_config in participants.items():
+                if entity_name in self._cognitive_entities:
+                    self.local_env[entity_name] = self._cognitive_entities[entity_name]
+
+            # Add params to local environment
+            self.local_env.update(params)
+
+            # Execute transformations
+            if isinstance(transform, dict):
+                # Transform is a dict of property assignments
+                for key, value in transform.items():
+                    # Parse key as entity.property
+                    if '.' in str(key):
+                        entity_name, prop_name = str(key).split('.', 1)
+                        if entity_name in self._cognitive_entities:
+                            # Evaluate value (only if it's not already a primitive)
+                            if isinstance(value, (str, int, float, bool, type(None))):
+                                new_value = value
+                            else:
+                                new_value = self.interpret(value)
+                            # Update entity property
+                            self._cognitive_entities[entity_name][prop_name] = new_value
+                            # Also update in global env
+                            if entity_name in self.global_env:
+                                self.global_env[entity_name][prop_name] = new_value
+            else:
+                # Transform is a block - execute it
+                self.interpret(transform)
+
+            # Restore environment
+            self.local_env = old_local_env
+
+        # Handle reactions
+        reactions = config.get('reactions', []) or config.get('ردود_فعل', []) or config.get('ردود', [])
+        if reactions:
+            for reaction in reactions:
+                if isinstance(reaction, dict):
+                    reaction_event = reaction.get('event', None) or reaction.get('حدث', None)
+                    probability = reaction.get('probability', 1.0) or reaction.get('احتمال', 1.0)
+
+                    if reaction_event:
+                        # Check probability
+                        if self._rng.random() <= probability:
+                            # Trigger reaction event
+                            if reaction_event in self._cognitive_events:
+                                self._execute_cognitive_event(
+                                    reaction_event,
+                                    self._cognitive_events[reaction_event],
+                                    params
+                                )
+
+    def visit_concurrent_events(self, node):
+        """Visit concurrent events block
+
+        Executes multiple events concurrently and combines their effects.
+        """
+        # If node.events is empty, extract from effects (dict-based syntax)
+        if not node.events and node.effects:
+            config = self.interpret(node.effects)
+            if isinstance(config, dict):
+                events_list = config.get('events', []) or config.get('أحداث', [])
+                if events_list:
+                    for event_name, strength in events_list:
+                        if event_name in self._cognitive_events:
+                            event_config = self._cognitive_events[event_name].copy()
+                            event_config['strength'] = strength
+                            self._execute_cognitive_event(event_name, event_config, {})
+                    return None
+
+        # Statement-based syntax
+        for event_name, strength in node.events:
+            if event_name in self._cognitive_events:
+                event_config = self._cognitive_events[event_name].copy()
+                # Modify strength
+                event_config['strength'] = strength
+                # Execute event
+                self._execute_cognitive_event(event_name, event_config, {})
+
+        # Execute combined effects if provided
+        if node.effects and node.events:  # Only if not dict-based
+            self.interpret(node.effects)
+
+        return None
+
+    def visit_linguistic_pattern(self, node):
+        """Visit linguistic pattern definition
+
+        Defines a pattern for expressing ideas linguistically.
+        """
+        # Evaluate config dict
+        config = self.interpret(node.config)
+
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Linguistic pattern config must be a dict, got {type(config)}")
+
+        # Store pattern
+        self._linguistic_patterns[node.name] = config
+
+        return None
+
+    def visit_idea_def(self, node):
+        """Visit idea definition
+
+        Defines an idea (cognitive concept) with entities, events, and results.
+        """
+        # Evaluate config dict
+        config = self.interpret(node.config)
+
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Idea config must be a dict, got {type(config)}")
+
+        # Store idea
+        self._ideas[node.name] = config
+
+        return None
+
+    # ========================================================================
+    # Semantic Programming & Knowledge Management Visitor Methods
+    # ========================================================================
+
+    def visit_semantic_meaning(self, node):
+        """Visit semantic meaning definition"""
+        relationships = self.interpret(node.relationships)
+        if not isinstance(relationships, dict):
+            raise RuntimeError(f"Semantic meaning relationships must be a dict")
+
+        # Store meaning
+        self._semantic_meanings[node.name] = relationships
+        self.global_env[node.name] = relationships
+
+        return None
+
+    def visit_semantic_query(self, node):
+        """Visit semantic query"""
+        # Execute the query expression
+        result = self.interpret(node.query_expr)
+        return result
+
+    def visit_knowledge_info(self, node):
+        """Visit knowledge information"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Knowledge information config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store information
+        self._knowledge_info[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_inference_rule(self, node):
+        """Visit inference rule"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Inference rule config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store rule
+        self._inference_rules[name] = config
+
+        return None
+
+    def visit_infer_from(self, node):
+        """Visit infer from statement"""
+        statement = self.interpret(node.statement)
+
+        # Apply all inference rules to the statement
+        inferred = []
+        for rule_name, rule_config in self._inference_rules.items():
+            if_conditions = rule_config.get('if') or rule_config.get('إذا')
+            then_conclusion = rule_config.get('then') or rule_config.get('إذن')
+
+            # Simple pattern matching (can be enhanced)
+            # For now, just store the conclusion
+            if then_conclusion:
+                inferred.append(then_conclusion)
+
+        return inferred
+
+    def visit_contradiction(self, node):
+        """Visit contradiction detection"""
+        items = self.interpret(node.items)
+
+        if not isinstance(items, list):
+            raise RuntimeError(f"Contradiction items must be a list")
+
+        # Detect contradictions by comparing certainty values
+        contradictions = []
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                item1 = items[i]
+                item2 = items[j]
+
+                # Check if items contradict (simplified logic)
+                if isinstance(item1, str) and isinstance(item2, str):
+                    if item1 in self._knowledge_info and item2 in self._knowledge_info:
+                        info1 = self._knowledge_info[item1]
+                        info2 = self._knowledge_info[item2]
+
+                        # Get certainty values
+                        context1 = info1.get('context') or info1.get('سياق', {})
+                        context2 = info2.get('context') or info2.get('سياق', {})
+
+                        cert1 = context1.get('certainty') or context1.get('يقين', 0.5)
+                        cert2 = context2.get('certainty') or context2.get('يقين', 0.5)
+
+                        contradictions.append({
+                            'items': [item1, item2],
+                            'certainties': [cert1, cert2]
+                        })
+
+        # Apply resolution strategy if provided
+        if node.resolution:
+            strategy = self.interpret(node.resolution)
+            if strategy == "choose_highest_certainty" or strategy == "اختر_الأعلى_يقين":
+                # Keep only the item with highest certainty
+                for contradiction in contradictions:
+                    items_list = contradiction['items']
+                    certs = contradiction['certainties']
+                    max_idx = certs.index(max(certs))
+                    # Remove the other item
+                    for idx, item in enumerate(items_list):
+                        if idx != max_idx and item in self._knowledge_info:
+                            del self._knowledge_info[item]
+
+        return contradictions
+
+    def visit_evolving_knowledge(self, node):
+        """Visit evolving knowledge"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Evolving knowledge config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store evolving knowledge
+        self._evolving_knowledge[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_ontology(self, node):
+        """Visit ontology definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Ontology config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store ontology
+        self._ontologies[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_semantic_memory(self, node):
+        """Visit semantic memory operation"""
+        if node.operation == "store" or node.operation == "احفظ":
+            data = self.interpret(node.data)
+            self._semantic_memory.append(data)
+            return None
+        elif node.operation == "retrieve" or node.operation == "استرجع":
+            query = self.interpret(node.data)
+            # Simple retrieval by matching properties
+            results = []
+            for memory in self._semantic_memory:
+                if isinstance(memory, dict) and isinstance(query, dict):
+                    # Check if query properties match memory
+                    match = True
+                    for key, value in query.items():
+                        if key not in memory or memory[key] != value:
+                            match = False
+                            break
+                    if match:
+                        results.append(memory)
+            return results
+        else:
+            raise RuntimeError(f"Unknown memory operation: {node.operation}")
+
+    def visit_semantic_similarity(self, node):
+        """Visit semantic similarity calculation"""
+        concept1 = self.interpret(node.concept1)
+        concept2 = self.interpret(node.concept2)
+
+        # Simple similarity calculation based on shared properties
+        if isinstance(concept1, dict) and isinstance(concept2, dict):
+            # Count shared keys
+            keys1 = set(concept1.keys())
+            keys2 = set(concept2.keys())
+            shared = keys1.intersection(keys2)
+            total = keys1.union(keys2)
+
+            if len(total) == 0:
+                return 0.0
+
+            # Jaccard similarity
+            similarity = len(shared) / len(total)
+
+            # Also check value similarity for shared keys
+            value_matches = 0
+            for key in shared:
+                if concept1[key] == concept2[key]:
+                    value_matches += 1
+
+            if len(shared) > 0:
+                value_similarity = value_matches / len(shared)
+                # Combine both similarities
+                similarity = (similarity + value_similarity) / 2
+
+            return similarity
+        else:
+            # For non-dict concepts, just check equality
+            return 1.0 if concept1 == concept2 else 0.0
+
+    def visit_concept(self, node):
+        """Visit concept definition"""
+        properties = self.interpret(node.properties)
+        if not isinstance(properties, dict):
+            raise RuntimeError(f"Concept properties must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store concept
+        self._concepts[name] = properties
+        self.global_env[name] = properties
+
+        return None
+
+    def visit_narrative(self, node):
+        """Visit narrative definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Narrative config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store narrative
+        self._narratives[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_generate_narrative(self, node):
+        """Visit generate narrative statement"""
+        template = self.interpret(node.template)
+
+        # Generate narrative based on template
+        # This is a simplified implementation
+        if isinstance(template, str):
+            # Look for narrative template
+            if template in self._narratives:
+                narrative = self._narratives[template]
+
+                # Generate text based on narrative structure
+                structure = narrative.get('structure') or narrative.get('بنية', '')
+                characters = narrative.get('characters') or narrative.get('شخصيات', {})
+                events = narrative.get('events') or narrative.get('أحداث', [])
+
+                # Simple generation: combine structure with events
+                generated = f"Structure: {structure}\n"
+                generated += f"Characters: {', '.join(characters.keys())}\n"
+                generated += f"Events: {len(events)} events\n"
+
+                return generated
+
+        return None
+
+    def visit_current_context(self, node):
+        """Visit current context definition"""
+        context_data = self.interpret(node.context_data)
+        if not isinstance(context_data, dict):
+            raise RuntimeError(f"Current context must be a dict")
+
+        # Update current context
+        self._current_context.update(context_data)
+        self.global_env['context'] = self._current_context
+        self.global_env['سياق'] = self._current_context
+
+        return None
+
+    # ========================================================================
+    # Helper Methods for Semantic Programming
+    # ========================================================================
+
+    def _query_semantic_network(self, query_name, *args):
+        """Query the semantic network
+
+        Supported queries:
+        - من_يدرس(subject) / who_studies(subject)
+        - ما_هو(entity) / what_is(entity)
+        """
+        if query_name in ['من_يدرس', 'who_studies']:
+            if len(args) < 1:
+                return None
+            subject = args[0]
+
+            # Find all entities that study this subject
+            results = []
+            for name, relationships in self._semantic_meanings.items():
+                studies = relationships.get('يدرس') or relationships.get('studies')
+                if studies == subject:
+                    results.append(name)
+
+            return results if len(results) > 1 else (results[0] if results else None)
+
+        elif query_name in ['ما_هو', 'what_is']:
+            if len(args) < 1:
+                return None
+            entity = args[0]
+
+            # Find what this entity is
+            if entity in self._semantic_meanings:
+                relationships = self._semantic_meanings[entity]
+                is_value = relationships.get('هو') or relationships.get('is')
+                return is_value
+
+            return None
+
+        else:
+            raise RuntimeError(f"Unknown semantic query: {query_name}")
+
+    # ========================================================================
+    # EXISTENTIAL MODEL VISITORS (النموذج الوجودي)
+    # ========================================================================
+
+    def visit_domain(self, node):
+        """Visit domain definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Domain config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store domain
+        self._domains[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_generic_environment(self, node):
+        """Visit generic environment definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Environment config must be a dict")
+
+        # Remove quotes from name and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add domain reference to config
+        config['_domain'] = domain
+
+        # Store environment
+        self._environments[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_existential_being(self, node):
+        """Visit existential being definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Existential being config must be a dict")
+
+        # Remove quotes from name, type, and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        entity_type = node.entity_type.strip('"').strip("'") if isinstance(node.entity_type, str) else node.entity_type
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add type and domain references to config
+        config['_type'] = entity_type
+        config['_domain'] = domain
+
+        # Get environment if specified
+        env_name = config.get('بيئة') or config.get('environment')
+        if env_name:
+            env_name = env_name.strip('"').strip("'") if isinstance(env_name, str) else env_name
+            environment = self._environments.get(env_name)
+            if environment:
+                # Inherit meanings from environment
+                inherited = config.get('معانٍ_موروثة') or config.get('inherited_meanings') or []
+                if isinstance(inherited, list):
+                    # Add environment dimensions to inherited meanings
+                    dimensions = environment.get('أبعاد') or environment.get('dimensions') or {}
+                    for dim_type, dim_values in dimensions.items():
+                        if isinstance(dim_values, list):
+                            inherited.extend(dim_values)
+
+        # Store being
+        self._existential_beings[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_domain_relation(self, node):
+        """Visit domain relation definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Domain relation config must be a dict")
+
+        # Remove quotes from name and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add domain reference to config
+        config['_domain'] = domain
+
+        # Store relation
+        self._domain_relations[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_domain_action(self, node):
+        """Visit domain action definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Domain action config must be a dict")
+
+        # Remove quotes from name and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add domain reference to config
+        config['_domain'] = domain
+
+        # Store action
+        self._domain_actions[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_metaphorical_meaning(self, node):
+        """Visit metaphorical meaning definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Metaphorical meaning config must be a dict")
+
+        # Remove quotes from name and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add domain reference to config
+        config['_domain'] = domain
+
+        # Store metaphorical meaning
+        self._metaphorical_meanings[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_domain_law(self, node):
+        """Visit domain law definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Domain law config must be a dict")
+
+        # Remove quotes from name and domain if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+        domain = node.domain.strip('"').strip("'") if isinstance(node.domain, str) else node.domain
+
+        # Add domain reference to config
+        config['_domain'] = domain
+
+        # Store law
+        self._domain_laws[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_existential_query(self, node):
+        """Visit existential query with enhanced features"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Existential query config must be a dict")
+
+        # Get query parameters
+        domain = config.get('في_مجال') or config.get('in_domain')
+        about = config.get('عن') or config.get('about')
+        conditions = config.get('شروط') or config.get('conditions') or {}
+
+        # Enhanced query parameters
+        aggregate = config.get('تجميع') or config.get('aggregate')
+        sort_by = config.get('ترتيب_حسب') or config.get('sort_by')
+        ascending = config.get('تصاعدي') or config.get('ascending')
+        limit = config.get('حد') or config.get('limit')
+        offset = config.get('إزاحة') or config.get('offset')
+        return_full = config.get('إرجاع_كامل') or config.get('return_full')
+
+        if not domain or not about:
+            raise RuntimeError(f"Existential query must specify domain and about")
+
+        # Remove quotes if present
+        domain = domain.strip('"').strip("'") if isinstance(domain, str) else domain
+        about = about.strip('"').strip("'") if isinstance(about, str) else about
+
+        # Search for matching beings
+        results = []
+        for being_name, being_config in self._existential_beings.items():
+            # Check if being is in the specified domain
+            being_domain = being_config.get('_domain')
+            if being_domain != domain:
+                continue
+
+            # Check if being matches the type
+            being_type = being_config.get('_type')
+            if about != being_type and about != 'all' and about != 'كل':
+                continue
+
+            # Check conditions (enhanced with complex logic)
+            if self._check_conditions(being_config, conditions):
+                if return_full:
+                    results.append({'name': being_name, 'config': being_config})
+                else:
+                    results.append(being_name)
+
+        # Apply aggregation if specified
+        if aggregate:
+            return self._apply_aggregation(results, aggregate, config)
+
+        # Apply sorting if specified
+        if sort_by:
+            results = self._apply_sorting(results, sort_by, ascending)
+
+        # Apply limit and offset
+        if offset:
+            results = results[offset:]
+        if limit:
+            results = results[:limit]
+
+        return results
+
+    def _check_conditions(self, being_config, conditions):
+        """Check if being matches conditions (supports complex logic)"""
+        if not conditions:
+            return True
+
+        # Support for logical operators
+        if 'و' in conditions or 'and' in conditions:
+            # AND logic
+            and_conditions = conditions.get('و') or conditions.get('and')
+            return all(self._check_single_condition(being_config, k, v)
+                      for k, v in and_conditions.items())
+
+        if 'أو' in conditions or 'or' in conditions:
+            # OR logic
+            or_conditions = conditions.get('أو') or conditions.get('or')
+            return any(self._check_single_condition(being_config, k, v)
+                      for k, v in or_conditions.items())
+
+        if 'ليس' in conditions or 'not' in conditions:
+            # NOT logic
+            not_conditions = conditions.get('ليس') or conditions.get('not')
+            return not self._check_conditions(being_config, not_conditions)
+
+        # Simple conditions (all must match - implicit AND)
+        for cond_key, cond_value in conditions.items():
+            if not self._check_single_condition(being_config, cond_key, cond_value):
+                return False
+        return True
+
+    def _check_single_condition(self, being_config, cond_key, cond_value):
+        """Check a single condition"""
+        # Support for comparison operators
+        if isinstance(cond_value, dict):
+            # Complex condition like {"أكبر_من": 5, "أصغر_من": 10}
+            for op, val in cond_value.items():
+                actual_value = self._get_being_property(being_config, cond_key)
+                if not self._compare_values(actual_value, op, val):
+                    return False
+            return True
+
+        # Simple equality check
+        actual_value = self._get_being_property(being_config, cond_key)
+
+        # Handle list membership
+        if isinstance(actual_value, list):
+            return cond_value in actual_value
+
+        return actual_value == cond_value
+
+    def _get_being_property(self, being_config, prop_key):
+        """Get property value from being config"""
+        # Check in relations
+        relations = being_config.get('علاقات') or being_config.get('relations') or {}
+        if prop_key in relations:
+            return relations[prop_key]
+
+        # Check in intrinsic properties
+        if prop_key in being_config:
+            return being_config[prop_key]
+
+        # Check in intrinsic_properties dict
+        intrinsic_props = being_config.get('خصائص_ذاتية') or being_config.get('intrinsic_properties') or {}
+        if prop_key in intrinsic_props:
+            return intrinsic_props[prop_key]
+
+        return None
+
+    def _compare_values(self, actual, operator, expected):
+        """Compare values using operator"""
+        if actual is None:
+            return False
+
+        op_map = {
+            'أكبر_من': lambda a, e: a > e,
+            'greater_than': lambda a, e: a > e,
+            '>': lambda a, e: a > e,
+            'أصغر_من': lambda a, e: a < e,
+            'less_than': lambda a, e: a < e,
+            '<': lambda a, e: a < e,
+            'أكبر_أو_يساوي': lambda a, e: a >= e,
+            'greater_or_equal': lambda a, e: a >= e,
+            '>=': lambda a, e: a >= e,
+            'أصغر_أو_يساوي': lambda a, e: a <= e,
+            'less_or_equal': lambda a, e: a <= e,
+            '<=': lambda a, e: a <= e,
+            'يساوي': lambda a, e: a == e,
+            'equals': lambda a, e: a == e,
+            '==': lambda a, e: a == e,
+            'لا_يساوي': lambda a, e: a != e,
+            'not_equals': lambda a, e: a != e,
+            '!=': lambda a, e: a != e,
+            'يحتوي': lambda a, e: e in a if isinstance(a, (list, str)) else False,
+            'contains': lambda a, e: e in a if isinstance(a, (list, str)) else False,
+        }
+
+        compare_fn = op_map.get(operator)
+        if compare_fn:
+            return compare_fn(actual, expected)
+
+        return False
+
+    def _apply_aggregation(self, results, aggregate, config):
+        """Apply aggregation function to results"""
+        agg_type = aggregate.strip('"').strip("'") if isinstance(aggregate, str) else aggregate
+
+        if agg_type in ['عدد', 'count']:
+            return len(results)
+
+        # For other aggregations, need a field to aggregate on
+        field = config.get('حقل') or config.get('field')
+        if not field:
+            raise RuntimeError(f"Aggregation {agg_type} requires a field")
+
+        field = field.strip('"').strip("'") if isinstance(field, str) else field
+
+        # Extract values
+        values = []
+        for item in results:
+            if isinstance(item, dict):
+                being_config = item['config']
+            else:
+                being_config = self._existential_beings.get(item, {})
+
+            value = self._get_being_property(being_config, field)
+            if value is not None and isinstance(value, (int, float)):
+                values.append(value)
+
+        if not values:
+            return None
+
+        if agg_type in ['مجموع', 'sum']:
+            return sum(values)
+        elif agg_type in ['متوسط', 'average', 'avg']:
+            return sum(values) / len(values)
+        elif agg_type in ['أصغر', 'min']:
+            return min(values)
+        elif agg_type in ['أكبر', 'max']:
+            return max(values)
+
+        return None
+
+    def _apply_sorting(self, results, sort_by, ascending=True):
+        """Sort results by a field"""
+        field = sort_by.strip('"').strip("'") if isinstance(sort_by, str) else sort_by
+
+        # Default to ascending if not specified
+        if ascending is None:
+            ascending = True
+
+        def get_sort_key(item):
+            if isinstance(item, dict):
+                being_config = item['config']
+            else:
+                being_config = self._existential_beings.get(item, {})
+
+            value = self._get_being_property(being_config, field)
+            # Handle None values by putting them at the end
+            if value is None:
+                return float('inf') if ascending else float('-inf')
+            return value
+
+        return sorted(results, key=get_sort_key, reverse=not ascending)
+
+    # ========================================================================
+    # Visualization Methods
+    # ========================================================================
+
+    def visualize_environment(self, env_name):
+        """Visualize an environment - returns Mermaid diagram code"""
+        from .visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(self)
+        return visualizer.visualize_environment(env_name)
+
+    def visualize_relations(self, domain_name=None):
+        """Visualize relations between beings - returns Mermaid diagram code"""
+        from .visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(self)
+        return visualizer.visualize_relations(domain_name)
+
+    def visualize_being(self, being_name):
+        """Visualize a being with its context - returns Mermaid diagram code"""
+        from .visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(self)
+        return visualizer.visualize_being(being_name)
+
+    def visualize_domain(self, domain_name):
+        """Visualize entire domain - returns Mermaid diagram code"""
+        from .visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(self)
+        return visualizer.visualize_domain(domain_name)
+
+    def save_visualization(self, mermaid_code, filename, title="Existential Model Visualization"):
+        """Save visualization as HTML file"""
+        from .visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(self)
+        html = visualizer.generate_html(mermaid_code, title)
+
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        return filename
+

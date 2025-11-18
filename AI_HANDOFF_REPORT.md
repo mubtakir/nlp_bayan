@@ -101,6 +101,14 @@
    - ملخص الأسبوع 4
    - تفاصيل Cut و Decorators
 
+8. **CONCEPTUAL_LM_AI_HANDOVER.md**
+   - دليل تسليم العمل لطبقات النموذج اللغوي التصوّري فوق بيان
+   - موجّه مباشرة لأي نموذج ذكاء سيكمّل هذا المسار.
+
+9. **CONCEPTUAL_CIRCUITS_AND_PROGRAMS.md**
+   - توثيق مفصّل للدوائر التصوّرية وبرامج المعاني
+   - يربط بين الطبقة المفاهيمية وطبقة الـ LM الرمزي والأمثلة.
+
 ---
 
 ## 🏗️ البنية المعمارية | Architecture Overview
@@ -653,7 +661,8 @@ Refer to docs/developer_guide.md (handoff appendix) for details.
 
 ### Notes
 - Follow Bayan syntax rules strictly (no semicolons, always colon after control keywords).
-- In Naive Bayes, initialization avoids the literal `None` to fit Bayan runtime.
+- In Naive Bayes, initialization historically avoided the literal `None` to fit older Bayan runtime.
+- As of 2025-11-15, Bayan now supports a proper `None` literal, so future code may use it directly when it simplifies the implementation.
 - README, AI_LIBRARY_GUIDE.md, and docs/developer_guide.md updated to 358/358 and Wave 14 entries.
 
 

@@ -27,9 +27,144 @@
 - المسافات البيضاء: الفراغ، التاب، الإرجاع؛ والسطر الجديد `\n` يزيد عداد الأسطر.
 
 ### الكلمات المحجوزة (Keywords)
-- تقليدية: `def, class, if, elif, else, for, while, in, print, return, break, continue, pass, True, False, None, and, or, not, self, super, import, from, as`
-- هجينة/منطقية: `hybrid, query, fact, rule`
-- نظام الكيانات: `entity, apply` / `كيان, طبق`
+
+#### الكلمات التقليدية (Traditional Keywords):
+`def`, `class`, `if`, `elif`, `else`, `for`, `while`, `in`, `print`, `return`, `break`, `continue`, `pass`, `True`, `False`, `None`, `and`, `or`, `not`, `self`, `super`, `import`, `from`, `as`, `try`, `except`, `finally`, `raise`, `with`, `async`, `await`, `yield`, `lambda`, `global`, `del`
+
+#### الكلمات الهجينة/المنطقية (Hybrid/Logic Keywords):
+`hybrid`, `query`, `fact`, `rule`
+
+#### نظام الكيانات (Entity System):
+- `entity` / `كيان` - تعريف كيان
+- `apply` / `طبق` - تطبيق فعل على كيان
+- `concept` / `مفهوم` - تعريف مفهوم
+
+#### الكلمات الزمنية (Temporal Keywords):
+- `temporal` / `زمنيا` - كتلة زمنية
+- `first` / `أولا` - الخطوة الأولى
+- `then` / `ثم` - الخطوة التالية
+- `lastly` / `أخيرا` - الخطوة الأخيرة
+- `within` / `خلال` - خلال مدة زمنية
+- `schedule` / `جدولة` - جدولة
+- `delay` / `تأخير` - تأخير
+- `every` / `كل` - كل (للتكرار)
+- `seconds` / `ثانية` / `ثواني` - ثواني
+- `minutes` / `دقيقة` / `دقائق` - دقائق
+- `hours` / `ساعة` / `ساعات` - ساعات
+- `once` / `مرة_واحدة` - مرة واحدة فقط
+- `limit` / `حد` - حد أقصى
+
+#### كلمات القيود (Constraint Keywords):
+- `where` / `حيث` - شرط where
+- `requires` / `يتطلب` / `يشترط` - شرط مسبق (precondition)
+- `ensures` / `يضمن` / `يكفل` - شرط لاحق (postcondition)
+- `invariant` / `ثابت` / `ثوابت` - ثابت (invariant)
+
+#### كلمات مطابقة الأنماط (Pattern Matching Keywords):
+- `match` / `طابق` - جملة match
+- `case` / `حالة` - حالة case
+- `default` / `افتراضي` / `افتراضية` - الحالة الافتراضية
+- `when` / `عندما` - شرط guard
+
+#### كلمات البرمجة التفاعلية (Reactive Programming Keywords):
+- `reactive` / `تفاعلي` / `تفاعلية` - متغير تفاعلي
+- `watch` / `راقب` / `مراقبة` - كتلة مراقبة
+- `computed` / `محسوب` / `محسوبة` - خاصية محسوبة
+
+#### كلمات النموذج المعرفي-الدلالي (Cognitive-Semantic Model Keywords):
+- `cognitive_entity` / `كيان_معرفي` - كيان معرفي
+- `cognitive_event` / `حدث_معرفي` - حدث معرفي
+- `event` / `حدث` - حدث عام
+- `trigger` / `أطلق` - إطلاق حدث
+- `concurrent` / `متزامن` - أحداث متزامنة
+- `pattern` / `قالب` - قالب لغوي
+- `conceptual_blueprint` / `مخطط_مفاهيمي` - مخطط مفاهيمي
+- `idea` / `فكرة` - فكرة
+- `participants` / `مشاركون` - مشاركون
+- `strength` / `قوة` - قوة
+- `transform` / `تحويل` - تحويل
+- `reactions` / `ردود_فعل` / `ردود` - ردود فعل
+- `structure` / `بنية` - بنية
+- `express` / `تعبير` - تعبير
+- `entities` / `كيانات` - كيانات
+- `result` / `نتيجة` - نتيجة
+- `state_changes` / `تغييرات_الحالة` / `تغييرات` - تغييرات الحالة
+- `linguistic_forms` / `أشكال_لغوية` / `أشكال` - أشكال لغوية
+- `degree` / `درجة` - درجة
+- `role` / `دور` - دور
+
+#### كلمات البرمجة الدلالية وإدارة المعرفة (Semantic Programming & Knowledge Management):
+- `meaning` / `معنى` - معنى دلالي
+- `semantic_query` / `استعلام_دلالي` - استعلام دلالي
+- `information` / `معلومة` - معلومة
+- `content` / `محتوى` - محتوى
+- `context` / `سياق` - سياق
+- `time` / `زمن` - زمن
+- `place` / `مكان` - مكان
+- `source` / `مصدر` - مصدر
+- `certainty` / `يقين` - يقين
+- `inference_rule` / `قاعدة_استنتاج` - قاعدة استنتاج
+- `infer_from` / `استنتج_من` - استنتج من
+- `contradiction` / `تناقض` - تناقض
+- `between` / `بين` - بين
+- `resolve` / `حل` - حل
+- `evolving_knowledge` / `معرفة_متطورة` - معرفة متطورة
+- `knowledge` / `معرفة` - معرفة
+- `current_value` / `قيمة_حالية` - قيمة حالية
+- `history` / `تاريخ` - تاريخ
+- `future_prediction` / `توقع_مستقبلي` - توقع مستقبلي
+- `ontology` / `أنطولوجيا` - أنطولوجيا
+- `root` / `جذر` - جذر
+- `taxonomy` / `تصنيف` - تصنيف
+- `memory` / `ذاكرة` - ذاكرة
+- `store` / `خزن` - تخزين
+- `retrieve` / `استرجع` - استرجاع
+- `similarity` / `تشابه` - تشابه
+- `narrative` / `سرد` - سرد
+- `characters` / `شخصيات` - شخصيات
+- `generate_narrative` / `ولد_سرد` - توليد سرد
+- `based_on` / `بناء_على` - بناءً على
+- `current_context` / `السياق_الحالي` - السياق الحالي
+
+#### كلمات النموذج الوجودي (Existential Model Keywords):
+- `domain` / `مجال` - مجال وجودي
+- `basic_entity` / `كيان_أساسي` - كيان أساسي
+- `environment` / `بيئة` - بيئة
+- `in_domain` / `في_مجال` - في مجال
+- `of_type` / `من_نوع` - من نوع
+- `existential_being` / `كائن_وجودي` - كائن وجودي
+- `dimensions` / `أبعاد` - أبعاد
+- `spatial` / `مكاني` - مكاني
+- `domain_specific` / `خاص_بالمجال` - خاص بالمجال
+- `intrinsic_properties` / `خصائص_جوهرية` - خصائص جوهرية
+- `inherited_meanings` / `معاني_موروثة` - معاني موروثة
+- `intrinsic_meanings` / `معاني_جوهرية` - معاني جوهرية
+- `laws` / `قوانين` - قوانين
+- `domain_relation` / `علاقة_مجالية` - علاقة مجالية
+- `domain_action` / `فعل_مجالي` - فعل مجالي
+- `metaphorical_meaning` / `معنى_مجازي` - معنى مجازي
+- `built_on` / `مبني_على` - مبني على
+- `applies_to` / `ينطبق_على` - ينطبق على
+- `domain_law` / `قانون_مجالي` - قانون مجالي
+- `existential_query` / `استعلام_وجودي` - استعلام وجودي
+- `about` / `حول` - حول
+
+#### الاتجاهات المكانية (Spatial Directions):
+`above` / `فوق`, `below` / `تحت`, `right` / `يمين`, `left` / `يسار`, `front` / `أمام`, `back` / `خلف`, `north` / `شمال`, `south` / `جنوب`, `east` / `شرق`, `west` / `غرب`
+
+#### العلاقات الزمنية (Temporal Relations):
+`before` / `قبل`, `after` / `بعد`, `during` / `أثناء`, `now` / `الآن`
+
+#### حروف الجر (Prepositions):
+`in` / `في`, `from` / `من`, `at` / `عند`, `on` / `على`, `to` / `إلى`
+
+#### كلمات مجال الحياة (Life Domain Keywords):
+`emergence` / `ظهور`, `life` / `حياة`, `growth` / `نمو`, `death` / `موت`, `decay` / `تحلل`, `living` / `حي`, `eat` / `أكل`, `drink` / `شرب`, `food` / `طعام`, `satiety` / `شبع`, `hunger` / `جوع`, `work` / `عمل`, `pain` / `ألم`, `effect` / `تأثير`, `affected` / `متأثر`, `struggle` / `كفاح`, `gain` / `كسب`, `loss` / `خسارة`, `interior` / `داخل`, `face` / `وجه`, `shadow` / `ظل`, `love` / `حب`, `affection` / `مودة`, `aversion` / `نفور`, `proximity` / `قرب`, `cooperation` / `تعاون`, `interaction` / `تفاعل`, `product` / `منتج`, `laugh` / `ضحك`, `cry` / `بكاء`, `speak` / `كلام`, `think` / `تفكير`, `inhabits` / `يسكن`, `moves_to` / `ينتقل_إلى`, `affected_by` / `متأثر_بـ`
+
+#### ملاحظات:
+- اللغة تدعم ثنائية اللغة (عربي/إنجليزي) لمعظم الكلمات المفتاحية
+- بعض الكلمات لها مترادفات متعددة (مثل `lastly`/`أخيرا`, `finally` محجوزة لـ try/finally)
+- الكلمات الجديدة تدعم ميزات متقدمة: Temporal, Reactive, Cognitive-Semantic, Existential Model
 
 
 ### الرموز (Symbols)
@@ -182,6 +317,20 @@
 - استعلام (query): `query parent(Ali, ?Who).`
 - المتغيرات المنطقية تبدأ بـ `?` مثل `?X`.
 
+### تصريح المترادفات (Similarity Declarations)
+- الصيغة: `Head(term:score, term:score, ...)`
+- المواضع المسموحة:
+  - كتعبير مستقل في المستوى الأعلى.
+  - داخل كتل hybrid كتعليمة منطقية (ويُفضَّل إنهاؤها بنقطة `.` مثل الحقائق).
+- الدلالة: تُولَّد حقائق `similar(Head, Term, Score, "syn", "lexicon")` ويُولَّد العكس تلقائيًا لتحقيق التماثل.
+- الدرجة `score` عددية ويجب كتابتها صراحة (قرار تصميـمي مقصود).
+- أمثلة:
+  ```bayan
+  أسد(غضنفر:0.8, هيضم:0.5)
+  hybrid { ذهب(راح:0.8). }
+  ```
+
+
 ## Errors & Debugging
 - عند حدوث استثناء، يُغلّف برسالة تتضمن:
   - رأس الاستثناء الأصلي وسببُه.
@@ -202,12 +351,15 @@
 ```
 program        := statement*
 statement      := hybrid_block | def | class | if | for | while | return | print |
-                  import | from_import | assignment | expr
+                  import | from_import | assignment | expr | similarity_decl_stmt
 hybrid_block   := 'hybrid' '{' (traditional_stmt|logic_stmt)* '}'
-logic_stmt     := fact_stmt | rule_stmt | query_stmt
+logic_stmt     := fact_stmt | rule_stmt | query_stmt | similarity_decl_stmt
 fact_stmt      := ('fact')? predicate '.'
 rule_stmt      := ('rule')? predicate (':-'|'←') predicate (',' predicate)* '.'?
 query_stmt     := 'query' predicate '.'?
+similarity_decl_stmt := IDENT '(' pair (',' pair)* ')' '.'?
+pair           := (IDENT | STRING) ':' expr
+
 predicate      := IDENT '(' (logic_term (',' logic_term)*)? ')'
 logic_term     := VARIABLE | STRING | NUMBER | IDENT
 

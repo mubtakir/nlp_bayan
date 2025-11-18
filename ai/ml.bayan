@@ -1258,9 +1258,9 @@ def k_means_pp_prob_init(data, k, seed=42):
 
 # Arabic wrappers (new, Wave 16)
 
-def معامل_ارتباط_ماثيوز(الحقيقة, التوقع, pos_label=1, neg_label=0): { return matthews_corrcoef(الحقيقة, التوقع, pos_label, neg_label) }
+def معامل_ارتباط_ماثيوز(الحقيقي, التوقع, pos_label=1, neg_label=0): { return matthews_corrcoef(الحقيقي, التوقع, pos_label, neg_label) }
 
-def كابا_كوهين(الحقيقة, التوقع, تسميات): { return cohen_kappa_score(الحقيقة, التوقع, تسميات) }
+def كابا_كوهين(الحقيقي, التوقع, تسميات): { return cohen_kappa_score(الحقيقي, التوقع, تسميات) }
 
 def تقسيم_تدريب_اختبار_طبقي(س, ت, نسبة_اختبار=0.25, عشوائي=True, بذرة=42): { return train_test_split_stratified(س, ت, نسبة_اختبار, عشوائي, بذرة) }
 
@@ -1470,11 +1470,11 @@ def k_means_pp_prob(data, k, max_iters=10, seed=42):
 # --- Arabic wrappers (new) ---
 
 
-def مصفوفة_الالتباس(الحقيقة, التوقع, pos_label=1, neg_label=0): { return confusion_matrix(الحقيقة, التوقع, pos_label, neg_label) }
+def مصفوفة_الالتباس(الحقيقي, التوقع, pos_label=1, neg_label=0): { return confusion_matrix(الحقيقي, التوقع, pos_label, neg_label) }
 
 def توقع_انحدار_لوجستي_احتمال(س, اوزان, انحياز): { return logistic_regression_predict_proba(س, اوزان, انحياز) }
 
-def منحنى_ROC(حقيقة, درجات, pos_label=1): { return roc_curve(حقيقة, درجات, pos_label) }
+def منحنى_ROC(حقيقي, درجات, pos_label=1): { return roc_curve(حقيقي, درجات, pos_label) }
 
 def مساحة_ROC(معدلات_موجبة_كاذبة, معدلات_حقيقية_موجبة): { return auc_roc(معدلات_موجبة_كاذبة, معدلات_حقيقية_موجبة) }
 
@@ -1485,9 +1485,9 @@ def مراكز_كي_مينز_PP_احتمالية_ابتدائية(بيانات, 
 
 # Arabic wrappers for multi-class metrics
 
-def مصفوفة_الالتباس_متعددة(حقيقة, توقع, تسميات): { return confusion_matrix_multi(حقيقة, توقع, تسميات) }
+def مصفوفة_الالتباس_متعددة(حقيقي, توقع, تسميات): { return confusion_matrix_multi(حقيقي, توقع, تسميات) }
 
-def تقرير_تصنيف(حقيقة, توقع, تسميات): { return classification_report(حقيقة, توقع, تسميات) }
+def تقرير_تصنيف(حقيقي, توقع, تسميات): { return classification_report(حقيقي, توقع, تسميات) }
 
 
 def تدريب_انحدار_لوجستي(س, ت, lr=0.1, epochs=200): { return logistic_regression_train(س, ت, lr, epochs) }
@@ -1498,11 +1498,11 @@ def توقع_انحدار_لوجستي(س, اوزان, انحياز, threshold=0
 
 def تقسيم_تدريب_اختبار(س, ت, نسبة_اختبار=0.25): { return train_test_split(س, ت, نسبة_اختبار) }
 
-def دقة_تصنيف(الحقيقة, التوقع, pos_label=1): { return precision_score(الحقيقة, التوقع, pos_label) }
+def دقة_تصنيف(الحقيقي, التوقع, pos_label=1): { return precision_score(الحقيقي, التوقع, pos_label) }
 
-def استرجاع_تصنيف(الحقيقة, التوقع, pos_label=1): { return recall_score(الحقيقة, التوقع, pos_label) }
+def استرجاع_تصنيف(الحقيقي, التوقع, pos_label=1): { return recall_score(الحقيقي, التوقع, pos_label) }
 
-def اف1_تصنيف(الحقيقة, التوقع, pos_label=1): { return f1_score(الحقيقة, التوقع, pos_label) }
+def اف1_تصنيف(الحقيقي, التوقع, pos_label=1): { return f1_score(الحقيقي, التوقع, pos_label) }
 
 def تجميع_كي_مينز_PP(بيانات, ك, مرات=10): { return k_means_pp(بيانات, ك, مرات) }
 
@@ -2912,11 +2912,11 @@ def bagging_predict(model, X):
             tr = trees[t]
             j = tr.get("j", 0)
             thr = tr.get("thr", 0.0)
-            left = tr.get("left", 0)
-            right = tr.get("right", 0)
+            left_lab = tr.get("left", 0)
+            right_lab = tr.get("right", 0)
             val = X[i][j]
-            lab = left
-            if val >= thr: { lab = right }
+            lab = left_lab
+            if val >= thr: { lab = right_lab }
             votes[lab] = votes.get(lab, 0) + 1
         }
         best_lab = 0
@@ -3108,12 +3108,12 @@ def adaboost_predict(model, X):
             st = stumps[t]
             j = st.get("j", 0)
             thr = st.get("thr", 0.0)
-            left = st.get("left", 0)
-            right = st.get("right", 0)
+            left_lab = st.get("left", 0)
+            right_lab = st.get("right", 0)
             a = st.get("alpha", 0.0)
             val = X[i][j]
-            lab = left
-            if val >= thr: { lab = right }
+            lab = left_lab
+            if val >= thr: { lab = right_lab }
             sgn = -1.0
             if lab == 1: { sgn = 1.0 }
             score = score + a * sgn

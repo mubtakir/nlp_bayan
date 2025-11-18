@@ -1,0 +1,39 @@
+# مثال توضيحي للصيغة الجديدة الموحدة للكيانات
+# Entity New Syntax Demo - Unified Syntax
+
+hybrid {
+    # الصيغة الجديدة: مفاتيح بدون علامات اقتباس
+    # New syntax: keys without quotes
+    
+    entity Ball {
+        states: {
+            "energy": {"type": "fuzzy", "value": 1.0},
+            "temperature": {"type": {"bounded": [0.0, 100.0]}, "value": 25.0}
+        },
+        properties: {
+            "x": {"type": "numeric", "value": 0.0},
+            "y": {"type": "numeric", "value": 0.0}
+        },
+        actions: {
+            "move": {
+                "effects": [
+                    {"on": "x", "formula": "value + 5.0*action_value"},
+                    {"on": "y", "formula": "value + 2.0*action_value"},
+                    {"on": "energy", "formula": "value - 0.15*action_value"}
+                ]
+            }
+        }
+    }
+    
+    # تطبيق الفعل
+    apply Ball.move(Ball, action_value=3.0)
+    
+    print("=== بعد الحركة / After Movement ===")
+}
+
+# استعلامات
+query property("Ball", "x", ?X).
+query property("Ball", "y", ?Y).
+query state("Ball", "energy", ?E).
+query state("Ball", "temperature", ?T).
+

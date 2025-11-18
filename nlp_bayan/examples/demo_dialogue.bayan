@@ -1,0 +1,15 @@
+import nlp_bayan.core.dialogue_state as ds
+
+hybrid {
+    # حوار بسيط من خطوتين لتوضيح حالة الحوار
+    ds.reset()
+    ds.set_last_entity("سعد")
+    ds.set_last_place("المدرسة")
+
+    e = ds.get_last_entity()
+    p = ds.get_last_place()
+
+    # جملة مبسطة توضح دمج الحالة في التوليد اليدوي
+    s = e + " ذهب الى " + p
+}
+

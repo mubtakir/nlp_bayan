@@ -1,0 +1,232 @@
+# Natural language → control-message mapping.
+# This is a very simple, keyword-based mapper that reads short
+# Arabic/English commands and produces a structured control_message
+# suitable for the conceptual orchestrator.
+
+
+# Helper: check if any keyword from the list appears as a substring
+# of the given text.
+def text_contains_any(text, keywords):
+{
+    for i in range(len(keywords)):
+    {
+        kw = keywords[i]
+        if kw in text:
+        {
+            return True
+        }
+    }
+    return False
+}
+
+
+# Main entry point: map a short natural language command into
+# a control message understood by ai.conceptual_orchestrator.
+#
+# The returned dict typically has:
+#   - domain       : one of "education", "health", "economy"
+#   - intent       : "study_scenario" / "treatment_scenario" / "investment_scenario"
+#   - detail_level : "low" / "medium" / "high"
+#   - languages    : "arabic" / "english" / "both"
+#   - perspective  : "neutral" / "first_person" / "third_person_formal"
+#   - focus        : optional, e.g. "causal" / "temporal" / "uncertainty" / "context"
+#
+# This is deliberately heuristic and easy to extend.
+
+def map_text_to_control_message(text):
+{
+    # Normalize text (lowercase) for simple English matching.
+    # For Arabic, we just keep the original; .lower() is safe anyway.
+    if text == None:
+    {
+        text = ""
+    }
+    lower_text = text.lower()
+
+    msg = {}
+
+    # --- 1) Domain + intent detection ---
+    detected_domain = None
+    detected_intent = None
+
+    # Education / study
+    if text_contains_any(text, ["طالب", "مذاكرة", "دراسة", "مدرسة", "امتحان"]) or text_contains_any(lower_text, ["student", "study", "homework", "school", "exam"]):
+    {
+        detected_domain = "education"
+        detected_intent = "study_scenario"
+    }
+
+    # Health / treatment
+    if detected_domain == None:
+    {
+        if text_contains_any(text, ["مريض", "دواء", "علاج", "مستشفى", "طبيب"]) or text_contains_any(lower_text, ["patient", "medicine", "treatment", "drug", "hospital", "doctor"]):
+        {
+            detected_domain = "health"
+            detected_intent = "treatment_scenario"
+        }
+    }
+
+    # Economy / investment
+    if detected_domain == None:
+    {
+        if text_contains_any(text, ["استثمار", "مستثمر", "سوق", "أسهم"]) or text_contains_any(lower_text, ["investment", "investor", "market", "stock", "stocks"]):
+        {
+            detected_domain = "economy"
+            detected_intent = "investment_scenario"
+        }
+    }
+
+    # Social / relationships / friendship
+    if detected_domain == None:
+    {
+        if text_contains_any(text, ["صداقة", "صديق", "علاقة", "تفاعل اجتماعي", "ثقة", "لقاء"]) or text_contains_any(lower_text, ["friendship", "friend", "relationship", "social", "trust", "meeting", "interaction"]):
+        {
+            detected_domain = "social"
+            detected_intent = "relationship_scenario"
+        }
+    }
+
+    # Daily life / decision making
+    if detected_domain == None:
+    {
+        if text_contains_any(text, ["قرار", "اختيار", "خيار", "تفكير", "حياة يومية"]) or text_contains_any(lower_text, ["decision", "choice", "option", "decide", "choose", "daily", "everyday"]):
+        {
+            detected_domain = "daily_life"
+            detected_intent = "decision_scenario"
+        }
+    }
+
+    # Fallback: if still unknown, leave domain/intent empty and let
+    # the orchestrator fail with no_program_match.
+    if detected_domain != None:
+    {
+        msg["domain"] = detected_domain
+    }
+    if detected_intent != None:
+    {
+        msg["intent"] = detected_intent
+    }
+
+    # --- 2) Detail level ---
+    # "سريع/مختصر/short/brief"  → low
+    # "مفصل/بالتفصيل/detailed" → high
+    # otherwise                    medium
+    detail_level = "medium"
+
+    if text_contains_any(text, ["سريع", "مختصر", "موجز"]) or text_contains_any(lower_text, ["short", "brief", "quick"]):
+    {
+        detail_level = "low"
+    }
+    if text_contains_any(text, ["مفصل", "بالتفصيل"]) or text_contains_any(lower_text, ["detailed", "in detail", "explain"]):
+    {
+        detail_level = "high"
+    }
+
+    msg["detail_level"] = detail_level
+
+    # --- 3) Languages ---
+    # by default we leave this unspecified (orchestrator will treat this
+    # as "both" via normalize_settings), but we allow simple overrides.
+    languages = None
+
+    # If the user explicitly asks for both languages, prefer that over
+    # the more general "Arabic"/"English" checks below.
+    if text_contains_any(text, ["بالعربية والإنجليزية", "بالعربي والانجليزي", "باللغتين"]) or text_contains_any(lower_text, ["arabic and english", "both languages"]):
+    {
+        languages = "both"
+    }
+    elif text_contains_any(text, ["بالعربية", "بالعربي", "العربية فقط", "فقط بالعربية"]) or text_contains_any(lower_text, ["arabic only", "only in arabic"]):
+    {
+        languages = "arabic"
+    }
+    elif text_contains_any(text, ["بالإنجليزية", "بالانجليزية", "الإنجليزية فقط", "فقط بالإنجليزية"]) or text_contains_any(lower_text, ["in english", "english only"]):
+    {
+        languages = "english"
+    }
+
+    if languages != None:
+    {
+        msg["languages"] = languages
+    }
+
+    # --- 4) Perspective ---
+    # If the user talks in first person ("أنا", "my", "me"...) we
+    # choose "first_person"; if they mention a report or formal tone,
+    # we choose "third_person_formal"; otherwise "neutral".
+    perspective = "neutral"
+
+    if text_contains_any(text, ["أنا", "نحن"]) or text_contains_any(lower_text, ["i ", " i", " my ", " me ", " we "]):
+    {
+        perspective = "first_person"
+    }
+    elif text_contains_any(text, ["تقرير", "وصف رسمي"]) or text_contains_any(lower_text, ["formal report", "formal description"]):
+    {
+        perspective = "third_person_formal"
+    }
+
+    # --- 5) Focus of explanation (optional) ---
+    # The user may explicitly ask for causes, timeline, risk/uncertainty,
+    # or context/environment.
+    focus = None
+
+    if text_contains_any(text, ["سبب", "أسباب", "الأسباب", "لأنه", "لأن"]) or text_contains_any(lower_text, ["cause", "reason", "why", "because"]):
+    {
+        focus = "causal"
+    }
+    elif text_contains_any(text, ["تسلسل", "قبل وبعد", "خط زمني"]) or text_contains_any(lower_text, ["timeline", "sequence", "order"]):
+    {
+        focus = "temporal"
+    }
+    elif text_contains_any(text, ["احتمال", "مخاطر", "خطر"]) or text_contains_any(lower_text, ["risk", "uncertainty", "probability"]):
+    {
+        focus = "uncertainty"
+    }
+    elif text_contains_any(text, ["سياق", "بيئة"]) or text_contains_any(lower_text, ["context", "environment"]):
+    {
+        focus = "context"
+    }
+
+    if focus != None:
+    {
+        msg["focus"] = focus
+    }
+
+    # --- 6) Scenario variant (optional) ---
+    # Simple sentiment/variant hint: positive/negative.
+    scenario_variant = None
+    if text_contains_any(text, ["إيجابي", "إيجابية", "تحسن", "نجاح", "ربح", "مكسب"]) or text_contains_any(lower_text, ["positive", "success", "successful", "profit", "gain"]):
+    {
+        scenario_variant = "positive"
+    }
+    elif text_contains_any(text, ["سلبي", "سلبية", "خسارة", "فشل"]) or text_contains_any(lower_text, ["negative", "loss", "losing", "failure"]):
+    {
+        scenario_variant = "negative"
+    }
+
+    if scenario_variant != None:
+    {
+        msg["scenario_variant"] = scenario_variant
+    }
+
+    # --- 7) Time horizon (optional) ---
+    # Rough indication of short/long-term focus.
+    time_horizon = None
+    if text_contains_any(text, ["طويل المدى", "طويلة المدى", "على المدى الطويل", "بعيد المدى"]) or text_contains_any(lower_text, ["long term", "long-term", "in the long run"]):
+    {
+        time_horizon = "long_term"
+    }
+    elif text_contains_any(text, ["قصير المدى", "قصيرة المدى", "على المدى القصير", "فترة قصيرة"]) or text_contains_any(lower_text, ["short term", "short-term", "soon", "in the near future"]):
+    {
+        time_horizon = "short_term"
+    }
+
+    if time_horizon != None:
+    {
+        msg["time_horizon"] = time_horizon
+    }
+
+    msg["perspective"] = perspective
+
+    return msg
+}
+

@@ -171,6 +171,57 @@ Arabic wrappers (v18):
 - متجه_TFIDF_ناعم(نص, نموذج)
 - تشابه_جيبي_TFIDF_ناعم(نص1, نص2, نموذج)
 
+New (v19):
+- normalize_arabic(text)
+- arabic_light_stem_token(token)
+- arabic_light_stem_tokens(tokens)
+- vocab_build(docs, max_features=10000, min_freq=1)
+- vocab_encode_tokens(tokens, vocab)
+- vocab_decode_ids(ids, vocab)
+- char_ngram_vocab_build(docs, n=3, max_features=10000, min_freq=1)
+- char_ngram_encode(text, vocab, n=-1)
+- cooccurrence_build(docs, window_size=2)
+- cooccurrence_vector(model, word)
+- cooccurrence_similarity(model, word1, word2)
+- sequence_add_bos_eos(ids, bos_id=2, eos_id=3)
+- sequence_pad(seqs, pad_id=0, max_len=0)
+- sequence_batch(seqs, batch_size)
+- sequence_cross_entropy_from_log_probs(log_probs)
+- sequence_perplexity_from_log_probs(log_probs)
+- lm_prepare_id_sequences(docs, vocab)
+- lm_make_input_target(seqs)
+- bigram_lm_text_log_probs(model, text)
+- bigram_lm_cross_entropy(model, text)
+- bigram_lm_perplexity(model, text)
+- trigram_lm_text_log_probs(model, text)
+- trigram_lm_cross_entropy(model, text)
+- trigram_lm_perplexity(model, text)
+
+Arabic wrappers (v19):
+- تطبيع_عربي(نص)
+- تجذيع_عربي_خفيف_كلمات(كلمات)
+- بناء_قاموس(نصوص, حجم_اقصى=10000, تكرار_ادنى=1)
+- ترميز_كلمات_بقاموس(كلمات, قاموس)
+- فك_ترميز_معرفات_بقاموس(معرفات, قاموس)
+- بناء_قاموس_محارف(نصوص, ن=3, حجم_اقصى=10000, تكرار_ادنى=1)
+- ترميز_محارف_بانجرام(نص, قاموس, ن=3)
+- بناء_تضمين_تلازم(نصوص, نافذة=2)
+- متجه_تلازم(نموذج, كلمة)
+- تشابه_تلازم(نموذج, كلمة1, كلمة2)
+- اضافة_بداية_نهاية_تسلسل(معرفات, bos_id=2, eos_id=3)
+- حشو_تسلسلات(تسلسلات, pad_id=0, max_len=0)
+- دفعات_تسلسلات(تسلسلات, حجم_دفعة)
+- انتروبي_تتابع_من_لوغ(لوغات)
+- بيربلكسيتي_تتابع_من_لوغ(لوغات)
+- تتابعات_معرفات_من_نصوص(نصوص, قاموس)
+- مدخلات_اهداف_من_تتابعات(تتابعات)
+- لوغ_احتمالات_ثنائي_من_نص(نموذج, نص)
+- انتروبي_ثنائي_من_نص(نموذج, نص)
+- بيربلكسيتي_ثنائي_من_نص(نموذج, نص)
+- لوغ_احتمالات_ثلاثي_من_نص(نموذج, نص)
+- انتروبي_ثلاثي_من_نص(نموذج, نص)
+- بيربلكسيتي_ثلاثي_من_نص(نموذج, نص)
+
 Arabic wrappers:
 - تجهيز_نص(نص, لغة="auto")
 - تجزئة_نص(نص, لغة="auto")
@@ -323,10 +374,6 @@ New (v6):
 - zscore_normalize(xs)
 
 Arabic wrappers (v6):
--     ( )
--     ( )
--    ( )
--     _Z( )
 
 Arabic wrappers (v6) — corrected:
 - أدنى(قائمة)
@@ -350,9 +397,7 @@ Arabic wrappers (v8):
 
 
 Arabic wrappers (v5) — encoding artifact (ignore):
--    _CSV_ ( , ",") /    _CSV_ ( , ",")
--    _CSV_ ( , ",") /    _CSV_ ( , ",")
--      (قائمة),      (قائمة),      _     (قائمة),    ( ),    ( ,  )
+- [removed corrupted examples; see corrected names below]
 
 Arabic wrappers (v5) — corrected:
 - قراءة_JSON_نص(نص)

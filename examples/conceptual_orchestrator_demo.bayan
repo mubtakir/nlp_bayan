@@ -1,0 +1,385 @@
+# Demo: Conceptual orchestrator over meaning programs
+# This shows how a simple control message (domain / intent) can select
+# a meaning program and run it through the LM pipeline.
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # Helper: process a single circuit output with a list of
+    # (role_key, bridge_key) pairs and extend `examples` in-place.
+    # `langs` and `register` come from the control settings.
+    def add_examples_for_pairs(circuit_output, pairs, examples, langs, register):
+    {
+        local_trace = circuit_output["trace"]
+        roles = circuit_output["roles"]
+        bridges = circuit_output["bridge_structures"]
+
+        for i in range(len(pairs)):
+        {
+            pair = pairs[i]
+            role_key = pair[0]
+            bridge_key = pair[1]
+
+            if role_key in roles and bridge_key in bridges:
+            {
+                bridge = bridges[bridge_key]
+                result = lm_bridge.build_lm_examples_for_structure(
+                    local_trace,
+                    roles[role_key],
+                    bridge,
+                    langs,
+                    register
+                )
+
+                exs = result["examples"]
+                for j in range(len(exs)):
+                {
+                    examples.append(exs[j])
+                }
+            }
+        }
+    }
+
+    # Given orchestrator output (trace + components + selected_program),
+    # build a list of LM examples using program-specific mappings and control
+    # settings (detail_level, languages, perspective).
+    def build_lm_examples_for_program(orchestrator_output):
+    {
+        examples = []
+        components = orchestrator_output["components"]
+        program_id = orchestrator_output["selected_program"]
+
+        # Default settings in case orchestrator_output does not carry them.
+        settings = {
+            "detail_level": "high",
+            "languages": ["english", "arabic"],
+            "perspective": "neutral",
+            "focus": None
+        }
+        if "settings" in orchestrator_output:
+        {
+            settings = orchestrator_output["settings"]
+        }
+
+        detail_level = settings["detail_level"]
+        langs = settings["languages"]
+        focus = settings["focus"]
+
+        perspective = settings["perspective"]
+
+        scenario_variant = "neutral"
+        if "scenario_variant" in settings:
+        {
+            scenario_variant = settings["scenario_variant"]
+        }
+
+        time_horizon = "medium_term"
+        if "time_horizon" in settings:
+        {
+            time_horizon = settings["time_horizon"]
+        }
+
+        # Map perspective to a simple register hint for the LM bridge.
+        register = "neutral"
+        if perspective == "first_person":
+        {
+            register = "casual"
+        }
+        elif perspective == "third_person_formal":
+        {
+            register = "formal"
+        }
+
+        # Student study program
+        if program_id == "student_study":
+        {
+            # Always realize the main action/state evaluation.
+            add_examples_for_pairs(
+                components["action_state_eval"],
+                [
+                    ["Generic_Interaction_Event", "ActionSentencePattern"],
+                    ["State_Change_Template", "StateChangeSentencePattern"],
+                    ["DescriptionPattern", "DescriptionPattern"]
+                ],
+                examples,
+                langs,
+                register
+            )
+
+            # Medium and high detail: include causal link (unless focus excludes it).
+            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
+            {
+                add_examples_for_pairs(
+                    components["causal_link"],
+                    [["Probabilistic_Causation", "CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            # High detail: also include temporal/contextual/uncertain links,
+            # conditioned on focus when specified.
+            if detail_level == "high" and (focus == None or focus == "temporal"):
+            {
+                add_examples_for_pairs(
+                    components["temporal_sequence"],
+                    [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "context"):
+            {
+                add_examples_for_pairs(
+                    components["contextual_event"],
+                    [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "uncertainty"):
+            {
+                add_examples_for_pairs(
+                    components["uncertain_cause_effect"],
+                    [
+                        ["Probabilistic_Causation", "CausalSentencePattern"],
+                        ["UncertaintyPattern", "UncertaintyPattern"]
+                    ],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+        }
+
+        # Medical treatment program
+        if program_id == "medical_treatment":
+        {
+            add_examples_for_pairs(
+                components["treatment_state"],
+                [
+                    ["Generic_Interaction_Event", "ActionSentencePattern"],
+                    ["State_Change_Template", "StateChangeSentencePattern"],
+                    ["DescriptionPattern", "DescriptionPattern"]
+                ],
+                examples,
+                langs,
+                register
+            )
+
+            # Medium and high detail: include causal link (unless focus excludes it).
+            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
+            {
+                add_examples_for_pairs(
+                    components["treatment_causal"],
+                    [["Probabilistic_Causation", "CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "temporal"):
+            {
+                add_examples_for_pairs(
+                    components["temporal_sequence"],
+                    [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "context"):
+            {
+                add_examples_for_pairs(
+                    components["contextual_followup"],
+                    [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive"):
+            {
+                add_examples_for_pairs(
+                    components["uncertain_side_effect"],
+                    [
+                        ["Probabilistic_Causation", "CausalSentencePattern"],
+                        ["UncertaintyPattern", "UncertaintyPattern"]
+                    ],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+        }
+
+        # Economic investment program
+        if program_id == "economic_investment":
+        {
+            add_examples_for_pairs(
+                components["investment_state"],
+                [
+                    ["Generic_Interaction_Event", "ActionSentencePattern"],
+                    ["State_Change_Template", "StateChangeSentencePattern"],
+                    ["DescriptionPattern", "DescriptionPattern"]
+                ],
+                examples,
+                langs,
+                register
+            )
+
+            # Medium and high detail: include causal link (unless focus excludes it).
+            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
+            {
+                add_examples_for_pairs(
+                    components["investment_causal"],
+                    [["Probabilistic_Causation", "CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "temporal"):
+            {
+                add_examples_for_pairs(
+                    components["temporal_sequence"],
+                    [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "context"):
+            {
+                add_examples_for_pairs(
+                    components["contextual_research"],
+                    [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+
+            if detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive"):
+            {
+                add_examples_for_pairs(
+                    components["uncertain_risk"],
+                    [
+                        ["Probabilistic_Causation", "CausalSentencePattern"],
+                        ["UncertaintyPattern", "UncertaintyPattern"]
+                    ],
+                    examples,
+                    langs,
+                    register
+                )
+            }
+        }
+
+        return examples
+    }
+
+    def run_request(control_message):
+    {
+        print("===== Control message =====")
+        print(control_message)
+
+        result = orchestrator.dispatch_request(control_message)
+        print("Selected program ok =", result["ok"])
+
+        if not result["ok"]:
+        {
+            print("No matching program for control message.")
+            return
+        }
+
+        print("Selected program id:", result["selected_program"])
+        print("Program description:", result["program_description"])
+
+        if "settings" in result:
+        {
+            print("Control settings (detail_level, languages, perspective, focus, scenario_variant, time_horizon):")
+            print(result["settings"])
+        }
+
+        trace = result["trace"]
+        has_entities = "entities" in trace
+        has_events = "events" in trace
+        has_causal = "causal_links" in trace
+        print("Trace summary: entities=", has_entities, "events=", has_events, "causal_links=", has_causal)
+
+        examples = build_lm_examples_for_program(result)
+        print("Number of LM examples:", len(examples))
+        print("Example texts:")
+        for i in range(len(examples)):
+        {
+            ex = examples[i]
+            print("-", i, ":", ex["text"])
+        }
+        print("")
+
+        vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+        print("Vocab size:", len(vocab["token_to_id"]))
+
+        bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+        trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+        bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+        trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+        print("==== Bigram vs Trigram LM scores for orchestrated corpus ====")
+        for i in range(len(examples)):
+        {
+            ex = examples[i]
+            sc_bg = bigram_scores[i]
+            sc_tri = trigram_scores[i]
+            print("Example", i, "text:", ex["text"])
+            print("  Bigram:", sc_bg)
+            print("  Trigram:", sc_tri)
+        }
+    }
+
+    # Simulate three control messages coming from a higher-level controller
+    # (e.g. a language model) that chooses a domain/intent and also passes
+    # simple control settings.
+    education_msg = {
+        "domain": "education",
+        "intent": "study_scenario",
+        "detail_level": "high",
+        "languages": "both",
+        "perspective": "neutral"
+    }
+
+    medical_msg = {
+        "domain": "health",
+        "intent": "treatment_scenario",
+        "detail_level": "low",
+        "languages": "arabic",
+        "perspective": "third_person_formal"
+    }
+
+    economic_msg = {
+        "domain": "economy",
+        "intent": "investment_scenario",
+        "detail_level": "medium",
+        "languages": "english",
+        "perspective": "first_person"
+    }
+
+    run_request(education_msg)
+    print("")
+    run_request(medical_msg)
+    print("")
+    run_request(economic_msg)
+}
+

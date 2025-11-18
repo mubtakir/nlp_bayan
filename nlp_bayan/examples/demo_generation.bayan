@@ -17,6 +17,11 @@ hybrid {
     # مثال بسيط للتوليد:
     sentence = gen.generate_simple_ar("محمد", "ذهب", "المدرسة")
     print("الجملة المولّدة: " + sentence)
+    # توليد عبر نموذج ثلاثي الكلمات (تجريبي)
+    generated2 = gen.generate_trigram_ar("محمد", "ذهب", 6)
+    print("توليد ثلاثي الكلمات: " + generated2)
+
+
 
     # مثال احتمالي: عرض الحقائق ذات احتمال > 0.5 لكيان "garden"
     print("حقائق محتملة لـ garden:")

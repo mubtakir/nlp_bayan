@@ -110,6 +110,7 @@ python web_ide/app.py
 - Theme and font controls, keyboard shortcuts (Ctrl/Cmd+S to save, Ctrl/Cmd+Enter to run)
 - AI autocompletion (Arabic/English) with function docs; filter by language and domain (ai.ml / ai.nlp / ai.data / logic)
 - Examples browser with search and domain filters (ai.ml / ai.nlp / ai.data / logic / mixed / unknown); hover tooltips and domain badges in the list
+- Highlighted example in the IDE examples browser: `ar_مستشار_توازن_حياة_الطالب.md` — **Student Life Balance Advisor | مستشار توازن حياة الطالب** (advanced Arabic hybrid example combining entities, fuzzy states, semantic knowledge, and similarity/synonyms to propose an explained study plan)
 
 - Graphics (gfx) domain + live SVG preview panel — SVG helpers (shapes/text/groups), waves (sine/square/triangle), and free pen drawing (Arabic/English)
 
@@ -241,6 +242,14 @@ hybrid {
 
 ## 📚 Documentation
 
+### 🤖 For AI Models (للنماذج اللغوية)
+> **Complete project access for AI models with 632+ files organized by category**
+
+- **AI Model Links (روابط للنماذج اللغوية):**
+  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - **Contains:** Direct links to all essential files (README, keywords reference, guides, tutorials, examples, AI libraries, domain libraries, conceptual libraries, and more)
+
 ### Handoff (One-page)
 - Quick handoff for the next model: [NEXT_MODEL_BRIEFING.md](NEXT_MODEL_BRIEFING.md)
 
@@ -370,7 +379,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👨‍💻 Author
+## 👨💻 Author
 
 **Developed by: Basel Yahya Abdullah (باسل يحيى عبدالله)**
 **With assistance from: AI Language Models**
@@ -466,6 +475,14 @@ python web_ide/app.py
 
 ## 📚 الوثائق
 
+### 🤖 للنماذج اللغوية (For AI Models)
+> **وصول كامل للمشروع للنماذج اللغوية مع 632+ ملف منظم حسب الفئة**
+
+- **روابط النماذج اللغوية (AI Model Links):**
+  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - **يحتوي على:** روابط مباشرة لجميع الملفات الأساسية (README، مرجع الكلمات المفتاحية، الأدلة، الدروس، الأمثلة، مكتبات الذكاء الاصطناعي، مكتبات المجالات، المكتبات المفاهيمية، والمزيد)
+
 ### الدروس التعليمية
 - [الجزء الأول: مقدمة](docs/01_INTRODUCTION_AR.md) - ما هي البيان، المزايا، التثبيت
 - [الجزء الثاني: الإجرائية والكائنية](docs/02_PROCEDURAL_OOP_AR.md) - من المبتدئ إلى الخبير
@@ -473,10 +490,6 @@ python web_ide/app.py
 - [الجزء الرابع: الاستدلال الاحتمالي والتشكيك](docs/04_PROBABILISTIC_REASONING_AR.md) - التعبير عن عدم اليقين 🎲 (جديد!)
 
 ### التكامل مع النماذج اللغوية
-- روابط جاهزة للنماذج (صفحة واحدة - RAW):
-  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - نسخة GitHub البسيطة: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
-
 - [System Prompt للنماذج](docs/LLM_SYSTEM_PROMPT.txt) - Prompt جاهز للاستخدام
 - [مرجع سريع](docs/LLM_QUICK_REFERENCE.md) - مرجع سريع للصيغة
 - [دليل شامل](docs/LLM_REFERENCE_GUIDE.md) - دليل شامل مع 10 أمثلة
@@ -496,7 +509,7 @@ python -m pytest tests/ -v
 
 ---
 
-## 👨‍💻 المطور
+## 👨💻 المطور
 
 **تم التطوير بواسطة: باسل يحيى عبدالله**
 **بمساعدة: نماذج الذكاء الاصطناعي اللغوية**

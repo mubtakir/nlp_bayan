@@ -1,11 +1,11 @@
 hybrid {
-    # Virtual Village (English keywords)
+    # Virtual Village (English keywords - using new unified syntax)
     entity Farmer {
-        "states": {"hunger": 0.4, "energy": 0.7, "happiness": 0.6, "budget": 0.3}
+        states: {"hunger": 0.4, "energy": 0.7, "happiness": 0.6, "budget": 0.3}
     }
     entity Baker {
-        "states": {"budget": 0.8},
-        "actions": {
+        states: {"budget": 0.8},
+        actions: {
             "sell_bread": {"power": 1.0, "effects": [
                 {"on": "hunger", "formula": "clamp(value - 0.3*action_value, 0, 1)"},
                 {"on": "budget", "formula": "value - 0.2*action_value"}
@@ -13,8 +13,8 @@ hybrid {
         }
     }
     entity Merchant {
-        "states": {"budget": 0.6},
-        "actions": {
+        states: {"budget": 0.6},
+        actions: {
             "help": {"power": 0.8, "effects": [
                 {"on": "happiness", "formula": "value + power*action_value*0.1"}
             ]},
@@ -24,8 +24,8 @@ hybrid {
         }
     }
     entity Child {
-        "states": {"hunger": 0.7, "happiness": 0.5},
-        "reactions": {
+        states: {"hunger": 0.7, "happiness": 0.5},
+        reactions: {
             "help": {"sensitivity": 1.0, "response": "happiness += sensitivity*0.3"},
             "sell_bread": {"sensitivity": 1.0, "response": "hunger += -0.1"}
         }

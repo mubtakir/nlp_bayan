@@ -1,0 +1,137 @@
+# ديمو كامل: trace تصوّري → blueprints → language bridge → surface planner
+# → sentence tree → surface realizer → conceptual_lm_bridge (vocab + bigram LM)
+
+hybrid {
+    import ai.conceptual_blueprints as blueprints
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+
+    # 1) trace تصوّري بسيط جداً
+    conceptual_trace = {
+        "entities": [
+            {
+                "id": "Entity_A",
+                "kind": "generic_entity",
+                "domain": "abstract_domain"
+            },
+            {
+                "id": "Entity_B",
+                "kind": "generic_entity",
+                "domain": "abstract_domain"
+            }
+        ],
+        "events": [
+            {
+                "id": "Event_1",
+                "action": "GenericAction",
+                "actors": ["Entity_A"],
+                "targets": ["Entity_B"],
+                "intensity": 0.8,
+                "probability": 0.9
+            }
+        ],
+        "meta": {
+            "source": "full_pipeline_demo",
+            "confidence": 0.92
+        }
+    }
+
+    print("==== Full pipeline demo: blueprints + LM bridge ====")
+    registry = blueprints._conceptual_blueprints
+    print("Number of blueprints:", len(registry))
+    print("Blueprint names:", list(registry.keys()))
+    print("")
+
+    # 2) تعبئة أدوار Generic_Interaction_Event (رمزياً من الـ trace)
+    roles_event = {
+        "Actor": "Entity_A",
+        "Target": "Entity_B",
+        "ActionKind": "GenericAction",
+        "Instrument": "None",
+        "Context": "AbstractContext",
+        "Probability": 0.9
+    }
+
+    print("==== Roles for Generic_Interaction_Event ====")
+    print(roles_event)
+    print("")
+
+    # 3) بناء هيكل الجسر اللغوي ثم تحقيقه إلى جملة عمل رمزية
+    action_structure = {
+        "pattern": "ActionSentencePattern",
+        "slots": {
+            "Actor": roles_event["Actor"],
+            "Action": roles_event["ActionKind"],
+            "Target": roles_event["Target"],
+            "Intensity": roles_event["Probability"],
+            "Context": roles_event["Context"]
+        }
+    }
+
+    realized_action = lang_bridge.realize(action_structure)
+    print("==== Realized ActionSentence (symbolic) ====")
+    print(realized_action)
+    print("")
+
+    # 4) تخطيط سطحي رمزي (EN/AR) ثم بناء شجرة جملة
+    plan_en = surface_planner.plan_surface(realized_action, "english")
+    plan_ar = surface_planner.plan_surface(realized_action, "arabic")
+
+    tree_en = sentence_tree.build_tree(realized_action, plan_en)
+    tree_ar = sentence_tree.build_tree(realized_action, plan_ar)
+
+    print("==== Sentence trees (EN / AR) ====")
+    print("EN tree:", tree_en)
+    print("AR tree:", tree_ar)
+    print("")
+
+    # 5) التوليد السطحي الرمزي (tokens + pseudo-text)
+    surface_en = surface_realizer.realize_from_sentence_tree(tree_en, "neutral")
+    surface_ar = surface_realizer.realize_from_sentence_tree(tree_ar, "neutral")
+
+    tokens_en = surface_realizer.realization_to_token_strings(surface_en)
+    tokens_ar = surface_realizer.realization_to_token_strings(surface_ar)
+    text_en = surface_realizer.realization_to_text(surface_en)
+    text_ar = surface_realizer.realization_to_text(surface_ar)
+
+    print("==== Surface realizations (EN / AR) ====")
+    print("EN surface tokens:", tokens_en)
+    print("EN surface text:", text_en)
+    print("AR surface tokens:", tokens_ar)
+    print("AR surface text:", text_ar)
+    print("")
+
+    # 6) بناء أمثلة تدريبية مفهومية ثم تدريب bigram LM بسيط
+    example_en = lm_bridge.tree_to_example(conceptual_trace, roles_event, tree_en, "neutral")
+    example_ar = lm_bridge.tree_to_example(conceptual_trace, roles_event, tree_ar, "neutral")
+
+    examples = [example_en, example_ar]
+
+    print("==== Conceptual LM examples (text field) ====")
+    print("Example EN text:", example_en["text"])
+    print("Example AR text:", example_ar["text"])
+    print("")
+
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    score_en_bg = lm_bridge.score_example_with_bigram(example_en, bigram_model)
+    score_ar_bg = lm_bridge.score_example_with_bigram(example_ar, bigram_model)
+
+    score_en_tri = lm_bridge.score_example_with_trigram(example_en, trigram_model)
+    score_ar_tri = lm_bridge.score_example_with_trigram(example_ar, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores ====")
+    print("EN example - Bigram:", score_en_bg)
+    print("EN example - Trigram:", score_en_tri)
+    print("AR example - Bigram:", score_ar_bg)
+    print("AR example - Trigram:", score_ar_tri)
+}
+

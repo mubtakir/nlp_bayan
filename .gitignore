@@ -139,3 +139,7 @@ Thumbs.db
 
 
 bayan_python0/
+
+
+# Local dev app (excluded)
+repo/

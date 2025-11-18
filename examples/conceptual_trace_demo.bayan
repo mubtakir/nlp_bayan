@@ -1,0 +1,187 @@
+# مثال تطبيقي تجريدي لربط trace تصوّري مع تصوّرات عامة (blueprints)
+# Abstract conceptual_trace → conceptual blueprints → language bridge (skeleton)
+
+hybrid {
+    # 1) استيراد مكتبة التصوّرات العامة المكتوبة بلغة DSL
+    #    This loads ai/conceptual_blueprints.bayan as a Bayan module
+    import ai.conceptual_blueprints as blueprints
+    # 1-b) استيراد طبقة التنفيذ الرمزية للجسر اللغوي
+    import ai.conceptual_language_bridge as lang_bridge
+    # 1-c) استيراد طبقة تخطيط سطحي رمزية للجمل المحققة
+    import ai.conceptual_surface_planner as surface_planner
+    # 1-d) طبقة شجرة جملة رمزية فوق التخطيط السطحي
+    import ai.conceptual_sentence_tree as sentence_tree
+    # 1-e) طبقة التوليد السطحي الرمزي فوق شجرة الجملة
+    import ai.conceptual_surface_realizer as surface_realizer
+
+
+
+
+    # 2) إنشاء trace تصوّري تجريدي جداً (بدون أسماء مجال حقيقية)
+    conceptual_trace = {
+        "entities": [
+            {
+                "id": "Entity_A",
+                "kind": "generic_entity",
+                "domain": "abstract_domain",
+                "properties": {
+                    "PropertyAxis": 0.4
+                }
+            },
+            {
+                "id": "Entity_B",
+                "kind": "generic_entity",
+                "domain": "abstract_domain"
+            }
+        ],
+        "events": [
+            {
+                "id": "Event_1",
+                "action": "GenericAction",
+                "actors": ["Entity_A"],
+                "targets": ["Entity_B"],
+                "intensity": 0.7,
+                "probability": 0.85
+            }
+        ],
+        "transforms": [
+            {
+                "event_id": "Event_1",
+                "entity_id": "Entity_A",
+                "property": "PropertyAxis",
+                "before": 0.3,
+                "after": 0.6,
+                "law": "default_state_change"
+            }
+        ],
+        "meta": {
+            "source": "abstract_example",
+            "confidence": 0.9
+        }
+    }
+
+    print("==== 1) Loaded conceptual blueprints via DSL ====")
+    registry = blueprints._conceptual_blueprints
+    print("Number of blueprints:", len(registry))
+    print("Blueprint names:", list(registry.keys()))
+    print("")
+
+    # 3) تعبئة أدوار نمط Generic_Interaction_Event من trace (بشكل مبسط رمزي)
+    #    هنا نملأ الأدوار يدويًا باستخدام نفس معرفات الكيانات/الحدث في trace،
+    #    بدون تنفيذ خوارزمية بحث حقيقية (هذا دور طبقة أعلى لاحقًا).
+
+    generic_interaction_roles = {
+        "Actor": "Entity_A",          # من conceptual_trace["entities"][0]["id"]
+        "Target": "Entity_B",         # من conceptual_trace["entities"][1]["id"]
+        "ActionKind": "GenericAction",# من conceptual_trace["events"][0]["action"]
+        "Instrument": "None",        # no instrument provided in this abstract example
+        "Context": "AbstractContext",
+        "Probability": 0.85            # من conceptual_trace["events"][0]["probability"]
+    }
+
+    print("==== 2) Filling roles for Generic_Interaction_Event ====")
+    print(generic_interaction_roles)
+    print("")
+
+    # 4) تعبئة أدوار نمط State_Change_Template من transform المقابل (بصورة رمزية مبسّطة)
+    #    كما في المثال السابق، نستخدم نفس القيم الموجودة في trace لكن نضعها مباشرة هنا:
+    delta_value = 0.6 - 0.3
+
+    state_change_roles = {
+        "Entity": "Entity_A",           # من transform["entity_id"]
+        "PropertyAxis": "PropertyAxis", # من transform["property"]
+        "BeforeValue": 0.3,              # من transform["before"]
+        "AfterValue": 0.6,              # من transform["after"]
+        "Delta": delta_value,
+        "CauseEvent": "Event_1",       # من transform["event_id"]
+        "Context": "AbstractContext"
+    }
+
+    print("==== 3) Filling roles for State_Change_Template ====")
+    print(state_change_roles)
+    print("")
+
+    # 5) بناء هياكل تجريدية للجسر اللغوي (بدون كلمات حقيقية)
+    action_sentence_structure = {
+        "pattern": "ActionSentencePattern",
+        "slots": {
+            "Actor": generic_interaction_roles["Actor"],
+            "Action": generic_interaction_roles["ActionKind"],
+            "Target": generic_interaction_roles["Target"],
+            "Intensity": generic_interaction_roles["Probability"],
+            "Context": generic_interaction_roles["Context"]
+        }
+    }
+
+    state_change_sentence_structure = {
+        "pattern": "StateChangeSentencePattern",
+        "slots": {
+            "Entity": state_change_roles["Entity"],
+            "PropertyAxis": state_change_roles["PropertyAxis"],
+            "BeforeValue": state_change_roles["BeforeValue"],
+            "AfterValue": state_change_roles["AfterValue"],
+            "Delta": state_change_roles["Delta"],
+            "Context": state_change_roles["Context"]
+        }
+    }
+
+    uncertainty_structure = {
+        "pattern": "UncertaintyPattern",
+        "slots": {
+            "Content": "AbstractProposition(Event_1)",
+            "Degree": conceptual_trace["meta"]["confidence"]
+        }
+    }
+
+    print("==== 4) Abstract language-bridge structures (no surface text) ====")
+    print("ActionSentencePattern →", action_sentence_structure)
+    print("StateChangeSentencePattern →", state_change_sentence_structure)
+    print("UncertaintyPattern →", uncertainty_structure)
+    print("")
+
+    print("(This demo stays fully abstract at the blueprint level: roles + slots only, no concrete words.)")
+
+    # 6) Use conceptual_language_bridge to realize symbolic sentence-level roles
+    print("==== 5) Symbolic realization via conceptual_language_bridge ====")
+    realized_action = lang_bridge.realize(action_sentence_structure)
+    realized_state = lang_bridge.realize(state_change_sentence_structure)
+    realized_uncertainty = lang_bridge.realize(uncertainty_structure)
+
+
+    # 7) Plan symbolic surface sequences for an abstract English and Arabic viewpoint
+    print("==== 6) Symbolic surface plans (no real words) ====")
+    plan_en = surface_planner.plan_surface(realized_action, "english")
+    plan_ar = surface_planner.plan_surface(realized_action, "arabic")
+
+
+    # 8) بناء شجرة جملة رمزية فوق الخطة السطحية
+    tree_en = sentence_tree.build_tree(realized_action, plan_en)
+    tree_ar = sentence_tree.build_tree(realized_action, plan_ar)
+    print("Symbolic sentence tree (EN viewpoint):", tree_en)
+    print("Symbolic sentence tree (AR viewpoint):", tree_ar)
+
+
+    print("EN plan for ActionSentence:", plan_en)
+    print("AR plan for ActionSentence:", plan_ar)
+
+
+
+
+    # 9) استخدام طبقة التوليد السطحي الرمزية فوق شجرة الجملة
+    print("==== 7) Surface realizations (symbolic tokens + pseudo-text) ====")
+    surface_en = surface_realizer.realize_from_sentence_tree(tree_en, "neutral")
+    surface_ar = surface_realizer.realize_from_sentence_tree(tree_ar, "neutral")
+    tokens_en = surface_realizer.realization_to_token_strings(surface_en)
+    tokens_ar = surface_realizer.realization_to_token_strings(surface_ar)
+    text_en = surface_realizer.realization_to_text(surface_en)
+    text_ar = surface_realizer.realization_to_text(surface_ar)
+    print("EN surface tokens:", tokens_en)
+    print("EN surface text:", text_en)
+    print("AR surface tokens:", tokens_ar)
+    print("AR surface text:", text_ar)
+
+    print("Realized ActionSentence:", realized_action)
+    print("Realized StateChangeSentence:", realized_state)
+    print("Realized UncertaintySentence:", realized_uncertainty)
+}
+

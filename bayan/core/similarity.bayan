@@ -1,0 +1,202 @@
+# Core Similarity/Synonyms module for Bayan
+# وحدة التشابه/المترادفات العامة للبيان (عامة وغير محصورة في NLP)
+
+hybrid {
+    # ---------------------------------
+    # Base facts (illustrative defaults)
+    # ---------------------------------
+    # Lexical examples
+    similar("أسد", "غضنفر", 0.8, "syn", "lexicon").
+    similar("أسد", "هيضم", 0.5, "syn", "lexicon").
+
+    # Alias examples (optional)
+    similar("سيارة", "عربة", 0.9, "alias", "lexicon").
+
+    # Similarity thresholds per kind (separate from prob thresholds)
+    sim_threshold("syn", 0.7).
+    sim_threshold("alias", 0.7).
+
+    # Symmetry: materialize reverse examples to avoid recursive loop
+    similar("غضنفر", "أسد", 0.8, "syn", "lexicon").
+    similar("هيضم", "أسد", 0.5, "syn", "lexicon").
+    similar("عربة", "سيارة", 0.9, "alias", "lexicon").
+
+    # close(X, Y, Tau, Kind): true if there exists a similarity >= Tau
+    close(?X, ?Y, ?Tau, ?Kind) :-
+        similar(?X, ?Y, ?Score, ?Kind, ?_Domain),
+        ?Score >= ?Tau.
+
+    # close(X, Y, Kind): use default sim_threshold for that Kind
+    close(?X, ?Y, ?Kind) :-
+        sim_threshold(?Kind, ?Tau),
+        close(?X, ?Y, ?Tau, ?Kind).
+
+    # synonym(X, Y, S): convenience restricted to lexicon + Kind = "syn"
+    synonym(?X, ?Y, ?S) :- similar(?X, ?Y, ?S, "syn", "lexicon").
+}
+
+# Copy all facts and rules into a target logical engine (like integrated_kb)
+def load_into(target_logical):
+{
+    kb = logical.knowledge_base
+    for pred in kb:
+    {
+        items = kb[pred]
+        for item in items:
+        {
+            target_logical.assertz(item)
+        }
+    }
+    return True
+}
+
+# Selective copy by domains (here: only one domain "similarity")
+# تحميل انتقائي: "similarity"
+def load_selective(target_logical, only):
+{
+    domains = {
+        "similarity": [
+            "similar", "sim_threshold", "close", "synonym"
+        ]
+    }
+
+    allowed = []
+    for key in only:
+    {
+        if key in domains:
+        {
+            preds = domains[key]
+            for p in preds:
+            {
+                if not (p in allowed):
+                {
+                    allowed.append(p)
+                }
+            }
+        }
+    }
+
+    kb = logical.knowledge_base
+    for pred in kb:
+    {
+        if pred in allowed:
+        {
+            items = kb[pred]
+            for item in items:
+            {
+                target_logical.assertz(item)
+            }
+        }
+    }
+    return True
+}
+
+# Runtime helpers to programmatically declare similarities from code
+# دوال مساعدة وقت التشغيل لإضافة تشابهات
+
+def assert_similar(x, y, score, kind="syn", domain="lexicon"):
+{
+    # Ensure numeric score
+    s = float(score)
+    # Use provided sugar to assert logical facts
+    assert_fact("similar", str(x), str(y), s, str(kind), str(domain))
+    assert_fact("similar", str(y), str(x), s, str(kind), str(domain))
+    return True
+}
+
+# synset(head, items, default=0.7, kind="syn", domain="lexicon")
+# items can be: dict {"غضنفر":0.8, ...} OR list of [name, score] OR "name:0.8, other:0.6"
+
+def synset(head, items, default=0.7, kind="syn", domain="lexicon"):
+{
+    d = float(default)
+    # Normalize to iterable of (name, score)
+    pairs = []
+    # If dict-like
+    try:
+    {
+        # Prefer Python duck typing: has .items()
+        it = items.items()
+        for kv in it:
+        {
+            k = kv[0]
+            v = kv[1]
+            s = d
+            try:
+            {
+                s = float(v)
+            }
+            except Exception:
+            {
+                s = d
+            }
+            pairs.append((str(k), float(s)))
+        }
+    }
+    except Exception:
+    {
+        # If string: split by comma then colon
+        if isinstance(items, str):
+        {
+            parts = [p.strip() for p in items.split(',') if p.strip()]
+            for part in parts:
+            {
+                if ':' in part:
+                {
+                    tmp = part.split(':', 1)
+                    nm = tmp[0]
+                    sc = tmp[1]
+                    try:
+                    {
+                        pairs.append((nm.strip(), float(sc)))
+                    }
+                    except Exception:
+                    {
+                        pairs.append((nm.strip(), d))
+                    }
+                }
+                else:
+                {
+                    pairs.append((part, d))
+                }
+            }
+        }
+        else:
+        {
+            # Assume list/iterable: accept (name, score) or name
+            try:
+            {
+                for it in items:
+                {
+                    if isinstance(it, (list, tuple)) and len(it) >= 1:
+                    {
+                        nm = str(it[0])
+                        sc = d
+                        if len(it) >= 2:
+                        {
+                            sc = float(it[1])
+                        }
+                        pairs.append((nm, sc))
+                    }
+                    else:
+                    {
+                        pairs.append((str(it), d))
+                    }
+                }
+            }
+            except Exception:
+            {
+                return False
+            }
+        }
+    }
+
+    for pair in pairs:
+    {
+        nm = pair[0]
+        sc = pair[1]
+        assert_similar(head, nm, sc, kind=kind, domain=domain)
+    }
+    return True
+}
+

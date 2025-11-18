@@ -1,7 +1,7 @@
 # Authors and Contributors
 # المؤلفون والمساهمون
 
-## 👨‍💻 Main Developer | المطور الرئيسي
+## 👨💻 Main Developer | المطور الرئيسي
 
 **Basel Yahya Abdullah (باسل يحيى عبدالله)**
 - Role: Creator and Lead Developer

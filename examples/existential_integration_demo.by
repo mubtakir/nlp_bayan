@@ -1,0 +1,193 @@
+"""
+أمثلة التكامل بين النموذج الوجودي والميزات الأخرى
+Integration Examples: Existential Model + Other Features
+=========================================================
+
+هذا الملف يوضح كيفية دمج النموذج الوجودي مع:
+1. البرمجة المنطقية (Logical Programming)
+2. البرمجة المعانية (Semantic Programming)
+3. النموذج المعرفي (Cognitive Model)
+
+This file demonstrates integration of the Existential Model with:
+1. Logical Programming
+2. Semantic Programming
+3. Cognitive Model
+"""
+
+# ============================================================================
+# مثال 1: التكامل مع البرمجة المنطقية
+# Example 1: Integration with Logical Programming
+# ============================================================================
+
+# تعريف مجال الكيمياء
+مجال "كيمياء_بسيطة":
+{
+    "كائن_أساسي": "عنصر",
+    "بيئة": "محلول",
+    "معانٍ_أساسية": ["تفاعل", "ذوبان"],
+    "علاقات": ["يتفاعل_مع"],
+    "خصائص": ["نشاط"]
+}
+
+# تعريف عناصر
+كائن_وجودي "صوديوم" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول",
+    "خصائص_ذاتية": {
+        "نشاط": "عالي",
+        "مجموعة": "فلز_قلوي"
+    },
+    "علاقات": {
+        "يتفاعل_مع": ["ماء", "كلور"]
+    }
+}
+
+كائن_وجودي "كلور" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول",
+    "خصائص_ذاتية": {
+        "نشاط": "عالي",
+        "مجموعة": "هالوجين"
+    },
+    "علاقات": {
+        "يتفاعل_مع": ["صوديوم", "هيدروجين"]
+    }
+}
+
+كائن_وجودي "ذهب" من_نوع "عنصر" في_مجال "كيمياء_بسيطة":
+{
+    "بيئة": "محلول",
+    "خصائص_ذاتية": {
+        "نشاط": "منخفض",
+        "مجموعة": "فلز_نبيل"
+    },
+    "علاقات": {
+        "يتفاعل_مع": []
+    }
+}
+
+# استخدام البرمجة المنطقية للاستدلال
+# Define logical rules based on existential beings
+
+# قاعدة: عنصران يمكن أن يتفاعلا إذا كان كل منهما يتفاعل مع الآخر
+can_react(X, Y) :- 
+    element(X),
+    element(Y),
+    reacts_with(X, Y),
+    reacts_with(Y, X).
+
+# قاعدة: عنصر نشط إذا كان نشاطه عالي
+is_active(X) :-
+    element(X),
+    activity(X, "عالي").
+
+# قاعدة: عنصر خامل إذا كان نشاطه منخفض
+is_inert(X) :-
+    element(X),
+    activity(X, "منخفض").
+
+# إضافة حقائق من الكائنات الوجودية
+fact element("صوديوم").
+fact element("كلور").
+fact element("ذهب").
+
+fact reacts_with("صوديوم", "كلور").
+fact reacts_with("كلور", "صوديوم").
+
+fact activity("صوديوم", "عالي").
+fact activity("كلور", "عالي").
+fact activity("ذهب", "منخفض").
+
+# استعلامات منطقية
+print("عناصر نشطة (من البرمجة المنطقية):")
+query is_active(X).
+
+print("\nعناصر خاملة:")
+query is_inert(X).
+
+print("\nعناصر يمكن أن تتفاعل:")
+query can_react(X, Y).
+
+# ============================================================================
+# مثال 2: التكامل مع البرمجة المعانية
+# Example 2: Integration with Semantic Programming
+# ============================================================================
+
+# إنشاء شبكة معاني من الكائنات الوجودية
+semantic_network "chemical_network":
+{
+    "nodes": [
+        {"id": "صوديوم", "type": "عنصر", "properties": {"نشاط": "عالي"}},
+        {"id": "كلور", "type": "عنصر", "properties": {"نشاط": "عالي"}},
+        {"id": "ملح", "type": "مركب", "properties": {"صيغة": "NaCl"}}
+    ],
+    "edges": [
+        {"from": "صوديوم", "to": "كلور", "relation": "يتفاعل_مع", "weight": 1.0},
+        {"from": "كلور", "to": "صوديوم", "relation": "يتفاعل_مع", "weight": 1.0},
+        {"from": "صوديوم", "to": "ملح", "relation": "يكوّن", "weight": 0.8},
+        {"from": "كلور", "to": "ملح", "relation": "يكوّن", "weight": 0.8}
+    ]
+}
+
+# استعلام عن العلاقات في الشبكة
+print("\nعلاقات الصوديوم في الشبكة المعانية:")
+relations = query_semantic_network("chemical_network", "صوديوم", "all")
+print(relations)
+
+# حساب التشابه الدلالي بين عنصرين
+similarity = semantic_similarity("chemical_network", "صوديوم", "كلور")
+print(f"\nالتشابه الدلالي بين الصوديوم والكلور: {similarity}")
+
+# ============================================================================
+# مثال 3: التكامل مع النموذج المعرفي
+# Example 3: Integration with Cognitive Model
+# ============================================================================
+
+# تعريف كيانات معرفية من الكائنات الوجودية
+entity "sodium_entity":
+{
+    "type": "chemical_element",
+    "properties": {
+        "name": "صوديوم",
+        "activity": "عالي",
+        "group": "فلز_قلوي"
+    },
+    "dynamic": 1
+}
+
+entity "chlorine_entity":
+{
+    "type": "chemical_element",
+    "properties": {
+        "name": "كلور",
+        "activity": "عالي",
+        "group": "هالوجين"
+    },
+    "dynamic": 1
+}
+
+# تعريف حدث تفاعل كيميائي
+event "reaction_event":
+{
+    "type": "chemical_reaction",
+    "participants": {
+        "sodium_entity": 1.0,
+        "chlorine_entity": 1.0
+    },
+    "transformations": {
+        "sodium_entity": {"state": "reacted"},
+        "chlorine_entity": {"state": "reacted"}
+    }
+}
+
+# تطبيق الحدث
+apply_event("reaction_event")
+
+print("\nحالة الصوديوم بعد التفاعل:")
+print(sodium_entity.properties)
+
+print("\nحالة الكلور بعد التفاعل:")
+print(chlorine_entity.properties)
+
+print("\n✅ انتهت أمثلة التكامل - Integration examples completed!")
+

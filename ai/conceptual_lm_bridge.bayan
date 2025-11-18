@@ -1,0 +1,145 @@
+# Bridge between conceptual LM structures (trace + blueprints + trees)
+# and the ai/nlp language modelling utilities.
+
+import ai.conceptual_surface_realizer as surface_realizer
+import ai.conceptual_language_bridge as lang_bridge
+import ai.conceptual_surface_planner as surface_planner
+import ai.conceptual_sentence_tree as sentence_tree
+import ai.nlp as nlp
+
+
+# Build a single conceptual LM training example from
+# (conceptual_trace, blueprint_roles, sentence_tree).
+def tree_to_example(conceptual_trace, blueprint_roles, sentence_tree, register="neutral"):
+{
+    return surface_realizer.build_conceptual_lm_example(conceptual_trace, blueprint_roles, sentence_tree, register)
+}
+
+
+# Convert a list of conceptual LM examples into a simple text corpus
+# suitable for vocab_build / bigram_lm_train.
+def examples_to_corpus(examples):
+{
+    docs = []
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        if "text" in ex:
+        {
+            docs.append(ex["text"])
+        }
+    }
+    return docs
+}
+
+
+# Build a token vocabulary over the pseudo-text produced by the surface realizer.
+def build_vocab_from_examples(examples, max_features=10000, min_freq=1):
+{
+    docs = examples_to_corpus(examples)
+    vocab = nlp.vocab_build(docs, max_features, min_freq)
+    return vocab
+}
+
+
+# Train a simple bigram LM over the symbolic surface realizations.
+def train_bigram_lm_from_examples(examples, alpha=1.0):
+{
+    docs = examples_to_corpus(examples)
+    model = nlp.bigram_lm_train(docs, alpha)
+    return model
+}
+
+
+# Score a single example using a trained bigram LM (cross-entropy + perplexity).
+def score_example_with_bigram(example, model):
+{
+    text = ""
+    if "text" in example:
+    {
+        text = example["text"]
+    }
+    ce = nlp.bigram_lm_cross_entropy(model, text)
+    ppl = nlp.bigram_lm_perplexity(model, text)
+    return {
+        "cross_entropy": ce,
+        "perplexity": ppl
+    }
+}
+
+
+# Convenience helper: score a list of examples with the same LM.
+def score_examples_with_bigram(examples, model):
+{
+    scores = []
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        metrics = score_example_with_bigram(ex, model)
+        scores.append(metrics)
+    }
+    return scores
+}
+
+
+
+# Convenience helper: from (trace, roles, bridge_structure) + langs to LM examples.
+# This runs: realize -> plan_surface -> build_tree -> tree_to_example for each lang.
+def build_lm_examples_for_structure(conceptual_trace, blueprint_roles, bridge_structure, langs, register="neutral"):
+{
+    sent = lang_bridge.realize(bridge_structure)
+    examples = []
+    for i in range(len(langs)):
+    {
+        lang = langs[i]
+        plan = surface_planner.plan_surface(sent, lang)
+        tree = sentence_tree.build_tree(sent, plan)
+        ex = tree_to_example(conceptual_trace, blueprint_roles, tree, register)
+        examples.append(ex)
+    }
+    return {
+        "sentence": sent,
+        "examples": examples
+    }
+}
+
+
+# Train a trigram LM over the symbolic surface realizations.
+def train_trigram_lm_from_examples(examples, alpha=1.0):
+{
+    docs = examples_to_corpus(examples)
+    model = nlp.trigram_lm_train(docs, alpha)
+    return model
+}
+
+
+# Score a single example using a trained trigram LM (cross-entropy + perplexity).
+def score_example_with_trigram(example, model):
+{
+    text = ""
+    if "text" in example:
+    {
+        text = example["text"]
+    }
+    ce = nlp.trigram_lm_cross_entropy(model, text)
+    ppl = nlp.trigram_lm_perplexity(model, text)
+    return {
+        "cross_entropy": ce,
+        "perplexity": ppl
+    }
+}
+
+
+# Convenience helper: score a list of examples with the same trigram LM.
+def score_examples_with_trigram(examples, model):
+{
+    scores = []
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        metrics = score_example_with_trigram(ex, model)
+        scores.append(metrics)
+    }
+    return scores
+}
+

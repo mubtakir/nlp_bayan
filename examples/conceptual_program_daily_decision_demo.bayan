@@ -1,0 +1,119 @@
+# Demo: Conceptual meaning program (Daily decision-making narrative)
+# Educational: this demo shows the full pipeline for the daily life domain.
+
+
+hybrid {
+    import ai.conceptual_programs as programs
+    import ai.conceptual_nl_mapper as nl_mapper
+    import ai.conceptual_orchestrator as orchestrator
+
+    print("==== Daily Decision-Making Meaning Program Demo ====")
+    print("")
+
+    # Test 1: Build program directly
+    print("--- Test 1: Direct program build ---")
+    settings = {
+        "scenario_variant": "neutral",
+        "time_horizon": "short_term"
+    }
+
+    program_output = programs.build_daily_decision_program(settings)
+    trace = program_output["trace"]
+    components = program_output["components"]
+
+    print("Merged conceptual trace:")
+    print("  Entities: " + str(len(trace["entities"])))
+    print("  Events: " + str(len(trace["events"])))
+    print("  Transforms: " + str(len(trace["transforms"])))
+    print("  Causal links: " + str(len(trace["causal_links"])))
+    print("")
+
+    # Test 2: Via NL mapper (Arabic)
+    print("--- Test 2: Via NL mapper (Arabic) ---")
+    arabic_text = "أريد قصة عن شخص يتخذ قرار مهم في حياته اليومية"
+    print("Input: " + arabic_text)
+    print("")
+
+    control_msg = nl_mapper.map_text_to_control_message(arabic_text)
+    print("Control message:")
+    print(control_msg)
+    print("")
+
+    result = orchestrator.dispatch_request(control_msg)
+    print("Orchestrator result ok: " + str(result["ok"]))
+    
+    if result["ok"]:
+    {
+        print("Program ID: " + result["selected_program"])
+        trace2 = result["trace"]
+        print("Entities: " + str(len(trace2["entities"])))
+        print("Events: " + str(len(trace2["events"])))
+        print("Causal links: " + str(len(trace2["causal_links"])))
+    }
+    print("")
+
+    # Test 3: Via NL mapper (English)
+    print("--- Test 3: Via NL mapper (English) ---")
+    english_text = "Show me a story about making a difficult choice"
+    print("Input: " + english_text)
+    print("")
+
+    control_msg2 = nl_mapper.map_text_to_control_message(english_text)
+    print("Control message:")
+    print(control_msg2)
+    print("")
+
+    result2 = orchestrator.dispatch_request(control_msg2)
+    print("Orchestrator result ok: " + str(result2["ok"]))
+    
+    if result2["ok"]:
+    {
+        print("Program ID: " + result2["selected_program"])
+        trace3 = result2["trace"]
+        print("Entities: " + str(len(trace3["entities"])))
+        print("Events: " + str(len(trace3["events"])))
+        print("Causal links: " + str(len(trace3["causal_links"])))
+    }
+    print("")
+
+    # Test 4: With optimistic variant
+    print("--- Test 4: Optimistic scenario variant ---")
+    settings_opt = {
+        "scenario_variant": "optimistic",
+        "time_horizon": "short_term"
+    }
+
+    program_output_opt = programs.build_daily_decision_program(settings_opt)
+    trace_opt = program_output_opt["trace"]
+
+    print("Causal links with optimistic variant:")
+    links = trace_opt["causal_links"]
+    for i in range(len(links)):
+    {
+        link = links[i]
+        print("  Strength: " + str(link["strength"]) + ", Prob: " + str(link["prob"]))
+    }
+    print("")
+
+    # Test 5: With pessimistic variant
+    print("--- Test 5: Pessimistic scenario variant ---")
+    settings_pess = {
+        "scenario_variant": "pessimistic",
+        "time_horizon": "long_term"
+    }
+
+    program_output_pess = programs.build_daily_decision_program(settings_pess)
+    trace_pess = program_output_pess["trace"]
+
+    print("Causal links with pessimistic variant:")
+    links_pess = trace_pess["causal_links"]
+    for i in range(len(links_pess)):
+    {
+        link = links_pess[i]
+        print("  Strength: " + str(link["strength"]) + ", Prob: " + str(link["prob"]))
+    }
+    print("")
+
+    print("==== Demo complete ====")
+}
+

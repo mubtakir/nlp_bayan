@@ -1,14 +1,15 @@
 hybrid {
+  # Using new unified syntax: keys without quotes
   entity Ball {
-    "states": {
+    states: {
       "energy": {"type": "fuzzy", "value": 1.0},
       "temperature": {"type": {"bounded": [0.0, 100.0]}, "value": 25.0}
     },
-    "properties": {
+    properties: {
       "x": {"type": "numeric", "value": 0.0},
       "y": {"type": "numeric", "value": 0.0}
     },
-    "actions": {
+    actions: {
       "move": {
         "effects": [
           {"on": "x", "formula": "value + 5.0*action_value"},

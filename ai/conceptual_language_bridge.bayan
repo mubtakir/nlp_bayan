@@ -1,0 +1,145 @@
+# Conceptual language-bridge realization layer for conceptual LM demo
+
+# This module stays pre-linguistic: it maps abstract language-bridge structures
+# (pattern + slots) into generic sentence-level roles (subject/predicate/object/etc.)
+# without choosing any concrete natural-language words.
+
+# Expected input structures (from examples/conceptual_trace_demo.bayan):
+#   {
+#       "pattern": "ActionSentencePattern" | "StateChangeSentencePattern" | "UncertaintyPattern",
+#       "slots": { ... }
+#   }
+
+
+# --- Action sentence realization ---
+
+def realize_action(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "ActionSentence",
+        "subject": slots["Actor"],
+        "predicate": slots["Action"],
+        "object": slots["Target"],
+        "intensity": slots["Intensity"],
+        "context": slots["Context"]
+    }
+}
+
+
+# --- State-change sentence realization ---
+
+def realize_state_change(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "StateChangeSentence",
+        "entity": slots["Entity"],
+        "property_axis": slots["PropertyAxis"],
+        "before_value": slots["BeforeValue"],
+        "after_value": slots["AfterValue"],
+        "delta": slots["Delta"],
+        "context": slots["Context"]
+    }
+}
+
+
+# --- Uncertainty sentence realization ---
+
+def realize_uncertainty(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "UncertaintySentence",
+        "content": slots["Content"],
+        "degree": slots["Degree"]
+    }
+}
+
+
+# --- Causal sentence realization ---
+
+def realize_causal(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "CausalSentence",
+        "cause_event": slots["CauseEvent"],
+        "effect_event": slots["EffectEvent"],
+        "strength": slots["Strength"],
+        "probability": slots["Probability"],
+        "context": slots["Context"]
+    }
+}
+
+
+# --- Description sentence realization ---
+
+def realize_description(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "DescriptionSentence",
+        "entity": slots["Entity"],
+        "axis": slots["Axis"],
+        "degree": slots["Degree"],
+        "value": slots["Value"]
+    }
+}
+
+
+# --- Intensity sentence realization ---
+
+def realize_intensity(bp):
+{
+    slots = bp["slots"]
+    return {
+        "type": "IntensitySentence",
+        "axis": slots["Axis"],
+        "value": slots["Value"],
+        "degree": slots["Degree"]
+    }
+}
+
+
+
+# --- Generic dispatcher ---
+
+def realize(bp):
+{
+    pat_name = bp["pattern"]
+    if pat_name == "ActionSentencePattern":
+    {
+        return realize_action(bp)
+    }
+    elif pat_name == "StateChangeSentencePattern":
+    {
+        return realize_state_change(bp)
+    }
+    elif pat_name == "UncertaintyPattern":
+    {
+        return realize_uncertainty(bp)
+    }
+    elif pat_name == "CausalSentencePattern":
+    {
+        return realize_causal(bp)
+    }
+    elif pat_name == "DescriptionPattern":
+    {
+        return realize_description(bp)
+    }
+    elif pat_name == "IntensityPattern":
+    {
+        return realize_intensity(bp)
+    }
+    else:
+    {
+        # Unknown pattern: keep it symbolic
+        return {
+            "type": "UnknownPattern",
+            "pattern": pat_name,
+            "slots": bp["slots"]
+        }
+    }
+}
+

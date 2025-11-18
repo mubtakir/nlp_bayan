@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: no-non-printable-chars
+        name: Disallow non-printable/control characters in text files
+        entry: python scripts/check_non_printable.py
+        language: system
+        types: [text]
+        exclude: |
+          (?x)^(
+            .*\.png|.*\.jpg|.*\.jpeg|.*\.gif|.*\.svg|.*\.ico|
+            .*\.pdf|.*\.zip|.*\.gz|.*\.bz2|.*\.7z|
+            .*\.pyc|.*__pycache__/.*|
+            .*\.so|.*\.dylib|.*\.pyd
+          )$
+      - id: enforce-english-identifiers-nlp-bayan
+        name: Enforce English-only identifiers (Python) under nlp_bayan/
+        entry: python scripts/check_python_identifiers_english.py
+        language: system
+        files: ^nlp_bayan/.*\.py$
+

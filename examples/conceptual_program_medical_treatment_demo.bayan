@@ -1,0 +1,139 @@
+# Demo: Conceptual meaning program (Medical treatment and side-effect uncertainty)
+# Educational: this demo mirrors the student narrative demo,
+# but in a medical domain (treatment, improvement, side-effects).
+
+
+hybrid {
+    import ai.conceptual_programs as programs
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    # We import the same conceptual/LM stack as in the student demo,
+    # but we will feed it a different meaning program and domain.
+
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # 1) Build the meaning program (medical treatment scenario).
+    #    This composes multiple circuits (treatment, temporal, context,
+    #    uncertain side-effect) into a single merged conceptual trace.
+    program_output = programs.build_medical_treatment_uncertainty_program()
+    # trace      : merged conceptual_trace from all circuits.
+    # components : individual circuit outputs, to realize them separately.
+
+
+    trace = program_output["trace"]
+    components = program_output["components"]
+
+    print("==== Conceptual meaning program demo: Medical treatment ====")
+    print("Merged conceptual trace:")
+    print(trace)
+    print("")
+
+    # 2) Collect bridge structures and roles from each component circuit
+    examples = []
+
+    # Helper to process a single circuit output with a list of (role_key, bridge_key) pairs
+    def add_examples_for_pairs(circuit_output, pairs):
+    {
+        local_trace = circuit_output["trace"]
+        roles = circuit_output["roles"]
+        bridges = circuit_output["bridge_structures"]
+
+        for i in range(len(pairs)):
+        {
+            pair = pairs[i]
+            role_key = pair[0]
+            bridge_key = pair[1]
+
+            if role_key in roles and bridge_key in bridges:
+            {
+                bridge = bridges[bridge_key]
+                result = lm_bridge.build_lm_examples_for_structure(
+                    local_trace,
+                    roles[role_key],
+                    bridge,
+                    ["english", "arabic"],
+                    "neutral"
+                )
+
+                exs = result["examples"]
+                for j in range(len(exs)):
+                {
+                    examples.append(exs[j])
+                }
+            }
+        }
+    }
+
+    # Treatment: Action -> StateChange -> Evaluation
+    add_examples_for_pairs(
+        components["treatment_state"],
+        [
+            ["Generic_Interaction_Event", "ActionSentencePattern"],
+            ["State_Change_Template", "StateChangeSentencePattern"],
+            ["DescriptionPattern", "DescriptionPattern"]
+        ]
+    )
+
+    # Clear causal link: treatment -> health improvement
+    add_examples_for_pairs(
+        components["treatment_causal"],
+        [["Probabilistic_Causation", "CausalSentencePattern"]]
+    )
+
+    # Temporal ordering: symptoms before doctor visit
+    add_examples_for_pairs(
+        components["temporal_sequence"],
+        [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]]
+    )
+
+    # Contextualized follow-up at home
+    add_examples_for_pairs(
+        components["contextual_followup"],
+        [["ContextualizationPattern", "Contextual_DescriptionPattern"]]
+    )
+
+    # Uncertain side-effect: drug -> dizziness
+    add_examples_for_pairs(
+        components["uncertain_side_effect"],
+        [
+            ["Probabilistic_Causation", "CausalSentencePattern"],
+            ["UncertaintyPattern", "UncertaintyPattern"]
+        ]
+    )
+
+    print("Number of LM examples from medical program (EN + AR):", len(examples))
+    print("")
+
+    print("Example texts:")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        print("-", i, ":", ex["text"])
+    }
+    print("")
+
+    # 3) Train bigram + trigram LMs on the whole program corpus
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+    trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for medical meaning-program corpus ====")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        sc_bg = bigram_scores[i]
+        sc_tri = trigram_scores[i]
+        print("Example", i, "text:", ex["text"])
+        print("  Bigram:", sc_bg)
+        print("  Trigram:", sc_tri)
+    }
+}
+

@@ -1,0 +1,880 @@
+# Conceptual circuits: reusable micro-scenarios built on top of
+# the conceptual trace + blueprint layer.
+#
+# This module stays language-neutral. It only builds conceptual
+# structures (trace segments + bridge structures) that can later
+# be realized into EN/AR via existing bridges.
+
+
+# First circuit: Action -> StateChange -> Evaluation
+#
+# Intent: model a minimal narrative where an Actor performs an
+# action on a Patient, the Patient's state on some axis changes,
+# and we evaluate the resulting state.
+#
+# Inputs (all conceptual, not linguistic):
+#   actor_id          : abstract identifier for the acting entity
+#   patient_id        : abstract identifier for the affected entity
+#   action_kind       : abstract label for the action type
+#   state_axis        : name of the state axis (e.g. Satisfaction)
+#   before_value      : numeric/symbolic value on that axis before
+#   after_value       : numeric/symbolic value on that axis after
+#   evaluation_degree : label like "high" / "low" / "moderate"
+#   context_label     : abstract context label
+#   action_intensity  : scalar in [0,1] (how strong the action is)
+#   action_probability: scalar in [0,1] (how likely / confident)
+#
+# Output:
+#   A dictionary with keys:
+#     "trace"             : conceptual_trace segment
+#     "roles"             : per-blueprint role assignments
+#     "bridge_structures" : language-bridge structures ready for
+#                             conceptual_language_bridge.realize(...)
+
+
+def build_action_state_eval_circuit(
+    actor_id,
+    patient_id,
+    action_kind,
+    state_axis,
+    before_value,
+    after_value,
+    evaluation_degree,
+    context_label,
+    action_intensity,
+    action_probability
+):
+{
+    # 1) Build a minimal conceptual_trace segment
+    delta_value = after_value - before_value
+
+    entities = [
+        {
+            "id": actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        },
+        {
+            "id": patient_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain",
+            "properties": {
+                state_axis: before_value
+            }
+        }
+    ]
+
+    action_event_id = "Event_Action_1"
+
+    events = [
+        {
+            "id": action_event_id,
+            "action": action_kind,
+            "actors": [actor_id],
+            "targets": [patient_id],
+            "intensity": action_intensity,
+            "probability": action_probability,
+            "context": context_label
+        }
+    ]
+
+    transforms = [
+        {
+            "event_id": action_event_id,
+            "entity_id": patient_id,
+            "property": state_axis,
+            "before": before_value,
+            "after": after_value,
+            "law": "default_state_change"
+        }
+    ]
+
+    meta = {
+        "source": "action_state_eval_circuit",
+        "confidence": action_probability
+    }
+
+    trace = {
+        "entities": entities,
+        "events": events,
+        "transforms": transforms,
+        "meta": meta
+    }
+
+    # 2) Blueprint role assignments (conceptual roles)
+    generic_interaction_roles = {
+        "Actor": actor_id,
+        "Target": patient_id,
+        "ActionKind": action_kind,
+        "Instrument": "None",
+        "Context": context_label,
+        "Probability": action_probability
+    }
+
+    state_change_roles = {
+        "Entity": patient_id,
+        "PropertyAxis": state_axis,
+        "BeforeValue": before_value,
+        "AfterValue": after_value,
+        "Delta": delta_value,
+        "Context": context_label,
+        "CauseEvent": action_event_id
+    }
+
+    description_roles = {
+        "Entity": patient_id,
+        "Axis": state_axis,
+        "Degree": evaluation_degree,
+        "Value": after_value
+    }
+
+    intensity_roles = {
+        "Axis": state_axis,
+        "Value": after_value,
+        "Degree": evaluation_degree
+    }
+
+    roles = {
+        "Generic_Interaction_Event": generic_interaction_roles,
+        "State_Change_Template": state_change_roles,
+        "DescriptionPattern": description_roles,
+        "IntensityPattern": intensity_roles
+    }
+
+    # 3) Language-bridge structures matching the existing patterns
+    action_sentence_structure = {
+        "pattern": "ActionSentencePattern",
+        "slots": {
+            "Actor": generic_interaction_roles["Actor"],
+            "Action": generic_interaction_roles["ActionKind"],
+            "Target": generic_interaction_roles["Target"],
+            "Intensity": generic_interaction_roles["Probability"],
+            "Context": generic_interaction_roles["Context"]
+        }
+    }
+
+    state_change_sentence_structure = {
+        "pattern": "StateChangeSentencePattern",
+        "slots": {
+            "Entity": state_change_roles["Entity"],
+            "PropertyAxis": state_change_roles["PropertyAxis"],
+            "BeforeValue": state_change_roles["BeforeValue"],
+            "AfterValue": state_change_roles["AfterValue"],
+            "Delta": state_change_roles["Delta"],
+            "Context": state_change_roles["Context"]
+        }
+    }
+
+    description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": description_roles["Entity"],
+            "Axis": description_roles["Axis"],
+            "Degree": description_roles["Degree"],
+            "Value": description_roles["Value"]
+        }
+    }
+
+    intensity_structure = {
+        "pattern": "IntensityPattern",
+        "slots": {
+            "Axis": intensity_roles["Axis"],
+            "Value": intensity_roles["Value"],
+            "Degree": intensity_roles["Degree"]
+        }
+    }
+
+    bridge_structures = {
+        "ActionSentencePattern": action_sentence_structure,
+        "StateChangeSentencePattern": state_change_sentence_structure,
+        "DescriptionPattern": description_structure,
+        "IntensityPattern": intensity_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+
+# Second circuit: Comparison in context
+#
+# Intent: compare two entities along a shared axis, store their values
+# in the trace, and prepare a descriptive sentence summarizing the
+# comparison from the perspective of Entity1.
+#
+# Inputs (conceptual):
+#   entity1_id      : first entity identifier
+#   entity2_id      : second entity identifier
+#   axis_name       : name of the comparison axis
+#   value1          : value of entity1 on that axis
+#   value2          : value of entity2 on that axis
+#   comparison_type : label like "greater" / "less" / "equal"
+#   context_label   : abstract context label
+#
+# Output structure matches the first circuit: {"trace", "roles", "bridge_structures"}.
+
+
+def build_comparison_in_context_circuit(
+    entity1_id,
+    entity2_id,
+    axis_name,
+    value1,
+    value2,
+    comparison_type,
+    context_label
+):
+{
+    # 1) Minimal trace: two entities with axis-values
+    entities = [
+        {
+            "id": entity1_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain",
+            "properties": {axis_name: value1}
+        },
+        {
+            "id": entity2_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain",
+            "properties": {axis_name: value2}
+        }
+    ]
+
+    meta = {
+        "source": "comparison_in_context_circuit",
+        "confidence": 1.0,
+        "context": context_label
+    }
+
+    trace = {
+        "entities": entities,
+        "meta": meta
+    }
+
+    # 2) Conceptual roles for comparative + description patterns
+    comparative_roles = {
+        "Entity1": entity1_id,
+        "Entity2": entity2_id,
+        "Axis": axis_name,
+        "Value1": value1,
+        "Value2": value2,
+        "ComparisonType": comparison_type
+    }
+
+    description_roles = {
+        "Entity": entity1_id,
+        "Axis": axis_name,
+        "Degree": comparison_type,
+        "Value": value1
+    }
+
+    roles = {
+        "ComparativePattern": comparative_roles,
+        "DescriptionPattern": description_roles
+    }
+
+    # 3) Bridge structure: DescriptionSentence summarizing the comparison
+    description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": description_roles["Entity"],
+            "Axis": description_roles["Axis"],
+            "Degree": description_roles["Degree"],
+            "Value": description_roles["Value"]
+        }
+    }
+
+    bridge_structures = {
+        "DescriptionPattern": description_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+# Third circuit: Causal link (basic cause -> effect)
+#
+# Intent: build a minimal trace with two events (cause and effect),
+# a causal_links record tying them, and a causal sentence.
+#
+# Inputs (conceptual):
+#   cause_event_id          : identifier for the cause event
+#   effect_event_id         : identifier for the effect event
+#   cause_actor_id          : entity acting in the cause event
+#   effect_actor_id         : entity associated with the effect event
+#   cause_action_kind       : abstract label for the cause action
+#   effect_action_kind      : abstract label for the effect action
+#   context_label           : context for the causal relation
+#   causal_strength         : scalar [0,1] for link strength
+#   conditional_probability : scalar [0,1] for P(effect | cause)
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+
+def build_causal_link_circuit(
+    cause_event_id,
+    effect_event_id,
+    cause_actor_id,
+    effect_actor_id,
+    cause_action_kind,
+    effect_action_kind,
+    context_label,
+    causal_strength,
+    conditional_probability
+):
+{
+    # 1) Entities for the two events
+    entities = [
+        {
+            "id": cause_actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        },
+        {
+            "id": effect_actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        }
+    ]
+
+    # Two events: cause and effect
+    events = [
+        {
+            "id": cause_event_id,
+            "action": cause_action_kind,
+            "actors": [cause_actor_id],
+            "targets": [effect_actor_id],
+            "context": context_label,
+            "probability": conditional_probability
+        },
+        {
+            "id": effect_event_id,
+            "action": effect_action_kind,
+            "actors": [effect_actor_id],
+            "targets": [],
+            "context": context_label,
+            "probability": conditional_probability
+        }
+    ]
+
+    causal_links = [
+        {
+            "cause": cause_event_id,
+            "effect": effect_event_id,
+            "strength": causal_strength,
+            "prob": conditional_probability
+        }
+    ]
+
+    meta = {
+        "source": "causal_link_circuit",
+        "confidence": conditional_probability,
+        "context": context_label
+    }
+
+    trace = {
+        "entities": entities,
+        "events": events,
+        "causal_links": causal_links,
+        "meta": meta
+    }
+
+    # 2) Conceptual roles for causal blueprints
+    basic_cause_roles = {
+        "CauseEvent": cause_event_id,
+        "EffectEvent": effect_event_id,
+        "Strength": causal_strength,
+        "Context": context_label
+    }
+
+    probabilistic_roles = {
+        "CauseEvent": cause_event_id,
+        "EffectEvent": effect_event_id,
+        "CausalStrength": causal_strength,
+        "ConditionalProb": conditional_probability
+    }
+
+    roles = {
+        "Basic_Cause_Effect": basic_cause_roles,
+        "Probabilistic_Causation": probabilistic_roles
+    }
+
+    # 3) Bridge structure: CausalSentence
+    causal_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": {
+            "CauseEvent": basic_cause_roles["CauseEvent"],
+            "EffectEvent": basic_cause_roles["EffectEvent"],
+            "Strength": basic_cause_roles["Strength"],
+            "Probability": probabilistic_roles["ConditionalProb"],
+            "Context": basic_cause_roles["Context"]
+        }
+    }
+
+    bridge_structures = {
+        "CausalSentencePattern": causal_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+
+# Fourth circuit: Temporal sequence (Event1 before/after Event2)
+#
+# Intent: represent a simple temporal ordering between two events and
+# prepare a causal-style sentence where the temporal relation appears
+# in the context slot.
+#
+# Inputs (conceptual):
+#   event1_id        : identifier for the first event
+#   event2_id        : identifier for the second event
+#   temporal_relation: label like "before" / "after"
+#   context_label    : abstract context label
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+
+def build_temporal_sequence_circuit(
+    event1_id,
+    event2_id,
+    temporal_relation,
+    context_label
+):
+{
+    # 1) Trace with two abstract events sharing the same context
+    events = [
+        {
+            "id": event1_id,
+            "action": "AbstractAction1",
+            "actors": [],
+            "targets": [],
+            "context": context_label
+        },
+        {
+            "id": event2_id,
+            "action": "AbstractAction2",
+            "actors": [],
+            "targets": [],
+            "context": context_label
+        }
+    ]
+
+    meta = {
+        "source": "temporal_sequence_circuit",
+        "confidence": 1.0,
+        "temporal_relation": temporal_relation,
+        "context": context_label
+    }
+
+    trace = {
+        "events": events,
+        "meta": meta
+    }
+
+    # 2) Roles for TemporalOrderPattern
+    temporal_roles = {
+        "Event1": event1_id,
+        "Event2": event2_id,
+        "TemporalRelation": temporal_relation
+    }
+
+    roles = {
+        "TemporalOrderPattern": temporal_roles
+    }
+
+    # 3) Bridge structure: reuse CausalSentencePattern-style shape
+    #    but focus on the temporal relation stored as Context.
+    causal_like_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": {
+            "CauseEvent": temporal_roles["Event1"],
+            "EffectEvent": temporal_roles["Event2"],
+            "Strength": 1.0,
+            "Probability": 1.0,
+            "Context": temporal_relation
+        }
+    }
+
+    bridge_structures = {
+        "Temporal_CausalSentencePattern": causal_like_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+# Fifth circuit: Contextualized event
+#
+# Intent: represent a focus event within a context frame and describe
+# its scope (e.g., background/foreground) via a description-like
+# sentence.
+#
+# Inputs (conceptual):
+#   focus_event_id : identifier for the focus event
+#   actor_id       : entity performing the event
+#   action_kind    : abstract label for the action
+#   context_frame  : context frame label
+#   scope_label    : label for the scope (e.g., "background")
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+
+def build_contextualized_event_circuit(
+    focus_event_id,
+    actor_id,
+    action_kind,
+    context_frame,
+    scope_label
+):
+{
+    # 1) Trace with one event whose context is the frame
+    entities = [
+        {
+            "id": actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        }
+    ]
+
+    events = [
+        {
+            "id": focus_event_id,
+            "action": action_kind,
+            "actors": [actor_id],
+            "targets": [],
+            "context": context_frame
+        }
+    ]
+
+    meta = {
+        "source": "contextualized_event_circuit",
+        "confidence": 1.0,
+        "context": context_frame
+    }
+
+    trace = {
+        "entities": entities,
+        "events": events,
+        "meta": meta
+    }
+
+    # 2) Roles for ContextualizationPattern
+    contextual_roles = {
+        "FocusEvent": focus_event_id,
+        "ContextFrame": context_frame,
+        "Scope": scope_label
+    }
+
+    roles = {
+        "ContextualizationPattern": contextual_roles
+    }
+
+    # 3) Bridge structure: DescriptionPattern-like summary of scope
+    description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": focus_event_id,
+            "Axis": "ContextFrame",
+            "Degree": scope_label,
+            "Value": context_frame
+        }
+    }
+
+    bridge_structures = {
+        "Contextual_DescriptionPattern": description_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+# Sixth circuit: Uncertain cause-effect
+#
+# Intent: represent a probabilistic cause-effect relation and expose
+# the uncertainty explicitly via an UncertaintyPattern bridge.
+#
+# Inputs (conceptual): same as build_causal_link_circuit, but we
+# emphasize the probability and uncertainty.
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+
+def build_uncertain_cause_effect_circuit(
+    cause_event_id,
+    effect_event_id,
+    cause_actor_id,
+    effect_actor_id,
+    cause_action_kind,
+    effect_action_kind,
+    context_label,
+    causal_strength,
+    conditional_probability
+):
+{
+    # 1) Reuse the basic causal-link structure
+    entities = [
+        {
+            "id": cause_actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        },
+        {
+            "id": effect_actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        }
+    ]
+
+    events = [
+        {
+            "id": cause_event_id,
+            "action": cause_action_kind,
+            "actors": [cause_actor_id],
+            "targets": [effect_actor_id],
+            "context": context_label,
+            "probability": conditional_probability
+        },
+        {
+            "id": effect_event_id,
+            "action": effect_action_kind,
+            "actors": [effect_actor_id],
+            "targets": [],
+            "context": context_label,
+            "probability": conditional_probability
+        }
+    ]
+
+    causal_links = [
+        {
+            "cause": cause_event_id,
+            "effect": effect_event_id,
+            "strength": causal_strength,
+            "prob": conditional_probability
+        }
+    ]
+
+    meta = {
+        "source": "uncertain_cause_effect_circuit",
+        "confidence": conditional_probability,
+        "context": context_label
+    }
+
+    trace = {
+        "entities": entities,
+        "events": events,
+        "causal_links": causal_links,
+        "meta": meta
+    }
+
+    # 2) Roles for probabilistic causation + uncertainty
+    probabilistic_roles = {
+        "CauseEvent": cause_event_id,
+        "EffectEvent": effect_event_id,
+        "CausalStrength": causal_strength,
+        "ConditionalProb": conditional_probability
+    }
+
+    uncertainty_roles = {
+        "Content": "CauseEffectRelation",
+        "Degree": conditional_probability
+    }
+
+    roles = {
+        "Probabilistic_Causation": probabilistic_roles,
+        "UncertaintyPattern": uncertainty_roles
+    }
+
+    # 3) Bridge structures: causal + uncertainty
+    causal_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": {
+            "CauseEvent": probabilistic_roles["CauseEvent"],
+            "EffectEvent": probabilistic_roles["EffectEvent"],
+            "Strength": probabilistic_roles["CausalStrength"],
+            "Probability": probabilistic_roles["ConditionalProb"],
+            "Context": context_label
+        }
+    }
+
+    uncertainty_structure = {
+        "pattern": "UncertaintyPattern",
+        "slots": {
+            "Content": "CauseEffectRelation",
+            "Degree": conditional_probability
+        }
+    }
+
+    bridge_structures = {
+        "CausalSentencePattern": causal_structure,
+        "UncertaintyPattern": uncertainty_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+# Sixth circuit: Enhanced Comparison Circuit
+#
+# Intent: Compare two entities/options on multiple axes with detailed
+# comparative analysis. This is useful for decision-making scenarios
+# where we need to evaluate alternatives.
+#
+# Inputs (conceptual):
+#   entity1_id      : first entity/option identifier
+#   entity2_id      : second entity/option identifier
+#   axis_name       : primary comparison axis
+#   value1          : value of entity1 on that axis
+#   value2          : value of entity2 on that axis
+#   comparison_type : "greater", "less", "equal", "better", "worse"
+#   context_label   : abstract context label
+#   confidence      : confidence in the comparison [0,1]
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+def build_enhanced_comparison_circuit(
+    entity1_id,
+    entity2_id,
+    axis_name,
+    value1,
+    value2,
+    comparison_type,
+    context_label,
+    confidence
+):
+{
+    # 1) Build trace with two entities and their properties
+    entities = [
+        {
+            "id": entity1_id,
+            "kind": "option",
+            "domain": "decision_domain",
+            "properties": {axis_name: value1}
+        },
+        {
+            "id": entity2_id,
+            "kind": "option",
+            "domain": "decision_domain",
+            "properties": {axis_name: value2}
+        }
+    ]
+
+    # Compute delta for comparison
+    delta = value1 - value2
+
+    meta = {
+        "source": "enhanced_comparison_circuit",
+        "confidence": confidence,
+        "context": context_label,
+        "comparison_axis": axis_name,
+        "comparison_type": comparison_type
+    }
+
+    trace = {
+        "entities": entities,
+        "meta": meta
+    }
+
+    # 2) Conceptual roles for ComparativePattern
+    comparative_roles = {
+        "Entity1": entity1_id,
+        "Entity2": entity2_id,
+        "Axis": axis_name,
+        "Value1": value1,
+        "Value2": value2,
+        "Delta": delta,
+        "ComparisonType": comparison_type,
+        "Context": context_label
+    }
+
+    # Description of the comparison result
+    description_roles = {
+        "Entity": entity1_id,
+        "Axis": axis_name,
+        "Degree": comparison_type,
+        "Value": value1,
+        "Reference": entity2_id
+    }
+
+    # Intensity of the difference
+    intensity_roles = {
+        "Axis": axis_name,
+        "Value": delta,
+        "Degree": comparison_type
+    }
+
+    roles = {
+        "ComparativePattern": comparative_roles,
+        "DescriptionPattern": description_roles,
+        "IntensityPattern": intensity_roles
+    }
+
+    # 3) Bridge structures for linguistic realization
+    comparative_structure = {
+        "pattern": "ComparativePattern",
+        "slots": {
+            "Entity1": comparative_roles["Entity1"],
+            "Entity2": comparative_roles["Entity2"],
+            "Axis": comparative_roles["Axis"],
+            "Value1": comparative_roles["Value1"],
+            "Value2": comparative_roles["Value2"],
+            "ComparisonType": comparative_roles["ComparisonType"],
+            "Context": comparative_roles["Context"]
+        }
+    }
+
+    description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": description_roles["Entity"],
+            "Axis": description_roles["Axis"],
+            "Degree": description_roles["Degree"],
+            "Value": description_roles["Value"]
+        }
+    }
+
+    intensity_structure = {
+        "pattern": "IntensityPattern",
+        "slots": {
+            "Axis": intensity_roles["Axis"],
+            "Value": intensity_roles["Value"],
+            "Degree": intensity_roles["Degree"]
+        }
+    }
+
+    bridge_structures = {
+        "ComparativePattern": comparative_structure,
+        "DescriptionPattern": description_structure,
+        "IntensityPattern": intensity_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}

@@ -1,0 +1,161 @@
+# ============================================
+# Pipeline and Composition Operators Demo
+# عرض توضيحي لعوامل الأنابيب والتركيب
+# ============================================
+
+print("=== Pipeline Operator |> Demo ===")
+print("")
+
+# ============================================
+# 1. Basic Pipeline - الأنابيب الأساسية
+# ============================================
+
+print("1. Basic Pipeline:")
+
+def double(x):
+{
+    return x * 2
+}
+
+def increment(x):
+{
+    return x + 1
+}
+
+# Pipeline: value |> function
+result1 = 5 |> double
+print("5 |> double = " + str(result1))
+
+# Chained pipeline: value |> f |> g
+result2 = 5 |> double |> increment
+print("5 |> double |> increment = " + str(result2))
+
+print("")
+
+# ============================================
+# 2. Pipeline with Built-in Functions
+# الأنابيب مع الدوال المدمجة
+# ============================================
+
+print("2. Pipeline with Built-ins:")
+
+numbers = [1, 2, 3, 4, 5]
+length = numbers |> len
+print("[1,2,3,4,5] |> len = " + str(length))
+
+text = "Hello World"
+text_length = text |> len
+print("'Hello World' |> len = " + str(text_length))
+
+print("")
+
+# ============================================
+# 3. Function Composition - تركيب الدوال
+# ============================================
+
+print("3. Function Composition:")
+
+# Compose two functions: f >> g means g(f(x))
+composed1 = double >> increment
+result3 = composed1(5)
+print("(double >> increment)(5) = " + str(result3))
+
+# Chain multiple compositions
+def square(x):
+{
+    return x * x
+}
+
+composed2 = double >> increment >> square
+result4 = composed2(3)
+print("(double >> increment >> square)(3) = " + str(result4))
+
+print("")
+
+# ============================================
+# 4. Combining Pipeline and Composition
+# دمج الأنابيب والتركيب
+# ============================================
+
+print("4. Combining Pipeline and Composition:")
+
+# Create composed function then use in pipeline
+transform = double >> increment
+result5 = 10 |> transform
+print("10 |> (double >> increment) = " + str(result5))
+
+# Multiple values through same composed function
+values = [1, 2, 3, 4, 5]
+print("Applying (double >> increment) to each:")
+for v in values:
+{
+    transformed = v |> transform
+    print("  " + str(v) + " -> " + str(transformed))
+}
+
+print("")
+
+# ============================================
+# 5. Practical Example: Data Processing
+# مثال عملي: معالجة البيانات
+# ============================================
+
+print("5. Data Processing Pipeline:")
+
+def filter_positive(lst):
+{
+    result = []
+    for item in lst:
+    {
+        if item > 0:
+        {
+            result = result + [item]
+        }
+    }
+    return result
+}
+
+def sum_list(lst):
+{
+    total = 0
+    for item in lst:
+    {
+        total = total + item
+    }
+    return total
+}
+
+data = [-2, 5, -1, 8, 3, -4, 7]
+total = data |> filter_positive |> sum_list
+print("[-2,5,-1,8,3,-4,7] |> filter_positive |> sum_list = " + str(total))
+
+print("")
+
+# ============================================
+# 6. String Processing Pipeline
+# أنابيب معالجة النصوص
+# ============================================
+
+print("6. String Processing:")
+
+def add_greeting(name):
+{
+    return "Hello, " + name
+}
+
+def add_exclamation(text):
+{
+    return text + "!"
+}
+
+def to_upper(text):
+{
+    return text
+}
+
+message = "Alice" |> add_greeting |> add_exclamation
+print("'Alice' |> add_greeting |> add_exclamation = " + message)
+
+print("")
+print("=== Demo Complete ===")
+

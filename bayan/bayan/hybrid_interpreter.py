@@ -32,7 +32,13 @@ class HybridInterpreter:
         import os
         self._bayan_module_cache = {}
         cwd = os.getcwd()
-        self._bayan_module_paths = [cwd, os.path.join(cwd, 'tests'), os.path.join(cwd, 'tests', 'bayan_modules')]
+        self._bayan_module_paths = [
+            cwd,
+            os.path.join(cwd, 'tests'),
+            os.path.join(cwd, 'tests', 'bayan_modules'),
+            os.path.join(cwd, 'nlp_bayan'),  # Add nlp_bayan directory
+            os.path.join(cwd, 'bayan', 'libraries'),  # Add libraries directory
+        ]
 
         # Action-centric helper API (no grammar changes needed)
         def _perform_api(action_name, participants, states=None, properties=None, action_value=1.0):
@@ -493,6 +499,8 @@ class HybridInterpreter:
             return self.visit_phrase_statement(node)
         elif isinstance(node, EntityDef):
             return self.visit_entity_def(node)
+        elif isinstance(node, ConceptDef):
+            return self.visit_concept_def(node)
         elif isinstance(node, ApplyActionStmt):
             return self.visit_apply_action_stmt(node)
         elif isinstance(node, ImportStatement):
@@ -654,9 +662,25 @@ class HybridInterpreter:
         return traditional_result
 
     def visit_logical_fact(self, node):
-        """Visit a logical fact"""
-        fact = Fact(node.predicate)
+        """Visit a logical fact (supports optional probability via fact[prob])"""
+        prob = None
+        if getattr(node, 'probability', None) is not None:
+            prob = self.traditional.interpret(node.probability)
+        fact = Fact(node.predicate, probability=prob)
         self.logical.add_fact(fact)
+    def visit_concept_def(self, node):
+        """Install a concept as a runtime set and assert logical in_concept(Name, Elem) facts."""
+        # Evaluate set literal to a Python set
+        members = self.traditional.interpret(node.set_node)
+        if not isinstance(members, (set, list, tuple)):
+            raise TypeError("concept expects a set literal or set-like value")
+        # Store as a runtime variable for membership tests (x in Animal)
+        env = self.traditional.local_env if self.traditional.local_env is not None else self.traditional.global_env
+        env[node.name] = set(members)
+        # Assert logical facts
+        for m in members:
+            pred = Predicate('in_concept', [Term(str(node.name)), Term(str(m))])
+            self.logical.add_fact(Fact(pred))
         return None
 
     def visit_logical_rule(self, node):
@@ -669,7 +693,7 @@ class HybridInterpreter:
         """Visit a logical query"""
         solutions = self.logical.query(node.goal)
 
-        # Convert solutions to dictionaries
+        # Convert solutions to dictionaries (include '__prob')
         results = []
         for substitution in solutions:
             result_dict = {}
@@ -682,6 +706,8 @@ class HybridInterpreter:
                 # Extract underlying value for Terms; otherwise keep as is
                 final_val = getattr(resolved, 'value', resolved)
                 result_dict[var_name] = final_val
+            # Attach aggregated probability if available
+            result_dict['__prob'] = float(getattr(substitution, 'probability', 1.0))
             results.append(result_dict)
 
         # Best-effort console display for interactive use inside hybrid blocks
@@ -748,12 +774,13 @@ class HybridInterpreter:
         """Visit a query expression"""
         solutions = self.logical.query(node.goal)
 
-        # Convert solutions to dictionaries
+        # Convert solutions to dictionaries (include '__prob')
         results = []
         for substitution in solutions:
             result_dict = {}
             for var_name, value in substitution.bindings.items():
                 result_dict[var_name] = value
+            result_dict['__prob'] = float(getattr(substitution, 'probability', 1.0))
             results.append(result_dict)
         return results
 

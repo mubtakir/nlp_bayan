@@ -1,0 +1,38 @@
+# Simple temporal test
+
+print("Test 1: Temporal block")
+temporal {
+    first: x = 10,
+    then: y = x * 2,
+    lastly: z = y + 5
+}
+print("x = " + str(x))
+print("y = " + str(y))
+print("z = " + str(z))
+print("")
+
+print("Test 2: Delay")
+import time
+start = time.time()
+delay 0.2 seconds
+end = time.time()
+print("Delayed for " + str(end - start) + " seconds")
+print("")
+
+print("Test 3: Within block")
+within 1.0 seconds {
+    result = 42
+}
+print("Result: " + str(result))
+print("")
+
+print("Test 4: Schedule block")
+counter = 0
+schedule every 0.5 seconds {
+    counter = counter + 1
+}
+print("Counter: " + str(counter))
+print("")
+
+print("Done!")
+

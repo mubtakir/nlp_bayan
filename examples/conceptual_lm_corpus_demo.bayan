@@ -1,0 +1,176 @@
+# ديمو ثالث: تكوين «مجموعة أمثلة» مختلطة لأنواع جمل مختلفة وتدريب LM عليها
+
+hybrid {
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # trace تصوّري عام بسيط يُستخدم مع كل الأمثلة
+    conceptual_trace = {
+        "entities": [
+            {"id": "Entity_A", "kind": "generic_entity", "domain": "abstract_domain"},
+            {"id": "Entity_B", "kind": "generic_entity", "domain": "abstract_domain"}
+        ],
+        "events": [],
+        "meta": {"source": "corpus_demo", "confidence": 0.95}
+    }
+
+    examples = []
+
+    # 1) جملة فعلية بسيطة (ActionSentence)
+    roles_action = {
+        "Actor": "Entity_A",
+        "Target": "Entity_B",
+        "ActionKind": "GenericAction",
+        "Instrument": "None",
+        "Context": "NeutralContext",
+        "Probability": 0.9
+    }
+    action_structure = {
+        "pattern": "ActionSentencePattern",
+        "slots": {
+            "Actor": roles_action["Actor"],
+            "Action": roles_action["ActionKind"],
+            "Target": roles_action["Target"],
+            "Intensity": roles_action["Probability"],
+            "Context": roles_action["Context"]
+        }
+    }
+    action_result = lm_bridge.build_lm_examples_for_structure(
+        conceptual_trace,
+        roles_action,
+        action_structure,
+        ["english", "arabic"],
+        "neutral"
+    )
+    action_examples = action_result["examples"]
+    for i in range(len(action_examples)):
+    {
+        examples.append(action_examples[i])
+    }
+
+    # 2) جملة تغيير حالة (StateChangeSentence)
+    roles_state = {
+        "Entity": "Entity_A",
+        "PropertyAxis": "Satisfaction",
+        "BeforeValue": 0.2,
+        "AfterValue": 0.9,
+        "Delta": 0.7,
+        "Context": "AfterEvent"
+    }
+    state_structure = {
+        "pattern": "StateChangeSentencePattern",
+        "slots": roles_state
+    }
+    state_result = lm_bridge.build_lm_examples_for_structure(
+        conceptual_trace,
+        roles_state,
+        state_structure,
+        ["english", "arabic"],
+        "neutral"
+    )
+    state_examples = state_result["examples"]
+    for i in range(len(state_examples)):
+    {
+        examples.append(state_examples[i])
+    }
+
+    # 3) جملة سببية (CausalSentence)
+    roles_causal = {
+        "CauseEvent": "Event_Cause",
+        "EffectEvent": "Event_Effect",
+        "Strength": 0.8,
+        "Probability": 0.85,
+        "Context": "because_of"
+    }
+    causal_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": roles_causal
+    }
+    causal_result = lm_bridge.build_lm_examples_for_structure(
+        conceptual_trace,
+        roles_causal,
+        causal_structure,
+        ["english", "arabic"],
+        "neutral"
+    )
+    causal_examples = causal_result["examples"]
+    for i in range(len(causal_examples)):
+    {
+        examples.append(causal_examples[i])
+    }
+
+    # 4) جملة وصفية (DescriptionSentence)
+    roles_desc = {
+        "Entity": "Entity_B",
+        "Axis": "Quality",
+        "Degree": "high",
+        "Value": 0.95
+    }
+    desc_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": roles_desc
+    }
+    desc_result = lm_bridge.build_lm_examples_for_structure(
+        conceptual_trace,
+        roles_desc,
+        desc_structure,
+        ["english", "arabic"],
+        "neutral"
+    )
+    desc_examples = desc_result["examples"]
+    for i in range(len(desc_examples)):
+    {
+        examples.append(desc_examples[i])
+    }
+
+    # 5) جملة شدة/كثافة (IntensitySentence)
+    roles_intensity = {
+        "Axis": "IntensityAxis",
+        "Value": 0.7,
+        "Degree": "moderate"
+    }
+    intensity_structure = {
+        "pattern": "IntensityPattern",
+        "slots": roles_intensity
+    }
+    intensity_result = lm_bridge.build_lm_examples_for_structure(
+        conceptual_trace,
+        roles_intensity,
+        intensity_structure,
+        ["english", "arabic"],
+        "neutral"
+    )
+    intensity_examples = intensity_result["examples"]
+    for i in range(len(intensity_examples)):
+    {
+        examples.append(intensity_examples[i])
+    }
+
+    print("==== LM corpus demo ====")
+    print("Number of examples (EN + AR):", len(examples))
+    print("")
+
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+    trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for corpus examples ====")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        sc_bg = bigram_scores[i]
+        sc_tri = trigram_scores[i]
+        print("Example", i, "text:", ex["text"])
+        print("  Bigram:", sc_bg)
+        print("  Trigram:", sc_tri)
+    }
+}
+

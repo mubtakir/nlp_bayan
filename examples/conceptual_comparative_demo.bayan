@@ -1,0 +1,44 @@
+# Demo for ComparativePattern, TemporalOrderPattern, ContextualizationPattern
+# This stays fully symbolic: we only fill roles for the new conceptual patterns.
+
+hybrid {
+    import ai.conceptual_blueprints as blueprints
+
+    print("==== New conceptual patterns registry check ====")
+    registry = blueprints._conceptual_blueprints
+    print("Blueprint names:", list(registry.keys()))
+    print("")
+
+    # 1) ComparativePattern: comparison between two entities on a single axis
+    comparative_roles = {
+        "Entity1": "Entity_X",
+        "Entity2": "Entity_Y",
+        "Axis": "AbstractAxis",
+        "Value1": 0.8,
+        "Value2": 0.5,
+        "ComparisonType": "greater"
+    }
+    print("==== Roles for ComparativePattern ====")
+    print(comparative_roles)
+    print("")
+
+    # 2) TemporalOrderPattern: simple before/after relation
+    temporal_roles = {
+        "Event1": "Event_A",
+        "Event2": "Event_B",
+        "TemporalRelation": "before"
+    }
+    print("==== Roles for TemporalOrderPattern ====")
+    print(temporal_roles)
+    print("")
+
+    # 3) ContextualizationPattern: putting a focus event in a broader context
+    contextual_roles = {
+        "FocusEvent": "Event_Main",
+        "ContextFrame": "GlobalContext",
+        "Scope": "background"
+    }
+    print("==== Roles for ContextualizationPattern ====")
+    print(contextual_roles)
+}
+

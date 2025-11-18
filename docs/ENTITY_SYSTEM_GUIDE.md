@@ -16,13 +16,17 @@
 
 ## Basic Syntax — البنية الأساسية
 
+### الصيغة الجديدة الموحدة (مُوصى بها) — New Unified Syntax (Recommended)
+
+**ملاحظة مهمة**: لغة البيان الآن تدعم صيغة موحدة أكثر طبيعية للكيانات، حيث يمكنك استخدام المفاتيح بدون علامات اقتباس.
+
 مثال عربي مختصر:
 
 ```bayan
 hybrid {
-    # تعريف كيانين
-    كيان أحمد { "حالات": {"جوع": 0.6} }
-    كيان محمد { "أفعال": {
+    # تعريف كيانين - الصيغة الجديدة
+    كيان أحمد { حالات: {"جوع": 0.6} }
+    كيان محمد { أفعال: {
         "تقديم_وجبة": {"قوة": 1.0, "تأثيرات": [ {"on": "جوع", "formula": "value - 0.4*action_value"} ] }
     }}
 
@@ -38,8 +42,8 @@ English variant:
 
 ```bayan
 hybrid {
-    entity Ahmed { "states": {"hunger": 0.6} }
-    entity John  { "actions": {
+    entity Ahmed { states: {"hunger": 0.6} }
+    entity John  { actions: {
         "feed": {"power": 1.0, "effects": [ {"on": "hunger", "formula": "value - 0.4*action_value"} ] }
     }}
 
@@ -47,6 +51,29 @@ hybrid {
 }
 
 query state("Ahmed", "hunger", ?V).
+```
+
+### الصيغة القديمة (لا تزال مدعومة) — Old Syntax (Still Supported)
+
+للتوافق العكسي، الصيغة القديمة بعلامات الاقتباس لا تزال تعمل:
+
+```bayan
+hybrid {
+    entity Ahmed { "states": {"hunger": 0.6} }
+    entity John  { "actions": {
+        "feed": {"power": 1.0, "effects": [ {"on": "hunger", "formula": "value - 0.4*action_value"} ] }
+    }}
+
+    apply John.feed(Ahmed, action_value=1.0)
+}
+```
+
+**يمكنك أيضاً خلط الصيغتين** في نفس الكيان:
+```bayan
+entity Ahmed {
+    states: {"hunger": 0.6},      # بدون علامات اقتباس
+    "properties": {"x": 0.0}      # بعلامات اقتباس
+}
 ```
 
 ---

@@ -1,5 +1,17 @@
 # Bayan Language - Quick Reference for LLMs
 
+**Last Updated**: 2025-11-17
+
+**Project Status**:
+- ✅ 461/605 tests passing (76.2%)
+- ✅ 42 tutorial files (21 Arabic + 21 English)
+- ✅ 9,318+ lines of documentation
+- ✅ Conceptual LM system (4 layers, 6 circuits, 5 programs)
+- ✅ Advanced NLP dialogue system
+- ✅ Causal networks, entity system, semantic networks
+
+---
+
 ## Essential Rules
 
 1. **Wrap all code in `hybrid { ... }`**
@@ -45,9 +57,77 @@ hybrid {
 
 ## Keywords
 
-**English**: `if`, `elif`, `else`, `for`, `in`, `while`, `def`, `return`, `class`, `self`, `True`, `False`, `None`, `and`, `or`, `not`, `try`, `except`, `finally`, `raise`, `with`, `async`, `await`, `yield`, `lambda`, `import`, `from`, `global`, `del`, `pass`, `break`, `continue`
+### Traditional Keywords (الكلمات التقليدية)
+
+**English**: `if`, `elif`, `else`, `for`, `in`, `while`, `def`, `return`, `class`, `self`, `True`, `False`, `None`, `and`, `or`, `not`, `try`, `except`, `finally`, `raise`, `with`, `async`, `await`, `yield`, `lambda`, `import`, `from`, `as`, `global`, `del`, `pass`, `break`, `continue`
 
 **Arabic**: `اذا`, `والا_اذا`, `والا`, `لكل`, `في`, `بينما`, `دالة`, `ارجع`, `صنف`, `الذات`, `صحيح`, `خطأ`, `لاشيء`
+
+### Hybrid/Logic Keywords (الكلمات الهجينة/المنطقية)
+
+**English**: `hybrid`, `query`, `fact`, `rule`
+
+### Entity System (نظام الكيانات)
+
+**English**: `entity`, `apply`, `concept`
+
+**Arabic**: `كيان`, `طبق`, `مفهوم`
+
+### Temporal Keywords (الكلمات الزمنية)
+
+**English**: `temporal`, `first`, `then`, `lastly`, `within`, `schedule`, `delay`, `every`, `seconds`, `minutes`, `hours`, `once`, `limit`
+
+**Arabic**: `زمنيا`, `أولا`, `ثم`, `أخيرا`, `خلال`, `جدولة`, `تأخير`, `كل`, `ثانية`, `ثواني`, `دقيقة`, `دقائق`, `ساعة`, `ساعات`, `مرة_واحدة`, `حد`
+
+### Constraint Keywords (كلمات القيود)
+
+**English**: `where`, `requires`, `ensures`, `invariant`
+
+**Arabic**: `حيث`, `يتطلب`, `يشترط`, `يضمن`, `يكفل`, `ثابت`, `ثوابت`
+
+### Pattern Matching (مطابقة الأنماط)
+
+**English**: `match`, `case`, `default`, `when`
+
+**Arabic**: `طابق`, `حالة`, `افتراضي`, `افتراضية`, `عندما`
+
+### Reactive Programming (البرمجة التفاعلية)
+
+**English**: `reactive`, `watch`, `computed`
+
+**Arabic**: `تفاعلي`, `تفاعلية`, `راقب`, `مراقبة`, `محسوب`, `محسوبة`
+
+### Cognitive-Semantic Model (النموذج المعرفي-الدلالي)
+
+**English**: `cognitive_entity`, `cognitive_event`, `event`, `trigger`, `concurrent`, `pattern`, `conceptual_blueprint`, `idea`, `participants`, `strength`, `transform`, `reactions`, `structure`, `express`, `entities`, `result`, `state_changes`, `linguistic_forms`, `degree`, `role`
+
+**Arabic**: `كيان_معرفي`, `حدث_معرفي`, `حدث`, `أطلق`, `متزامن`, `قالب`, `مخطط_مفاهيمي`, `فكرة`, `مشاركون`, `قوة`, `تحويل`, `ردود_فعل`, `ردود`, `بنية`, `تعبير`, `كيانات`, `نتيجة`, `تغييرات_الحالة`, `تغييرات`, `أشكال_لغوية`, `أشكال`, `درجة`, `دور`
+
+### Semantic Programming & Knowledge (البرمجة الدلالية والمعرفة)
+
+**English**: `meaning`, `semantic_query`, `information`, `content`, `context`, `time`, `place`, `source`, `certainty`, `inference_rule`, `infer_from`, `contradiction`, `between`, `resolve`, `evolving_knowledge`, `knowledge`, `current_value`, `history`, `future_prediction`, `ontology`, `root`, `taxonomy`, `memory`, `store`, `retrieve`, `similarity`, `narrative`, `characters`, `generate_narrative`, `based_on`, `current_context`
+
+**Arabic**: `معنى`, `استعلام_دلالي`, `معلومة`, `محتوى`, `سياق`, `زمن`, `مكان`, `مصدر`, `يقين`, `قاعدة_استنتاج`, `استنتج_من`, `تناقض`, `بين`, `حل`, `معرفة_متطورة`, `معرفة`, `قيمة_حالية`, `تاريخ`, `توقع_مستقبلي`, `أنطولوجيا`, `جذر`, `تصنيف`, `ذاكرة`, `خزن`, `استرجع`, `تشابه`, `سرد`, `شخصيات`, `ولد_سرد`, `بناء_على`, `السياق_الحالي`
+
+### Existential Model (النموذج الوجودي)
+
+**English**: `domain`, `basic_entity`, `environment`, `in_domain`, `of_type`, `existential_being`, `dimensions`, `spatial`, `domain_specific`, `intrinsic_properties`, `inherited_meanings`, `intrinsic_meanings`, `laws`, `domain_relation`, `domain_action`, `metaphorical_meaning`, `built_on`, `applies_to`, `domain_law`, `existential_query`, `about`
+
+**Arabic**: `مجال`, `كيان_أساسي`, `بيئة`, `في_مجال`, `من_نوع`, `كائن_وجودي`, `أبعاد`, `مكاني`, `خاص_بالمجال`, `خصائص_جوهرية`, `معاني_موروثة`, `معاني_جوهرية`, `قوانين`, `علاقة_مجالية`, `فعل_مجالي`, `معنى_مجازي`, `مبني_على`, `ينطبق_على`, `قانون_مجالي`, `استعلام_وجودي`, `حول`
+
+### Spatial & Temporal Relations (العلاقات المكانية والزمنية)
+
+**Spatial**: `above`/`فوق`, `below`/`تحت`, `right`/`يمين`, `left`/`يسار`, `front`/`أمام`, `back`/`خلف`, `north`/`شمال`, `south`/`جنوب`, `east`/`شرق`, `west`/`غرب`
+
+**Temporal**: `before`/`قبل`, `after`/`بعد`, `during`/`أثناء`, `now`/`الآن`
+
+**Prepositions**: `in`/`في`, `from`/`من`, `at`/`عند`, `on`/`على`, `to`/`إلى`
+
+### Life Domain (مجال الحياة)
+
+**English**: `emergence`, `life`, `growth`, `death`, `decay`, `living`, `eat`, `drink`, `food`, `satiety`, `hunger`, `work`, `pain`, `effect`, `affected`, `struggle`, `gain`, `loss`, `interior`, `face`, `shadow`, `love`, `affection`, `aversion`, `proximity`, `cooperation`, `interaction`, `product`, `laugh`, `cry`, `speak`, `think`, `inhabits`, `moves_to`, `affected_by`
+
+**Arabic**: `ظهور`, `حياة`, `نمو`, `موت`, `تحلل`, `حي`, `أكل`, `شرب`, `طعام`, `شبع`, `جوع`, `عمل`, `ألم`, `تأثير`, `متأثر`, `كفاح`, `كسب`, `خسارة`, `داخل`, `وجه`, `ظل`, `حب`, `مودة`, `نفور`, `قرب`, `تعاون`, `تفاعل`, `منتج`, `ضحك`, `بكاء`, `كلام`, `تفكير`, `يسكن`, `ينتقل_إلى`, `متأثر_بـ`
 
 ## Data Types
 
@@ -317,16 +397,72 @@ hybrid {
     def f(x): {
         return x
     }
-    
+
     if x > 0: {
         print(x)
     }
-    
+
     parent("a", "b").
 }
 ```
 
 ---
 
+## Advanced Features Quick Reference
+
+### Causal Networks
+```bayan
+create_network("name", "desc", "custom")
+add_node("net", "node", "type", "label")
+add_causal_relation("net", "from", "to", "type", "strength")
+infer_causal_chain("net", "start", "end", "max_depth")
+```
+
+### Entity System
+```bayan
+entity EntityName: {
+    states: {"state1": 0.5, "state2": 0.8},
+    actions: {
+        "action1": {
+            formula: "value * states['state1']",
+            effects: {"state1": "+0.1", "state2": "-0.2"}
+        }
+    }
+}
+perform("action", ["Entity.1.0"], action_value=1.0)
+```
+
+### NLP Dialogue
+```bayan
+add_fact("subject", "predicate", "object")
+add_fact("X = Y")  # Bidirectional synonym
+ask("ما هو X؟")
+get_answer_with_policy("query", "most_recent")
+```
+
+### Conceptual LM
+```bayan
+run_meaning_program("program_name", {"detail_level": "high", "focus": "causal"})
+realize_surface(trace, "ar", "high")
+```
+
+### Semantic Networks
+```bayan
+meaning("X", "Y")
+information("X", "relation", "Y")
+inference_rule("pattern", "conclusion")
+```
+
+### Similarity & Synonyms
+```bayan
+similar(?X, ?Y, ?Score, ?Kind, ?Domain)
+synonym(?X, ?Y, ?S)
+close(?X, ?Y, ?Kind)
+```
+
+---
+
 **Use this reference when generating Bayan code. Follow the syntax strictly!**
+
+**For more details**: See `docs/تعليمية/README.md` for 42 comprehensive tutorial files.
 

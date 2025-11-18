@@ -1,7 +1,8 @@
 hybrid {
     # Define two entities and one action (English keywords)
-    entity Ahmed { "states": {"hunger": 0.6} }
-    entity John  { "actions": {
+    # Using new unified syntax: keys without quotes
+    entity Ahmed { states: {"hunger": 0.6} }
+    entity John  { actions: {
         "feed": {"power": 1.0, "effects": [ {"on": "hunger", "formula": "value - 0.4*action_value"} ] }
     }}
 

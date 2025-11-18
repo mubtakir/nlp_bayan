@@ -1,0 +1,109 @@
+# Demo: Interactive REPL for NL mapper + orchestrator
+# This demo lets you type short Arabic/English commands and see how they
+# are mapped into control messages and dispatched to meaning programs.
+
+hybrid {
+    import ai.conceptual_nl_mapper as nl_mapper
+    import ai.conceptual_orchestrator as orchestrator
+
+    # Summarize the conceptual trace in a compact way.
+    def summarize_trace(trace):
+    {
+        has_entities = "entities" in trace
+        has_events = "events" in trace
+        has_causal = "causal_links" in trace
+
+        count_entities = 0
+        count_events = 0
+        count_causal = 0
+
+        if has_entities:
+        {
+            count_entities = len(trace["entities"])
+        }
+        if has_events:
+        {
+            count_events = len(trace["events"])
+        }
+        if has_causal:
+        {
+            count_causal = len(trace["causal_links"])
+        }
+
+        print("Trace summary:")
+        print("  has entities:", has_entities, "count:", count_entities)
+        print("  has events  :", has_events, "count:", count_events)
+        print("  has causal  :", has_causal, "count:", count_causal)
+    }
+
+    # Run a single line through the pipeline.
+    def run_once(text):
+    {
+        print("===== Input text =====")
+        print(text)
+
+        msg = nl_mapper.map_text_to_control_message(text)
+        print("Mapped control message:")
+        print(msg)
+
+        result = orchestrator.dispatch_request(msg)
+        print("Selected program ok =", result["ok"])
+
+        if not result["ok"]:
+        {
+            print("No matching program for this message.")
+            print("")
+            return
+        }
+
+        print("Selected program id:", result["selected_program"])
+        print("Program description:", result["program_description"])
+
+        if "settings" in result:
+        {
+            print("Control settings (detail_level, languages, perspective, focus, scenario_variant, time_horizon):")
+            print(result["settings"])
+        }
+
+        summarize_trace(result["trace"])
+        print("")
+    }
+
+    # Simple REPL loop.
+    def main_loop():
+    {
+        print("Interactive conceptual orchestrator demo.")
+        print("Type a short Arabic/English request, or 'quit' to exit.")
+        print("-------------------------------------------------------")
+
+        while True:
+        {
+            line = input(">> ")
+
+            # End of input / EOF
+            if line == None:
+            {
+                break
+            }
+
+            # Quit commands
+            if line == "quit" or line == "exit" or line == "خروج":
+            {
+                break
+            }
+
+            # Skip empty lines
+            if line == "":
+            {
+                continue
+            }
+
+            run_once(line)
+        }
+
+        print("Goodbye.")
+    }
+
+    main_loop()
+}
+

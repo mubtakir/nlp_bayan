@@ -1,0 +1,100 @@
+# Demo: Orchestrator with NL mapper for social relationship domain
+# This demo shows the full pipeline from natural language to LM examples
+
+
+hybrid {
+    import ai.conceptual_nl_mapper as nl_mapper
+    import ai.conceptual_orchestrator as orchestrator
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    print("==== Orchestrator + NL Mapper Demo: Social Relationship Domain ====")
+    print("")
+
+    # Test 1: Arabic input for social relationship
+    print("--- Test 1: Arabic input ---")
+    arabic_text = "أريد قصة عن صداقة بين شخصين"
+    print("Input: " + arabic_text)
+    print("")
+
+    control_msg = nl_mapper.map_text_to_control_message(arabic_text)
+    print("Control message:")
+    print(control_msg)
+    print("")
+
+    result = orchestrator.dispatch_request(control_msg)
+    print("Orchestrator result ok: " + str(result["ok"]))
+
+    if result["ok"]:
+    {
+        print("Program ID: " + result["selected_program"])
+        trace = result["trace"]
+        print("Entities: " + str(len(trace["entities"])))
+        print("Events: " + str(len(trace["events"])))
+        print("Causal links: " + str(len(trace["causal_links"])))
+    }
+    print("")
+
+    # Test 2: English input for social relationship
+    print("--- Test 2: English input ---")
+    english_text = "Tell me about friendship and trust between two people"
+    print("Input: " + english_text)
+    print("")
+
+    control_msg2 = nl_mapper.map_text_to_control_message(english_text)
+    print("Control message:")
+    print(control_msg2)
+    print("")
+
+    result2 = orchestrator.dispatch_request(control_msg2)
+    print("Orchestrator result ok: " + str(result2["ok"]))
+
+    if result2["ok"]:
+    {
+        print("Program ID: " + result2["selected_program"])
+        trace2 = result2["trace"]
+        print("Entities: " + str(len(trace2["entities"])))
+        print("Events: " + str(len(trace2["events"])))
+        print("Causal links: " + str(len(trace2["causal_links"])))
+    }
+    print("")
+
+    # Test 3: With scenario variant settings
+    print("--- Test 3: With optimistic scenario variant ---")
+    control_msg3 = {
+        "domain": "social",
+        "intent": "relationship_scenario",
+        "settings": {
+            "scenario_variant": "optimistic",
+            "time_horizon": "short_term",
+            "detail_level": "high"
+        }
+    }
+    print("Control message:")
+    print(control_msg3)
+    print("")
+
+    result3 = orchestrator.dispatch_request(control_msg3)
+    print("Orchestrator result ok: " + str(result3["ok"]))
+
+    if result3["ok"]:
+    {
+        print("Program ID: " + result3["selected_program"])
+        trace3 = result3["trace"]
+        print("Entities: " + str(len(trace3["entities"])))
+        print("Events: " + str(len(trace3["events"])))
+        print("Causal links: " + str(len(trace3["causal_links"])))
+
+        # Show causal link strengths (should be higher with optimistic variant)
+        print("Causal link strengths:")
+        links = trace3["causal_links"]
+        for i in range(len(links)):
+        {
+            link = links[i]
+            print("  " + str(link))
+        }
+    }
+    print("")
+
+    print("==== Demo complete ====")
+}
+

@@ -1,0 +1,127 @@
+# Demo: First conceptual circuit (Action -> StateChange -> Evaluation)
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # 1) Instantiate the circuit with mostly Arabic conceptual data
+    circuit_output = circuits.build_action_state_eval_circuit(
+        "الفاعل",         # actor_id
+        "المتلقّي",       # patient_id
+        "فعل_مجرد",      # action_kind
+        "محور_الرضا",    # state_axis
+        0.2,               # before_value
+        0.9,               # after_value
+        "مرتفعة",        # evaluation_degree
+        "سياق_مجرد",     # context_label
+        0.8,               # action_intensity
+        0.95               # action_probability
+    )
+
+    trace = circuit_output["trace"]
+    roles = circuit_output["roles"]
+    bridges = circuit_output["bridge_structures"]
+
+    print("==== Conceptual circuit demo: Action -> StateChange -> Evaluation ====")
+    print("Conceptual trace:")
+    print(trace)
+    print("")
+
+    print("Roles (per blueprint):")
+    print(roles)
+    print("")
+
+    # 2) Realize sentence-level symbolic structures
+    action_sent = lang_bridge.realize(bridges["ActionSentencePattern"])
+    state_sent = lang_bridge.realize(bridges["StateChangeSentencePattern"])
+    desc_sent = lang_bridge.realize(bridges["DescriptionPattern"])
+    intensity_sent = lang_bridge.realize(bridges["IntensityPattern"])
+
+    print("Symbolic sentences (pre-linguistic):")
+    print("ActionSentence:", action_sent)
+    print("StateChangeSentence:", state_sent)
+    print("DescriptionSentence:", desc_sent)
+    print("IntensitySentence:", intensity_sent)
+    print("")
+
+    # 3) Build EN/AR surface + LM examples for each sentence type
+    examples = []
+
+    action_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["Generic_Interaction_Event"],
+        bridges["ActionSentencePattern"],
+        ["english", "arabic"],
+        "neutral"
+    )
+    state_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["State_Change_Template"],
+        bridges["StateChangeSentencePattern"],
+        ["english", "arabic"],
+        "neutral"
+    )
+    desc_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["DescriptionPattern"],
+        bridges["DescriptionPattern"],
+        ["english", "arabic"],
+        "neutral"
+    )
+    intensity_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["IntensityPattern"],
+        bridges["IntensityPattern"],
+        ["english", "arabic"],
+        "neutral"
+    )
+
+    all_results = [action_result, state_result, desc_result, intensity_result]
+
+    for i in range(len(all_results)):
+    {
+        res = all_results[i]
+        exs = res["examples"]
+        for j in range(len(exs)):
+        {
+            examples.append(exs[j])
+        }
+    }
+
+    print("Number of LM examples (EN + AR, 4 sentence types):", len(examples))
+    print("")
+
+    print("Example texts:")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        print("-", i, ":", ex["text"])
+    }
+    print("")
+
+    # 4) Train symbolic bigram + trigram LMs over the circuit corpus
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+    trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for circuit examples ====")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        sc_bg = bigram_scores[i]
+        sc_tri = trigram_scores[i]
+        print("Example", i, "text:", ex["text"])
+        print("  Bigram:", sc_bg)
+        print("  Trigram:", sc_tri)
+    }
+}
+

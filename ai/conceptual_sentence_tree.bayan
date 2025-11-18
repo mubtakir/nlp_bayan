@@ -1,0 +1,209 @@
+# Conceptual sentence tree layer above symbolic surface planning
+# This module remains fully symbolic: no real words, only roles and structure.
+
+
+def build_action_tree(sentence_roles, plan):
+{
+    # sentence_roles: output of conceptual_language_bridge.realize for ActionSentencePattern
+    # plan:           output of conceptual_surface_planner.plan_surface for the same sentence
+
+    # Root of the tree: generic sentence node "S"
+    root_children = []
+
+    # We keep a simple structure: Predicate as the head, with Subject and Object as dependents
+    root_children.append({
+        "node": "Predicate",
+        "value": sentence_roles["predicate"],
+        "children": []
+    })
+
+    root_children.append({
+        "node": "Subject",
+        "value": sentence_roles["subject"],
+        "children": []
+    })
+
+    root_children.append({
+        "node": "Object",
+        "value": sentence_roles["object"],
+        "children": []
+    })
+
+    # Modifiers (intensity/context) are kept at tree level, not as separate nodes for now
+    tree = {
+        "tree_type": "SentenceTree",
+        "sentence_type": "ActionSentence",
+        "lang_hint": plan["lang"],
+        "root": {
+            "label": "S",
+            "children": root_children
+        },
+        "linearization": plan["sequence"],
+        "modifiers": plan["modifiers"]
+    }
+
+    return tree
+}
+
+
+def build_causal_tree(sentence_roles, plan):
+{
+    # sentence_roles: output of realize_causal (CausalSentence)
+    # We build a small tree with a CAUSE_EFFECT node and two children for cause/effect.
+
+    cause_node = {
+        "node": "CauseEvent",
+        "value": sentence_roles["cause_event"],
+        "children": []
+    }
+
+    effect_node = {
+        "node": "EffectEvent",
+        "value": sentence_roles["effect_event"],
+        "children": []
+    }
+
+    root = {
+        "label": "CAUSE_EFFECT",
+        "children": [cause_node, effect_node]
+    }
+
+    tree = {
+        "tree_type": "SentenceTree",
+        "sentence_type": "CausalSentence",
+        "lang_hint": plan["lang"],
+        "root": root,
+        "linearization": plan["sequence"],
+        "modifiers": plan["modifiers"]
+    }
+
+    return tree
+}
+
+
+
+def build_description_tree(sentence_roles, plan):
+{
+    # Symbolic description tree: entity described along an axis with a degree and optional value
+    entity_node = {
+        "node": "Entity",
+        "value": sentence_roles["entity"],
+        "children": []
+    }
+
+    axis_node = {
+        "node": "Axis",
+        "value": sentence_roles["axis"],
+        "children": []
+    }
+
+    degree_node = {
+        "node": "Degree",
+        "value": sentence_roles["degree"],
+        "children": []
+    }
+
+    value_node = {
+        "node": "Value",
+        "value": sentence_roles["value"],
+        "children": []
+    }
+
+    children = [entity_node, axis_node, degree_node, value_node]
+
+    tree = {
+        "tree_type": "SentenceTree",
+        "sentence_type": "DescriptionSentence",
+        "lang_hint": plan["lang"],
+        "root": {
+            "label": "DESCRIPTION",
+            "children": children
+        },
+        "linearization": plan["sequence"],
+        "modifiers": plan["modifiers"]
+    }
+
+    return tree
+}
+
+
+
+def build_intensity_tree(sentence_roles, plan):
+{
+    # Symbolic intensity tree: degree of a value along an axis
+    axis_node = {
+        "node": "Axis",
+        "value": sentence_roles["axis"],
+        "children": []
+    }
+
+    value_node = {
+        "node": "Value",
+        "value": sentence_roles["value"],
+        "children": []
+    }
+
+    degree_node = {
+        "node": "Degree",
+        "value": sentence_roles["degree"],
+        "children": []
+    }
+
+    root = {
+        "label": "INTENSITY",
+        "children": [axis_node, value_node, degree_node]
+    }
+
+    tree = {
+        "tree_type": "SentenceTree",
+        "sentence_type": "IntensitySentence",
+        "lang_hint": plan["lang"],
+        "root": root,
+        "linearization": plan["sequence"],
+        "modifiers": plan["modifiers"]
+    }
+
+    return tree
+}
+
+
+
+def build_tree(sentence_roles, plan):
+{
+    # Generic dispatcher from sentence_roles + surface plan to a symbolic tree
+    stype = sentence_roles["type"]
+
+    if stype == "ActionSentence":
+    {
+        return build_action_tree(sentence_roles, plan)
+    }
+    elif stype == "CausalSentence":
+    {
+        return build_causal_tree(sentence_roles, plan)
+    }
+    elif stype == "DescriptionSentence":
+    {
+        return build_description_tree(sentence_roles, plan)
+    }
+    elif stype == "IntensitySentence":
+    {
+        return build_intensity_tree(sentence_roles, plan)
+    }
+    else:
+    {
+        # Fallback: keep the structure as a shallow tree with a single root
+        return {
+            "tree_type": "SentenceTree",
+            "sentence_type": stype,
+            "lang_hint": plan["lang"],
+            "root": {
+                "label": "S_GENERIC",
+                "children": []
+            },
+            "linearization": plan["sequence"],
+            "modifiers": plan["modifiers"],
+            "raw_roles": sentence_roles
+        }
+    }
+}
+

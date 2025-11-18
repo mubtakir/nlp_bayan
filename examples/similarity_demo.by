@@ -1,0 +1,37 @@
+# مثال تطبيقي: المترادفات/التشابه في بيان
+# يوضح التصريح بالسكر النحوي Head(term:score, ...) والاستخدام داخل hybrid.
+
+# 1) تصاريح مترادفات (تولّد similar/5 + العكس تلقائياً)
+أسد(غضنفر:0.8, هيضم:0.5)
+روح(نفس:0.9, ذات:0.5)
+ذهب(راح:0.8, انطلق:0.6, سار:0.7)
+
+# 2) استعلامات داخل كتلة hybrid
+hybrid {
+  # تحميل قواعد التشابه والعتبات إلى المحرك المنطقي الحالي
+  import bayan.core.similarity as sim
+  sim.load_selective(logical, ["similarity"])  # similar/5, sim_threshold/2, close/3, close/4, synonym/3
+
+  # الاستعلام عن الدرجة المصرّح بها (سيطبع ?S=0.8)
+  query similar("أسد", "غضنفر", ?S, "syn", "lexicon").
+
+  # الاستعلام بالعتبة الافتراضية Kind="syn" (0.7)
+  query close("أسد", "غضنفر", "syn").          # (true)
+  query close("أسد", "هيضم", "syn").            # (no solutions) لأن 0.5 < 0.7
+
+  # الاستعلام بعتبة مخصصة
+  query close("أسد", "هيضم", 0.5, "syn").       # (true)
+  query close("أسد", "هيضم", 0.6, "syn").       # (no solutions)
+
+  # إيجاد كل المترادفات القريبة فوق العتبة الافتراضية
+  query close("أسد", ?كلمة, "syn").               # أمثلة: ?كلمة=غضنفر
+
+  # بناء مجموعة مترادفات برمجياً من سلسلة/قاموس
+  sim.synset("طالب", "تلميذ:0.8, دارس:0.6, متعلم")
+  query close("طالب", ?Y, "syn").                 # أمثلة: ?Y=تلميذ, ?Y=متعلم
+
+  # أمثلة متعددة المجالات (غير معجمية)
+  sim.assert_similar("H2O", "Water", 1.0, kind="alias", domain="chem")
+  query close("H2O", "Water", "alias").          # (true)
+}
+

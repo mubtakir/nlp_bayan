@@ -1069,6 +1069,857 @@ def احتمال_ثلاثي_الكلمات(نموذج, كلمة1, كلمة2, ك�
 def أفضل_التالي_ثلاثي(نموذج, كلمة1, كلمة2, أعلى=3): { return trigram_lm_predict_next(نموذج, كلمة1, كلمة2, أعلى) }
 
 
+# --- Vocabulary building utilities ---
+
+def vocab_build(docs, max_features, min_freq):
+{
+    freq = {}
+    for i in range(len(docs)):
+    {
+        text = docs[i]
+        tokens = tokenize_text(text)
+        for j in range(len(tokens)):
+        {
+            w = normalize_arabic(tokens[j])  # Normalize tokens
+            freq[w] = freq.get(w, 0) + 1
+        }
+    }
+
+    terms = []
+    for w in freq:
+    {
+        if freq[w] >= min_freq:
+        {
+            terms.append(w)
+        }
+    }
+
+    m = len(terms)
+    for i in range(m):
+    {
+        best = i
+        for j in range(i + 1, m):
+        {
+            if freq[terms[j]] > freq[terms[best]]:
+            {
+                best = j
+            }
+        }
+        if best != i:
+        {
+            tmp = terms[i]
+            terms[i] = terms[best]
+            terms[best] = tmp
+        }
+    }
+
+    if len(terms) > max_features:
+    {
+        terms = terms[:max_features]
+    }
+
+    # Add special tokens at the beginning
+    special_tokens = ["PAD", "UNK", "BOS", "EOS"]
+    all_terms = special_tokens + terms
+
+    token_to_id = {}
+    id_to_token = {}
+    for i in range(len(all_terms)):
+    {
+        token_to_id[all_terms[i]] = i
+        id_to_token[i] = all_terms[i]
+    }
+
+    return {
+        "token_to_id": token_to_id,
+        "id_to_token": id_to_token,
+        "vocab_size": len(all_terms),
+        "pad_id": 0,
+        "unk_id": 1,
+        "bos_id": 2,
+        "eos_id": 3
+    }
+}
+
+
+def vocab_encode_tokens(tokens, vocab_obj):
+{
+    # Encode list of tokens to list of IDs using vocab
+    # Apply normalization to match how vocab was built
+    token_to_id = vocab_obj["token_to_id"]
+    unk_id = vocab_obj["unk_id"]
+    ids = []
+    for i in range(len(tokens)):
+    {
+        token = normalize_arabic(tokens[i])  # Normalize before lookup
+        if token in token_to_id:
+        {
+            ids.append(token_to_id[token])
+        }
+        else:
+        {
+            ids.append(unk_id)  # Unknown token
+        }
+    }
+    return ids
+}
+
+
+def vocab_decode_ids(ids, vocab_obj):
+{
+    # Decode list of IDs to list of tokens using vocab
+    id_to_token = vocab_obj["id_to_token"]
+    unk_id = vocab_obj["unk_id"]
+    tokens = []
+    for i in range(len(ids)):
+    {
+        id_val = ids[i]
+        if id_val in id_to_token:
+        {
+            tokens.append(id_to_token[id_val])
+        }
+        else:
+        {
+            tokens.append(id_to_token[unk_id])  # Unknown ID -> UNK token
+        }
+    }
+    return tokens
+}
+
+
+# Arabic aliases
+def بناء_قاموس(docs, max_features, min_freq):
+{
+    return vocab_build(docs, max_features, min_freq)
+}
+
+
+def ترميز_كلمات_بقاموس(tokens, vocab_obj):
+{
+    return vocab_encode_tokens(tokens, vocab_obj)
+}
+
+
+def فك_ترميز_معرفات_بقاموس(ids, vocab_obj):
+{
+    return vocab_decode_ids(ids, vocab_obj)
+}
+
+
+# ============ Co-occurrence Matrix Functions ============
+
+def cooccurrence_build(docs, window_size):
+{
+    # Build co-occurrence matrix from documents
+    # Returns: {vocab: {word: id}, cooc: {word: {context_word: count}}}
+
+    vocab = {}
+    cooc = {}
+    word_id = 0
+
+    # Build vocabulary and co-occurrence counts
+    for i in range(len(docs)):
+    {
+        text = docs[i]
+        tokens = tokenize_text(text)
+
+        # Normalize tokens
+        normalized_tokens = []
+        for j in range(len(tokens)):
+        {
+            normalized_tokens.append(normalize_arabic(tokens[j]))
+        }
+
+        # Add to vocabulary
+        for j in range(len(normalized_tokens)):
+        {
+            word = normalized_tokens[j]
+            if not (word in vocab):
+            {
+                vocab[word] = word_id
+                word_id = word_id + 1
+                cooc[word] = {}
+            }
+        }
+
+        # Count co-occurrences within window
+        for j in range(len(normalized_tokens)):
+        {
+            word = normalized_tokens[j]
+
+            # Look at context words within window
+            start = max(0, j - window_size)
+            end = min(len(normalized_tokens), j + window_size + 1)
+
+            for k in range(start, end):
+            {
+                if k != j:
+                {
+                    context_word = normalized_tokens[k]
+                    if context_word in cooc[word]:
+                    {
+                        cooc[word][context_word] = cooc[word][context_word] + 1
+                    }
+                    else:
+                    {
+                        cooc[word][context_word] = 1
+                    }
+                }
+            }
+        }
+    }
+
+    return {"vocab": vocab, "cooc": cooc}
+}
+
+
+def cooccurrence_vector(model, word):
+{
+    # Get co-occurrence vector for a word
+    # Returns: {context_word: count}
+
+    word_normalized = normalize_arabic(word)
+    cooc = model["cooc"]
+
+    if word_normalized in cooc:
+    {
+        return cooc[word_normalized]
+    }
+    else:
+    {
+        return {}
+    }
+}
+
+
+def cooccurrence_similarity(model, word1, word2):
+{
+    # Compute cosine similarity between two words using co-occurrence vectors
+    # Returns: float in [0, 1]
+
+    v1 = cooccurrence_vector(model, word1)
+    v2 = cooccurrence_vector(model, word2)
+
+    # If either vector is empty, return 0
+    if len(v1) == 0 or len(v2) == 0:
+    {
+        return 0.0
+    }
+
+    # Compute dot product and magnitudes
+    dot_product = 0.0
+    mag1 = 0.0
+    mag2 = 0.0
+
+    # Get all unique context words
+    all_words = {}
+    for w in v1:
+    {
+        all_words[w] = 1
+    }
+    for w in v2:
+    {
+        all_words[w] = 1
+    }
+
+    # Compute dot product and magnitudes
+    for w in all_words:
+    {
+        count1 = v1.get(w, 0)
+        count2 = v2.get(w, 0)
+
+        dot_product = dot_product + (count1 * count2)
+        mag1 = mag1 + (count1 * count1)
+        mag2 = mag2 + (count2 * count2)
+    }
+
+    # Compute cosine similarity
+    if mag1 == 0.0 or mag2 == 0.0:
+    {
+        return 0.0
+    }
+
+    import math
+    similarity = dot_product / (math.sqrt(mag1) * math.sqrt(mag2))
+
+    # Clamp to [0, 1]
+    if similarity < 0.0:
+    {
+        similarity = 0.0
+    }
+    if similarity > 1.0:
+    {
+        similarity = 1.0
+    }
+
+    return similarity
+}
+
+
+# Arabic aliases
+def بناء_تضمين_تلازم(docs, window_size):
+{
+    return cooccurrence_build(docs, window_size)
+}
+
+
+def متجه_تلازم(model, word):
+{
+    return cooccurrence_vector(model, word)
+}
+
+
+def تشابه_تلازم(model, word1, word2):
+{
+    return cooccurrence_similarity(model, word1, word2)
+}
+
+
+# ============ Character N-gram Functions ============
+
+def char_ngram_vocab_build(docs, n, max_features, min_freq):
+{
+    # Build character n-gram vocabulary from documents
+    # Returns: vocab object with token_to_id, id_to_token, pad_id, unk_id, bos_id, eos_id
+
+    freq = {}
+
+    # Extract character n-grams from all documents
+    for i in range(len(docs)):
+    {
+        text = docs[i]
+
+        # Generate character n-grams
+        for j in range(len(text) - n + 1):
+        {
+            ngram = text[j:j+n]
+            freq[ngram] = freq.get(ngram, 0) + 1
+        }
+    }
+
+    # Filter by min_freq
+    filtered = []
+    for ngram in freq:
+    {
+        if freq[ngram] >= min_freq:
+        {
+            filtered.append(ngram)
+        }
+    }
+
+    # Sort by frequency (descending)
+    sorted_ngrams = []
+    for ngram in filtered:
+    {
+        sorted_ngrams.append((ngram, freq[ngram]))
+    }
+
+    # Simple bubble sort by frequency
+    for i in range(len(sorted_ngrams)):
+    {
+        for j in range(i + 1, len(sorted_ngrams)):
+        {
+            if sorted_ngrams[j][1] > sorted_ngrams[i][1]:
+            {
+                temp = sorted_ngrams[i]
+                sorted_ngrams[i] = sorted_ngrams[j]
+                sorted_ngrams[j] = temp
+            }
+        }
+    }
+
+    # Take top max_features
+    terms = []
+    for i in range(min(max_features, len(sorted_ngrams))):
+    {
+        terms.append(sorted_ngrams[i][0])
+    }
+
+    # Add special tokens at the beginning
+    special_tokens = ["PAD", "UNK", "BOS", "EOS"]
+    all_terms = special_tokens + terms
+
+    token_to_id = {}
+    id_to_token = {}
+    for i in range(len(all_terms)):
+    {
+        token_to_id[all_terms[i]] = i
+        id_to_token[i] = all_terms[i]
+    }
+
+    return {
+        "token_to_id": token_to_id,
+        "id_to_token": id_to_token,
+        "vocab_size": len(all_terms),
+        "pad_id": 0,
+        "unk_id": 1,
+        "bos_id": 2,
+        "eos_id": 3
+    }
+}
+
+
+def char_ngram_encode(text, vocab, n):
+{
+    # Encode text as character n-grams using vocab
+    # Returns: list of IDs
+
+    token_to_id = vocab["token_to_id"]
+    unk_id = vocab["unk_id"]
+    ids = []
+
+    # Generate character n-grams
+    for i in range(len(text) - n + 1):
+    {
+        ngram = text[i:i+n]
+
+        if ngram in token_to_id:
+        {
+            ids.append(token_to_id[ngram])
+        }
+        else:
+        {
+            ids.append(unk_id)
+        }
+    }
+
+    return ids
+}
+
+
+# Arabic aliases
+def بناء_قاموس_محارف(docs, n, max_features, min_freq):
+{
+    return char_ngram_vocab_build(docs, n, max_features, min_freq)
+}
+
+
+def ترميز_محارف_بانجرام(text, vocab, n):
+{
+    return char_ngram_encode(text, vocab, n)
+}
+
+
+# ============ Sequence Utility Functions ============
+
+def sequence_add_bos_eos(ids, bos_id, eos_id):
+{
+    # Add BOS and EOS tokens to a sequence
+    # Returns: [bos_id] + ids + [eos_id]
+
+    result = [bos_id]
+    for i in range(len(ids)):
+    {
+        result.append(ids[i])
+    }
+    result.append(eos_id)
+
+    return result
+}
+
+
+def sequence_pad(sequences, pad_id, max_len):
+{
+    # Pad sequences to max_len using pad_id
+    # Returns: list of padded sequences
+
+    padded = []
+
+    for i in range(len(sequences)):
+    {
+        seq = sequences[i]
+        padded_seq = []
+
+        # Copy original sequence
+        for j in range(len(seq)):
+        {
+            padded_seq.append(seq[j])
+        }
+
+        # Pad to max_len
+        while len(padded_seq) < max_len:
+        {
+            padded_seq.append(pad_id)
+        }
+
+        # Truncate if longer than max_len
+        if len(padded_seq) > max_len:
+        {
+            truncated = []
+            for j in range(max_len):
+            {
+                truncated.append(padded_seq[j])
+            }
+            padded_seq = truncated
+        }
+
+        padded.append(padded_seq)
+    }
+
+    return padded
+}
+
+
+def sequence_batch(sequences, batch_size):
+{
+    # Split sequences into batches
+    # Returns: list of batches, where each batch is a list of sequences
+
+    batches = []
+    current_batch = []
+
+    for i in range(len(sequences)):
+    {
+        current_batch.append(sequences[i])
+
+        if len(current_batch) == batch_size:
+        {
+            batches.append(current_batch)
+            current_batch = []
+        }
+    }
+
+    # Add remaining sequences as last batch
+    if len(current_batch) > 0:
+    {
+        batches.append(current_batch)
+    }
+
+    return batches
+}
+
+
+def sequence_cross_entropy_from_log_probs(log_probs):
+{
+    # Compute cross-entropy from log probabilities
+    # CE = -mean(log_probs)
+
+    if len(log_probs) == 0:
+    {
+        return 0.0
+    }
+
+    sum_log_probs = 0.0
+    for i in range(len(log_probs)):
+    {
+        sum_log_probs = sum_log_probs + log_probs[i]
+    }
+
+    return -sum_log_probs / len(log_probs)
+}
+
+
+def sequence_perplexity_from_log_probs(log_probs):
+{
+    # Compute perplexity from log probabilities
+    # PP = exp(CE) = exp(-mean(log_probs))
+
+    ce = sequence_cross_entropy_from_log_probs(log_probs)
+
+    import math
+    return math.exp(ce)
+}
+
+
+# Arabic aliases
+def اضافة_بداية_نهاية_تسلسل(ids, bos_id, eos_id):
+{
+    return sequence_add_bos_eos(ids, bos_id, eos_id)
+}
+
+
+def حشو_تسلسلات(sequences, pad_id, max_len):
+{
+    return sequence_pad(sequences, pad_id, max_len)
+}
+
+
+def دفعات_تسلسلات(sequences, batch_size):
+{
+    return sequence_batch(sequences, batch_size)
+}
+
+
+def انتروبي_تتابع_من_لوغ(log_probs):
+{
+    return sequence_cross_entropy_from_log_probs(log_probs)
+}
+
+
+def بيربلكسيتي_تتابع_من_لوغ(log_probs):
+{
+    return sequence_perplexity_from_log_probs(log_probs)
+}
+
+
+# ============ Language Model Preparation Functions ============
+
+def lm_prepare_id_sequences(docs, vocab):
+{
+    # Prepare ID sequences from documents for language modeling
+    # Returns: list of ID sequences (with BOS/EOS)
+
+    bos_id = vocab["bos_id"]
+    eos_id = vocab["eos_id"]
+
+    sequences = []
+
+    for i in range(len(docs)):
+    {
+        text = docs[i]
+        tokens = tokenize_text(text)
+        ids = vocab_encode_tokens(tokens, vocab)
+        seq = sequence_add_bos_eos(ids, bos_id, eos_id)
+        sequences.append(seq)
+    }
+
+    return sequences
+}
+
+
+def lm_make_input_target(seqs):
+{
+    # Create input/target pairs from sequences for language modeling
+    # For each sequence, input is seq[:-1] and target is seq[1:]
+    # Returns: {inputs: [...], targets: [...]}
+
+    inputs = []
+    targets = []
+
+    for i in range(len(seqs)):
+    {
+        seq = seqs[i]
+
+        if len(seq) < 2:
+        {
+            # Skip sequences that are too short
+            continue
+        }
+
+        # Input is all tokens except last
+        input_seq = []
+        for j in range(len(seq) - 1):
+        {
+            input_seq.append(seq[j])
+        }
+
+        # Target is all tokens except first
+        target_seq = []
+        for j in range(1, len(seq)):
+        {
+            target_seq.append(seq[j])
+        }
+
+        inputs.append(input_seq)
+        targets.append(target_seq)
+    }
+
+    return {"inputs": inputs, "targets": targets}
+}
+
+
+def bigram_lm_text_log_probs(model, text):
+{
+    # Get log probabilities for each bigram in text
+    # Returns: list of log probabilities
+
+    tokens = tokenize_text(text)
+    if len(tokens) < 2:
+    {
+        return []
+    }
+
+    log_probs = []
+
+    for i in range(len(tokens) - 1):
+    {
+        w1 = tokens[i]
+        w2 = tokens[i + 1]
+        prob = bigram_lm_probability(model, w1, w2)
+
+        import math
+        if prob > 0.0:
+        {
+            log_probs.append(math.log(prob))
+        }
+        else:
+        {
+            # Use a very small probability for zero probabilities
+            log_probs.append(math.log(0.0000000001))
+        }
+    }
+
+    return log_probs
+}
+
+
+def trigram_lm_text_log_probs(model, text):
+{
+    # Get log probabilities for each trigram in text
+    # Returns: list of log probabilities
+
+    tokens = tokenize_text(text)
+    if len(tokens) < 3:
+    {
+        return []
+    }
+
+    log_probs = []
+
+    for i in range(len(tokens) - 2):
+    {
+        w1 = tokens[i]
+        w2 = tokens[i + 1]
+        w3 = tokens[i + 2]
+        prob = trigram_lm_probability(model, w1, w2, w3)
+
+        import math
+        if prob > 0.0:
+        {
+            log_probs.append(math.log(prob))
+        }
+        else:
+        {
+            # Use a very small probability for zero probabilities
+            log_probs.append(math.log(0.0000000001))
+        }
+    }
+
+    return log_probs
+}
+
+
+# Arabic aliases for LM functions
+def تتابعات_معرفات_من_نصوص(docs, vocab):
+{
+    return lm_prepare_id_sequences(docs, vocab)
+}
+
+
+def مدخلات_اهداف_من_تتابعات(seqs):
+{
+    return lm_make_input_target(seqs)
+}
+
+
+def لوغ_احتمالات_ثنائي_من_نص(model, text):
+{
+    return bigram_lm_text_log_probs(model, text)
+}
+
+
+def انتروبي_ثنائي_من_نص(model, text):
+{
+    return bigram_lm_cross_entropy(model, text)
+}
+
+
+def بيربلكسيتي_ثنائي_من_نص(model, text):
+{
+    return bigram_lm_perplexity(model, text)
+}
+
+
+def لوغ_احتمالات_ثلاثي_من_نص(model, text):
+{
+    return trigram_lm_text_log_probs(model, text)
+}
+
+
+def انتروبي_ثلاثي_من_نص(model, text):
+{
+    return trigram_lm_cross_entropy(model, text)
+}
+
+
+def بيربلكسيتي_ثلاثي_من_نص(model, text):
+{
+    return trigram_lm_perplexity(model, text)
+}
+
+
+def bigram_lm_cross_entropy(model, text):
+{
+    tokens = tokenize_text(text)
+    if len(tokens) < 2:
+    {
+        return 0.0
+    }
+
+    log_prob_sum = 0.0
+    count = 0
+
+    for i in range(len(tokens) - 1):
+    {
+        w1 = tokens[i]
+        w2 = tokens[i + 1]
+        prob = bigram_lm_probability(model, w1, w2)
+        if prob > 0:
+        {
+            import math
+            log_prob_sum = log_prob_sum + math.log(prob)
+            count = count + 1
+        }
+    }
+
+    if count == 0:
+    {
+        return 0.0
+    }
+
+    return -log_prob_sum / count
+}
+
+
+def bigram_lm_perplexity(model, text):
+{
+    ce = bigram_lm_cross_entropy(model, text)
+    import math
+    return math.exp(ce)
+}
+
+
+def trigram_lm_cross_entropy(model, text):
+{
+    tokens = tokenize_text(text)
+    if len(tokens) < 3:
+    {
+        return 0.0
+    }
+
+    log_prob_sum = 0.0
+    count = 0
+
+    for i in range(len(tokens) - 2):
+    {
+        w1 = tokens[i]
+        w2 = tokens[i + 1]
+        w3 = tokens[i + 2]
+        prob = trigram_lm_probability(model, w1, w2, w3)
+        if prob > 0:
+        {
+            import math
+            log_prob_sum = log_prob_sum + math.log(prob)
+            count = count + 1
+        }
+    }
+
+    if count == 0:
+    {
+        return 0.0
+    }
+
+    return -log_prob_sum / count
+}
+
+
+def trigram_lm_perplexity(model, text):
+{
+    ce = trigram_lm_cross_entropy(model, text)
+    import math
+    return math.exp(ce)
+}
+
 
 # --- Wave 7: BM25, Jaccard, vocab-limited TF-IDF ---
 
@@ -1803,7 +2654,7 @@ def bm25_top_k(model, qtext, k=5):
 
 def تشابه_جيبي_TFIDF(نص1, نص2): { return tfidf_cosine_similarity(نص1, نص2) }
 
-def أفضل_BM25(نموذج, استعلام, ك=5): { return bm25_top_k(نموذج, استعلام, ك) }
+def أفضل_BM25(نموذج, نص_استعلام, ك=5): { return bm25_top_k(نموذج, نص_استعلام, ك) }
 
 
 # --- Wave 14: LCS and Jaccard over character n-grams ---

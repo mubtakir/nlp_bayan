@@ -1,10 +1,10 @@
 hybrid {
-  # Entities and initial setup
-  entity Ahmed { "states": {"happy": {"type":"fuzzy","value":0.3}},
-                 "properties": {"x": {"type":"numeric","value":0.0}},
-                 "actions": {"go": {"effects":[{"on":"x","formula":"value + sensitivity"}]}} }
-  entity Ali   { "states": {"happy": {"type":"fuzzy","value":0.6}},
-                 "properties": {"x": {"type":"numeric","value":1.0}} }
+  # Entities and initial setup (using new unified syntax)
+  entity Ahmed { states: {"happy": {"type":"fuzzy","value":0.3}},
+                 properties: {"x": {"type":"numeric","value":0.0}},
+                 actions: {"go": {"effects":[{"on":"x","formula":"value + sensitivity"}]}} }
+  entity Ali   { states: {"happy": {"type":"fuzzy","value":0.6}},
+                 properties: {"x": {"type":"numeric","value":1.0}} }
 
   # Equations: opposites for mood
   define_opposites("Ahmed", "state", "happy", "sad", 1.0)

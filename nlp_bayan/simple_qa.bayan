@@ -1,0 +1,97 @@
+# ============================================
+# نظام سؤال وجواب بسيط - Simple Q&A System
+# ============================================
+
+# دالة: تحليل سؤال "ما هو"
+def parse_what_is(question):
+{
+    # "ما هو X؟" -> استخرج X
+    if question.startswith("ما هو "):
+    {
+        # استخرج الموضوع
+        parts = question.split(" ")
+        if len(parts) >= 3:
+        {
+            subject = parts[2]
+            # إزالة ؟ إن وجدت
+            subject = subject.replace("؟", "")
+            return subject
+        }
+    }
+    return None
+}
+
+# دالة: تحليل سؤال "هل"
+def parse_yes_no(question):
+{
+    # "هل X Y؟" -> استخرج X و Y
+    if question.startswith("هل "):
+    {
+        # استخرج الباقي
+        rest = question.replace("هل ", "")
+        rest = rest.replace("؟", "")
+        return rest
+    }
+    return None
+}
+
+# دالة: الإجابة على سؤال
+def answer_question(kb_module, inference_module, question):
+{
+    # حاول "ما هو"
+    subject = parse_what_is(question)
+    if subject != None:
+    {
+        # ابحث في القاعدة
+        answer = kb_module.find_fact(subject, "هو")
+        
+        if answer != None:
+        {
+            return answer
+        }
+        
+        # حاول الاستدلال
+        inferred = inference_module.infer(kb_module, subject)
+        if len(inferred) > 0:
+        {
+            return inferred[0]
+        }
+        
+        return "لا أعرف"
+    }
+    
+    # حاول "هل"
+    yn_query = parse_yes_no(question)
+    if yn_query != None:
+    {
+        # بحث بسيط
+        parts = yn_query.split(" ")
+        if len(parts) >= 2:
+        {
+            subj = parts[0]
+            pred = parts[1]
+            answer = kb_module.find_fact(subj, pred)
+            if answer != None:
+            {
+                return "نعم، " + answer
+            }
+        }
+        return "لا أعرف"
+    }
+    
+    return "لم أفهم السؤال"
+}
+
+# دالة: تقييم الإجابة
+def rate_answer(question, answer, rating):
+{
+    if rating > 0.7:
+    {
+        return "شكراً! سأتذكر هذا النمط"
+    }
+    else:
+    {
+        return "سأحاول التحسن"
+    }
+}
+

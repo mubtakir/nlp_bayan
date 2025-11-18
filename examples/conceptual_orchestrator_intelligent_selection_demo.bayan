@@ -1,0 +1,152 @@
+# Demo: Intelligent Program Selection in Orchestrator
+# This example demonstrates how the orchestrator intelligently selects
+# between multiple programs for the same domain based on preferences.
+
+import ai.conceptual_orchestrator as orchestrator
+
+print("=" * 70)
+print("Conceptual Orchestrator: Intelligent Program Selection Demo")
+print("=" * 70)
+print("")
+
+# Test 1: Same domain, different focus preferences
+print("Test 1: Education domain with different focus")
+print("-" * 70)
+
+# Request 1a: Education with balanced focus (default)
+control_msg_1a = {
+    "domain": "education",
+    "preferred_settings": {
+        "focus": "balanced"
+    }
+}
+
+result_1a = orchestrator.dispatch_request(control_msg_1a)
+print("Request: education + balanced focus")
+print("  Selected program:", result_1a["selected_program"])
+print("  Description:", result_1a["program_description"])
+print("")
+
+# Request 1b: Education with causal focus
+control_msg_1b = {
+    "domain": "education",
+    "preferred_settings": {
+        "focus": "causal"
+    }
+}
+
+result_1b = orchestrator.dispatch_request(control_msg_1b)
+print("Request: education + causal focus")
+print("  Selected program:", result_1b["selected_program"])
+print("  Description:", result_1b["program_description"])
+print("")
+
+# Test 2: Same domain, different time_horizon preferences
+print("Test 2: Health domain with different time horizons")
+print("-" * 70)
+
+# Request 2a: Health with medium-term horizon
+control_msg_2a = {
+    "domain": "health",
+    "preferred_settings": {
+        "time_horizon": "medium_term"
+    }
+}
+
+result_2a = orchestrator.dispatch_request(control_msg_2a)
+print("Request: health + medium_term")
+print("  Selected program:", result_2a["selected_program"])
+print("  Description:", result_2a["program_description"])
+print("")
+
+# Request 2b: Health with short-term horizon
+control_msg_2b = {
+    "domain": "health",
+    "preferred_settings": {
+        "time_horizon": "short_term"
+    }
+}
+
+result_2b = orchestrator.dispatch_request(control_msg_2b)
+print("Request: health + short_term")
+print("  Selected program:", result_2b["selected_program"])
+print("  Description:", result_2b["program_description"])
+print("")
+
+# Test 3: Social domain with different focus
+print("Test 3: Social domain with different focus")
+print("-" * 70)
+
+# Request 3a: Social with balanced focus
+control_msg_3a = {
+    "domain": "social",
+    "preferred_settings": {
+        "focus": "balanced"
+    }
+}
+
+result_3a = orchestrator.dispatch_request(control_msg_3a)
+print("Request: social + balanced focus")
+print("  Selected program:", result_3a["selected_program"])
+print("  Description:", result_3a["program_description"])
+print("")
+
+# Request 3b: Social with temporal focus
+control_msg_3b = {
+    "domain": "social",
+    "preferred_settings": {
+        "focus": "temporal"
+    }
+}
+
+result_3b = orchestrator.dispatch_request(control_msg_3b)
+print("Request: social + temporal focus")
+print("  Selected program:", result_3b["selected_program"])
+print("  Description:", result_3b["program_description"])
+print("")
+
+# Test 4: Multiple preferences combined
+print("Test 4: Multiple preferences combined")
+print("-" * 70)
+
+control_msg_4 = {
+    "domain": "health",
+    "preferred_settings": {
+        "time_horizon": "short_term",
+        "focus": "uncertainty",
+        "scenario_variant": "negative"
+    }
+}
+
+result_4 = orchestrator.dispatch_request(control_msg_4)
+print("Request: health + short_term + uncertainty + negative")
+print("  Selected program:", result_4["selected_program"])
+print("  Description:", result_4["program_description"])
+print("  Settings applied:", result_4["settings"])
+print("")
+
+# Test 5: Explicit program_id overrides preferences
+print("Test 5: Explicit program_id overrides preferences")
+print("-" * 70)
+
+control_msg_5 = {
+    "program_id": "medical_treatment",
+    "preferred_settings": {
+        "time_horizon": "short_term"
+    }
+}
+
+result_5 = orchestrator.dispatch_request(control_msg_5)
+print("Request: explicit program_id='medical_treatment' (ignores short_term pref)")
+print("  Selected program:", result_5["selected_program"])
+print("  Description:", result_5["program_description"])
+print("")
+
+print("=" * 70)
+print("Summary:")
+print("  - Orchestrator now supports multiple programs per domain")
+print("  - Selection is based on scoring: domain + intent + preferences")
+print("  - Explicit program_id always has highest priority")
+print("  - Preferences (focus, time_horizon) influence selection")
+print("=" * 70)
+

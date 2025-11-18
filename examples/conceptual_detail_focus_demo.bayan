@@ -1,0 +1,162 @@
+# Demo: Testing detail_level and focus parameters in Conceptual Programs
+# This example demonstrates how detail_level and focus control the complexity
+# and emphasis of generated conceptual traces.
+
+import ai.conceptual_orchestrator as orchestrator
+
+print("=" * 60)
+print("Conceptual Programs: detail_level & focus Demo")
+print("=" * 60)
+print("")
+
+# Test 1: Low detail level (minimal circuits)
+print("Test 1: Low detail level")
+print("-" * 60)
+
+control_msg_low = {
+    "program_id": "student_study",
+    "detail_level": "low",
+    "scenario_variant": "neutral",
+    "time_horizon": "medium_term",
+    "focus": "balanced"
+}
+
+result_low = orchestrator.dispatch_request(control_msg_low)
+trace_low = result_low["trace"]
+components_low = result_low["components"]
+
+print("Components generated (low detail):")
+for key in components_low:
+{
+    print("  - " + key)
+}
+print("Total components:", len(components_low))
+print("")
+
+# Test 2: Medium detail level (standard circuits)
+print("Test 2: Medium detail level")
+print("-" * 60)
+
+control_msg_medium = {
+    "program_id": "student_study",
+    "detail_level": "medium",
+    "scenario_variant": "neutral",
+    "time_horizon": "medium_term",
+    "focus": "balanced"
+}
+
+result_medium = orchestrator.dispatch_request(control_msg_medium)
+components_medium = result_medium["components"]
+
+print("Components generated (medium detail):")
+for key in components_medium:
+{
+    print("  - " + key)
+}
+print("Total components:", len(components_medium))
+print("")
+
+# Test 3: High detail level (all circuits)
+print("Test 3: High detail level")
+print("-" * 60)
+
+control_msg_high = {
+    "program_id": "student_study",
+    "detail_level": "high",
+    "scenario_variant": "neutral",
+    "time_horizon": "medium_term",
+    "focus": "balanced"
+}
+
+result_high = orchestrator.dispatch_request(control_msg_high)
+components_high = result_high["components"]
+
+print("Components generated (high detail):")
+for key in components_high:
+{
+    print("  - " + key)
+}
+print("Total components:", len(components_high))
+print("")
+
+# Test 4: Focus on causal links
+print("Test 4: Focus on causal links")
+print("-" * 60)
+
+control_msg_causal = {
+    "program_id": "medical_treatment",
+    "detail_level": "medium",
+    "scenario_variant": "neutral",
+    "time_horizon": "medium_term",
+    "focus": "causal"
+}
+
+result_causal = orchestrator.dispatch_request(control_msg_causal)
+trace_causal = result_causal["trace"]
+
+print("Causal links in trace:")
+if "causal_links" in trace_causal:
+{
+    causal_links = trace_causal["causal_links"]
+    print("  Total causal links:", len(causal_links))
+}
+else:
+{
+    print("  No causal_links field in trace")
+}
+print("")
+
+# Test 5: Focus on temporal sequences
+print("Test 5: Focus on temporal sequences")
+print("-" * 60)
+
+control_msg_temporal = {
+    "program_id": "social_relationship",
+    "detail_level": "medium",
+    "scenario_variant": "neutral",
+    "time_horizon": "medium_term",
+    "focus": "temporal"
+}
+
+result_temporal = orchestrator.dispatch_request(control_msg_temporal)
+components_temporal = result_temporal["components"]
+
+print("Components with temporal focus:")
+for key in components_temporal:
+{
+    print("  - " + key)
+}
+print("Total components:", len(components_temporal))
+print("")
+
+# Test 6: Focus on uncertainty
+print("Test 6: Focus on uncertainty")
+print("-" * 60)
+
+control_msg_uncertain = {
+    "program_id": "daily_decision",
+    "detail_level": "low",
+    "scenario_variant": "neutral",
+    "time_horizon": "short_term",
+    "focus": "uncertainty"
+}
+
+result_uncertain = orchestrator.dispatch_request(control_msg_uncertain)
+components_uncertain = result_uncertain["components"]
+
+print("Components with uncertainty focus:")
+for key in components_uncertain:
+{
+    print("  - " + key)
+}
+print("Total components:", len(components_uncertain))
+print("Note: Even with low detail, uncertainty focus adds uncertain circuits")
+print("")
+
+print("=" * 60)
+print("Summary:")
+print("  - detail_level controls how many circuits are included")
+print("  - focus emphasizes specific aspects (causal/temporal/uncertainty)")
+print("  - Both parameters work together to shape the output")
+print("=" * 60)
+

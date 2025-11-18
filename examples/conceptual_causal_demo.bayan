@@ -1,0 +1,185 @@
+# مثال تجريدي ثان لربط أنماط السببية والوصف والشدة مع الجسر اللغوي
+# Abstract causal conceptual_trace → causal/description/intensity patterns → language bridge
+
+hybrid {
+    import ai.conceptual_blueprints as blueprints
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+
+
+
+    # 1) trace تصوري تجريدي مع روابط سببية ومحور أضداد
+    causal_trace = {
+        "entities": [
+            {
+                "id": "Entity_C",
+                "kind": "generic_entity",
+                "domain": "abstract_domain"
+            },
+            {
+                "id": "Entity_D",
+                "kind": "generic_entity",
+                "domain": "abstract_domain"
+            }
+        ],
+        "events": [
+            {
+                "id": "Event_Cause",
+                "action": "AbstractCauseAction",
+                "actors": ["Entity_C"],
+                "targets": ["Entity_D"],
+                "intensity": 0.9
+            },
+            {
+                "id": "Event_Effect",
+                "action": "AbstractEffectAction",
+                "actors": ["Entity_D"],
+                "targets": [],
+                "intensity": 0.6
+            }
+        ],
+        "causal_links": [
+            {
+                "cause": "Event_Cause",
+                "effect": "Event_Effect",
+                "strength": 0.8,
+                "prob": 0.75
+            }
+        ],
+        "states": [
+            {
+                "entity_id": "Entity_D",
+                "name": "AbstractAxis",
+                "value": 0.7
+            }
+        ],
+        "meta": {
+            "source": "abstract_causal_example",
+            "confidence": 0.88
+        }
+    }
+
+    print("==== Causal demo: loaded conceptual blueprints via DSL ====")
+    registry = blueprints._conceptual_blueprints
+    print("Number of blueprints:", len(registry))
+    print("Blueprint names:", list(registry.keys()))
+    print("")
+
+    # 2) تعبئة أدوار Basic_Cause_Effect من trace بشكل رمزي مبسط
+    basic_cause_roles = {
+        "CauseEvent": "Event_Cause",
+        "EffectEvent": "Event_Effect",
+        "Strength": 0.8,
+        "Context": "AbstractContext"
+    }
+
+    print("==== Roles for Basic_Cause_Effect ====")
+    print(basic_cause_roles)
+    print("")
+
+    # 3) تعبئة أدوار Probabilistic_Causation بشكل رمزي
+    probabilistic_roles = {
+        "CauseEvent": "Event_Cause",
+        "EffectEvent": "Event_Effect",
+        "CausalStrength": 0.8,
+        "ConditionalProb": 0.75
+    }
+
+    print("==== Roles for Probabilistic_Causation ====")
+    print(probabilistic_roles)
+    print("")
+
+    # 4) تعبئة أدوار OppositesAxisTemplate لمحور تجريدي
+    opposites_roles = {
+        "Axis": "AbstractAxis",
+        "Positive": "PositivePole",
+        "Negative": "NegativePole",
+        "Value": 0.7,
+        "Degree": "HighDegree"
+    }
+
+    print("==== Roles for OppositesAxisTemplate ====")
+    print(opposites_roles)
+    print("")
+
+    # 5) بناء هياكل الجسر اللغوي للأنماط الجديدة
+    causal_sentence_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": {
+            "CauseEvent": basic_cause_roles["CauseEvent"],
+            "EffectEvent": basic_cause_roles["EffectEvent"],
+            "Strength": basic_cause_roles["Strength"],
+            "Probability": probabilistic_roles["ConditionalProb"],
+            "Context": basic_cause_roles["Context"]
+        }
+    }
+
+    description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": "Entity_D",
+            "Axis": opposites_roles["Axis"],
+            "Degree": opposites_roles["Degree"],
+            "Value": opposites_roles["Value"]
+        }
+    }
+
+    intensity_structure = {
+        "pattern": "IntensityPattern",
+        "slots": {
+            "Axis": opposites_roles["Axis"],
+            "Value": opposites_roles["Value"],
+            "Degree": opposites_roles["Degree"]
+        }
+    }
+
+    print("==== Abstract language-bridge structures (causal, description, intensity) ====")
+    print("CausalSentencePattern →", causal_sentence_structure)
+    print("DescriptionPattern →", description_structure)
+    print("IntensityPattern →", intensity_structure)
+    print("")
+
+    # 6) تحقيق الجمل الرمزية عبر conceptual_language_bridge
+    realized_causal = lang_bridge.realize(causal_sentence_structure)
+    realized_description = lang_bridge.realize(description_structure)
+    realized_intensity = lang_bridge.realize(intensity_structure)
+
+    print("==== Symbolic sentence-level roles (realized) ====")
+    print("Realized CausalSentence:", realized_causal)
+    print("Realized DescriptionSentence:", realized_description)
+    print("Realized IntensitySentence:", realized_intensity)
+    print("")
+
+    # 7) اختياري: تخطيط سطحي رمزي بسيط للجملة السببية في منظور انجليزي وعربي
+    print("==== Optional symbolic surface plans for CausalSentence (no real words) ====")
+    plan_causal_en = surface_planner.plan_surface(realized_causal, "english")
+    plan_causal_ar = surface_planner.plan_surface(realized_causal, "arabic")
+
+
+    # 8) بناء شجرة جملة رمزية للجملة السببية فوق الخطة السطحية
+    tree_causal_en = sentence_tree.build_tree(realized_causal, plan_causal_en)
+    tree_causal_ar = sentence_tree.build_tree(realized_causal, plan_causal_ar)
+    print("Symbolic causal sentence tree (EN viewpoint):", tree_causal_en)
+    print("Symbolic causal sentence tree (AR viewpoint):", tree_causal_ar)
+
+
+
+    # 9) طبقة التوليد السطحي الرمزية فوق شجرة الجملة السببية
+    print("==== 7) Surface realizations for CausalSentence (tokens + pseudo-text) ====")
+    surface_causal_en = surface_realizer.realize_from_sentence_tree(tree_causal_en, "neutral")
+    surface_causal_ar = surface_realizer.realize_from_sentence_tree(tree_causal_ar, "neutral")
+    tokens_causal_en = surface_realizer.realization_to_token_strings(surface_causal_en)
+    tokens_causal_ar = surface_realizer.realization_to_token_strings(surface_causal_ar)
+    text_causal_en = surface_realizer.realization_to_text(surface_causal_en)
+    text_causal_ar = surface_realizer.realization_to_text(surface_causal_ar)
+    print("EN causal surface tokens:", tokens_causal_en)
+    print("EN causal surface text:", text_causal_en)
+    print("AR causal surface tokens:", tokens_causal_ar)
+    print("AR causal surface text:", text_causal_ar)
+
+    print("EN plan for CausalSentence:", plan_causal_en)
+    print("AR plan for CausalSentence:", plan_causal_ar)
+}
+

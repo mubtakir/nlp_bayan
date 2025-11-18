@@ -1,0 +1,89 @@
+# Demo: Natural language → control-message → orchestrator
+# This demo shows how simple Arabic/English commands can be mapped
+# into structured control messages, then passed to the conceptual
+# orchestrator to run the appropriate meaning program.
+
+hybrid {
+    import ai.conceptual_nl_mapper as nl_mapper
+    import ai.conceptual_orchestrator as orchestrator
+
+    # Summarize the conceptual trace in a compact way: whether it has
+    # entities/events/causal_links and rough counts when available.
+    def summarize_trace(trace):
+    {
+        has_entities = "entities" in trace
+        has_events = "events" in trace
+        has_causal = "causal_links" in trace
+
+        count_entities = 0
+        count_events = 0
+        count_causal = 0
+
+        if has_entities:
+        {
+            count_entities = len(trace["entities"])
+        }
+        if has_events:
+        {
+            count_events = len(trace["events"])
+        }
+        if has_causal:
+        {
+            count_causal = len(trace["causal_links"])
+        }
+
+        print("Trace summary:")
+        print("  has entities:", has_entities, "count:", count_entities)
+        print("  has events  :", has_events, "count:", count_events)
+        print("  has causal  :", has_causal, "count:", count_causal)
+    }
+
+    # Run a single natural-language command through the mapper and
+    # orchestrator, then print a small report.
+    def run_text(text):
+    {
+        print("===== Input text =====")
+        print(text)
+
+        msg = nl_mapper.map_text_to_control_message(text)
+        print("Mapped control message:")
+        print(msg)
+
+        result = orchestrator.dispatch_request(msg)
+        print("Selected program ok =", result["ok"])
+
+        if not result["ok"]:
+        {
+            print("No matching program for this message.")
+            print("")
+            return
+        }
+
+        print("Selected program id:", result["selected_program"])
+        print("Program description:", result["program_description"])
+
+        if "settings" in result:
+        {
+            print("Control settings (detail_level, languages, perspective, focus, scenario_variant, time_horizon):")
+            print(result["settings"])
+        }
+
+        summarize_trace(result["trace"])
+        print("")
+    }
+
+    # Example inputs (Arabic / English) that should hit the three
+    # meaning programs with different control settings inferred
+    # from the wording.
+
+    text1 = "أريد سيناريو عن طالب يذاكر ويتحسن مستواه بالتفصيل وبالعربية والإنجليزية."
+    text2 = "اعطني وصفاً سريعاً مختصراً لعلاج مريض يتناول دواء."
+    text3 = "Give me a brief scenario about an investor making an investment."
+    text4 = "اشرح لي أسباب تحسن مستوى الطالب بالتفصيل وبالعربية فقط."
+
+    run_text(text1)
+    run_text(text2)
+    run_text(text3)
+    run_text(text4)
+}
+

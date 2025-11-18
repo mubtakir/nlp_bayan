@@ -1,0 +1,224 @@
+# Conceptual surface planner for symbolic sentence roles
+# This module stays fully symbolic: no concrete lexical items, only roles and order.
+
+
+def plan_action_sentence(sent, lang="abstract"):
+{
+    # Decide canonical order based on a very coarse language hint
+    if lang == "english":
+    {
+        # Simple SVO: Subject → Predicate → Object
+        order = ["Subject", "Predicate", "Object"]
+    }
+    elif lang == "arabic":
+    {
+        # Simple VSO: Predicate → Subject → Object
+        order = ["Predicate", "Subject", "Object"]
+    }
+    else:
+    {
+        # Default to SVO-like ordering
+        order = ["Subject", "Predicate", "Object"]
+    }
+
+    seq = []
+    for i in range(len(order)):
+    {
+        slot = order[i]
+        if slot == "Subject":
+        {
+            seq.append({"slot": "Subject", "value": sent["subject"]})
+        }
+        elif slot == "Predicate":
+        {
+            seq.append({"slot": "Predicate", "value": sent["predicate"]})
+        }
+        elif slot == "Object":
+        {
+            seq.append({"slot": "Object", "value": sent["object"]})
+        }
+    }
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "ActionSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {
+            "intensity": sent["intensity"],
+            "context": sent["context"]
+        }
+    }
+}
+
+
+
+def plan_state_change_sentence(sent, lang="abstract"):
+{
+    # Order is language-neutral here: entity then axis then change
+    seq = []
+    seq.append({"slot": "Entity", "value": sent["entity"]})
+    seq.append({"slot": "PropertyAxis", "value": sent["property_axis"]})
+    # Represent the change as a grouped value
+    seq.append({
+        "slot": "ValueChange",
+        "value": {
+            "before_value": sent["before_value"],
+            "after_value": sent["after_value"],
+            "delta": sent["delta"]
+        }
+    })
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "StateChangeSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {
+            "context": sent["context"]
+        }
+    }
+}
+
+
+
+def plan_uncertainty_sentence(sent, lang="abstract"):
+{
+    seq = []
+    seq.append({"slot": "Content", "value": sent["content"]})
+    # Treat degree as a modifier, but keep also a token-level view if needed
+    seq.append({"slot": "Degree", "value": sent["degree"]})
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "UncertaintySentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {}
+    }
+}
+
+
+# --- Causal sentence surface planning ---
+
+def plan_causal_sentence(sent, lang="abstract"):
+{
+    # Represent cause–effect order with an abstract connector token
+    seq = []
+
+    if lang == "english":
+    {
+        # CAUSE → CONNECTIVE → EFFECT
+        seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
+        seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
+        seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
+    }
+    elif lang == "arabic":
+    {
+        # (Illustrative) EFFECT ← CONNECTIVE ← CAUSE
+        seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
+        seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
+        seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
+    }
+    else:
+    {
+        seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
+        seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
+        seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
+    }
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "CausalSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {
+            "strength": sent["strength"],
+            "probability": sent["probability"],
+            "context": sent["context"]
+        }
+    }
+}
+
+
+
+def plan_description_sentence(sent, lang="abstract"):
+{
+    seq = []
+    seq.append({"slot": "Entity", "value": sent["entity"]})
+    seq.append({"slot": "Axis", "value": sent["axis"]})
+    seq.append({"slot": "Degree", "value": sent["degree"]})
+    seq.append({"slot": "Value", "value": sent["value"]})
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "DescriptionSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {}
+    }
+}
+
+
+
+def plan_intensity_sentence(sent, lang="abstract"):
+{
+    seq = []
+    seq.append({"slot": "Axis", "value": sent["axis"]})
+    seq.append({"slot": "Value", "value": sent["value"]})
+    seq.append({"slot": "Degree", "value": sent["degree"]})
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "IntensitySentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {}
+    }
+}
+
+
+
+
+
+def plan_surface(sentence_roles, lang="abstract"):
+{
+    stype = sentence_roles["type"]
+    if stype == "ActionSentence":
+    {
+        return plan_action_sentence(sentence_roles, lang)
+    }
+    elif stype == "StateChangeSentence":
+    {
+        return plan_state_change_sentence(sentence_roles, lang)
+    }
+    elif stype == "UncertaintySentence":
+    {
+        return plan_uncertainty_sentence(sentence_roles, lang)
+    }
+    elif stype == "CausalSentence":
+    {
+        return plan_causal_sentence(sentence_roles, lang)
+    }
+    elif stype == "DescriptionSentence":
+    {
+        return plan_description_sentence(sentence_roles, lang)
+    }
+    elif stype == "IntensitySentence":
+    {
+        return plan_intensity_sentence(sentence_roles, lang)
+    }
+    else:
+    {
+        # Unknown type: keep it as a passthrough symbolic container
+        return {
+            "plan_type": "SurfacePlan",
+            "sentence_type": stype,
+            "lang": lang,
+            "sequence": [],
+            "modifiers": {},
+            "raw": sentence_roles
+        }
+    }
+}
+

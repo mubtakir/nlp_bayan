@@ -1,0 +1,385 @@
+# Conceptual blueprint patterns for the conceptual LM layer
+# NOTE: This module only declares general, domain-agnostic patterns.
+#       It does not instantiate any concrete entities or events.
+
+تصور_عام Generic_Interaction_Event {
+    نوع: "EventPattern"
+    أدوار: {
+        "Actor":       { "kind": "entity" },
+        "Target":      { "kind": "entity", "optional": True },
+        "ActionKind":  { "kind": "action" },
+        "Instrument":  { "kind": "entity", "optional": True },
+        "Context":     { "kind": "context" },
+        "Probability": { "kind": "scalar" }
+    }
+    شروط: {
+        "requires_event": True,
+        "min_participants": 1
+    }
+    بنية: {
+        "actor_role":       "Actor",
+        "target_role":      "Target",
+        "action_role":      "ActionKind",
+        "instrument_role":  "Instrument",
+        "context_role":     "Context",
+        "probability_role": "Probability"
+    }
+    خرائط_أثر: {
+        "source_collection": "events",
+        "actor_field":       "actors",
+        "target_field":      "targets"
+    }
+    قوالب_لغوية: ["ActionSentencePattern"]
+}
+
+تصور_عام State_Change_Template {
+    نوع: "StatePattern"
+    أدوار: {
+        "Entity":       { "kind": "entity" },
+        "PropertyAxis": { "kind": "axis" },
+        "BeforeValue":  { "kind": "value", "range": [0, 1] },
+        "AfterValue":   { "kind": "value", "range": [0, 1] },
+        "Delta":        { "kind": "derived" },
+        "Context":      { "kind": "context" },
+        "CauseEvent":   { "kind": "event", "optional": True }
+    }
+    شروط: {
+        "requires_transform": True,
+        "require_axis_definition": True
+    }
+    بنية: {
+        "entity_role":       "Entity",
+        "property_role":     "PropertyAxis",
+        "before_role":       "BeforeValue",
+        "after_role":        "AfterValue",
+        "delta_role":        "Delta",
+        "context_role":      "Context",
+        "cause_event_role":  "CauseEvent"
+    }
+    خرائط_أثر: {
+        "source_collection": "transforms",
+        "entity_ref":        "transforms[k].entity_id",
+        "property_ref":      "transforms[k].state_name",
+        "before_ref":        "transforms[k].before",
+        "after_ref":         "transforms[k].after"
+    }
+    قوالب_لغوية: ["StateChangeSentencePattern"]
+}
+
+تصور_عام Basic_Cause_Effect {
+    نوع: "CausalPattern"
+    أدوار: {
+        "CauseEvent":  { "kind": "event" },
+        "EffectEvent": { "kind": "event" },
+        "Strength":    { "kind": "scalar", "range": [0, 1] },
+        "Context":     { "kind": "context" }
+    }
+    شروط: {
+        "requires_causal_link": True
+    }
+    بنية: {
+        "cause_role":    "CauseEvent",
+        "effect_role":   "EffectEvent",
+        "strength_role": "Strength",
+        "context_role":  "Context"
+    }
+    خرائط_أثر: {
+        "source_collection": "causal_links",
+        "cause_field":       "cause",
+        "effect_field":      "effect",
+        "strength_field":    "strength"
+    }
+    قوالب_لغوية: ["CausalSentencePattern"]
+}
+
+تصور_عام OppositesAxisTemplate {
+    نوع: "StatePattern"
+    أدوار: {
+        "Axis":        { "kind": "axis" },
+        "Positive":    { "kind": "label" },
+        "Negative":    { "kind": "label" },
+        "Value":       { "kind": "value", "range": [0, 1] },
+        "Degree":      { "kind": "category" }
+    }
+    شروط: {
+        "requires_opposites_definition": True,
+        "requires_numeric_value": True
+    }
+    بنية: {
+        "axis_role":     "Axis",
+        "positive_role": "Positive",
+        "negative_role": "Negative",
+        "value_role":    "Value",
+        "degree_role":   "Degree"
+    }
+    خرائط_أثر: {
+        "source_collection": "states",
+        "axis_ref":          "states[k].name",
+        "value_ref":         "states[k].value"
+    }
+    قوالب_لغوية: ["DescriptionPattern", "IntensityPattern"]
+}
+
+تصور_عام Probabilistic_Causation {
+    نوع: "CausalPattern"
+    أدوار: {
+        "CauseEvent":      { "kind": "event" },
+        "EffectEvent":     { "kind": "event" },
+        "CausalStrength":  { "kind": "scalar", "range": [0, 1] },
+        "ConditionalProb": { "kind": "scalar", "range": [0, 1] }
+    }
+    شروط: {
+        "requires_causal_link": True,
+        "requires_probability_field": True
+    }
+    بنية: {
+        "cause_role":       "CauseEvent",
+        "effect_role":      "EffectEvent",
+        "strength_role":    "CausalStrength",
+        "probability_role": "ConditionalProb"
+    }
+    خرائط_أثر: {
+        "source_collection": "causal_links",
+        "cause_field":       "cause",
+        "effect_field":      "effect",
+        "strength_field":    "strength",
+        "prob_field":        "prob"
+    }
+    قوالب_لغوية: ["CausalSentencePattern", "UncertaintyPattern"]
+}
+
+تصور_عام CausalSentencePattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "CauseEvent":  { "kind": "role_ref", "from_pattern": "Basic_Cause_Effect" },
+        "EffectEvent": { "kind": "role_ref", "from_pattern": "Basic_Cause_Effect" },
+        "Strength":    { "kind": "scalar", "optional": True },
+        "Probability": { "kind": "scalar", "optional": True },
+        "Context":     { "kind": "context", "optional": True }
+    }
+    شروط: {
+        "requires_causal_pattern": ["Basic_Cause_Effect", "Probabilistic_Causation"]
+    }
+    بنية: {
+        "predicate":     "CausalSentence",
+        "cause_slot":    "CauseEvent",
+        "effect_slot":   "EffectEvent",
+        "strength_slot": "Strength",
+        "prob_slot":     "Probability",
+        "context_slot":  "Context"
+    }
+    خرائط_أثر: {
+        "source_patterns": ["Basic_Cause_Effect", "Probabilistic_Causation"]
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام DescriptionPattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Entity": { "kind": "entity" },
+        "Axis":   { "kind": "role_ref", "from_pattern": "OppositesAxisTemplate" },
+        "Degree": { "kind": "role_ref", "from_pattern": "OppositesAxisTemplate" },
+        "Value":  { "kind": "value", "optional": True }
+    }
+    شروط: {
+        "requires_state_pattern": "OppositesAxisTemplate"
+    }
+    بنية: {
+        "predicate":   "DescriptionSentence",
+        "entity_slot": "Entity",
+        "axis_slot":   "Axis",
+        "degree_slot": "Degree",
+        "value_slot":  "Value"
+    }
+    خرائط_أثر: {
+        "source_pattern": "OppositesAxisTemplate"
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام IntensityPattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Axis":   { "kind": "role_ref", "from_pattern": "OppositesAxisTemplate" },
+        "Value":  { "kind": "value" },
+        "Degree": { "kind": "role_ref", "from_pattern": "OppositesAxisTemplate" }
+    }
+    شروط: {
+        "requires_state_pattern": "OppositesAxisTemplate"
+    }
+    بنية: {
+        "predicate":   "IntensitySentence",
+        "axis_slot":   "Axis",
+        "value_slot":  "Value",
+        "degree_slot": "Degree"
+    }
+    خرائط_أثر: {
+        "source_pattern": "OppositesAxisTemplate"
+    }
+    قوالب_لغوية: []
+}
+
+
+تصور_عام ActionSentencePattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Actor":       { "kind": "role_ref", "from_pattern": "Generic_Interaction_Event" },
+        "Action":      { "kind": "event_type" },
+        "Target":      { "kind": "role_ref", "optional": True },
+        "Instruments": { "kind": "role_ref_list", "optional": True },
+        "Context":     { "kind": "context", "optional": True },
+        "Intensity":   { "kind": "scalar", "optional": True },
+        "Uncertainty": { "kind": "scalar", "optional": True }
+    }
+    شروط: {
+        "requires_event_pattern": "Generic_Interaction_Event"
+    }
+    بنية: {
+        "predicate":        "ActionSentence",
+        "actor_slot":       "Actor",
+        "action_slot":      "Action",
+        "target_slot":      "Target",
+        "context_slot":     "Context",
+        "intensity_slot":   "Intensity",
+        "uncertainty_slot": "Uncertainty"
+    }
+    خرائط_أثر: {
+        "source_pattern": "Generic_Interaction_Event"
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام StateChangeSentencePattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Entity":       { "kind": "role_ref", "from_pattern": "State_Change_Template" },
+        "PropertyAxis": { "kind": "role_ref", "from_pattern": "State_Change_Template" },
+        "BeforeValue":  { "kind": "value" },
+        "AfterValue":   { "kind": "value" },
+        "Delta":        { "kind": "derived" },
+        "Context":      { "kind": "context", "optional": True }
+    }
+    شروط: {
+        "requires_state_pattern": "State_Change_Template"
+    }
+    بنية: {
+        "predicate":     "StateChangeSentence",
+        "entity_slot":   "Entity",
+        "property_slot": "PropertyAxis",
+        "before_slot":   "BeforeValue",
+        "after_slot":    "AfterValue",
+        "delta_slot":    "Delta",
+        "context_slot":  "Context"
+    }
+    خرائط_أثر: {
+        "source_pattern": "State_Change_Template"
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام UncertaintyPattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Content": { "kind": "proposition" },
+        "Degree":  { "kind": "scalar", "range": [0, 1] }
+    }
+    شروط: {
+        "requires_uncertainty_source": True
+    }
+    بنية: {
+        "predicate":    "Uncertainty",
+        "content_slot": "Content",
+        "degree_slot":  "Degree"
+    }
+    خرائط_أثر: {
+        "event_prob_field":      "events[k].probability",
+        "meta_confidence_field": "meta.confidence"
+    }
+    قوالب_لغوية: []
+}
+
+
+
+
+تصور_عام ComparativePattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "Entity1":        { "kind": "entity" },
+        "Entity2":        { "kind": "entity" },
+        "Axis":           { "kind": "axis" },
+        "Value1":         { "kind": "value", "range": [0, 1] },
+        "Value2":         { "kind": "value", "range": [0, 1] },
+        "ComparisonType": { "kind": "label" }
+    }
+    شروط: {
+        "requires_state_pattern": "OppositesAxisTemplate",
+        "requires_two_entities": True
+    }
+    بنية: {
+        "predicate":        "ComparativeSentence",
+        "entity1_slot":     "Entity1",
+        "entity2_slot":     "Entity2",
+        "axis_slot":        "Axis",
+        "value1_slot":      "Value1",
+        "value2_slot":      "Value2",
+        "comparison_slot":  "ComparisonType"
+    }
+    خرائط_أثر: {
+        "source_collection": "states",
+        "entity1_ref":       "states[i].entity_id",
+        "entity2_ref":       "states[j].entity_id",
+        "axis_ref":          "states[i].name",
+        "value1_ref":        "states[i].value",
+        "value2_ref":        "states[j].value"
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام TemporalOrderPattern {
+    نوع: "TemporalPattern"
+    أدوار: {
+        "Event1":           { "kind": "event" },
+        "Event2":           { "kind": "event" },
+        "TemporalRelation": { "kind": "label" }
+    }
+    شروط: {
+        "requires_ordered_events": True
+    }
+    بنية: {
+        "event1_slot":    "Event1",
+        "event2_slot":    "Event2",
+        "relation_slot":  "TemporalRelation"
+    }
+    خرائط_أثر: {
+        "source_collection": "events",
+        "event1_ref":        "events[i].id",
+        "event2_ref":        "events[j].id",
+        "time_field":        "events[i].time"
+    }
+    قوالب_لغوية: []
+}
+
+تصور_عام ContextualizationPattern {
+    نوع: "LanguageBridgePattern"
+    أدوار: {
+        "FocusEvent":   { "kind": "event" },
+        "ContextFrame": { "kind": "context" },
+        "Scope":        { "kind": "label" }
+    }
+    شروط: {
+        "requires_context": True
+    }
+    بنية: {
+        "predicate":    "ContextualizedSentence",
+        "event_slot":   "FocusEvent",
+        "context_slot": "ContextFrame",
+        "scope_slot":   "Scope"
+    }
+    خرائط_أثر: {
+        "source_collection": "events",
+        "event_ref":         "events[k].id",
+        "context_ref":       "events[k].context"
+    }
+    قوالب_لغوية: []
+}

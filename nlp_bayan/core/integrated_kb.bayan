@@ -1,7 +1,7 @@
 # Integrated Knowledge Base for Bayan + NLP Bayan
 # قاعدة معرفية موحّدة لمشاركة الحقائق والقواعد بين الأمثلة والوحدات
 
-hybrid {
+logical {
     # ----------------------------
     # Probabilities + thresholds
     # ----------------------------
@@ -53,14 +53,168 @@ hybrid {
     shape_equation("circle", "x^2 + y^2 = r^2").
     shape_equation("square", "|x| <= a AND |y| <= a").
 
+    # ----------------------------
+    # Entities (types, properties) and default targets
+    # ----------------------------
+    # أمثلة مبسطة للكيانات والعلاقات
+    isa("student", "person").
+    isa("teacher", "person").
+    # علاقات "has" مباشرة لأنواع عامة وخاصة
+    has("person", "house").
+    has("student", "school").
+    has("teacher", "school").
+    has("person", "workplace").
+    has("person", "mosque").
+    has("person", "market").
+    has("person", "library").
+    has("person", "museum").
+    has("person", "hospital").
+    has("person", "airport").
+    has("person", "restaurant").
+    has("person", "university").
+    has("person", "hotel").
+    has("person", "stadium").
+    has("person", "beach").
+    has("person", "store").
+    has("person", "cafe").
+    has("person", "station").
+    has("person", "port").
+    has("person", "mall").
+
+
+    # تصنيفات أماكن مبسطة
+    indoor("school").
+    indoor("hospital").
+    indoor("airport").
+    indoor("restaurant").
+    seating_place("restaurant").
+
+    indoor("library").
+    indoor("mosque").
+    indoor("workplace").
+    indoor("museum").
+    outdoor("garden").
+    outdoor("square").
+    outdoor("market").
+    seating_place("library").
+    seating_place("mosque").
+    seating_place("garden").
+    seating_place("square").
+
+    # توسيع جديد: تصنيفات للأماكن المضافة
+    indoor("university").
+    indoor("hotel").
+    indoor("store").
+    indoor("cafe").
+    outdoor("beach").
+    outdoor("stadium").
+    seating_place("stadium").
+    seating_place("cafe").
+    seating_place("university").
+
+    # تصنيفات للأماكن الخاصة بالسفر والزيارة
+    travel_place("airport").
+    travel_place("station").
+    travel_place("port").
+    visitable("museum").
+    visitable("library").
+    visitable("mosque").
+    visitable("garden").
+    visitable("square").
+    visitable("mall").
+
+    # تصنيفات بنيوية للأماكن الجديدة
+    indoor("station").
+    outdoor("port").
+    indoor("mall").
+
+    # أهداف افتراضية للفعل (مبسطة): فصل المباشر عن الموروث لإتاحة تفضيل المباشر أولاً
+    default_go_target_direct(?Subj, ?Obj) :- has(?Subj, ?Obj).
+    default_go_target_inherited(?Subj, ?Obj) :- isa(?Subj, ?Class), has(?Class, ?Obj).
+    default_go_target(?Subj, ?Obj) :- default_go_target_direct(?Subj, ?Obj).
+    default_go_target(?Subj, ?Obj) :- default_go_target_inherited(?Subj, ?Obj).
+
+    # أهداف نوعية بحسب الفعل مع تفضيل المباشر ثم الموروث
+    default_enter_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), indoor(?O).
+    default_enter_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), indoor(?O).
+    default_enter_target(?S, ?O) :- default_enter_target_direct(?S, ?O).
+    default_enter_target(?S, ?O) :- default_enter_target_inherited(?S, ?O).
+
+    default_exit_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), outdoor(?O).
+    default_exit_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), outdoor(?O).
+    default_exit_target(?S, ?O) :- default_exit_target_direct(?S, ?O).
+    default_exit_target(?S, ?O) :- default_exit_target_inherited(?S, ?O).
+
+    # العودة تفضّل "house" تحديدًا
+    default_return_target_direct(?S, "house") :- has(?S, "house").
+    default_return_target_inherited(?S, "house") :- default_go_target_inherited(?S, "house").
+    default_return_target(?S, ?O) :- default_return_target_direct(?S, ?O).
+    default_return_target(?S, ?O) :- default_return_target_inherited(?S, ?O).
+
+    default_sit_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), seating_place(?O).
+    default_sit_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), seating_place(?O).
+    default_sit_target(?S, ?O) :- default_sit_target_direct(?S, ?O).
+    default_sit_target(?S, ?O) :- default_sit_target_inherited(?S, ?O).
+
+    # أهداف للفعل "سافر/زار/مر": سفر/زيارة/مرور
+    default_travel_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), travel_place(?O).
+    default_travel_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), travel_place(?O).
+    default_travel_target(?S, ?O) :- default_travel_target_direct(?S, ?O).
+    default_travel_target(?S, ?O) :- default_travel_target_inherited(?S, ?O).
+
+    default_visit_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), visitable(?O).
+    default_visit_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), visitable(?O).
+    default_visit_target(?S, ?O) :- default_visit_target_direct(?S, ?O).
+    default_visit_target(?S, ?O) :- default_visit_target_inherited(?S, ?O).
+
+    default_pass_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), outdoor(?O).
+    default_pass_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), outdoor(?O).
+    default_pass_target(?S, ?O) :- default_pass_target_direct(?S, ?O).
+    default_pass_target(?S, ?O) :- default_pass_target_inherited(?S, ?O).
+    # أهداف للفعل "غادر/استقر": مغادرة/استقرار
+    default_depart_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), outdoor(?O).
+    default_depart_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), outdoor(?O).
+    default_depart_target(?S, ?O) :- default_depart_target_direct(?S, ?O).
+    default_depart_target(?S, ?O) :- default_depart_target_inherited(?S, ?O).
+
+    default_settle_target_direct(?S, ?O) :- default_go_target_direct(?S, ?O), indoor(?O).
+    default_settle_target_inherited(?S, ?O) :- default_go_target_inherited(?S, ?O), indoor(?O).
+    default_settle_target(?S, ?O) :- default_settle_target_direct(?S, ?O).
+    default_settle_target(?S, ?O) :- default_settle_target_inherited(?S, ?O).
+
+
+    # أغلفة للاستعلام البولي من الدوال الإمبراطية
+    holds_default_go_target(?F, ?Subj, ?Obj) :- default_go_target(?Subj, ?Obj).
+    holds_default_go_target_direct(?F, ?Subj, ?Obj) :- default_go_target_direct(?Subj, ?Obj).
+    holds_default_enter_target(?F, ?S, ?O) :- default_enter_target(?S, ?O).
+    holds_default_enter_target_direct(?F, ?S, ?O) :- default_enter_target_direct(?S, ?O).
+    holds_default_exit_target(?F, ?S, ?O) :- default_exit_target(?S, ?O).
+    holds_default_depart_target(?F, ?S, ?O) :- default_depart_target(?S, ?O).
+    holds_default_depart_target_direct(?F, ?S, ?O) :- default_depart_target_direct(?S, ?O).
+    holds_default_settle_target(?F, ?S, ?O) :- default_settle_target(?S, ?O).
+    holds_default_settle_target_direct(?F, ?S, ?O) :- default_settle_target_direct(?S, ?O).
+
+    holds_default_exit_target_direct(?F, ?S, ?O) :- default_exit_target_direct(?S, ?O).
+    holds_default_return_target(?F, ?S, ?O) :- default_return_target(?S, ?O).
+    holds_default_return_target_direct(?F, ?S, ?O) :- default_return_target_direct(?S, ?O).
+    holds_default_sit_target(?F, ?S, ?O) :- default_sit_target(?S, ?O).
+    holds_default_sit_target_direct(?F, ?S, ?O) :- default_sit_target_direct(?S, ?O).
+    holds_default_travel_target(?F, ?S, ?O) :- default_travel_target(?S, ?O).
+    holds_default_travel_target_direct(?F, ?S, ?O) :- default_travel_target_direct(?S, ?O).
+    holds_default_visit_target(?F, ?S, ?O) :- default_visit_target(?S, ?O).
+    holds_default_visit_target_direct(?F, ?S, ?O) :- default_visit_target_direct(?S, ?O).
+    holds_default_pass_target(?F, ?S, ?O) :- default_pass_target(?S, ?O).
+    holds_default_pass_target_direct(?F, ?S, ?O) :- default_pass_target_direct(?S, ?O).
+
     extract_shape_equation(?typ, ?eq) :- shape_equation(?typ, ?eq).
 }
 
 # Copy all facts and rules from this module's KB into a target logical engine
 # انسخ كل الحقائق والقواعد من قاعدة هذا الملف إلى محرك منطقي مستهدف
 
-def load_into(target_logical):
-{
+hybrid {
+    def load_into(target_logical):
+    {
     kb = logical.knowledge_base
     for pred in kb:
     {
@@ -70,53 +224,78 @@ def load_into(target_logical):
             target_logical.assertz(item)
         }
     }
-    return True
-}
-
-# Selective copy by domains (prob, information, family, events, shapes)
-# تحميل انتقائي حسب المجالات المعرفية
-
-def load_selective(target_logical, only):
-{
-    # Map domain → list of predicate names included in that domain
-    domains = {
-        "prob": ["prob", "threshold", "maybe", "likely"],
-        "information": ["information", "information_equation"],
-        "family": ["parent", "grandparent", "ancestor"],
-        "events": ["event", "sequential_events"],
-        "shapes": ["shape_equation", "extract_shape_equation"],
+        return True
     }
 
-    # Build allowed predicate set
-    allowed = []
-    for key in only:
+    # Selective copy by domains (prob, information, family, events, shapes)
+    # تحميل انتقائي حسب المجالات المعرفية
+
+    def load_selective(target_logical, only):
     {
-        if key in domains:
+        # Map domain → list of predicate names included in that domain
+        domains = {
+            "prob": ["prob", "threshold", "maybe", "likely"],
+            "information": ["information", "information_equation"],
+            "family": ["parent", "grandparent", "ancestor"],
+            "events": ["event", "sequential_events"],
+            "shapes": ["shape_equation", "extract_shape_equation"],
+            "entities": [
+                "isa", "has",
+                "indoor", "outdoor", "seating_place", "travel_place", "visitable",
+                "default_go_target", "default_go_target_direct", "default_go_target_inherited",
+                "default_enter_target", "default_enter_target_direct", "default_enter_target_inherited",
+                "default_exit_target", "default_exit_target_direct", "default_exit_target_inherited",
+                "default_return_target", "default_return_target_direct", "default_return_target_inherited",
+                "default_sit_target", "default_sit_target_direct", "default_sit_target_inherited",
+                "default_travel_target", "default_travel_target_direct", "default_travel_target_inherited",
+                "default_visit_target", "default_visit_target_direct", "default_visit_target_inherited",
+                "default_pass_target", "default_pass_target_direct", "default_pass_target_inherited",
+                "default_depart_target", "default_depart_target_direct", "default_depart_target_inherited",
+                "default_settle_target", "default_settle_target_direct", "default_settle_target_inherited",
+                "holds_default_go_target", "holds_default_go_target_direct",
+                "holds_default_enter_target", "holds_default_enter_target_direct",
+                "holds_default_exit_target", "holds_default_exit_target_direct",
+                "holds_default_return_target", "holds_default_return_target_direct",
+                "holds_default_sit_target", "holds_default_sit_target_direct",
+                "holds_default_travel_target", "holds_default_travel_target_direct",
+                "holds_default_visit_target", "holds_default_visit_target_direct",
+                "holds_default_pass_target", "holds_default_pass_target_direct",
+                "holds_default_depart_target", "holds_default_depart_target_direct",
+                "holds_default_settle_target", "holds_default_settle_target_direct"
+            ],
+        }
+
+        # Build allowed predicate set
+        allowed = []
+        for key in only:
         {
-            preds = domains[key]
-            for p in preds:
+            if key in domains:
             {
-                if not (p in allowed):
+                preds = domains[key]
+                for p in preds:
                 {
-                    allowed.append(p)
+                    if not (p in allowed):
+                    {
+                        allowed.append(p)
+                    }
                 }
             }
         }
-    }
 
-    kb = logical.knowledge_base
-    for pred in kb:
-    {
-        if pred in allowed:
+        kb = logical.knowledge_base
+        for pred in kb:
         {
-            items = kb[pred]
-            for item in items:
+            if pred in allowed:
             {
-                target_logical.assertz(item)
+                items = kb[pred]
+                for item in items:
+                {
+                    target_logical.assertz(item)
+                }
             }
         }
+        return True
     }
-    return True
 }
 
 

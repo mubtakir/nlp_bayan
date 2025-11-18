@@ -1,0 +1,37 @@
+# Minimal Bayan script to exercise indexing inside dict values and None literal
+
+hybrid {
+    event = {
+        "actors": ["A", "B", "C"],
+        "values": [10, 20, 30]
+    }
+    event2 = {
+        "actors": [
+            {"name": "X"},
+            {"name": "Y"}
+        ]
+    }
+
+    first_actor_name = event2["actors"][0]["name"]
+
+
+    # Indexing inside dictionary values (nested subscripts)
+    first_actor = event["actors"][0]
+    second_value = event["values"][1]
+
+    # Use None literal in a dict and in a list
+    info = {
+        "maybe_actor": None,
+        "confirmed_actor": first_actor,
+        "nothing": None
+    }
+
+    lst = [1, None, 3]
+
+    print("actor0 =", first_actor)
+    print("value1 =", second_value)
+    print("first_actor_name =", first_actor_name)
+    print("info =", info)
+    print("lst =", lst)
+}
+

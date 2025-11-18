@@ -1,0 +1,36 @@
+hybrid {
+    # حالة حوار بسيطة (تجريبية): حفظ آخر كيان/مكان/متحدث
+    DIALOGUE = {}
+
+    def reset(): {
+        DIALOGUE.clear()
+    }
+
+    def set_last_entity(name): {
+        DIALOGUE["last_entity"] = name
+    }
+
+    def get_last_entity(): {
+        if "last_entity" in DIALOGUE: { return DIALOGUE["last_entity"] }
+        else: { return "" }
+    }
+
+    def set_last_place(name): {
+        DIALOGUE["last_place"] = name
+    }
+
+    def get_last_place(): {
+        if "last_place" in DIALOGUE: { return DIALOGUE["last_place"] }
+        else: { return "" }
+    }
+
+    def set_last_speaker(name): {
+        DIALOGUE["last_speaker"] = name
+    }
+
+    def get_last_speaker(): {
+        if "last_speaker" in DIALOGUE: { return DIALOGUE["last_speaker"] }
+        else: { return "" }
+    }
+}
+

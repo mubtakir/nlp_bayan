@@ -1,0 +1,215 @@
+# ديمو موسّع: استخدام Comparative / TemporalOrder / Contextualization
+# في خط الـ LM الرمزي (blueprints → bridge → planner → tree → LM)
+
+hybrid {
+    import ai.conceptual_blueprints as blueprints
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+
+    # 1) trace تصوّري بسيط (لن نستعمله حسابيًا هنا، بل نمرّره مع الأمثلة)
+    conceptual_trace = {
+        "entities": [
+            {"id": "Entity_X", "kind": "generic_entity", "domain": "abstract_domain"},
+            {"id": "Entity_Y", "kind": "generic_entity", "domain": "abstract_domain"}
+        ],
+        "events": [
+            {"id": "Event_A", "action": "AbstractActionA", "actors": ["Entity_X"], "targets": []},
+            {"id": "Event_B", "action": "AbstractActionB", "actors": ["Entity_Y"], "targets": []},
+            {"id": "Event_Main", "action": "AbstractMainAction", "actors": ["Entity_X"], "targets": ["Entity_Y"]}
+        ],
+        "meta": {"source": "extended_patterns_demo", "confidence": 0.9}
+    }
+
+    print("==== Extended patterns LM demo ====\n")
+    registry = blueprints._conceptual_blueprints
+    print("Blueprint names:", list(registry.keys()))
+    print("")
+
+    # 2) تعبئة أدوار الأنماط الثلاثة الجديدة
+    comparative_roles = {
+        "Entity1": "Entity_X",
+        "Entity2": "Entity_Y",
+        "Axis": "AbstractAxis",
+        "Value1": 0.8,
+        "Value2": 0.5,
+        "ComparisonType": "greater"
+    }
+
+    temporal_roles = {
+        "Event1": "Event_A",
+        "Event2": "Event_B",
+        "TemporalRelation": "before"
+    }
+
+    contextual_roles = {
+        "FocusEvent": "Event_Main",
+        "ContextFrame": "GlobalContext",
+        "Scope": "background"
+    }
+
+    print("Comparative roles:", comparative_roles)
+    print("Temporal roles:", temporal_roles)
+    print("Contextual roles:", contextual_roles)
+    print("")
+
+    # 3) ربط الأنماط الجديدة بأنماط الجسر اللغوي الموجودة
+    #    (a) ComparativePattern → DescriptionPattern لجملة وصفية عن Entity1
+    comparative_description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": comparative_roles["Entity1"],
+            "Axis": comparative_roles["Axis"],
+            "Degree": comparative_roles["ComparisonType"],
+            "Value": comparative_roles["Value1"]
+        }
+    }
+
+    #    (b) TemporalOrderPattern → CausalSentencePattern رمزيًا (قبل/بعد كـ "context")
+    temporal_causal_structure = {
+        "pattern": "CausalSentencePattern",
+        "slots": {
+            "CauseEvent": temporal_roles["Event1"],
+            "EffectEvent": temporal_roles["Event2"],
+            "Strength": 1.0,
+            "Probability": 1.0,
+            "Context": temporal_roles["TemporalRelation"]
+        }
+    }
+
+    #    (c) ContextualizationPattern → DescriptionPattern عن الحدث ضمن إطار السياق
+    contextual_description_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": contextual_roles["FocusEvent"],
+            "Axis": "ContextFrame",
+            "Degree": contextual_roles["Scope"],
+            "Value": contextual_roles["ContextFrame"]
+        }
+    }
+
+    # 4) تحقيق الجمل الرمزية عبر الجسر اللغوي
+    realized_cmp = lang_bridge.realize(comparative_description_structure)
+    realized_tmp = lang_bridge.realize(temporal_causal_structure)
+    realized_ctx = lang_bridge.realize(contextual_description_structure)
+
+    print("Realized Comparative (as DescriptionSentence):", realized_cmp)
+    print("Realized Temporal (as CausalSentence):", realized_tmp)
+    print("Realized Contextual (as DescriptionSentence):", realized_ctx)
+    print("")
+
+    # 5) تخطيط سطحي وبناء شجرة جملة (EN / AR)
+    plan_cmp_en = surface_planner.plan_surface(realized_cmp, "english")
+    plan_tmp_en = surface_planner.plan_surface(realized_tmp, "english")
+    plan_ctx_en = surface_planner.plan_surface(realized_ctx, "english")
+
+    plan_cmp_ar = surface_planner.plan_surface(realized_cmp, "arabic")
+    plan_tmp_ar = surface_planner.plan_surface(realized_tmp, "arabic")
+    plan_ctx_ar = surface_planner.plan_surface(realized_ctx, "arabic")
+
+    tree_cmp_en = sentence_tree.build_tree(realized_cmp, plan_cmp_en)
+    tree_tmp_en = sentence_tree.build_tree(realized_tmp, plan_tmp_en)
+    tree_ctx_en = sentence_tree.build_tree(realized_ctx, plan_ctx_en)
+
+    tree_cmp_ar = sentence_tree.build_tree(realized_cmp, plan_cmp_ar)
+    tree_tmp_ar = sentence_tree.build_tree(realized_tmp, plan_tmp_ar)
+    tree_ctx_ar = sentence_tree.build_tree(realized_ctx, plan_ctx_ar)
+
+    print("Sentence tree EN (Comparative):", tree_cmp_en)
+    print("Sentence tree EN (Temporal):", tree_tmp_en)
+    print("Sentence tree EN (Contextual):", tree_ctx_en)
+    print("")
+    print("Sentence tree AR (Comparative):", tree_cmp_ar)
+    print("Sentence tree AR (Temporal):", tree_tmp_ar)
+    print("Sentence tree AR (Contextual):", tree_ctx_ar)
+    print("")
+
+    # 6) التوليد السطحي الرمزي والنصوص الناتجة
+    surf_cmp_en = surface_realizer.realize_from_sentence_tree(tree_cmp_en, "neutral")
+    surf_tmp_en = surface_realizer.realize_from_sentence_tree(tree_tmp_en, "neutral")
+    surf_ctx_en = surface_realizer.realize_from_sentence_tree(tree_ctx_en, "neutral")
+
+    surf_cmp_ar = surface_realizer.realize_from_sentence_tree(tree_cmp_ar, "neutral")
+    surf_tmp_ar = surface_realizer.realize_from_sentence_tree(tree_tmp_ar, "neutral")
+    surf_ctx_ar = surface_realizer.realize_from_sentence_tree(tree_ctx_ar, "neutral")
+
+    text_cmp_en = surface_realizer.realization_to_text(surf_cmp_en)
+    text_tmp_en = surface_realizer.realization_to_text(surf_tmp_en)
+    text_ctx_en = surface_realizer.realization_to_text(surf_ctx_en)
+
+    text_cmp_ar = surface_realizer.realization_to_text(surf_cmp_ar)
+    text_tmp_ar = surface_realizer.realization_to_text(surf_tmp_ar)
+    text_ctx_ar = surface_realizer.realization_to_text(surf_ctx_ar)
+
+    print("Comparative text EN:", text_cmp_en)
+    print("Temporal text EN:", text_tmp_en)
+    print("Contextual text EN:", text_ctx_en)
+    print("")
+    print("Comparative text AR:", text_cmp_ar)
+    print("Temporal text AR:", text_tmp_ar)
+    print("Contextual text AR:", text_ctx_ar)
+    print("")
+
+    # 7) إعداد أمثلة تدريبية لـ LM من الأنماط الثلاثة (EN / AR) ثم تدريب bigram LM
+    example_cmp_en = lm_bridge.tree_to_example(conceptual_trace, comparative_roles, tree_cmp_en, "neutral")
+    example_tmp_en = lm_bridge.tree_to_example(conceptual_trace, temporal_roles, tree_tmp_en, "neutral")
+    example_ctx_en = lm_bridge.tree_to_example(conceptual_trace, contextual_roles, tree_ctx_en, "neutral")
+
+    example_cmp_ar = lm_bridge.tree_to_example(conceptual_trace, comparative_roles, tree_cmp_ar, "neutral")
+    example_tmp_ar = lm_bridge.tree_to_example(conceptual_trace, temporal_roles, tree_tmp_ar, "neutral")
+    example_ctx_ar = lm_bridge.tree_to_example(conceptual_trace, contextual_roles, tree_ctx_ar, "neutral")
+
+    examples = [
+        example_cmp_en, example_tmp_en, example_ctx_en,
+        example_cmp_ar, example_tmp_ar, example_ctx_ar
+    ]
+
+    print("Example Comparative text EN:", example_cmp_en["text"])
+    print("Example Temporal text EN:", example_tmp_en["text"])
+    print("Example Contextual text EN:", example_ctx_en["text"])
+    print("")
+    print("Example Comparative text AR:", example_cmp_ar["text"])
+    print("Example Temporal text AR:", example_tmp_ar["text"])
+    print("Example Contextual text AR:", example_ctx_ar["text"])
+    print("")
+
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    score_cmp_en_bg = lm_bridge.score_example_with_bigram(example_cmp_en, bigram_model)
+    score_tmp_en_bg = lm_bridge.score_example_with_bigram(example_tmp_en, bigram_model)
+    score_ctx_en_bg = lm_bridge.score_example_with_bigram(example_ctx_en, bigram_model)
+
+    score_cmp_ar_bg = lm_bridge.score_example_with_bigram(example_cmp_ar, bigram_model)
+    score_tmp_ar_bg = lm_bridge.score_example_with_bigram(example_tmp_ar, bigram_model)
+    score_ctx_ar_bg = lm_bridge.score_example_with_bigram(example_ctx_ar, bigram_model)
+
+    score_cmp_en_tri = lm_bridge.score_example_with_trigram(example_cmp_en, trigram_model)
+    score_tmp_en_tri = lm_bridge.score_example_with_trigram(example_tmp_en, trigram_model)
+    score_ctx_en_tri = lm_bridge.score_example_with_trigram(example_ctx_en, trigram_model)
+
+    score_cmp_ar_tri = lm_bridge.score_example_with_trigram(example_cmp_ar, trigram_model)
+    score_tmp_ar_tri = lm_bridge.score_example_with_trigram(example_tmp_ar, trigram_model)
+    score_ctx_ar_tri = lm_bridge.score_example_with_trigram(example_ctx_ar, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for extended patterns (EN / AR) ====")
+    print("Comparative EN - Bigram:", score_cmp_en_bg)
+    print("Comparative EN - Trigram:", score_cmp_en_tri)
+    print("Temporal EN - Bigram:", score_tmp_en_bg)
+    print("Temporal EN - Trigram:", score_tmp_en_tri)
+    print("Contextual EN - Bigram:", score_ctx_en_bg)
+    print("Contextual EN - Trigram:", score_ctx_en_tri)
+    print("Comparative AR - Bigram:", score_cmp_ar_bg)
+    print("Comparative AR - Trigram:", score_cmp_ar_tri)
+    print("Temporal AR - Bigram:", score_tmp_ar_bg)
+    print("Temporal AR - Trigram:", score_tmp_ar_tri)
+    print("Contextual AR - Bigram:", score_ctx_ar_bg)
+    print("Contextual AR - Trigram:", score_ctx_ar_tri)
+}
+

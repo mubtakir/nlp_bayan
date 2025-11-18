@@ -1,0 +1,420 @@
+# ============================================
+# محرك استدلال بسيط - Simple Inference Engine
+# ============================================
+
+# قواعد الاستدلال
+inference_rules = []
+
+# دالة: إضافة قاعدة استدلال
+def add_rule(rule_dict):
+{
+    inference_rules.append(rule_dict)
+    return True
+}
+
+# دالة: تطبيق الاستدلال
+def infer(kb_module, subject):
+{
+    results = []
+
+    # لكل قاعدة
+    for r in inference_rules:
+    {
+        # تحقق من الشرط
+        fact_value = kb_module.find_fact(r["condition_subject"], r["condition_predicate"])
+
+        if fact_value == r["condition_value"]:
+        {
+            # طبق النتيجة
+            new_fact = r["result_subject"] + " " + r["result_predicate"] + " " + r["result_value"]
+            results.append(new_fact)
+
+            # أضف للقاعدة
+            kb_module.add_fact(r["result_subject"], r["result_predicate"], r["result_value"])
+        }
+    }
+
+    return results
+}
+
+# دالة: عدد القواعد
+def count_rules():
+{
+    return len(inference_rules)
+}
+
+
+
+# ============================================
+# توسعة: استدلال تعدي "هو" + دمج مباشر/مُستنْتَج
+# ============================================
+
+# مساعد: توزيع مباشر من قاعدة المعرفة
+def _direct_distribution(kb_module, subject, predicate):
+{
+    return kb_module.find_distribution(subject, predicate)
+}
+
+# استدلال تعدي: subject هو Y و Y هو Z ينتج subject هو Z
+# الوزن = min(count(subject_to_Y), count(Y_to_Z))
+def _inferred_distribution(kb_module, subject):
+{
+    kb = kb_module.show_all()
+    inferred = {}
+    key1 = subject + "_" + "هو"
+    if not (key1 in kb):
+    {
+        return {}
+    }
+    direct_y = kb[key1]
+    for y in direct_y:
+    {
+        c1 = direct_y[y]
+        key2 = y + "_" + "هو"
+        if key2 in kb:
+        {
+            yz = kb[key2]
+            for z in yz:
+            {
+                c2 = yz[z]
+                w = c1
+                if c2 < w:
+                {
+                    w = c2
+                }
+                if z in inferred:
+                {
+                    inferred[z] = inferred[z] + w
+                }
+                else:
+                {
+                    inferred[z] = w
+                }
+            }
+        }
+    }
+    return inferred
+}
+
+# دمج مباشر + مُستنْتَج وإرجاع أفضل N مع نسبة مئوية ومصدر كل قيمة
+# يعيد قائمة: [{value, count, prob, percent, source}]
+# source in {"direct", "inferred", "mixed"}
+
+# استدلال تعدي لعلاقة "نوع من": subject نوع من Y و Y نوع من Z ⇒ subject نوع من Z
+def _inferred_is_a_distribution(kb_module, subject):
+{
+    kb = kb_module.show_all()
+    inferred = {}
+    key1 = subject + "_" + "نوع من"
+    if not (key1 in kb):
+    {
+        return {}
+    }
+    direct_y = kb[key1]
+    for y in direct_y:
+    {
+        c1 = direct_y[y]
+        key2 = y + "_" + "نوع من"
+        if key2 in kb:
+        {
+            yz = kb[key2]
+            for z in yz:
+            {
+                c2 = yz[z]
+                w = c1
+                if c2 < w:
+                {
+                    w = c2
+                }
+                if z in inferred:
+                {
+                    inferred[z] = inferred[z] + w
+                }
+                else:
+                {
+                    inferred[z] = w
+                }
+            }
+        }
+    }
+    return inferred
+}
+
+# استدلال وراثة الخصائص: subject نوع من Y و Y له Z ⇒ subject له Z
+def _inferred_has_distribution(kb_module, subject):
+{
+    kb = kb_module.show_all()
+    inferred = {}
+    key_isa = subject + "_" + "نوع من"
+    if not (key_isa in kb):
+    {
+        return {}
+    }
+    isa_map = kb[key_isa]
+    for y in isa_map:
+    {
+        c1 = isa_map[y]
+        key_prop = y + "_" + "له"
+        if key_prop in kb:
+        {
+            yz = kb[key_prop]
+            for z in yz:
+            {
+                c2 = yz[z]
+                w = c1
+                if c2 < w:
+                {
+                    w = c2
+                }
+                if z in inferred:
+                {
+                    inferred[z] = inferred[z] + w
+                }
+                else:
+                {
+                    inferred[z] = w
+                }
+            }
+        }
+    }
+    return inferred
+}
+
+# اختيار الاستدلال المناسب حسب العلاقة
+def _inferred_for_predicate(kb_module, subject, predicate):
+{
+    if predicate == "هو":
+    {
+        return _inferred_distribution(kb_module, subject)
+    }
+    if predicate == "نوع من":
+    {
+        return _inferred_is_a_distribution(kb_module, subject)
+    }
+    if predicate == "له":
+    {
+        return _inferred_has_distribution(kb_module, subject)
+    }
+    return {}
+}
+
+
+def find_top_n_with_inference(kb_module, subject, predicate, n):
+{
+    direct = _direct_distribution(kb_module, subject, predicate)
+    inferred = _inferred_for_predicate(kb_module, subject, predicate)
+
+    all_vals = {}
+    for v in direct:
+    {
+        all_vals[v] = direct[v]
+    }
+    for v in inferred:
+    {
+        if v in all_vals:
+        {
+            all_vals[v] = all_vals[v] + inferred[v]
+        }
+        else:
+        {
+            all_vals[v] = inferred[v]
+        }
+    }
+
+    total = 0
+    for v in all_vals:
+    {
+        total = total + all_vals[v]
+    }
+
+    used = []
+    top = []
+    i = 0
+    while i < n:
+    {
+        best_v = ""
+        best_c = -1
+        for v in all_vals:
+        {
+            if not (v in used):
+            {
+                c = all_vals[v]
+                if c > best_c:
+                {
+                    best_c = c
+                    best_v = v
+                }
+            }
+        }
+        if best_c == -1:
+        {
+            break
+        }
+        src = "inferred"
+        has_d = (best_v in direct)
+        has_i = (best_v in inferred)
+        if has_d and has_i:
+        {
+            src = "mixed"
+        }
+        else:
+        {
+            if has_d:
+            {
+                src = "direct"
+            }
+            else:
+            {
+                src = "inferred"
+            }
+        }
+        prob = 0
+        if total > 0:
+        {
+            prob = best_c / total
+        }
+        percent = prob * 100
+        entry = { "value": best_v, "count": best_c, "prob": prob, "percent": percent, "source": src }
+        top.append(entry)
+        used.append(best_v)
+        i = i + 1
+    }
+    return top
+}
+
+# تفسير السلسلة: أفضل وسيط Y لِـ subject إلى target (إن وُجد)
+# يعيد {ok, via, weight}
+
+def explain_chain(kb_module, subject, target):
+{
+    kb = kb_module.show_all()
+    key1 = subject + "_" + "هو"
+    if not (key1 in kb):
+    {
+        return { "ok": False }
+    }
+    best_via = ""
+    best_w = -1
+    direct_y = kb[key1]
+    for y in direct_y:
+    {
+        c1 = direct_y[y]
+        key2 = y + "_" + "هو"
+        if key2 in kb:
+        {
+            yz = kb[key2]
+            if target in yz:
+            {
+                c2 = yz[target]
+                w = c1
+                if c2 < w:
+                {
+                    w = c2
+                }
+                if w > best_w:
+                {
+                    best_w = w
+                    best_via = y
+                }
+            }
+        }
+    }
+    if best_w >= 0:
+    {
+        return { "ok": True, "via": best_via, "weight": best_w }
+    }
+    return { "ok": False }
+}
+
+
+# تفسير وراثة الخاصية: يبحث عن وسيط من النوع Y بحيث subject نوع من Y و Y له target
+# يعيد {ok, via, weight}
+def explain_has_chain(kb_module, subject, target):
+{
+    kb = kb_module.show_all()
+    key_isa = subject + "_" + "نوع من"
+    if not (key_isa in kb):
+    {
+        return { "ok": False }
+    }
+    best_via = ""
+    best_w = -1
+    isa_map = kb[key_isa]
+    for y in isa_map:
+    {
+        c1 = isa_map[y]
+        key_prop = y + "_" + "له"
+        if key_prop in kb:
+        {
+            yz = kb[key_prop]
+            if target in yz:
+            {
+                c2 = yz[target]
+                w = c1
+                if c2 < w:
+                {
+                    w = c2
+                }
+                if w > best_w:
+                {
+                    best_w = w
+                    best_via = y
+                }
+            }
+        }
+    }
+    if best_w >= 0:
+    {
+        return { "ok": True, "via": best_via, "weight": best_w }
+    }
+    return { "ok": False }
+}
+
+
+# =============================
+# تهيئة تنسيق الإجابات (إعدادات بسيطة)
+# =============================
+
+answer_cfg = { "n": 2, "show_perc": True, "show_src": True, "show_explain": True }
+
+def set_default_n(n):
+{
+    answer_cfg["n"] = n
+    return True
+}
+
+def get_default_n():
+{
+    return answer_cfg["n"]
+}
+
+def set_show_percentages(flag):
+{
+    answer_cfg["show_perc"] = flag
+    return True
+}
+
+def set_show_sources(flag):
+{
+    answer_cfg["show_src"] = flag
+    return True
+}
+
+def set_show_reasoning(flag):
+{
+    answer_cfg["show_explain"] = flag
+    return True
+}
+
+def get_answer_config():
+{
+    return answer_cfg
+}
+
+# استعلام وفق الإعدادات الحالية (يستخدم default_n)
+
+def query_with_config(kb_module, subject, predicate):
+{
+    n = answer_cfg["n"]
+    return find_top_n_with_inference(kb_module, subject, predicate, n)
+}

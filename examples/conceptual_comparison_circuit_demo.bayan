@@ -1,0 +1,150 @@
+# Demo: ComparativePattern Integration in Conceptual Circuits
+# This example demonstrates the enhanced comparison circuit that uses
+# ComparativePattern for decision-making scenarios.
+
+import ai.conceptual_circuits as circuits
+import ai.conceptual_orchestrator as orchestrator
+
+print("=" * 70)
+print("Conceptual Circuits: ComparativePattern Demo")
+print("=" * 70)
+print("")
+
+# Test 1: Direct comparison circuit usage
+print("Test 1: Direct Enhanced Comparison Circuit")
+print("-" * 70)
+
+comparison1 = circuits.build_enhanced_comparison_circuit(
+    "خيار_أ",
+    "خيار_ب",
+    "محور_التكلفة",
+    100.0,
+    150.0,
+    "less",
+    "سياق_شراء",
+    0.9
+)
+
+print("Comparison: خيار_أ vs خيار_ب on محور_التكلفة")
+print("  Value1 (خيار_أ):", comparison1["roles"]["ComparativePattern"]["Value1"])
+print("  Value2 (خيار_ب):", comparison1["roles"]["ComparativePattern"]["Value2"])
+print("  Delta:", comparison1["roles"]["ComparativePattern"]["Delta"])
+print("  Comparison Type:", comparison1["roles"]["ComparativePattern"]["ComparisonType"])
+print("  Confidence:", comparison1["trace"]["meta"]["confidence"])
+print("")
+
+# Test 2: Multiple comparisons on different axes
+print("Test 2: Multiple Comparisons on Different Axes")
+print("-" * 70)
+
+# Compare on quality axis
+comparison_quality = circuits.build_enhanced_comparison_circuit(
+    "منتج_أ",
+    "منتج_ب",
+    "محور_الجودة",
+    0.85,
+    0.65,
+    "better",
+    "سياق_تقييم_منتجات",
+    0.8
+)
+
+# Compare on price axis
+comparison_price = circuits.build_enhanced_comparison_circuit(
+    "منتج_أ",
+    "منتج_ب",
+    "محور_السعر",
+    200.0,
+    150.0,
+    "greater",
+    "سياق_تقييم_منتجات",
+    0.95
+)
+
+print("Product Comparison:")
+print("  Quality: منتج_أ (0.85) vs منتج_ب (0.65) -> better")
+print("  Price: منتج_أ (200) vs منتج_ب (150) -> greater")
+print("")
+print("Roles in quality comparison:")
+for key in comparison_quality["roles"]["ComparativePattern"]:
+{
+    print("  " + key + ":", comparison_quality["roles"]["ComparativePattern"][key])
+}
+print("")
+
+# Test 3: Comparison in daily_decision program
+print("Test 3: Comparison in Daily Decision Program")
+print("-" * 70)
+
+control_msg = {
+    "program_id": "daily_decision",
+    "detail_level": "low",
+    "scenario_variant": "neutral",
+    "time_horizon": "short_term",
+    "focus": "balanced"
+}
+
+result = orchestrator.dispatch_request(control_msg)
+
+print("Daily decision program components:")
+for key in result["components"]:
+{
+    print("  - " + key)
+}
+
+if "option_comparison" in result["components"]:
+{
+    comp = result["components"]["option_comparison"]
+    print("")
+    print("Option comparison details:")
+    print("  Entity1:", comp["roles"]["ComparativePattern"]["Entity1"])
+    print("  Entity2:", comp["roles"]["ComparativePattern"]["Entity2"])
+    print("  Axis:", comp["roles"]["ComparativePattern"]["Axis"])
+    print("  Value1:", comp["roles"]["ComparativePattern"]["Value1"])
+    print("  Value2:", comp["roles"]["ComparativePattern"]["Value2"])
+    print("  Delta:", comp["roles"]["ComparativePattern"]["Delta"])
+    print("  Type:", comp["roles"]["ComparativePattern"]["ComparisonType"])
+}
+print("")
+
+# Test 4: Bridge structures for linguistic realization
+print("Test 4: Bridge Structures for Linguistic Realization")
+print("-" * 70)
+
+comparison_demo = circuits.build_enhanced_comparison_circuit(
+    "استراتيجية_أ",
+    "استراتيجية_ب",
+    "محور_الفعالية",
+    0.9,
+    0.7,
+    "better",
+    "سياق_تخطيط",
+    0.85
+)
+
+print("Bridge structures available:")
+for key in comparison_demo["bridge_structures"]:
+{
+    print("  - " + key)
+}
+print("")
+
+print("ComparativePattern bridge structure:")
+comp_bridge = comparison_demo["bridge_structures"]["ComparativePattern"]
+print("  Pattern:", comp_bridge["pattern"])
+print("  Slots:")
+for slot_key in comp_bridge["slots"]:
+{
+    print("    " + slot_key + ":", comp_bridge["slots"][slot_key])
+}
+print("")
+
+print("=" * 70)
+print("Summary:")
+print("  - Enhanced comparison circuit uses ComparativePattern")
+print("  - Supports multiple axes and comparison types")
+print("  - Integrated into daily_decision program")
+print("  - Provides bridge structures for linguistic realization")
+print("  - Includes IntensityPattern for degree of difference")
+print("=" * 70)
+

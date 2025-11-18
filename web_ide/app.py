@@ -250,7 +250,14 @@ def _infer_example_domain(text: str) -> str:
             return 'mixed'
         # Heuristics: logic examples without ai.* includes
         cl = code.lower()
-        if (":-" in code) or ("query " in cl) or ("استعلام" in code) or re.search(r'\bfact\b', cl) or re.search(r'\brule\b', cl):
+        if ((":-" in code)
+                or ("query " in cl)
+                or ("استعلام" in code)
+                or ("هجين" in code)
+                or ("حقيقة" in code)
+                or ("قاعدة" in code)
+                or re.search(r'\bfact\b', cl)
+                or re.search(r'\brule\b', cl)):
             return 'logic'
         return 'unknown'
     except Exception:

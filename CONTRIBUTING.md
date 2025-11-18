@@ -330,7 +330,7 @@ We welcome translations of documentation!
 
 ---
 
-## 👨‍💻 Development Setup | إعداد بيئة التطوير
+## 👨💻 Development Setup | إعداد بيئة التطوير
 
 ### Recommended Tools
 

@@ -1,0 +1,145 @@
+# Demo: Conceptual LM Training Data Generation
+# This example demonstrates how to convert conceptual traces to natural text
+# and prepare training data for language models.
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    import ai.conceptual_surface_realizer as realizer
+
+    print("=" * 70)
+    print("Conceptual LM: Training Data Generation Demo")
+    print("=" * 70)
+    print("")
+
+    # Test 1: Generate training data from student study program
+    print("Test 1: Student Study Program - Arabic")
+    print("-" * 70)
+
+    control_msg_1 = {
+        "program_id": "student_study",
+        "detail_level": "medium",
+        "scenario_variant": "positive",
+        "time_horizon": "medium_term",
+        "focus": "balanced"
+    }
+
+    result_1 = orchestrator.dispatch_request(control_msg_1)
+    training_data_1 = realizer.build_lm_training_data(result_1, "arabic")
+
+    print("Full natural text (Arabic):")
+    print("  ", training_data_1["full_text"])
+    print("")
+    print("Training examples generated:", len(training_data_1["training_examples"]))
+    print("")
+
+    for i in range(len(training_data_1["training_examples"])):
+    {
+        example = training_data_1["training_examples"][i]
+        print("Example", i + 1, "(" + example["component_name"] + "):")
+        print("  ", example["text"])
+        print("")
+    }
+
+    # Test 2: Generate training data from medical treatment program
+    print("Test 2: Medical Treatment Program - English")
+    print("-" * 70)
+
+    control_msg_2 = {
+        "program_id": "medical_treatment",
+        "detail_level": "high",
+        "scenario_variant": "neutral",
+        "time_horizon": "short_term",
+        "focus": "uncertainty"
+    }
+
+    result_2 = orchestrator.dispatch_request(control_msg_2)
+    training_data_2 = realizer.build_lm_training_data(result_2, "english")
+
+    print("Full natural text (English):")
+    print("  ", training_data_2["full_text"])
+    print("")
+    print("Training examples generated:", len(training_data_2["training_examples"]))
+    print("")
+
+    # Test 3: Generate training data from daily decision program with comparison
+    print("Test 3: Daily Decision Program with Comparison - Arabic")
+    print("-" * 70)
+
+    control_msg_3 = {
+        "program_id": "daily_decision",
+        "detail_level": "low",
+        "scenario_variant": "neutral",
+        "time_horizon": "short_term",
+        "focus": "balanced"
+    }
+
+    result_3 = orchestrator.dispatch_request(control_msg_3)
+    training_data_3 = realizer.build_lm_training_data(result_3, "arabic")
+
+    print("Full natural text (Arabic):")
+    print("  ", training_data_3["full_text"])
+    print("")
+
+    # Check if comparison component exists
+    has_comparison = False
+    for i in range(len(training_data_3["training_examples"])):
+    {
+        example = training_data_3["training_examples"][i]
+        if example["component_name"] == "option_comparison":
+        {
+            has_comparison = True
+            print("Comparison component found:")
+            print("  ", example["text"])
+            print("")
+        }
+    }
+
+    if not has_comparison:
+    {
+        print("Note: Comparison component not found in this configuration")
+        print("")
+    }
+
+    # Test 4: Trace to natural text conversion
+    print("Test 4: Direct Trace to Natural Text Conversion")
+    print("-" * 70)
+
+    # Get a component trace
+    if len(result_1["components"]) > 0:
+    {
+        first_component_key = None
+        for key in result_1["components"]:
+        {
+            first_component_key = key
+            break
+        }
+
+        if first_component_key != None:
+        {
+            component = result_1["components"][first_component_key]
+            component_trace = component["trace"]
+
+            # Convert to Arabic
+            arabic_text = realizer.trace_to_natural_text(component_trace, "arabic")
+            print("Arabic text:")
+            print("  ", arabic_text)
+            print("")
+
+            # Convert to English
+            english_text = realizer.trace_to_natural_text(component_trace, "english")
+            print("English text:")
+            print("  ", english_text)
+            print("")
+        }
+    }
+
+    print("=" * 70)
+    print("Summary:")
+    print("  - Conceptual traces can be converted to natural text")
+    print("  - Training data format: (trace, text, language)")
+    print("  - Supports both Arabic and English")
+    print("  - Each component generates a training example")
+    print("  - Ready for integration with ai/nlp language models")
+    print("=" * 70)
+}
+

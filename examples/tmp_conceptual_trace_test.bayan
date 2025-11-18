@@ -1,0 +1,16 @@
+hybrid {
+    conceptual_trace = {
+        "entities": [
+            {
+                "id": "Entity_A",
+                "kind": "generic_entity"
+            }
+        ],
+        "events": [
+            {
+                "id": "Event_1"
+            }
+        ]
+    }
+}
+

@@ -1,0 +1,113 @@
+# Demo: Conceptual circuit (Uncertain cause-effect)
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # 1) Instantiate the uncertain cause-effect circuit with Arabic conceptual data
+    #    مثال: تناول الدواء قد يؤدي إلى تحسن الصحة مع درجة ثقة متوسطة
+    circuit_output = circuits.build_uncertain_cause_effect_circuit(
+        "حدث_تناول_الدواء",        # cause_event_id
+        "حدث_تحسن_الصحة",          # effect_event_id
+        "المريض",                  # cause_actor_id
+        "المريض",                  # effect_actor_id
+        "تناول_دواء",              # cause_action_kind
+        "تحسن",                    # effect_action_kind
+        "سياق_طبي",                # context_label
+        0.7,                        # causal_strength
+        0.6                         # conditional_probability
+    )
+
+    trace = circuit_output["trace"]
+    roles = circuit_output["roles"]
+    bridges = circuit_output["bridge_structures"]
+
+    print("==== Conceptual circuit demo: Uncertain cause-effect ====")
+    print("Conceptual trace:")
+    print(trace)
+    print("")
+
+    print("Roles (per pattern):")
+    print(roles)
+    print("")
+
+    # 2) Realize a symbolic causal sentence and an uncertainty sentence
+    causal_bridge = bridges["CausalSentencePattern"]
+    uncertainty_bridge = bridges["UncertaintyPattern"]
+
+    causal_sent = lang_bridge.realize(causal_bridge)
+    uncertainty_sent = lang_bridge.realize(uncertainty_bridge)
+
+    print("Symbolic sentences (pre-linguistic):")
+    print("CausalSentence:", causal_sent)
+    print("UncertaintySentence:", uncertainty_sent)
+    print("")
+
+    # 3) Build EN/AR surface + LM examples for both sentences
+    examples = []
+
+    causal_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["Probabilistic_Causation"],
+        causal_bridge,
+        ["english", "arabic"],
+        "neutral"
+    )
+
+    uncertainty_result = lm_bridge.build_lm_examples_for_structure(
+        trace,
+        roles["UncertaintyPattern"],
+        uncertainty_bridge,
+        ["english", "arabic"],
+        "neutral"
+    )
+
+    res_list = [causal_result, uncertainty_result]
+
+    for i in range(len(res_list)):
+    {
+        res = res_list[i]
+        exs = res["examples"]
+        for j in range(len(exs)):
+        {
+            examples.append(exs[j])
+        }
+    }
+
+    print("Number of LM examples (EN + AR):", len(examples))
+    print("")
+
+    print("Example texts:")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        print("-", i, ":", ex["text"])
+    }
+    print("")
+
+    # 4) Train symbolic bigram + trigram LMs over the circuit corpus
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+    trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for uncertain cause-effect circuit examples ====")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        sc_bg = bigram_scores[i]
+        sc_tri = trigram_scores[i]
+        print("Example", i, "text:", ex["text"])
+        print("  Bigram:", sc_bg)
+        print("  Trigram:", sc_tri)
+    }
+}
+

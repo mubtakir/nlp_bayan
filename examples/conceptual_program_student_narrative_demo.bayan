@@ -1,0 +1,145 @@
+# Demo: Conceptual meaning program (Student study narrative)
+# Educational: this demo is meant to be read by developers.
+# It shows the full pipeline: circuits -> meaning program -> LM corpus (EN/AR).
+
+
+hybrid {
+    import ai.conceptual_programs as programs
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    # We import conceptual circuits, the meaning programs layer,
+    # and the language/LM bridges. No raw strings are hard-coded here;
+    # everything flows through the conceptual trace format.
+
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    # 1) Build the meaning program (student narrative).
+    #    Here we leave the level of individual circuits and get
+    #    a unified conceptual scene (with merged entities/events).
+    program_output = programs.build_student_study_narrative_program()
+    # trace      : merged conceptual_trace from all circuits (entities, events, causal_links, ...).
+    # components : raw outputs of each circuit, to realize them separately at the language level.
+
+
+    trace = program_output["trace"]
+    components = program_output["components"]
+
+    print("==== Conceptual meaning program demo: Student study narrative ====")
+    print("Merged conceptual trace:")
+    print(trace)
+    print("")
+
+        # Each circuit_output has the standard shape:
+        #   {"trace": ..., "roles": {...}, "bridge_structures": {...}}
+        # We choose which conceptual roles and which bridge structures
+        # to realize into surface text.
+
+    # 2) Collect bridge structures and roles from each component circuit
+    examples = []
+
+    # Helper to process a single circuit output with a list of (role_key, bridge_key) pairs
+    def add_examples_for_pairs(circuit_output, pairs):
+    {
+        local_trace = circuit_output["trace"]
+        roles = circuit_output["roles"]
+        bridges = circuit_output["bridge_structures"]
+
+        for i in range(len(pairs)):
+        {
+            pair = pairs[i]
+            role_key = pair[0]
+            bridge_key = pair[1]
+
+            if role_key in roles and bridge_key in bridges:
+            {
+                bridge = bridges[bridge_key]
+                result = lm_bridge.build_lm_examples_for_structure(
+                    local_trace,
+                    roles[role_key],
+                    bridge,
+                    ["english", "arabic"],
+                    "neutral"
+                )
+
+                exs = result["examples"]
+                for j in range(len(exs)):
+                {
+                    examples.append(exs[j])
+                }
+            }
+        }
+    }
+
+    # Action -> StateChange -> Evaluation component
+    add_examples_for_pairs(
+        components["action_state_eval"],
+        [
+            ["Generic_Interaction_Event", "ActionSentencePattern"],
+            ["State_Change_Template", "StateChangeSentencePattern"],
+            ["DescriptionPattern", "DescriptionPattern"]
+        ]
+    )
+
+    # Causal link component
+    add_examples_for_pairs(
+        components["causal_link"],
+        [["Probabilistic_Causation", "CausalSentencePattern"]]
+    )
+
+    # Temporal sequence component
+    add_examples_for_pairs(
+        components["temporal_sequence"],
+        [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]]
+    )
+
+    # Contextualized event component
+    add_examples_for_pairs(
+        components["contextual_event"],
+        [["ContextualizationPattern", "Contextual_DescriptionPattern"]]
+    )
+
+    # Uncertain cause-effect component
+    add_examples_for_pairs(
+        components["uncertain_cause_effect"],
+        [
+            ["Probabilistic_Causation", "CausalSentencePattern"],
+            ["UncertaintyPattern", "UncertaintyPattern"]
+        ]
+    )
+
+    print("Number of LM examples from program (EN + AR):", len(examples))
+    print("")
+
+    print("Example texts:")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        print("-", i, ":", ex["text"])
+    }
+    print("")
+
+    # 3) Train bigram + trigram LMs on the whole program corpus
+    vocab = lm_bridge.build_vocab_from_examples(examples, 1000, 1)
+    print("Vocab size:", len(vocab["token_to_id"]))
+
+    bigram_model = lm_bridge.train_bigram_lm_from_examples(examples, 1.0)
+    trigram_model = lm_bridge.train_trigram_lm_from_examples(examples, 1.0)
+
+    bigram_scores = lm_bridge.score_examples_with_bigram(examples, bigram_model)
+    trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
+
+    print("==== Bigram vs Trigram LM scores for meaning-program corpus ====")
+    for i in range(len(examples)):
+    {
+        ex = examples[i]
+        sc_bg = bigram_scores[i]
+        sc_tri = trigram_scores[i]
+        print("Example", i, "text:", ex["text"])
+        print("  Bigram:", sc_bg)
+        print("  Trigram:", sc_tri)
+    }
+}
+

@@ -1,10 +1,11 @@
 hybrid {
     # Reactions on target: increase happiness when receiving a compliment
-    entity Alice { "states": {"happiness": 0.5}, "reactions": {
+    # Using new unified syntax: keys without quotes
+    entity Alice { states: {"happiness": 0.5}, reactions: {
         "compliment": {"sensitivity": 0.8, "response": "happiness += sensitivity*0.3"}
     }}
 
-    entity Bob { "actions": {
+    entity Bob { actions: {
         "compliment": {"effects": [ {"on": "happiness", "formula": "value + 0.1*action_value"} ] }
     }}
 

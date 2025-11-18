@@ -1,0 +1,183 @@
+# ========================================================================
+# Constraints & Validation Demo - عرض القيود والتحقق
+# ========================================================================
+# This file demonstrates the new constraint and validation features in Bayan
+# يوضح هذا الملف ميزات القيود والتحقق الجديدة في لغة البيان
+
+print("=== Constraints & Validation Demo ===")
+print("")
+
+# ========================================================================
+# 1. WHERE CLAUSES - شروط حيث
+# ========================================================================
+print("1. WHERE CLAUSES - شروط حيث")
+print("----------------------------")
+
+# Where clause with English keyword
+x = 10
+y = x * 2 where x > 0
+print("x = " + str(x))
+print("y = x * 2 where x > 0 = " + str(y))
+
+# Where clause with Arabic keyword
+س = 15
+ص = س + 5 حيث س > 10
+print("س = " + str(س))
+print("ص = س + 5 حيث س > 10 = " + str(ص))
+
+print("")
+
+# ========================================================================
+# 2. REQUIRES CLAUSES - شروط يتطلب
+# ========================================================================
+print("2. REQUIRES CLAUSES - شروط يتطلب")
+print("----------------------------------")
+
+# Function with requires clause (English)
+def divide(a, b):
+    requires b != 0
+    {
+        return a / b
+    }
+
+result1 = divide(10, 2)
+print("divide(10, 2) = " + str(result1))
+
+# Function with requires clause (Arabic)
+def قسمة(أ, ب):
+    يتطلب ب != 0
+    {
+        return أ / ب
+    }
+
+نتيجة1 = قسمة(20, 4)
+print("قسمة(20, 4) = " + str(نتيجة1))
+
+# Multiple requires clauses
+def safe_sqrt(x):
+    requires x >= 0
+    requires x <= 1000
+    {
+        return pow(x, 0.5)
+    }
+
+result2 = safe_sqrt(16)
+print("safe_sqrt(16) = " + str(result2))
+
+print("")
+
+# ========================================================================
+# 3. ENSURES CLAUSES - شروط يضمن
+# ========================================================================
+print("3. ENSURES CLAUSES - شروط يضمن")
+print("--------------------------------")
+
+# Function with ensures clause
+def absolute_value(x):
+    ensures result >= 0
+    {
+        if x < 0: {
+            return -x
+        }
+        return x
+    }
+
+result3 = absolute_value(-5)
+print("absolute_value(-5) = " + str(result3))
+
+result4 = absolute_value(7)
+print("absolute_value(7) = " + str(result4))
+
+# Function with both requires and ensures (Arabic)
+def جذر_تربيعي(عدد):
+    يتطلب عدد >= 0
+    يضمن result >= 0
+    {
+        return pow(عدد, 0.5)
+    }
+
+نتيجة2 = جذر_تربيعي(25)
+print("جذر_تربيعي(25) = " + str(نتيجة2))
+
+print("")
+
+# ========================================================================
+# 4. INVARIANT CLAUSES - شروط ثابت
+# ========================================================================
+print("4. INVARIANT CLAUSES - شروط ثابت")
+print("----------------------------------")
+
+# For loop with invariant (English)
+total = 0
+for i in range(5):
+    invariant total >= 0
+    {
+        total = total + i
+    }
+print("Sum of 0..4 with invariant = " + str(total))
+
+# While loop with invariant (English)
+counter = 0
+sum_val = 0
+while counter < 5:
+    invariant sum_val >= 0
+    invariant counter >= 0
+    {
+        sum_val = sum_val + counter
+        counter = counter + 1
+    }
+print("Sum using while loop = " + str(sum_val))
+
+# For loop with invariant (Arabic)
+مجموع = 0
+for عدد in range(3):
+    ثابت مجموع >= 0
+    {
+        مجموع = مجموع + عدد
+    }
+print("مجموع 0..2 مع ثابت = " + str(مجموع))
+
+print("")
+
+# ========================================================================
+# 5. COMBINED CONTRACTS - عقود مجمعة
+# ========================================================================
+print("5. COMBINED CONTRACTS - عقود مجمعة")
+print("------------------------------------")
+
+# Function with multiple contracts
+def safe_divide(a, b):
+    requires b != 0
+    requires a >= 0
+    ensures result >= 0
+    {
+        return a / b
+    }
+
+result5 = safe_divide(10, 2)
+print("safe_divide(10, 2) = " + str(result5))
+
+# Complex function with all contract types
+def factorial(n):
+    requires n >= 0
+    requires n <= 10
+    ensures result >= 1
+    {
+        result_val = 1
+        i = 1
+        while i <= n:
+            invariant result_val >= 1
+            invariant i >= 1
+            {
+                result_val = result_val * i
+                i = i + 1
+            }
+        return result_val
+    }
+
+result6 = factorial(5)
+print("factorial(5) = " + str(result6))
+
+print("")
+print("=== Demo Complete ===")
+

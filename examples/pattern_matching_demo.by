@@ -1,0 +1,167 @@
+# Pattern Matching Demo - عرض توضيحي لمطابقة الأنماط
+# Demonstrates advanced pattern matching features in Bayan
+
+print("=== Pattern Matching Demo ===")
+print("")
+
+# ============================================================================
+# 1. Basic Literal Matching - مطابقة القيم الحرفية الأساسية
+# ============================================================================
+
+print("1. Basic Literal Matching:")
+x = 2
+result = ""
+match x:
+{
+    case 1: { result = "one" }
+    case 2: { result = "two" }
+    case 3: { result = "three" }
+}
+print("  x = 2, result = " + result)
+
+# Arabic version
+س = 1
+نتيجة = ""
+طابق س:
+{
+    حالة 1: { نتيجة = "واحد" }
+    حالة 2: { نتيجة = "اثنان" }
+    حالة 3: { نتيجة = "ثلاثة" }
+}
+print("  س = 1, نتيجة = " + نتيجة)
+print("")
+
+# ============================================================================
+# 2. Default Case - الحالة الافتراضية
+# ============================================================================
+
+print("2. Default Case:")
+value = 99
+match value:
+{
+    case 1: { result = "one" }
+    case 2: { result = "two" }
+    default: { result = "other" }
+}
+print("  value = 99, result = " + result)
+
+# Arabic version
+قيمة = 50
+طابق قيمة:
+{
+    حالة 10: { نتيجة = "عشرة" }
+    حالة 20: { نتيجة = "عشرون" }
+    افتراضي: { نتيجة = "أخرى" }
+}
+print("  قيمة = 50, نتيجة = " + نتيجة)
+print("")
+
+# ============================================================================
+# 3. List Destructuring - تفكيك القوائم
+# ============================================================================
+
+print("3. List Destructuring:")
+point = [10, 20]
+match point:
+{
+    case [x, y]: { sum_val = x + y }
+}
+print("  point = [10, 20], sum = " + str(sum_val))
+
+# Arabic version
+نقطة = [5, 15]
+طابق نقطة:
+{
+    حالة [س, ص]: { مجموع = س + ص }
+}
+print("  نقطة = [5, 15], مجموع = " + str(مجموع))
+print("")
+
+# ============================================================================
+# 4. Dictionary Destructuring - تفكيك القواميس
+# ============================================================================
+
+print("4. Dictionary Destructuring:")
+person = {"name": "Ali", "age": 25}
+match person:
+{
+    case {"name": n, "age": a}: { info = n + " is " + str(a) + " years old" }
+}
+print("  " + info)
+
+# Arabic version
+شخص = {"اسم": "فاطمة", "عمر": 30}
+طابق شخص:
+{
+    حالة {"اسم": اسم, "عمر": عمر}: { معلومات = اسم + " عمرها " + str(عمر) + " سنة" }
+}
+print("  " + معلومات)
+print("")
+
+# ============================================================================
+# 5. Guards (When Clauses) - الحراس (شروط عندما)
+# ============================================================================
+
+print("5. Guards (When Clauses):")
+number = 15
+match number:
+{
+    case n when n < 10: { category = "small" }
+    case n when n >= 10 and n < 100: { category = "medium" }
+    case n when n >= 100: { category = "large" }
+}
+print("  number = 15, category = " + category)
+
+# Arabic version
+عدد = 5
+طابق عدد:
+{
+    حالة ع عندما ع < 10: { فئة = "صغير" }
+    حالة ع عندما ع >= 10 and ع < 100: { فئة = "متوسط" }
+    حالة ع عندما ع >= 100: { فئة = "كبير" }
+}
+print("  عدد = 5, فئة = " + فئة)
+print("")
+
+# ============================================================================
+# 6. Complex Nested Patterns - أنماط متداخلة معقدة
+# ============================================================================
+
+print("6. Complex Nested Patterns:")
+data = {"type": "point", "coords": [100, 200]}
+match data:
+{
+    case {"type": t, "coords": [x, y]}: { 
+        description = t + " at (" + str(x) + ", " + str(y) + ")"
+    }
+}
+print("  " + description)
+print("")
+
+# ============================================================================
+# 7. Pattern Matching in Functions - مطابقة الأنماط في الدوال
+# ============================================================================
+
+print("7. Pattern Matching in Functions:")
+
+def classify_number(n):
+{
+    result = ""
+    match n:
+    {
+        case x when x < 0: { result = "negative" }
+        case 0: { result = "zero" }
+        case x when x > 0 and x < 10: { result = "small positive" }
+        case x when x >= 10: { result = "large positive" }
+    }
+    return result
+}
+
+print("  classify_number(-5) = " + classify_number(-5))
+print("  classify_number(0) = " + classify_number(0))
+print("  classify_number(5) = " + classify_number(5))
+print("  classify_number(15) = " + classify_number(15))
+print("")
+
+print("=== Demo Complete ===")
+

@@ -38,11 +38,15 @@ class Predicate:
         return self.name == other.name and self.args == other.args
 
 class Fact:
-    """Represents a logical fact"""
-    def __init__(self, predicate):
+    """Represents a logical fact (optionally probabilistic)"""
+    def __init__(self, predicate, probability=None):
         self.predicate = predicate
-    
+        # Probability/confidence in [0,1]; None means default 1.0
+        self.probability = float(probability) if probability is not None else 1.0
+
     def __repr__(self):
+        if self.probability is not None and self.probability != 1.0:
+            return f"{self.predicate}. [p={self.probability}]"
         return f"{self.predicate}."
 
 class Rule:
@@ -56,22 +60,26 @@ class Rule:
         return f"{self.head} :- {body_str}."
 
 class Substitution:
-    """Represents variable substitutions"""
-    def __init__(self, bindings=None):
+    """Represents variable substitutions with an accumulated probability."""
+    def __init__(self, bindings=None, probability=1.0):
         self.bindings = bindings or {}
-    
+        try:
+            self.probability = float(probability)
+        except Exception:
+            self.probability = 1.0
+
     def bind(self, var_name, value):
         """Bind a variable to a value"""
         self.bindings[var_name] = value
-    
+
     def lookup(self, var_name):
         """Look up a variable"""
         return self.bindings.get(var_name)
-    
+
     def copy(self):
         """Create a copy of this substitution"""
-        return Substitution(self.bindings.copy())
-    
+        return Substitution(self.bindings.copy(), self.probability)
+
     def __repr__(self):
         return f"Substitution({self.bindings})"
 
@@ -217,6 +225,32 @@ class LogicalEngine:
             if goal.name == 'not' and len(goal.args) == 1:
                 return self._handle_not(goal, substitution)
 
+            # Probability-aware built-ins:
+            # - maybe([Thr]) with default 0.5
+            # - likely([Thr]) with default 0.8
+            # - prob_ge(Thr) succeeds if current solution prob >= Thr
+            # - probability(?P) binds ?P to current solution prob
+            if goal.name in ('maybe', 'likely') and len(goal.args) <= 1:
+                default_thr = 0.5 if goal.name == 'maybe' else 0.8
+                thr = default_thr
+                if len(goal.args) == 1:
+                    thr_eval = self._evaluate_arithmetic(goal.args[0], substitution)
+                    if thr_eval is not None:
+                        thr = float(thr_eval)
+                return [substitution] if getattr(substitution, 'probability', 1.0) >= thr else []
+
+            if goal.name == 'prob_ge' and len(goal.args) == 1:
+                thr_eval = self._evaluate_arithmetic(goal.args[0], substitution)
+                if thr_eval is None:
+                    return []
+                thr = float(thr_eval)
+                return [substitution] if getattr(substitution, 'probability', 1.0) >= thr else []
+
+            if goal.name == 'probability' and len(goal.args) == 1:
+                p = float(getattr(substitution, 'probability', 1.0))
+                new_sub = self._unify(goal.args[0], p, substitution.copy())
+                return [new_sub] if new_sub is not None else []
+
         # Apply current substitution to the goal
         goal = self._apply_substitution(goal, substitution)
 
@@ -230,6 +264,11 @@ class LogicalEngine:
                 # Try to unify with the fact
                 new_sub = self._unify(goal, item.predicate, substitution.copy())
                 if new_sub is not None:
+                    # Propagate and aggregate probability multiplicatively
+                    try:
+                        new_sub.probability = float(getattr(substitution, 'probability', 1.0)) * float(getattr(item, 'probability', 1.0))
+                    except Exception:
+                        new_sub.probability = getattr(substitution, 'probability', 1.0)
                     solutions.append(new_sub)
 
             elif isinstance(item, Rule):

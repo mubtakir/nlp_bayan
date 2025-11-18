@@ -1,0 +1,127 @@
+# Demo: Conceptual meaning program (Social relationship building narrative)
+# Educational: this demo shows the full pipeline for the social domain.
+# It demonstrates how circuits compose into a meaning program for friendship/trust building.
+
+
+hybrid {
+    import ai.conceptual_programs as programs
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_language_bridge as lang_bridge
+    import ai.conceptual_surface_planner as surface_planner
+    import ai.conceptual_sentence_tree as sentence_tree
+    import ai.conceptual_surface_realizer as surface_realizer
+    import ai.conceptual_lm_bridge as lm_bridge
+
+    print("==== Conceptual meaning program demo: Social relationship building ====")
+    print("")
+
+    # Build the social relationship program with neutral settings
+    settings = {
+        "scenario_variant": "neutral",
+        "time_horizon": "medium_term"
+    }
+
+    program_output = programs.build_social_relationship_program(settings)
+
+    # Extract the merged trace and components
+    trace = program_output["trace"]
+    components = program_output["components"]
+
+    print("Merged conceptual trace:")
+    print(trace)
+    print("")
+
+    # Collect LM examples from each component
+    examples = []
+
+    # Helper to process a single circuit output with a list of (role_key, bridge_key) pairs
+    def add_examples_for_pairs(circuit_output, pairs):
+    {
+        local_trace = circuit_output["trace"]
+        roles = circuit_output["roles"]
+        bridges = circuit_output["bridge_structures"]
+
+        for i in range(len(pairs)):
+        {
+            pair = pairs[i]
+            role_key = pair[0]
+            bridge_key = pair[1]
+
+            if role_key in roles and bridge_key in bridges:
+            {
+                bridge = bridges[bridge_key]
+                result = lm_bridge.build_lm_examples_for_structure(
+                    local_trace,
+                    roles[role_key],
+                    bridge,
+                    ["english", "arabic"],
+                    "neutral"
+                )
+
+                exs = result["examples"]
+                for j in range(len(exs)):
+                {
+                    examples.append(exs[j])
+                }
+            }
+        }
+    }
+
+    # Interaction State component (Action -> StateChange -> Evaluation)
+    add_examples_for_pairs(
+        components["interaction_state"],
+        [
+            ["Generic_Interaction_Event", "ActionSentencePattern"],
+            ["StateChange_Interaction", "StateChangeSentencePattern"],
+            ["Evaluation_Interaction", "IntensitySentencePattern"]
+        ]
+    )
+
+    # Causal Trust component
+    add_examples_for_pairs(
+        components["causal_trust"],
+        [
+            ["Causal_Link", "CausalSentencePattern"]
+        ]
+    )
+
+    # Temporal Sequence component
+    add_examples_for_pairs(
+        components["temporal_sequence"],
+        [
+            ["Temporal_Sequence", "TemporalOrderSentencePattern"]
+        ]
+    )
+
+    # Contextual Activity component
+    add_examples_for_pairs(
+        components["contextual_activity"],
+        [
+            ["Contextualized_Event", "ContextualizationSentencePattern"]
+        ]
+    )
+
+    # Uncertain Friendship component
+    add_examples_for_pairs(
+        components["uncertain_friendship"],
+        [
+            ["Uncertain_Cause_Effect", "UncertaintySentencePattern"]
+        ]
+    )
+
+    print("Total LM examples generated: " + str(len(examples)))
+    print("")
+
+    # Show a few examples
+    print("Sample LM examples (first 6):")
+    for i in range(min(6, len(examples))):
+    {
+        ex = examples[i]
+        print("  [" + str(i+1) + "]")
+        print("      " + str(ex))
+        print("")
+    }
+
+    print("==== Demo complete ====")
+}
+
