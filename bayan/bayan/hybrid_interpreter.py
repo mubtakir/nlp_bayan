@@ -497,6 +497,10 @@ class HybridInterpreter:
             return self.visit_query_expression(node)
         elif isinstance(node, PhraseStatement):
             return self.visit_phrase_statement(node)
+        elif isinstance(node, CauseEffectStatement):
+            return self.visit_cause_effect_statement(node)
+        elif isinstance(node, RelationStatement):
+            return self.visit_relation_statement(node)
         elif isinstance(node, EntityDef):
             return self.visit_entity_def(node)
         elif isinstance(node, ConceptDef):
@@ -687,6 +691,42 @@ class HybridInterpreter:
         """Visit a logical rule"""
         rule = Rule(node.head, node.body)
         self.logical.add_rule(rule)
+        return None
+
+    def visit_cause_effect_statement(self, node):
+        """Visit a cause-effect statement: سبب_نتيجة(condition, result, cause, strength).
+
+        Stores it as a logical fact: سبب_نتيجة(condition, result, cause, strength).
+        """
+        # The parser already returns Term objects, so use them directly
+        args = [node.condition, node.result, node.cause]
+
+        # Add strength if provided
+        if node.strength is not None:
+            args.append(node.strength)
+
+        # Create predicate and fact
+        predicate = Predicate('سبب_نتيجة', args)
+        fact = Fact(predicate)
+        self.logical.add_fact(fact)
+        return None
+
+    def visit_relation_statement(self, node):
+        """Visit a relation statement: علاقة(from, relation_type, to, strength).
+
+        Stores it as a logical fact: علاقة(from, relation_type, to, strength).
+        """
+        # The parser already returns Term objects, so use them directly
+        args = [node.from_concept, node.relation_type, node.to_concept]
+
+        # Add strength if provided
+        if node.strength is not None:
+            args.append(node.strength)
+
+        # Create predicate and fact
+        predicate = Predicate('علاقة', args)
+        fact = Fact(predicate)
+        self.logical.add_fact(fact)
         return None
 
     def visit_logical_query(self, node):

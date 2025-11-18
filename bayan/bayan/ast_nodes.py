@@ -648,6 +648,37 @@ class LogicalDisjunction(ASTNode):
     def __repr__(self):
         return f"LogicalDisjunction({len(self.goals)} goals)"
 
+class CauseEffectStatement(ASTNode):
+    """Cause-Effect statement: سبب_نتيجة(condition, result, cause, strength)
+
+    Represents causal relationships with physical/logical reasons.
+    Example: سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+    """
+    def __init__(self, condition, result, cause, strength=None, domain=None):
+        self.condition = condition  # The condition/action
+        self.result = result  # The effect/result
+        self.cause = cause  # The physical/logical reason
+        self.strength = strength  # Optional strength value [0..1]
+        self.domain = domain  # Optional domain (physics, biology, etc.)
+
+    def __repr__(self):
+        return f"CauseEffectStatement({self.condition} → {self.result} [cause: {self.cause}])"
+
+class RelationStatement(ASTNode):
+    """Relation statement: علاقة(from, relation_type, to, strength)
+
+    Represents semantic relationships between concepts.
+    Example: علاقة("الاستحمام", "في", "حمام", 0.9).
+    """
+    def __init__(self, from_concept, relation_type, to_concept, strength=None):
+        self.from_concept = from_concept
+        self.relation_type = relation_type
+        self.to_concept = to_concept
+        self.strength = strength  # Optional strength value [0..1]
+
+    def __repr__(self):
+        return f"RelationStatement({self.from_concept} --{self.relation_type}--> {self.to_concept})"
+
 class LogicalNegation(ASTNode):
     """Logical NOT: \\+ goal"""
     def __init__(self, goal):

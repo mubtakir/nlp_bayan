@@ -49,6 +49,7 @@
 - ✅ **Three Paradigms in One** - Switch between imperative, OOP, and logic programming seamlessly
 - ✅ **Bilingual Keywords** - Full support for both Arabic and English keywords
 - ✅ **Arabic Text Support** - Perfect handling of Arabic text without external libraries
+- ✅ **Causal-Semantic System** ⭐ NEW - Express cause-effect relationships with physical/logical reasons
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
@@ -237,6 +238,37 @@ hybrid {
     }
 }
 ```
+
+### 5. Causal-Semantic Knowledge ⭐ NEW
+
+```bayan
+hybrid {
+    # Define causal laws with physical/logical reasons
+    سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+    سبب_نتيجة("دراسة_مجتهدة", "نجاح", "اكتساب_معرفة", 0.9).
+
+    # Define semantic relations
+    علاقة("الاستحمام", "في", "حمام", 0.9).
+    علاقة("البيت", "فيه", "حمام", 0.95).
+    علاقة("النهر", "هو", "ماء", 1.0).
+
+    # Query: Why does something fall?
+    print("Why does something fall when lifted?")
+    query سبب_نتيجة("رفع_شيء_لفوق", ?result, ?cause, ?strength).
+    # Returns: ?result="يسقط", ?cause="جاذبية", ?strength=1.0
+
+    # Query: Where does bathing happen?
+    print("Where does bathing happen?")
+    query علاقة("الاستحمام", ?relation_type, ?place, ?strength).
+    # Returns: ?relation_type="في", ?place="حمام", ?strength=0.9
+}
+```
+
+**Benefits:**
+- Goes beyond word embeddings by representing meanings through cause-effect relationships
+- Explainable AI: Every relationship has a clear reason
+- Context-aware prediction based on semantic distance
+- Supports causal reasoning in physics, biology, social sciences, and more
 
 ---
 

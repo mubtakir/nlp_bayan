@@ -853,11 +853,71 @@ idea "الأرض الخضراء":
 
 ---
 
+## Causal-Semantic System - نظام السببية والدلالة ⭐ NEW
+
+Bayan now includes a powerful causal-semantic knowledge system that goes beyond word embeddings by representing meanings through cause-effect relationships and semantic relations.
+
+لغة البيان الآن تتضمن نظام معرفة سببي-دلالي قوي يتجاوز المتجهات اللغوية من خلال تمثيل المعاني عبر علاقات السبب والنتيجة والعلاقات الدلالية.
+
+### Causal Laws - القوانين السببية
+
+Define causal relationships with their physical/logical reasons:
+
+```bayan
+hybrid {
+    # Syntax: سبب_نتيجة(condition, result, cause, strength)
+    سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+    سبب_نتيجة("دراسة_مجتهدة", "نجاح", "اكتساب_معرفة", 0.9).
+    سبب_نتيجة("تسخين_ماء", "يغلي", "طاقة_حرارية", 0.95).
+
+    # Query: Why does something fall?
+    query سبب_نتيجة("رفع_شيء_لفوق", ?result, ?cause, ?strength).
+    # Returns: ?result="يسقط", ?cause="جاذبية", ?strength=1.0
+}
+```
+
+### Semantic Relations - العلاقات الدلالية
+
+Define semantic relationships between concepts:
+
+```bayan
+hybrid {
+    # Syntax: علاقة(from, relation_type, to, strength)
+    علاقة("الاستحمام", "في", "حمام", 0.9).
+    علاقة("البيت", "فيه", "حمام", 0.95).
+    علاقة("الإنسان", "له", "بيت", 0.9).
+    علاقة("النهر", "هو", "ماء", 1.0).
+
+    # Query: Where does bathing happen?
+    query علاقة("الاستحمام", ?relation_type, ?place, ?strength).
+    # Returns: ?relation_type="في", ?place="حمام", ?strength=0.9
+}
+```
+
+### Relation Types - أنواع العلاقات
+
+- **Causal (سببية)**: `ينتج`, `يسبب`, `يؤدي_إلى`
+- **Spatial (مكانية)**: `في`, `فيه`, `على`
+- **Instrumental (أداة)**: `ب`, `بواسطة`
+- **Identity (هوية)**: `هو`, `هي`
+- **Possession (ملكية)**: `له`, `لها`
+- **Purpose (غاية)**: `لل`, `من_أجل`
+
+### Applications - التطبيقات
+
+- **Natural Language Understanding**: Context-aware prediction based on semantic distance
+- **Dialogue Systems**: Generate logically justified responses
+- **Education**: Explain phenomena with their real causes
+- **Expert Systems**: Store causal knowledge in various domains
+- **Semantic Search**: Search based on meaning and relationships
+
+---
+
 ## Complete Keywords Reference - مرجع شامل للكلمات المفتاحية
 
-For a complete, categorized list of all Bayan keywords (traditional, hybrid/logic, entity system, temporal, constraints, pattern matching, reactive, cognitive-semantic, semantic programming, existential model, spatial/temporal relations, life domain, etc.), please refer to:
+For a complete, categorized list of all Bayan keywords (traditional, hybrid/logic, **causal-semantic system**, entity system, temporal, constraints, pattern matching, reactive, cognitive-semantic, semantic programming, existential model, spatial/temporal relations, life domain, etc.), please refer to:
 
-للحصول على قائمة كاملة ومصنفة لجميع الكلمات المفتاحية في بيان (التقليدية، الهجينة/المنطقية، نظام الكيانات، الزمنية، القيود، مطابقة الأنماط، التفاعلية، المعرفية-الدلالية، البرمجة الدلالية، النموذج الوجودي، العلاقات المكانية/الزمنية، مجال الحياة، إلخ)، يرجى الرجوع إلى:
+للحصول على قائمة كاملة ومصنفة لجميع الكلمات المفتاحية في بيان (التقليدية، الهجينة/المنطقية، **نظام السببية والدلالة**، نظام الكيانات، الزمنية، القيود، مطابقة الأنماط، التفاعلية، المعرفية-الدلالية، البرمجة الدلالية، النموذج الوجودي، العلاقات المكانية/الزمنية، مجال الحياة، إلخ)، يرجى الرجوع إلى:
 
 - **`docs/reference.md`** - Complete language reference with all keywords categorized / المرجع الكامل للغة مع جميع الكلمات المفتاحية مصنفة
 - **`docs/LLM_QUICK_REFERENCE.md`** - Quick reference for LLMs with all keywords / مرجع سريع للنماذج اللغوية مع جميع الكلمات المفتاحية

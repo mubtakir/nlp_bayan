@@ -46,6 +46,13 @@ New (v2):
 - naive_bayes_predict_text(model, doc)
 - naive_bayes_predict_proba_text(model, doc)
 
+**Causal-Semantic System** ⭐ NEW (v3):
+- Built-in support for causal-semantic knowledge graphs
+- Use `سبب_نتيجة`/`cause_effect` for causal laws with physical/logical reasons
+- Use `علاقة`/`relation` for semantic relationships between concepts
+- Context-aware prediction based on semantic distance
+- See `bayan_solutions/cskg_engine.bayan` for full implementation
+
 Arabic wrappers (new):
 - إزالة_كلمات_شائعة(نص, لغة="auto")
 - تشابه_جيبي_قاموسي(قاموس1, قاموس2)

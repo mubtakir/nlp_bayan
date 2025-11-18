@@ -125,6 +125,50 @@ For a full introduction to logic programming in Bayan, see:
 - `03_LOGIC_PROGRAMMING_EN_PART2.md` (rules, recursion, lists)
 - `03_LOGIC_PROGRAMMING_EN_PART3.md` (meta‑predicates, dynamic KB, hybrid)
 - `03_LOGIC_PROGRAMMING_EN_PART4.md` (probabilistic & causal)
+- `04_LOGIC_ENGLISH_KEYWORDS_PART11_CAUSAL_SEMANTIC.md` ⭐ NEW (causal-semantic system)
+
+---
+
+## 5.1 Causal-Semantic System ⭐ NEW
+
+Bayan now includes a powerful **causal-semantic knowledge system** that goes beyond word embeddings by representing meanings through cause-effect relationships:
+
+```bayan
+hybrid {
+    # Define causal laws with physical/logical reasons
+    # Syntax: cause_effect(condition, result, cause, strength)
+    cause_effect("lift_object_up", "falls", "gravity", 1.0).
+    cause_effect("study_hard", "success", "knowledge_acquisition", 0.9).
+
+    # Define semantic relations
+    # Syntax: relation(from, relation_type, to, strength)
+    relation("bathing", "in", "bathroom", 0.9).
+    relation("house", "has", "bathroom", 0.95).
+    relation("river", "is", "water", 1.0).
+
+    # Query: Why does something fall?
+    query cause_effect("lift_object_up", ?result, ?cause, ?strength).
+    # Returns: ?result="falls", ?cause="gravity", ?strength=1.0
+
+    # Query: Where does bathing happen?
+    query relation("bathing", ?relation_type, ?place, ?strength).
+    # Returns: ?relation_type="in", ?place="bathroom", ?strength=0.9
+}
+```
+
+**Relation Types:**
+- **Causal**: `produces`, `causes`, `leads_to`
+- **Spatial**: `in`, `on`, `at`
+- **Instrumental**: `with`, `by_means_of`
+- **Identity**: `is`, `equals`
+- **Possession**: `has`, `owns`
+- **Purpose**: `for`, `in_order_to`
+
+**Applications:**
+- Natural language understanding with context-aware prediction
+- Dialogue systems with logically justified responses
+- Educational systems that explain phenomena with real causes
+- Expert systems storing causal knowledge across domains
 
 ---
 

@@ -347,6 +347,12 @@ class HybridParser:
                 logical_stmts.append(self.parse_rule())
             elif self.match(TokenType.FACT):
                 logical_stmts.append(self.parse_fact())
+            elif self.match(TokenType.CAUSE_EFFECT):
+                # Parse cause-effect statement: سبب_نتيجة(...)
+                logical_stmts.append(self.parse_cause_effect())
+            elif self.match(TokenType.RELATION):
+                # Parse relation statement: علاقة(...)
+                logical_stmts.append(self.parse_relation())
             elif self.is_logical_rule():
                 # Parse as logical rule
                 logical_stmts.append(self.parse_rule())
@@ -1896,6 +1902,76 @@ class HybridParser:
             self.eat(TokenType.DOT)
 
         return LogicalRule(head, body)
+
+    def parse_cause_effect(self):
+        """Parse cause-effect statement: سبب_نتيجة(condition, result, cause, strength).
+
+        Syntax:
+            سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+        """
+        self.eat(TokenType.CAUSE_EFFECT)
+        self.eat(TokenType.LPAREN)
+
+        # Parse condition
+        condition = self.parse_logical_term()
+        self.eat(TokenType.COMMA)
+
+        # Parse result
+        result = self.parse_logical_term()
+        self.eat(TokenType.COMMA)
+
+        # Parse cause
+        cause = self.parse_logical_term()
+
+        # Optional strength
+        strength = None
+        if self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            strength = self.parse_logical_term()
+
+        self.eat(TokenType.RPAREN)
+
+        # Optional dot at the end
+        if self.match(TokenType.DOT):
+            self.eat(TokenType.DOT)
+
+        from .ast_nodes import CauseEffectStatement
+        return CauseEffectStatement(condition, result, cause, strength)
+
+    def parse_relation(self):
+        """Parse relation statement: علاقة(from, relation_type, to, strength).
+
+        Syntax:
+            علاقة("الاستحمام", "في", "حمام", 0.9).
+        """
+        self.eat(TokenType.RELATION)
+        self.eat(TokenType.LPAREN)
+
+        # Parse from concept
+        from_concept = self.parse_logical_term()
+        self.eat(TokenType.COMMA)
+
+        # Parse relation type
+        relation_type = self.parse_logical_term()
+        self.eat(TokenType.COMMA)
+
+        # Parse to concept
+        to_concept = self.parse_logical_term()
+
+        # Optional strength
+        strength = None
+        if self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            strength = self.parse_logical_term()
+
+        self.eat(TokenType.RPAREN)
+
+        # Optional dot at the end
+        if self.match(TokenType.DOT):
+            self.eat(TokenType.DOT)
+
+        from .ast_nodes import RelationStatement
+        return RelationStatement(from_concept, relation_type, to_concept, strength)
 
     def parse_entity_body(self):
         """Parse entity body: allows both quoted strings and bare identifiers as keys

@@ -118,6 +118,15 @@ class TokenType(Enum):
     PIPELINE = auto()  # |> operator
     COMPOSE = auto()   # >> operator
 
+    # Causal-Semantic tokens (نظام السببية والدلالة)
+    CAUSE_EFFECT = auto()  # سبب_نتيجة
+    RELATION = auto()  # علاقة
+    CONDITION = auto()  # الشرط
+    EFFECT_RESULT = auto()  # النتيجة
+    CAUSE = auto()  # السبب
+    IF_CONDITION = auto()  # إذا
+    THEN_RESULT = auto()  # فإن
+
     # Cognitive-Semantic Model tokens
     COGNITIVE_ENTITY = auto()
     COGNITIVE_EVENT = auto()
@@ -452,6 +461,18 @@ class HybridLexer:
         'استعلام': TokenType.QUERY,
         'information': TokenType.INFORMATION,
         'معلومة': TokenType.INFORMATION,
+        # Causal-Semantic keywords (نظام السببية والدلالة)
+        'سبب_نتيجة': TokenType.CAUSE_EFFECT,
+        'cause_effect': TokenType.CAUSE_EFFECT,
+        'علاقة': TokenType.RELATION,
+        'relation': TokenType.RELATION,
+        'الشرط': TokenType.CONDITION,
+        'النتيجة': TokenType.EFFECT_RESULT,
+        'السبب': TokenType.CAUSE,
+        'إذا': TokenType.IF_CONDITION,
+        'فإن': TokenType.THEN_RESULT,
+        'القوة': TokenType.STRENGTH,
+        'المجال': TokenType.DOMAIN,
         'content': TokenType.CONTENT,
         'محتوى': TokenType.CONTENT,
         'context': TokenType.CONTEXT,

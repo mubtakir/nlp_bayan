@@ -67,6 +67,26 @@ hybrid {
 
 **English**: `hybrid`, `query`, `fact`, `rule`
 
+### Causal-Semantic System (نظام السببية والدلالة) ⭐ NEW
+
+**English**: `cause_effect`, `relation`
+
+**Arabic**: `سبب_نتيجة`, `علاقة`
+
+**Usage**:
+```bayan
+hybrid {
+    # Causal law with reason
+    سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+
+    # Semantic relation
+    علاقة("الاستحمام", "في", "حمام", 0.9).
+
+    # Query
+    query سبب_نتيجة(?condition, "يسقط", ?cause, ?strength).
+}
+```
+
 ### Entity System (نظام الكيانات)
 
 **English**: `entity`, `apply`, `concept`
@@ -451,6 +471,26 @@ realize_surface(trace, "ar", "high")
 meaning("X", "Y")
 information("X", "relation", "Y")
 inference_rule("pattern", "conclusion")
+```
+
+### Causal-Semantic Knowledge Graphs ⭐ NEW
+```bayan
+# Define causal laws
+سبب_نتيجة("رفع_شيء_لفوق", "يسقط", "جاذبية", 1.0).
+سبب_نتيجة("دراسة_مجتهدة", "نجاح", "اكتساب_معرفة", 0.9).
+
+# Define semantic relations
+علاقة("الاستحمام", "في", "حمام", 0.9).
+علاقة("البيت", "فيه", "حمام", 0.95).
+علاقة("النهر", "هو", "ماء", 1.0).
+
+# Query causal laws
+query سبب_نتيجة("رفع_شيء_لفوق", ?result, ?cause, ?strength).
+# Returns: ?result="يسقط", ?cause="جاذبية", ?strength=1.0
+
+# Query semantic relations
+query علاقة("الاستحمام", ?relation_type, ?place, ?strength).
+# Returns: ?relation_type="في", ?place="حمام", ?strength=0.9
 ```
 
 ### Similarity & Synonyms
