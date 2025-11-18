@@ -1,0 +1,60 @@
+name: Create Release for Wave 14 (ai-stdlib-v14)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - ai-stdlib-v14
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Wave 14 release exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ai-stdlib-v14
+        run: |
+          set -e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
+          code=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+                   -H "Authorization: Bearer ${GH_TOKEN}" \
+                   -H "Accept: application/vnd.github+json" \
+                   "$API")
+          if [ "$code" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Wave 14 release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cat > /tmp/release.json << 'JSON'
+          {
+            "tag_name": "ai-stdlib-v14",
+            "name": "AI stdlib Wave 14 — NLP LCS + Jaccard; ML Naive Bayes (358/358)",
+            "body": "- NLP: lcs_length(s1, s2)\n- NLP: jaccard_char_ngrams(text1, text2, n=3)\n- ML: naive_bayes_train(docs_tokens, y, alpha=1.0), naive_bayes_predict(model, docs_tokens)\n- Arabic wrappers: طول_LCS(نص1, نص2)، جاكارد_محارف(نص1, نص2, ن=3)، تدريب_بايز_متعدد(وثائق, تسميات, ألفا=1.0)، توقع_بايز_متعدد(نموذج, وثائق)\n- Tests: tests/test_ai_nlp_wave14.py → PASS; tests/test_ai_ml_wave14_nb.py → PASS\n- Total tests: 358/358\n- Docs updated: README, AI_LIBRARY_GUIDE.md, developer_guide.md, AI_HANDOFF_REPORT.md",
+            "draft": false,
+            "prerelease": false
+          }
+          JSON
+
+          code=$(curl -s -o /tmp/create.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -d @/tmp/release.json)
+          echo "Create release HTTP: $code"
+          test "$code" = "201"
+          jq -r '.html_url // ""' /tmp/create.json || true
+

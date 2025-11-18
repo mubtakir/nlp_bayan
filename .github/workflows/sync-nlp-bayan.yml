@@ -1,0 +1,37 @@
+name: Sync nlp_bayan subtree to separate repo
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'nlp_bayan/**'
+      - '.github/workflows/sync-nlp-bayan.yml'
+  workflow_dispatch:
+
+jobs:
+  sync-subtree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare subtree branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Create/refresh a branch that contains only the nlp_bayan/ directory history
+          git subtree split --prefix=nlp_bayan -b nlp_bayan-publish
+
+      - name: Push to external repo (mubtakir/nlp_bayan)
+        env:
+          TARGET_REPO: mubtakir/nlp_bayan
+          GH_TOKEN: ${{ secrets.NLP_BAYAN_PUSH_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: NLP_BAYAN_PUSH_TOKEN secret is not set." >&2
+            exit 1
+          fi
+          git push --force "https://${GH_TOKEN}@github.com/${TARGET_REPO}.git" nlp_bayan-publish:main
+

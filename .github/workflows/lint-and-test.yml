@@ -1,0 +1,37 @@
+name: Bayan Lint and Tests
+
+on:
+  push:
+    paths:
+      - 'nlp_bayan/**'
+      - 'scripts/bayan_lint_identifiers.py'
+      - 'bayan/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - 'nlp_bayan/**'
+      - 'scripts/bayan_lint_identifiers.py'
+      - 'bayan/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+      - name: Run Bayan identifier linter (scoped to nlp_bayan)
+        run: |
+          python scripts/bayan_lint_identifiers.py nlp_bayan
+      - name: Run tests
+        run: |
+          python -m pytest -q
+

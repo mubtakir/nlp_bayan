@@ -1,0 +1,60 @@
+name: Create Release for Wave 15 (ai-stdlib-v15)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - ai-stdlib-v15
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Wave 15 release exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ai-stdlib-v15
+        run: |
+          set -e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
+          code=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+                   -H "Authorization: Bearer ${GH_TOKEN}" \
+                   -H "Accept: application/vnd.github+json" \
+                   "$API")
+          if [ "$code" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Wave 15 release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cat > /tmp/release.json << 'JSON'
+          {
+            "tag_name": "ai-stdlib-v15",
+            "name": "AI stdlib Wave 15 — NLP: Jaro + Jaro–Winkler + Dice char-ngrams (361/361)",
+            "body": "- NLP: jaro_similarity(s1, s2)\n- NLP: jaro_winkler_similarity(s1, s2, p=0.1, max_prefix=4)\n- NLP: dice_char_ngrams(text1, text2, n=2)\n- Arabic wrappers: تشابه_جارو، تشابه_جارو_وينكلر، دايس_محارف\n- Tests: tests/test_ai_nlp_wave15.py — PASS (3 tests)\n- Total tests: 361/361\n- Docs updated: README, AI_LIBRARY_GUIDE.md, developer_guide.md, AI_HANDOFF_REPORT.md",
+            "draft": false,
+            "prerelease": false
+          }
+          JSON
+
+          code=$(curl -s -o /tmp/create.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/releases \
+            -d @/tmp/release.json)
+          echo "Create release HTTP: $code"
+          test "$code" = "201"
+          jq -r '.html_url // ""' /tmp/create.json || true
+
