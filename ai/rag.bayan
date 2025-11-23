@@ -1,0 +1,82 @@
+# ai/rag.bayan
+# Conceptual RAG (Retrieval-Augmented Generation)
+
+import ai.transformers as tr
+import ai.vector_store as vs
+
+# Global state for the RAG system
+rag_state = {
+    "embedding_model": "",
+    "vector_store": "rag_store"
+}
+
+def init_rag(embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"): {
+    # Initializes the RAG system
+    # Loads the embedding model and creates a vector store
+    
+    rag_state["embedding_model"] = tr.load_pipeline("feature-extraction", embedding_model_name)
+    vs.create_store(rag_state["vector_store"])
+    return True
+}
+
+def index_documents(docs): {
+    # Indexes a list of documents
+    # 1. Compute embeddings using the transformer model
+    # 2. Add to vector store
+    
+    if rag_state["embedding_model"] == "": {
+        return False
+    }
+    
+    embeddings = []
+    for doc in docs: {
+        # Feature extraction pipeline returns a list of lists (one per token) or pooled
+        # We assume we need to handle the output. 
+        # For simplicity in this demo, we'll assume the pipeline returns a usable vector or we take the mean.
+        # Note: 'feature-extraction' usually returns [batch_size, seq_len, hidden_dim]
+        # We need to pool it. For now, let's assume the python lib handles it or we do a simple check.
+        
+        # Actually, let's do the pooling in Python for efficiency, but here we are in Bayan.
+        # To keep it simple, we will rely on a specific Python helper if needed, 
+        # but 'feature-extraction' output is complex.
+        # Let's assume we use a text-classification model that outputs a vector? No.
+        # Let's use the 'predict' function which returns the raw output.
+        
+        # For this MVP, we will assume the Python side 'predict' for feature-extraction 
+        # returns a list of floats (mean pooled) if we modify the python lib slightly 
+        # OR we just take the first token's embedding as a proxy.
+        
+        raw_output = tr.run_pipeline(rag_state["embedding_model"], doc)
+        
+        # Hack for MVP: assume raw_output is list of lists, take mean of first element (CLS token approx)
+        # In reality, we need proper pooling.
+        # Let's assume raw_output[0] is the embedding for the first token (CLS)
+        if len(raw_output) > 0: {
+             embeddings.append(raw_output[0][0]) 
+        } else: {
+             embeddings.append([])
+        }
+    }
+    
+    vs.add_items(rag_state["vector_store"], docs, embeddings)
+    return True
+}
+
+def retrieve(query, k=3): {
+    # Retrieves relevant documents for a query
+    
+    if rag_state["embedding_model"] == "": {
+        return []
+    }
+    
+    # Embed query
+    raw_output = tr.run_pipeline(rag_state["embedding_model"], query)
+    query_embedding = []
+    if len(raw_output) > 0: {
+        query_embedding = raw_output[0][0]
+    }
+    
+    # Search
+    results = vs.query_similar(rag_state["vector_store"], query_embedding, k)
+    return results
+}

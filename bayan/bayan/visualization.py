@@ -325,3 +325,335 @@ class ExistentialVisualizer:
 </html>"""
         return html
 
+    def export_d3_graph(self) -> Dict[str, Any]:
+        """
+        Export knowledge base as D3.js compatible JSON graph.
+        Returns:
+            {
+                'nodes': [{'id': '...', 'group': 1, 'label': '...', 'type': 'concept'}],
+                'links': [{'source': '...', 'target': '...', 'value': 1, 'relationship': '...'}]
+            }
+        """
+        from .logical_engine import Fact, Rule
+        
+        nodes = {}
+        links = []
+        
+        # Access the logical engine from the interpreter
+        # Depending on interpreter type (Hybrid/Traditional), access path might vary
+        logical_engine = getattr(self.interpreter, 'logical', None)
+        if not logical_engine and hasattr(self.interpreter, 'logical_engine'):
+            logical_engine = self.interpreter.logical_engine
+            
+        if not logical_engine:
+            return {'nodes': [], 'links': []}
+            
+        # Iterate over all facts in the knowledge base
+        for pred_name, items in logical_engine.knowledge_base.items():
+            for item in items:
+                if isinstance(item, Fact):
+                    pred = item.predicate
+                    args = pred.args
+                    
+                    # Heuristic: Binary predicates are links, Unary are properties/types
+                    if len(args) == 2:
+                        source = str(args[0])
+                        target = str(args[1])
+                        rel = pred.name
+                        
+                        # Add nodes
+                        if source not in nodes:
+                            nodes[source] = {'id': source, 'group': 1, 'label': source, 'type': 'concept'}
+                        if target not in nodes:
+                            nodes[target] = {'id': target, 'group': 1, 'label': target, 'type': 'concept'}
+                            
+                        # Add link
+                        links.append({
+                            'source': source,
+                            'target': target,
+                            'value': 1,
+                            'relationship': rel,
+                            'probability': item.probability
+                        })
+                        
+                    elif len(args) == 1:
+                        # Unary predicate: type(entity) or property(entity)
+                        entity = str(args[0])
+                        prop = pred.name
+                        
+                        if entity not in nodes:
+                            nodes[entity] = {'id': entity, 'group': 1, 'label': entity, 'type': 'concept'}
+                            
+                        # We can represent this as a self-loop or just implicit property
+                        # For visualization, maybe add a 'value' node?
+                        # Let's add a value node for the property
+                        val_id = f"{entity}_{prop}"
+                        if val_id not in nodes:
+                            nodes[val_id] = {'id': val_id, 'group': 3, 'label': prop, 'type': 'value'}
+                        
+                        links.append({
+                            'source': entity,
+                            'target': val_id,
+                            'value': 1,
+                            'relationship': 'is',
+                            'probability': item.probability
+                        })
+                        
+                    elif len(args) > 2:
+                        # N-ary predicate: Create a central event node
+                        # event_id = pred_name + "_" + hash(args)
+                        event_id = f"{pred_name}_{abs(hash(str(args))) % 10000}"
+                        if event_id not in nodes:
+                            nodes[event_id] = {'id': event_id, 'group': 2, 'label': pred_name, 'type': 'logic'}
+                            
+                        for i, arg in enumerate(args):
+                            arg_str = str(arg)
+                            if arg_str not in nodes:
+                                nodes[arg_str] = {'id': arg_str, 'group': 1, 'label': arg_str, 'type': 'concept'}
+                                
+                            links.append({
+                                'relationship': f"arg{i+1}",
+                                'probability': item.probability
+                            })
+
+                elif isinstance(item, Rule):
+                    # Visualize Rule as a causal node
+                    # Rule: head :- body
+                    # We link body predicates (causes) to the rule node, and rule node to head predicate (effect)
+                    
+                    rule_id = f"rule_{pred_name}_{abs(hash(str(item))) % 10000}"
+                    if rule_id not in nodes:
+                        nodes[rule_id] = {'id': rule_id, 'group': 4, 'label': 'IMPLIES', 'type': 'rule'}
+                        
+                    # Head
+                    head_pred = item.head.name
+                    # Create a value node for the head predicate if it doesn't exist
+                    head_val_id = f"val_{head_pred}"
+                    if head_val_id not in nodes:
+                        nodes[head_val_id] = {'id': head_val_id, 'group': 3, 'label': head_pred, 'type': 'value'}
+                        
+                    # Link Rule -> Head
+                    links.append({
+                        'source': rule_id,
+                        'target': head_val_id,
+                        'value': 1,
+                        'relationship': 'causes'
+                    })
+                    
+                    # Body
+                    for goal in item.body:
+                        goal_pred = goal.name
+                        # Create value node for body predicate
+                        body_val_id = f"val_{goal_pred}"
+                        if body_val_id not in nodes:
+                            nodes[body_val_id] = {'id': body_val_id, 'group': 3, 'label': goal_pred, 'type': 'value'}
+                            
+                        # Link Body -> Rule
+                        links.append({
+                            'source': body_val_id,
+                            'target': rule_id,
+                            'value': 1,
+                            'relationship': 'condition'
+                        })
+
+        return {
+            'nodes': list(nodes.values()),
+            'links': links
+        }
+
+    def export_procedural_graph(self) -> Dict[str, Any]:
+        """
+        Export procedural functions and their calls as D3 graph
+        تصدير الدوال الإجرائية واستدعاءاتها كرسم بياني
+        """
+        nodes = {}
+        links = []
+        
+        # Get functions from global environment
+        if hasattr(self.interpreter, 'traditional'):
+            env = self.interpreter.traditional.global_env
+            
+            for name, value in env.items():
+                # Check if it's a function (callable and has __name__)
+                if callable(value) and hasattr(value, '__name__'):
+                    # Skip built-in functions and special names
+                    if name.startswith('_') or name in ['print', 'len', 'str', 'int', 'float']:
+                        continue
+                    
+                    func_id = f"func_{name}"
+                    nodes[func_id] = {
+                        'id': func_id,
+                        'label': name,
+                        'group': 5,  # Yellow for functions
+                        'type': 'function'
+                    }
+        
+        return {'nodes': list(nodes.values()), 'links': links}
+
+    def export_oop_graph(self) -> Dict[str, Any]:
+        """
+        Export OOP classes, inheritance, and objects as D3 graph
+        تصدير الفئات والوراثة والكائنات كرسم بياني
+        """
+        nodes = {}
+        links = []
+        
+        # Get classes from class system
+        if hasattr(self.interpreter, 'traditional') and hasattr(self.interpreter.traditional, 'class_system'):
+            class_system = self.interpreter.traditional.class_system
+            
+            # Add class nodes
+            for class_name, class_def in class_system.classes.items():
+                class_id = f"class_{class_name}"
+                nodes[class_id] = {
+                    'id': class_id,
+                    'label': class_name,
+                    'group': 6,  # Red for classes
+                    'type': 'class'
+                }
+                
+                # Add inheritance links
+                if hasattr(class_def, 'base_classes') and class_def.base_classes:
+                    for base in class_def.base_classes:
+                        base_id = f"class_{base}"
+                        # Ensure base class node exists
+                        if base_id not in nodes and base in class_system.classes:
+                            nodes[base_id] = {
+                                'id': base_id,
+                                'label': base,
+                                'group': 6,
+                                'type': 'class'
+                            }
+                        
+                        links.append({
+                            'source': class_id,
+                            'target': base_id,
+                            'value': 1,
+                            'relationship': 'extends'
+                        })
+                elif hasattr(class_def, 'base_class') and class_def.base_class:
+                    # Fallback to single base_class
+                    base_id = f"class_{class_def.base_class}"
+                    if base_id not in nodes and class_def.base_class in class_system.classes:
+                        nodes[base_id] = {
+                            'id': base_id,
+                            'label': class_def.base_class,
+                            'group': 6,
+                            'type': 'class'
+                        }
+                    
+                    links.append({
+                        'source': class_id,
+                        'target': base_id,
+                        'value': 1,
+                        'relationship': 'extends'
+                    })
+        
+        return {'nodes': list(nodes.values()), 'links': links}
+
+    def export_entity_graph(self) -> Dict[str, Any]:
+        """
+        Export existential entities and their relationships as D3 graph
+        تصدير الكيانات الوجودية وعلاقاتها كرسم بياني
+        """
+        nodes = {}
+        links = []
+        
+        # Add existential beings
+        for being_name, being_config in self.existential_beings.items():
+            being_id = f"entity_{being_name}"
+            being_type = being_config.get('_type', being_config.get('type', being_config.get('نوع', 'Unknown')))
+            
+            nodes[being_id] = {
+                'id': being_id,
+                'label': being_name,
+                'group': 7,  # Brown for entities
+                'type': 'entity',
+                'entity_type': being_type
+            }
+            
+            # Add relations
+            relations = being_config.get('relations', being_config.get('علاقات', {}))
+            for rel_type, targets in relations.items():
+                if isinstance(targets, list):
+                    for target in targets:
+                        target_id = f"entity_{target}"
+                        # Ensure target node exists
+                        if target_id not in nodes:
+                            nodes[target_id] = {
+                                'id': target_id,
+                                'label': target,
+                                'group': 7,
+                                'type': 'entity'
+                            }
+                        
+                        links.append({
+                            'source': being_id,
+                            'target': target_id,
+                            'value': 1,
+                            'relationship': rel_type
+                        })
+        
+        return {'nodes': list(nodes.values()), 'links': links}
+
+    def export_unified_graph(self) -> Dict[str, Any]:
+        """
+        Export all paradigms in one unified graph with layers
+        تصدير جميع النماذج البرمجية في رسم بياني موحد مع طبقات
+        """
+        # Get all individual graphs
+        logic_graph = self.export_d3_graph()
+        procedural_graph = self.export_procedural_graph()
+        oop_graph = self.export_oop_graph()
+        entity_graph = self.export_entity_graph()
+        
+        # Merge all nodes (using dict to avoid duplicates)
+        all_nodes = {}
+        all_links = []
+        
+        # Track which nodes belong to which layer
+        layers = {
+            'logic': [],
+            'procedural': [],
+            'oop': [],
+            'entity': []
+        }
+        
+        # Add logic nodes
+        for node in logic_graph['nodes']:
+            all_nodes[node['id']] = node
+            layers['logic'].append(node['id'])
+        all_links.extend(logic_graph['links'])
+        
+        # Add procedural nodes
+        for node in procedural_graph['nodes']:
+            all_nodes[node['id']] = node
+            layers['procedural'].append(node['id'])
+        all_links.extend(procedural_graph['links'])
+        
+        # Add OOP nodes
+        for node in oop_graph['nodes']:
+            all_nodes[node['id']] = node
+            layers['oop'].append(node['id'])
+        all_links.extend(oop_graph['links'])
+        
+        # Add entity nodes
+        for node in entity_graph['nodes']:
+            all_nodes[node['id']] = node
+            layers['entity'].append(node['id'])
+        all_links.extend(entity_graph['links'])
+        
+        return {
+            'nodes': list(all_nodes.values()),
+            'links': all_links,
+            'layers': layers,
+            'stats': {
+                'total_nodes': len(all_nodes),
+                'total_links': len(all_links),
+                'logic_nodes': len(layers['logic']),
+                'procedural_nodes': len(layers['procedural']),
+                'oop_nodes': len(layers['oop']),
+                'entity_nodes': len(layers['entity'])
+            }
+        }
+

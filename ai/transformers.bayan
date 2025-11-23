@@ -1,0 +1,18 @@
+# ai/transformers.bayan
+# Bayan wrapper for Hugging Face Transformers
+
+def load_pipeline(task, model_name=""): {
+    # Loads a Hugging Face pipeline
+    # Returns a pipeline ID string
+    return python_call("bayan.libraries.transformers_lib", "load_model", task, model_name)
+}
+
+def run_pipeline(pipeline_id, text): {
+    # Runs prediction on text
+    return python_call("bayan.libraries.transformers_lib", "predict", pipeline_id, text)
+}
+
+def generate_text(pipeline_id, prompt, max_length=50): {
+    # Generates text from prompt
+    return python_call("bayan.libraries.transformers_lib", "generate", pipeline_id, prompt, max_length)
+}

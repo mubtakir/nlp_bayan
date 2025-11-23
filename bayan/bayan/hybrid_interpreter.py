@@ -667,11 +667,18 @@ class HybridInterpreter:
 
     def visit_logical_fact(self, node):
         """Visit a logical fact (supports optional probability via fact[prob])"""
+        # Convert AST LogicalPredicate to logical_engine Predicate
+        predicate = self.traditional._convert_to_predicate(node.predicate)
+        if not predicate:
+            return None
+            
         prob = None
         if getattr(node, 'probability', None) is not None:
             prob = self.traditional.interpret(node.probability)
-        fact = Fact(node.predicate, probability=prob)
+        
+        fact = Fact(predicate, probability=prob)
         self.logical.add_fact(fact)
+        return None
     def visit_concept_def(self, node):
         """Install a concept as a runtime set and assert logical in_concept(Name, Elem) facts."""
         # Evaluate set literal to a Python set
@@ -689,7 +696,40 @@ class HybridInterpreter:
 
     def visit_logical_rule(self, node):
         """Visit a logical rule"""
-        rule = Rule(node.head, node.body)
+        from .logical_engine import Predicate, Term
+        
+        # Convert AST nodes to logical_engine objects
+        # Check if head is already a Predicate
+        if isinstance(node.head, Predicate):
+            head = node.head
+        else:
+            head = self.traditional._convert_to_predicate(node.head)
+            if not head:
+                return None
+            
+        body = []
+        for goal in node.body:
+            # Check if goal is already a Predicate (from parser)
+            if isinstance(goal, Predicate):
+                # Fix: Parser creates Terms without proper is_variable flag
+                # Rebuild the predicate with corrected Terms
+                fixed_args = []
+                for arg in goal.args:
+                    if isinstance(arg, Term):
+                        # Check if this should be a variable (starts with uppercase or ?)
+                        val = str(arg.value)
+                        is_var = val.startswith('?') or (val and val[0].isupper())
+                        fixed_args.append(Term(arg.value, is_variable=is_var))
+                    else:
+                        fixed_args.append(arg)
+                fixed_pred = Predicate(goal.name, fixed_args)
+                body.append(fixed_pred)
+            else:
+                pred = self.traditional._convert_to_predicate(goal)
+                if pred:
+                    body.append(pred)
+        
+        rule = Rule(head, body)
         self.logical.add_rule(rule)
         return None
 
@@ -731,7 +771,18 @@ class HybridInterpreter:
 
     def visit_logical_query(self, node):
         """Visit a logical query"""
-        solutions = self.logical.query(node.goal)
+        from .logical_engine import Predicate
+        
+        # Check if goal is already a Predicate (from parser) or needs conversion
+        if isinstance(node.goal, Predicate):
+            goal = node.goal
+        else:
+            # Convert AST goal to logical_engine Predicate
+            goal = self.traditional._convert_to_predicate(node.goal)
+            if not goal:
+                return []
+            
+        solutions = self.logical.query(goal)
 
         # Convert solutions to dictionaries (include '__prob')
         results = []
@@ -754,7 +805,6 @@ class HybridInterpreter:
         try:
             # Collect only variables that appear in the original query goal
             goal_vars = set()
-            goal = getattr(node, 'goal', None)
             if goal is not None and hasattr(goal, 'args'):
                 for arg in goal.args:
                     # arg is a Term from logical_engine with .is_variable and .value

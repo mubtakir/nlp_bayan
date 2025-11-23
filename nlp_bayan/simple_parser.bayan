@@ -8,7 +8,8 @@
 # ============================================
 
 # مساعد: إزالة علامات الترقيم الشائعة من النهاية
-def _strip_punct(s):
+def _strip_punct(s): {
+}
 {
     t = s.strip()
     t = t.replace("؟", "")
@@ -20,7 +21,8 @@ def _strip_punct(s):
 }
 
 # مساعد: تحليل جملة مكافئة (هو/=/يعني/بمعنى) وإضافتها كـ (هو)
-def _parse_equivalence_and_add(kb_module, text):
+def _parse_equivalence_and_add(kb_module, text): {
+}
 {
     s = text.strip()
     # أنماط مكافئة
@@ -55,7 +57,8 @@ def _parse_equivalence_and_add(kb_module, text):
 }
 
 # مساعد: تحليل "نوع من/نوعه" وإضافتها كعلاقة "نوع من"
-def _parse_is_a_and_add(kb_module, text):
+def _parse_is_a_and_add(kb_module, text): {
+}
 {
     s = text.strip()
     if " نوع من " in s:
@@ -90,7 +93,8 @@ def _parse_is_a_and_add(kb_module, text):
 }
 
 # مساعد: تحليل علاقة الملكية "له" وإضافتها كعلاقة "له"
-def _parse_has_property_and_add(kb_module, text):
+def _parse_has_property_and_add(kb_module, text): {
+}
 {
     s = text.strip()
     if " له " in s:
@@ -114,7 +118,8 @@ def _parse_has_property_and_add(kb_module, text):
 # kb_module: وحدة قاعدة المعرفة (مثل simple_kb)
 # sentence : نص الجملة
 # return   : "ADDED" عند النجاح، وإلا "FAILED"
-def parse_and_add(kb_module, sentence):
+def parse_and_add(kb_module, sentence): {
+}
 {
     s = sentence.strip()
     # مجموعة بادئات بصيغ متعددة (مع/بدون "أن")
@@ -156,14 +161,16 @@ def parse_and_add(kb_module, sentence):
 }
 
 # الحفاظ على التوافق مع السابق (صيغة "أخبرك أن ...")
-def parse_tell_and_add(kb_module, sentence):
+def parse_tell_and_add(kb_module, sentence): {
+}
 {
     return parse_and_add(kb_module, sentence)
 }
 
 # استخراج موضوع السؤال من صيغة "ما هو X؟"
 # يعيد السلسلة X أو سلسلة فارغة عند الفشل
-def parse_what_subject(question):
+def parse_what_subject(question): {
+}
 {
     q = question.strip()
     q = q.replace("؟", "")
@@ -180,7 +187,8 @@ def parse_what_subject(question):
 # الصيغ المدعومة: "ما هو X؟"، "ما هي X؟"، "ماذا يعني X؟"، "ما معنى X؟"، "ما تعريف X؟"
 # يعيد قاموساً: {"ok": True/False, "subject": S, "predicate": "هو"}
 
-def parse_question(question):
+def parse_question(question): {
+}
 {
     q = question.strip()
     q = q.replace("؟", "")

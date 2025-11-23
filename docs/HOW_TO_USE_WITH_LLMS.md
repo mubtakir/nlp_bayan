@@ -37,8 +37,8 @@
 - **الحجم**: منظم حسب الفئة
 - **متى تستخدمه**: عندما تريد أن يطلع النموذج على المشروع بالكامل
 - **الروابط**:
-  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
 
 ### 2. **LLM_SYSTEM_PROMPT.txt** ⭐ (الأهم للبداية السريعة)
 - **الاستخدام**: انسخ محتواه والصقه في بداية المحادثة

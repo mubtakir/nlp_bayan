@@ -1,0 +1,17 @@
+# ai/nlp/arabic.bayan
+# Advanced Arabic NLP Tools
+
+def segment(text): {
+    # Segments text into prefix, stem, suffix
+    return python_call("bayan.libraries.arabic_nlp_lib", "segment", text)
+}
+
+def pos_tag(text): {
+    # Part-of-Speech Tagging
+    return python_call("bayan.libraries.arabic_nlp_lib", "pos_tag", text)
+}
+
+def extract_entities(text): {
+    # Named Entity Recognition
+    return python_call("bayan.libraries.arabic_nlp_lib", "extract_entities", text)
+}

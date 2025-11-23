@@ -1,0 +1,52 @@
+hybrid {
+    import ai.conceptual_surface_realizer as realizer
+    import ai.lexicon as lex
+    import ai.morphology as morph
+
+    print("Verifying Surface Realizer...")
+
+    # Mock Surface Plan (as if from Sentence Tree)
+    # Scenario: "The student studies in the library"
+    
+    # 1. Arabic Plan
+    print("\n--- Arabic Realization ---")
+    plan_ar = {
+        "sentence_type": "ActionSentence",
+        "lang": "arabic",
+        "sequence": [
+            {"concept_key": "action_study", "features": {"tense": "present", "person": "3ms"}}, # يدرس
+            {"concept_key": "entity_student", "features": {"definiteness": "def"}},             # الطالب
+            {"symbol": "في"},                                                               # في (preposition)
+            {"concept_key": "context_library", "features": {"definiteness": "def"}}             # المكتبة
+        ],
+        "modifiers": {}
+    }
+
+    result_ar = realizer.realize_from_surface_plan(plan_ar, "neutral")
+    text_ar = realizer.realization_to_text(result_ar)
+    print("Output: " + text_ar)
+    
+    # Expected: يدرس الطالب في المكتبة
+
+    # 2. English Plan
+    print("\n--- English Realization ---")
+    plan_en = {
+        "sentence_type": "ActionSentence",
+        "lang": "english",
+        "sequence": [
+            {"concept_key": "entity_student", "features": {"definiteness": "def", "number": "singular"}}, # The student
+            {"concept_key": "action_study", "features": {"tense": "present", "person": "3s"}},           # studies
+            {"symbol": "in"},                                                                        # in
+            {"concept_key": "context_library", "features": {"definiteness": "def", "number": "singular"}} # the library
+        ],
+        "modifiers": {}
+    }
+
+    result_en = realizer.realize_from_surface_plan(plan_en, "neutral")
+    text_en = realizer.realization_to_text(result_en)
+    print("Output: " + text_en)
+
+    # Expected: the student studies in the library
+
+    print("\nVerification Complete.")
+}

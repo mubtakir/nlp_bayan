@@ -4,7 +4,8 @@
 # ============================================
 
 # دالة: تحليل جملة "X هو Y"
-def parse_is_sentence(sentence):
+def parse_is_sentence(sentence): {
+}
 {
     # إزالة المسافات الزائدة
     sentence = sentence.strip()
@@ -38,7 +39,8 @@ def parse_is_sentence(sentence):
 }
 
 # دالة: تحليل جملة "أخبرك أن X هو Y"
-def parse_tell_sentence(sentence):
+def parse_tell_sentence(sentence): {
+}
 {
     # إزالة "أخبرك أن" من البداية
     if sentence.startswith("أخبرك أن "):
@@ -57,7 +59,8 @@ def parse_tell_sentence(sentence):
 }
 
 # دالة: تحليل سؤال "ما هو X؟"
-def parse_what_question(question):
+def parse_what_question(question): {
+}
 {
     # إزالة المسافات
     question = question.strip()
@@ -85,7 +88,8 @@ def parse_what_question(question):
 }
 
 # دالة: اختبار المحلل
-def test_parser():
+def test_parser(): {
+}
 {
     print("=" * 70)
     print("🧪 اختبار محلل الجمل")

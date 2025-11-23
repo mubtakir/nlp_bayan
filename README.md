@@ -7,8 +7,8 @@
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-[![CI](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/actions/workflows/lint-and-test.yml/badge.svg?branch=main)](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/actions/workflows/lint-and-test.yml)
-[![Tests Workflow](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/actions/workflows/tests.yml)
+[![CI](https://github.com/mubtakir/nlp_bayan/actions/workflows/lint-and-test.yml/badge.svg?branch=main)](https://github.com/mubtakir/nlp_bayan/actions/workflows/lint-and-test.yml)
+[![Tests Workflow](https://github.com/mubtakir/nlp_bayan/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mubtakir/nlp_bayan/actions/workflows/tests.yml)
 
 
 [![Developer Guide](https://img.shields.io/badge/Developer%20Guide-nlp__bayan-blue?style=for-the-badge)](docs/DEVELOPER_GUIDE.md)
@@ -64,7 +64,13 @@
 - ✅ Linguistic Templates — Multi-valued facts/rules/queries with Arabic nominal patterns (صفات/ألقاب/إضافة/ملكية)
 - ✅ Grammar-level nominal phrases — Parser sugar inside hybrid: محمد الطبيب. عصير العنب[of]. مالك البيت[belongs].
 - ✅ Programmable templates — define_nominal_template / define_head_template for custom phrase mappings
+- ✅ Programmable templates — define_nominal_template / define_head_template for custom phrase mappings
 - ✅ Built-in head hints — common heads auto-map to relations (e.g., مالك/owner → belongs, عصير/juice → of)
+
+- ✅ **Generative Language Model (GLM)** ⭐ NEW - Full pipeline from abstract meaning to fluent text
+    - **Lexicon**: Maps concepts to Arabic/English lemmas
+    - **Morphology**: Conjugates verbs and declines nouns (Arabic/English)
+    - **Realizer**: Generates coherent sentences from conceptual traces
 
 
 ---
@@ -74,8 +80,8 @@
 ### Installation
 
 ```bash
-git clone https://github.com/mubtakir/Bayan-Hybrid-Programming-Language.git
-cd Bayan-Hybrid-Programming-Language
+git clone https://github.com/mubtakir/nlp_bayan.git
+cd nlp_bayan
 ```
 
 ### Hello World
@@ -278,9 +284,30 @@ hybrid {
 > **Complete project access for AI models with 632+ files organized by category**
 
 - **AI Model Links (روابط للنماذج اللغوية):**
-  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
   - **Contains:** Direct links to all essential files (README, keywords reference, guides, tutorials, examples, AI libraries, domain libraries, conceptual libraries, and more)
+
+### 🗺️ Project Architecture Map (For LLMs)
+
+Use this map to navigate the project's conceptual and linguistic layers:
+
+#### 1. Conceptual Layer (The "Brain")
+- **Blueprints** (`ai/conceptual_blueprints.bayan`): Defines abstract patterns (Events, States, Causality).
+- **Circuits** (`ai/conceptual_circuits.bayan`): Reusable micro-scenarios built from blueprints.
+- **Programs** (`ai/conceptual_programs.bayan`): High-level meaning programs that compose circuits.
+- **Orchestrator** (`ai/conceptual_orchestrator.bayan`): Manages the execution of meaning programs.
+
+#### 2. Generative Pipeline (The "Voice")
+- **Architecture** (`docs/GENERATIVE_LM_ARCHITECTURE.md`): Overview of the GLM pipeline.
+- **Lexicon** (`ai/lexicon.bayan`): Maps abstract concepts to Arabic/English lemmas.
+- **Morphology** (`ai/morphology.bayan`): Handles conjugation and declension.
+- **Surface Realizer** (`ai/conceptual_surface_realizer.bayan`): Converts conceptual traces into text.
+
+#### 3. AI & NLP Libraries
+- **NLP Core** (`ai/nlp.bayan`): Basic NLP tools (tokenization, phonetics, roots).
+- **Machine Learning** (`ai/ml.bayan`): ML algorithms and data structures.
+
 
 ### Handoff (One-page)
 - Quick handoff for the next model: [NEXT_MODEL_BRIEFING.md](NEXT_MODEL_BRIEFING.md)
@@ -304,8 +331,8 @@ hybrid {
 - [How to Use with LLMs](docs/HOW_TO_USE_WITH_LLMS.md) - Complete usage guide
 
 - LLM‑friendly one‑pager (RAW links for models):
-  - https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain version: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain version: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
 
 ### Technical Documentation
 - [Language Guide](docs/LANGUAGE_GUIDE.md) - Complete language reference
@@ -431,7 +458,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - GitHub: [@mubtakir](https://github.com/mubtakir)
-- Repository: [Bayan-Hybrid-Programming-Language](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language)
+- Repository: [nlp_bayan](https://github.com/mubtakir/nlp_bayan)
 
 ---
 
@@ -468,8 +495,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### التثبيت
 
 ```bash
-git clone https://github.com/mubtakir/Bayan-Hybrid-Programming-Language.git
-cd Bayan-Hybrid-Programming-Language
+git clone https://github.com/mubtakir/nlp_bayan.git
+cd nlp_bayan
 ```
 
 ### مرحباً بالعالم
@@ -511,8 +538,8 @@ python web_ide/app.py
 > **وصول كامل للمشروع للنماذج اللغوية مع 632+ ملف منظم حسب الفئة**
 
 - **روابط النماذج اللغوية (AI Model Links):**
-  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
   - **يحتوي على:** روابط مباشرة لجميع الملفات الأساسية (README، مرجع الكلمات المفتاحية، الأدلة، الدروس، الأمثلة، مكتبات الذكاء الاصطناعي، مكتبات المجالات، المكتبات المفاهيمية، والمزيد)
 
 ### الدروس التعليمية
@@ -551,7 +578,7 @@ python -m pytest tests/ -v
 ## 📞 التواصل
 
 - GitHub: [@mubtakir](https://github.com/mubtakir)
-- المستودع: [Bayan-Hybrid-Programming-Language](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language)
+- المستودع: [nlp_bayan](https://github.com/mubtakir/nlp_bayan)
 
 ---
 

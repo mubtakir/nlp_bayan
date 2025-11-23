@@ -1,0 +1,116 @@
+# Lexicon: Maps abstract concepts to language-specific lemmas
+# المعجم: يربط المفاهيم المجردة بالكلمات (الجذور)
+
+# Dictionary structure:
+# {
+#   "concept_key": {
+#       "ar": {"lemma": "...", "pos": "..."},
+#       "en": {"lemma": "...", "pos": "..."}
+#   }
+# }
+
+def get_lexicon():
+{
+    return {
+        # Actions
+        "action_study": {
+            "ar": {"lemma": "درس", "pos": "verb"},
+            "en": {"lemma": "study", "pos": "verb"}
+        },
+        "action_treat": {
+            "ar": {"lemma": "عالج", "pos": "verb"},
+            "en": {"lemma": "treat", "pos": "verb"}
+        },
+        "action_invest": {
+            "ar": {"lemma": "استثمر", "pos": "verb"},
+            "en": {"lemma": "invest", "pos": "verb"}
+        },
+        "action_eat": {
+            "ar": {"lemma": "أكل", "pos": "verb"},
+            "en": {"lemma": "eat", "pos": "verb"}
+        },
+        "action_compare": {
+            "ar": {"lemma": "قارن", "pos": "verb"},
+            "en": {"lemma": "compare", "pos": "verb"}
+        },
+
+        # Entities / Roles
+        "entity_student": {
+            "ar": {"lemma": "طالب", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "student", "pos": "noun"}
+        },
+        "entity_doctor": {
+            "ar": {"lemma": "طبيب", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "doctor", "pos": "noun"}
+        },
+        "entity_investor": {
+            "ar": {"lemma": "مستثمر", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "investor", "pos": "noun"}
+        },
+        "entity_patient": {
+            "ar": {"lemma": "مريض", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "patient", "pos": "noun"}
+        },
+        
+        # Contexts / Adverbs
+        "context_library": {
+            "ar": {"lemma": "مكتبة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "library", "pos": "noun"}
+        },
+        "context_hospital": {
+            "ar": {"lemma": "مستشفى", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "hospital", "pos": "noun"}
+        },
+        "time_evening": {
+            "ar": {"lemma": "مساء", "pos": "noun"},
+            "en": {"lemma": "evening", "pos": "noun"}
+        },
+
+        # Medical Domain
+        "action_take_medicine": {
+            "ar": {"lemma": "تناول", "pos": "verb"},
+            "en": {"lemma": "take", "pos": "verb"}
+        },
+        "action_improve_health": {
+            "ar": {"lemma": "تحسن", "pos": "verb"},
+            "en": {"lemma": "improve", "pos": "verb"}
+        },
+        "entity_medicine": {
+            "ar": {"lemma": "دواء", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "medicine", "pos": "noun"}
+        },
+        "context_medical": {
+            "ar": {"lemma": "عيادة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "clinic", "pos": "noun"}
+        },
+
+        # Economic Domain
+        "action_increase_wealth": {
+            "ar": {"lemma": "زاد", "pos": "verb"},
+            "en": {"lemma": "increase", "pos": "verb"}
+        },
+        "context_market": {
+            "ar": {"lemma": "سوق", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "market", "pos": "noun"}
+        }
+    }
+}
+
+# Lookup function
+def lookup_lemma(concept_key, lang):
+{
+    # Normalize lang
+    if lang == "arabic": { lang = "ar" }
+    elif lang == "english": { lang = "en" }
+
+    lex = get_lexicon()
+    if concept_key in lex:
+    {
+        entry = lex[concept_key]
+        if lang in entry:
+        {
+            return entry[lang]
+        }
+    }
+    return None
+}

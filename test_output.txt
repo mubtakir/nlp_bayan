@@ -1,0 +1,140 @@
+EEF
+======================================================================
+ERROR: test_explain (__main__.TestBayanProposals.test_explain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 717, in _interpret_core
+    return self.visit_function_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 1594, in visit_function_call
+    raise NameError(f"Undefined function or class: {node.name}")
+NameError: Undefined function or class: parent
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/tests/test_bayan_proposals.py", line 71, in test_explain
+    self.parse_and_run(code)
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/tests/test_bayan_proposals.py", line 23, in parse_and_run
+    return self.interpreter.interpret(ast)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 485, in interpret
+    return self.visit_program(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 652, in visit_program
+    result = self.interpret(statement)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 516, in interpret
+    return self.traditional.interpret(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 747, in _interpret_core
+    return self.visit_method_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 2372, in visit_method_call
+    obj = self.interpret(node.object_expr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 747, in _interpret_core
+    return self.visit_method_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 2372, in visit_method_call
+    obj = self.interpret(node.object_expr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 599, in interpret
+    raise BayanRuntimeError(f"{e.__class__.__name__}: {e}\nBayan stack: {trace}{code_frame}")
+bayan.bayan.traditional_interpreter.BayanRuntimeError: NameError: Undefined function or class: parent
+Bayan stack: MethodCall@4:9 -> MethodCall@3:9 -> FunctionCall@2:9
+
+======================================================================
+ERROR: test_export_import_knowledge (__main__.TestBayanProposals.test_export_import_knowledge)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 717, in _interpret_core
+    return self.visit_function_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 1594, in visit_function_call
+    raise NameError(f"Undefined function or class: {node.name}")
+NameError: Undefined function or class: parent
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/tests/test_bayan_proposals.py", line 32, in test_export_import_knowledge
+    self.parse_and_run(code)
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/tests/test_bayan_proposals.py", line 23, in parse_and_run
+    return self.interpreter.interpret(ast)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 485, in interpret
+    return self.visit_program(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 652, in visit_program
+    result = self.interpret(statement)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/hybrid_interpreter.py", line 516, in interpret
+    return self.traditional.interpret(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 747, in _interpret_core
+    return self.visit_method_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 2372, in visit_method_call
+    obj = self.interpret(node.object_expr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 577, in interpret
+    return self._interpret_core(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 747, in _interpret_core
+    return self.visit_method_call(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 2372, in visit_method_call
+    obj = self.interpret(node.object_expr)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/bayan/bayan/traditional_interpreter.py", line 599, in interpret
+    raise BayanRuntimeError(f"{e.__class__.__name__}: {e}\nBayan stack: {trace}{code_frame}")
+bayan.bayan.traditional_interpreter.BayanRuntimeError: NameError: Undefined function or class: parent
+Bayan stack: MethodCall@4:9 -> MethodCall@3:9 -> FunctionCall@2:9
+
+======================================================================
+FAIL: test_what_if (__main__.TestBayanProposals.test_what_if)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/al-mubtakir/Documents/bayan_python_ide14/tests/test_bayan_proposals.py", line 90, in test_what_if
+    self.assertTrue(any("1" in str(r) for r in res_list))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.030s
+
+FAILED (failures=1, errors=2)
+Tokens for '
+        parent(ali, ahmed).
+        parent(ahmed, sara).
+        grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+        ': [Token(IDENTIFIER, 'parent', 2:9), Token(LPAREN, '(', 2:15), Token(IDENTIFIER, 'ali', 2:16), Token(COMMA, ',', 2:19), Token(IDENTIFIER, 'ahmed', 2:21), Token(RPAREN, ')', 2:26), Token(DOT, '.', 2:27), Token(IDENTIFIER, 'parent', 3:9), Token(LPAREN, '(', 3:15), Token(IDENTIFIER, 'ahmed', 3:16), Token(COMMA, ',', 3:21), Token(IDENTIFIER, 'sara', 3:23), Token(RPAREN, ')', 3:27), Token(DOT, '.', 3:28), Token(IDENTIFIER, 'grandparent', 4:9), Token(LPAREN, '(', 4:20), Token(IDENTIFIER, 'X', 4:21), Token(COMMA, ',', 4:22), Token(IDENTIFIER, 'Z', 4:24), Token(RPAREN, ')', 4:25), Token(IMPLIES, ':-', 4:27), Token(IDENTIFIER, 'parent', 4:30), Token(LPAREN, '(', 4:36), Token(IDENTIFIER, 'X', 4:37), Token(COMMA, ',', 4:38), Token(IDENTIFIER, 'Y', 4:40), Token(RPAREN, ')', 4:41), Token(COMMA, ',', 4:42), Token(IDENTIFIER, 'parent', 4:44), Token(LPAREN, '(', 4:50), Token(IDENTIFIER, 'Y', 4:51), Token(COMMA, ',', 4:52), Token(IDENTIFIER, 'Z', 4:54), Token(RPAREN, ')', 4:55), Token(DOT, '.', 4:56), Token(EOF, '', 6:1)]
+DEBUG: _can_start_attribute checking Token(IDENTIFIER, 'parent', 3:9)
+DEBUG: _can_start_attribute checking Token(IDENTIFIER, 'grandparent', 4:9)
+Tokens for '
+        parent(ali, ahmed).
+        parent(ahmed, sara).
+        grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+        ': [Token(IDENTIFIER, 'parent', 2:9), Token(LPAREN, '(', 2:15), Token(IDENTIFIER, 'ali', 2:16), Token(COMMA, ',', 2:19), Token(IDENTIFIER, 'ahmed', 2:21), Token(RPAREN, ')', 2:26), Token(DOT, '.', 2:27), Token(IDENTIFIER, 'parent', 3:9), Token(LPAREN, '(', 3:15), Token(IDENTIFIER, 'ahmed', 3:16), Token(COMMA, ',', 3:21), Token(IDENTIFIER, 'sara', 3:23), Token(RPAREN, ')', 3:27), Token(DOT, '.', 3:28), Token(IDENTIFIER, 'grandparent', 4:9), Token(LPAREN, '(', 4:20), Token(IDENTIFIER, 'X', 4:21), Token(COMMA, ',', 4:22), Token(IDENTIFIER, 'Z', 4:24), Token(RPAREN, ')', 4:25), Token(IMPLIES, ':-', 4:27), Token(IDENTIFIER, 'parent', 4:30), Token(LPAREN, '(', 4:36), Token(IDENTIFIER, 'X', 4:37), Token(COMMA, ',', 4:38), Token(IDENTIFIER, 'Y', 4:40), Token(RPAREN, ')', 4:41), Token(COMMA, ',', 4:42), Token(IDENTIFIER, 'parent', 4:44), Token(LPAREN, '(', 4:50), Token(IDENTIFIER, 'Y', 4:51), Token(COMMA, ',', 4:52), Token(IDENTIFIER, 'Z', 4:54), Token(RPAREN, ')', 4:55), Token(DOT, '.', 4:56), Token(EOF, '', 6:1)]
+DEBUG: _can_start_attribute checking Token(IDENTIFIER, 'parent', 3:9)
+DEBUG: _can_start_attribute checking Token(IDENTIFIER, 'grandparent', 4:9)
+Tokens for 'val(1).': [Token(IDENTIFIER, 'val', 1:1), Token(LPAREN, '(', 1:4), Token(NUMBER, '1', 1:5), Token(RPAREN, ')', 1:6), Token(DOT, '.', 1:7), Token(EOF, '', 2:1)]
+DEBUG: _can_start_attribute checking Token(EOF, '', 2:1)
+DEBUG: Found DOT in parse_expression_statement
+Tokens for 'query val(?X).': [Token(QUERY, 'query', 1:1), Token(IDENTIFIER, 'val', 1:7), Token(LPAREN, '(', 1:10), Token(VARIABLE, '?X', 1:11), Token(RPAREN, ')', 1:13), Token(DOT, '.', 1:14), Token(EOF, '', 2:1)]
+(no solutions)

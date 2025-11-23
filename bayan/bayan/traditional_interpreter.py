@@ -5,6 +5,9 @@ Traditional Interpreter for Bayan Language
 
 import random
 import re
+import asyncio
+import inspect
+import json
 
 from .ast_nodes import *
 from .object_system import ClassSystem, BayanObject
@@ -176,6 +179,168 @@ class TraditionalInterpreter:
         self.global_env['uniform'] = lambda a, b: self._rng.uniform(float(a), float(b))
         self.global_env['normal'] = lambda mu, sigma: self._rng.gauss(float(mu), float(sigma))
         self.global_env['bernoulli'] = lambda p: 1 if self._rng.random() < float(p) else 0
+
+        # --- Bayan Proposals (Quick Start Package) ---
+        
+        def _export_knowledge(filename):
+            """Export knowledge base to JSON file"""
+            if not self.logical_engine:
+                return False
+            try:
+                data = self.logical_engine.to_json()
+                with open(filename, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
+            except Exception as e:
+                print(f"Export Error: {e}")
+                return False
+
+        def _import_knowledge(filename):
+            """Import knowledge base from JSON file"""
+            if not self.logical_engine:
+                # Initialize logical engine if not present? 
+                # Usually it's initialized when needed, but we can force it or check.
+                # For now, assume it exists or we can't import into nothing.
+                return False
+            try:
+                with open(filename, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Dynamic import to avoid circular dependency
+                from .parser import HybridParser
+                from .lexer import HybridLexer
+                
+                for pred_name, items in data.items():
+                    for item in items:
+                        if item.get('type') == 'fact':
+                            # Reconstruct fact code: "predicate."
+                            # We assume predicate string is valid Bayan code
+                            code = f"{item['predicate']}."
+                            try:
+                                lexer = HybridLexer(code)
+                                tokens = lexer.tokenize()
+                                parser = HybridParser(tokens)
+                                ast = parser.parse()
+                                self.interpret(ast)
+                            except Exception as e:
+                                print(f"Error importing fact {code}: {e}")
+                        elif item.get('type') == 'rule':
+                            # Reconstruct rule code: "head :- body."
+                            # body is a list of strings
+                            body_str = ", ".join(item['body'])
+                            code = f"{item['head']} :- {body_str}."
+                            try:
+                                lexer = HybridLexer(code)
+                                tokens = lexer.tokenize()
+                                parser = HybridParser(tokens)
+                                ast = parser.parse()
+                                self.interpret(ast)
+                            except Exception as e:
+                                print(f"Error importing rule {code}: {e}")
+                return True
+            except Exception as e:
+                print(f"Import Error: {e}")
+                return False
+
+        def _explain(query_str):
+            """Explain a logical query"""
+            if not self.logical_engine:
+                return "Logical engine not active."
+            
+            if not isinstance(query_str, str):
+                return "Query must be a string."
+
+            try:
+                from .parser import HybridParser
+                from .lexer import HybridLexer
+                # Parse the query string to get AST
+                lexer = HybridLexer(query_str)
+                tokens = lexer.tokenize()
+                parser = HybridParser(tokens)
+                ast = parser.parse()
+                
+                # Extract the goal from the AST
+                # AST is likely a Program node containing a list of statements.
+                # The first statement should be our query.
+                if not ast.statements:
+                    return "Empty query."
+                
+                stmt = ast.statements[0]
+                # stmt could be an Expr, or Fact, or...
+                # We need to convert this AST node to a Logical Goal (Predicate/Term)
+                # This conversion happens in `visit_logical_statement` or similar.
+                # We can reuse `_build_query_goal` if it exists or similar logic.
+                # Since we are in the interpreter, we can use `self.interpret` but that executes it.
+                # We want to get the GOAL structure to pass to `logical_engine.explain`.
+                
+                # We need a helper to convert AST -> Logical Goal without executing.
+                # Let's look for `_build_logical_goal` or similar in TraditionalInterpreter.
+                # It seems we don't have direct access to it easily without duplicating logic.
+                # BUT, `explain` is a debugging tool.
+                # Maybe we can implement `explain` in `LogicalEngine` to take a string and parse it?
+                # No, LogicalEngine shouldn't know about parsing.
+                
+                # Let's try to interpret it in a special mode? No.
+                # Let's duplicate the AST -> Goal logic for now, it's safer.
+                # Or better: `self._evaluate_logical_goal(node)`?
+                # I need to check if such method exists.
+                
+                # For now, let's assume we can use a helper `self._ast_to_goal(stmt)`.
+                # I'll define it or use existing logic.
+                
+                # Wait, `visit_logical_query` does this.
+                # But `explain` needs to return the explanation, not just run it.
+                
+                # Let's implement a simplified AST->Goal converter here for `explain`.
+                goal = self._ast_to_goal_for_explain(stmt)
+                if not goal:
+                    return "Could not parse goal."
+                
+                explanations = self.logical_engine.explain(goal)
+                return "\n".join(explanations) if explanations else "No solution found."
+            except Exception as e:
+                return f"Explain Error: {e}"
+
+        def _what_if(fact_str, query_str):
+            """Run a query with a temporary fact"""
+            if not self.logical_engine:
+                return "Logical engine not active."
+            
+            try:
+                from .parser import HybridParser
+                from .lexer import HybridLexer
+                
+                # Parse fact
+                lexer_fact = HybridLexer(fact_str)
+                tokens_fact = lexer_fact.tokenize()
+                parser_fact = HybridParser(tokens_fact)
+                fact_ast = parser_fact.parse()
+                if not fact_ast.statements: return "Invalid fact."
+                fact_stmt = fact_ast.statements[0]
+                # Convert to Fact object
+                fact = self._ast_to_fact_for_explain(fact_stmt) # Need this helper
+                
+                # Parse query
+                lexer_query = HybridLexer(query_str)
+                tokens_query = lexer_query.tokenize()
+                parser_query = HybridParser(tokens_query)
+                query_ast = parser_query.parse()
+                if not query_ast.statements: return "Invalid query."
+                query_stmt = query_ast.statements[0]
+                goal = self._ast_to_goal_for_explain(query_stmt) # Reuse helper
+                
+                results = self.logical_engine.what_if(fact, goal)
+                # Format results - consume generator
+                return str(list(results))
+            except Exception as e:
+                return f"What_if Error: {e}"
+
+        self.global_env['export_knowledge'] = _export_knowledge
+        self.global_env['import_knowledge'] = _import_knowledge
+        self.global_env['explain'] = _explain
+        self.global_env['why'] = _explain
+        self.global_env['what_if'] = _what_if
+        self.global_env['how'] = _explain
 
         def _categorical(mapping: dict):
             """Sample from categorical distribution: Categorical({"A": 0.6, "B": 0.3, "C": 0.1})"""
@@ -701,6 +866,13 @@ class TraditionalInterpreter:
             return self.visit_domain_law(node)
         elif isinstance(node, ExistentialQuery):
             return self.visit_existential_query(node)
+        # Logical programming nodes
+        elif isinstance(node, LogicalFact):
+            return self.visit_logical_fact(node)
+        elif isinstance(node, LogicalRule):
+            return self.visit_logical_rule(node)
+        elif isinstance(node, LogicalQuery):
+            return self.visit_logical_query(node)
         else:
             raise RuntimeError(f"Unknown node type: {type(node)}")
 
@@ -1431,6 +1603,23 @@ class TraditionalInterpreter:
 
         raise NameError(f"Undefined function or class: {node.name}")
 
+    def _contains_yield(self, node):
+        """Check if node contains yield expression"""
+        if isinstance(node, YieldExpr):
+            return True
+        if isinstance(node, list):
+            return any(self._contains_yield(n) for n in node)
+        if hasattr(node, '__dict__'):
+            # Avoid infinite recursion on the node itself or parent links if any
+            # Just check children
+            for key, value in node.__dict__.items():
+                if key == 'parent': continue
+                if isinstance(value, (list, tuple)):
+                    if any(self._contains_yield(x) for x in value): return True
+                elif isinstance(value, (ASTNode, YieldExpr)):
+                    if self._contains_yield(value): return True
+        return False
+
     def visit_function_def(self, node):
         """Visit a function definition node with decorator support"""
         # Store the function
@@ -1448,6 +1637,37 @@ class TraditionalInterpreter:
                 return nested_callable
 
             self.local_env[node.name] = make_nested_callable(node, self, closure_env)
+
+        # Check for yield to create a generator
+        if self._contains_yield(node.body):
+            def generator_function(*args):
+                # Create local environment
+                # We need a new interpreter instance that supports yielding
+                # For now, we'll use a simplified approach:
+                # We can't easily yield from the recursive interpreter without a full rewrite.
+                
+                # BETTER APPROACH: Use a GeneratorInterpreter subclass if possible, 
+                # but for this task we will implement a basic generator that supports
+                # yielding by using the YieldValue exception to pause? No, that unwinds.
+                
+                # We will use a dedicated GeneratorInterpreter that overrides visit methods to yield.
+                # Since defining a class inside a method is slow, we should define it at module level
+                # or use a helper. For now, let's try to use the current interpreter but 
+                # we acknowledge that deep yields might not work without the GeneratorInterpreter.
+                
+                # Let's implement the GeneratorInterpreter approach as a nested class or similar.
+                # Actually, we can define it at the top level later.
+                # For now, let's assume we have a GeneratorInterpreter.
+                
+                gen_interp = GeneratorInterpreter(self)
+                return gen_interp.execute_generator(node, args, closure_env if self.local_env else None)
+
+            self.functions[node.name] = node
+            if self.local_env is not None:
+                self.local_env[node.name] = generator_function
+            else:
+                self.global_env[node.name] = generator_function
+            return None
 
         # Apply decorators if present (in reverse order, bottom to top)
         if node.decorators:
@@ -1508,9 +1728,9 @@ class TraditionalInterpreter:
 
             # Store the final decorated function
             env[node.name] = current_func
-
+            return None
+        
         return None
-
     def _execute_function(self, func_def, args, closure=None):
         """Helper method to execute a Bayan function with given arguments
 
@@ -1578,8 +1798,23 @@ class TraditionalInterpreter:
         """Visit an async function definition node"""
         # Store async function with marker
         self.functions[node.name] = node
-        # Mark as async in a separate registry
         self._async_functions.add(node.name)
+        
+        # Create a wrapper that returns a BayanCoroutine
+        # Capture closure if needed
+        closure_env = dict(self.local_env) if self.local_env is not None else None
+        
+        def async_wrapper(*args, **kwargs):
+             # This function, when called, returns a coroutine object
+             # It does NOT execute the body yet.
+             return self.BayanCoroutine(self, node, args, kwargs)
+             
+        # Store in environment
+        if self.local_env is not None:
+            self.local_env[node.name] = async_wrapper
+        else:
+            self.global_env[node.name] = async_wrapper
+            
         return None
 
     def visit_await_expr(self, node):
@@ -1593,7 +1828,22 @@ class TraditionalInterpreter:
 
         # If result has __await__, call it
         if hasattr(result, '__await__'):
-            return result.__await__()
+            # It's a Python awaitable.
+            # If we are in a synchronous context (CLI), we can run it.
+            # If we are already in a loop, we can't easily await it synchronously.
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # We are in a loop. We cannot block.
+                    # This is a limitation of the synchronous interpreter.
+                    # We would need to make the interpreter async to support this.
+                    # For now, we raise an error or try to handle it.
+                    raise RuntimeError("Cannot await Python coroutine from synchronous Bayan interpreter while loop is running.")
+                else:
+                    return loop.run_until_complete(result)
+            except RuntimeError:
+                # No loop? Create one.
+                return asyncio.run(result)
 
         # Otherwise return the result as-is
         return result
@@ -2943,6 +3193,59 @@ class TraditionalInterpreter:
 
         return None
 
+    # --- Helpers for Explain/What_If ---
+
+    def _ast_to_goal_for_explain(self, node):
+        """Convert AST node to Logical Goal (Predicate/Term)"""
+        from .logical_engine import Term, Predicate
+        from .ast_nodes import LogicalFact, LogicalQuery, FunctionCall, Variable, Number, String
+        
+        if isinstance(node, LogicalFact):
+            return self._convert_to_predicate(node.predicate)
+        elif isinstance(node, LogicalQuery):
+            return self._convert_to_predicate(node.goal)
+        elif isinstance(node, FunctionCall):
+            # FunctionCall can represent a predicate
+            name = node.name
+            args = [self._convert_to_term(arg) for arg in node.arguments]
+            return Predicate(name, args)
+        return None
+
+    def _ast_to_fact_for_explain(self, node):
+        """Convert AST node to Fact"""
+        from .logical_engine import Fact
+        
+        goal = self._ast_to_goal_for_explain(node)
+        if goal:
+            return Fact(goal)
+        return None
+
+    def _convert_to_predicate(self, node):
+        from .logical_engine import Predicate
+        from .ast_nodes import FunctionCall, Variable, LogicalPredicate
+        # node could be LogicalPredicate or FunctionCall
+        if isinstance(node, LogicalPredicate):
+            # Already a LogicalPredicate, convert to logical_engine.Predicate
+            args = [self._convert_to_term(arg) for arg in node.arguments]
+            return Predicate(node.name, args)
+        elif isinstance(node, FunctionCall):
+            name = node.name
+            args = [self._convert_to_term(arg) for arg in node.arguments]
+            return Predicate(name, args)
+        return None
+
+    def _convert_to_term(self, node):
+        from .logical_engine import Term
+        from .ast_nodes import Variable, Number, String
+        if isinstance(node, Variable):
+            # In Bayan logic, variables often start with ?
+            return Term(node.name, is_variable=node.name.startswith('?') or (node.name[0].isupper() if node.name else False))
+        elif isinstance(node, Number):
+            return Term(node.value)
+        elif isinstance(node, String):
+            return Term(node.value)
+        return Term(str(node))
+
     def visit_conceptual_blueprint(self, node):
         """Visit conceptual blueprint definition
 
@@ -3851,4 +4154,313 @@ class TraditionalInterpreter:
             f.write(html)
 
         return filename
+
+
+    # --- Logical Programming Visitors ---
+    
+    def visit_logical_fact(self, node):
+        """Visit a logical fact"""
+        if not self.logical_engine:
+            return None
+        from .logical_engine import Fact
+        
+        # Convert AST LogicalPredicate to logical_engine Predicate
+        predicate = self._convert_to_predicate(node.predicate)
+        if not predicate:
+            # Fallback: use node.predicate directly if conversion fails
+            predicate = node.predicate
+            
+        prob = None
+        if getattr(node, 'probability', None) is not None:
+            prob = self.interpret(node.probability)
+        
+        fact = Fact(predicate, probability=prob)
+        self.logical_engine.add_fact(fact)
+        return None
+    
+    def visit_logical_rule(self, node):
+        """Visit a logical rule"""
+        if not self.logical_engine:
+            return None
+        from .logical_engine import Rule, Predicate, Term
+        
+        # Convert AST nodes to logical_engine objects
+        # Check if head is already a Predicate
+        if isinstance(node.head, Predicate):
+            head = node.head
+        else:
+            head = self._convert_to_predicate(node.head)
+            if not head:
+                return None
+            
+        body = []
+        for goal in node.body:
+            # Check if goal is already a Predicate (from parser)
+            if isinstance(goal, Predicate):
+                # Fix: Parser creates Terms without proper is_variable flag
+                # Rebuild the predicate with corrected Terms
+                fixed_args = []
+                for arg in goal.args:
+                    if isinstance(arg, Term):
+                        # Check if this should be a variable (starts with uppercase or ?)
+                        val = str(arg.value)
+                        is_var = val.startswith('?') or (val and val[0].isupper())
+                        fixed_args.append(Term(arg.value, is_variable=is_var))
+                    else:
+                        fixed_args.append(arg)
+                fixed_pred = Predicate(goal.name, fixed_args)
+                body.append(fixed_pred)
+            else:
+                pred = self._convert_to_predicate(goal)
+                if pred:
+                    body.append(pred)
+        
+        rule = Rule(head, body)
+        self.logical_engine.add_rule(rule)
+        return None
+    
+    def visit_logical_query(self, node):
+        """Visit a logical query"""
+        if not self.logical_engine:
+            return []
+        
+        # Convert AST goal to logical_engine Predicate
+        goal = self._convert_to_predicate(node.goal)
+        if not goal:
+            return []
+            
+        solutions = self.logical_engine.query(goal)
+        # Return generator of solutions
+        return solutions
+
+class GeneratorInterpreter(TraditionalInterpreter):
+    """
+    Special interpreter for Generator execution.
+    Overrides visit methods to support 'yield' by making them generators.
+    """
+    def __init__(self, parent_interpreter):
+        # Initialize with shared state
+        super().__init__()
+        self.global_env = parent_interpreter.global_env
+        # We don't share local_env directly as we create a new one for the generator frame
+        self.functions = parent_interpreter.functions
+        self.classes = parent_interpreter.classes
+        self.class_system = parent_interpreter.class_system
+        self.import_system = parent_interpreter.import_system
+        self.logical_engine = parent_interpreter.logical_engine
+        # Copy other state references
+        self._cognitive_entities = parent_interpreter._cognitive_entities
+        self._cognitive_events = parent_interpreter._cognitive_events
+        self._linguistic_patterns = parent_interpreter._linguistic_patterns
+        self._ideas = parent_interpreter._ideas
+        self._conceptual_blueprints = parent_interpreter._conceptual_blueprints
+        self._semantic_meanings = parent_interpreter._semantic_meanings
+        self._knowledge_info = parent_interpreter._knowledge_info
+        self._inference_rules = parent_interpreter._inference_rules
+        self._evolving_knowledge = parent_interpreter._evolving_knowledge
+        self._ontologies = parent_interpreter._ontologies
+        self._semantic_memory = parent_interpreter._semantic_memory
+        self._concepts = parent_interpreter._concepts
+        self._narratives = parent_interpreter._narratives
+        self._current_context = parent_interpreter._current_context
+        self._domains = parent_interpreter._domains
+        self._environments = parent_interpreter._environments
+        self._existential_beings = parent_interpreter._existential_beings
+        self._domain_relations = parent_interpreter._domain_relations
+        self._domain_actions = parent_interpreter._domain_actions
+        self._metaphorical_meanings = parent_interpreter._metaphorical_meanings
+        self._domain_laws = parent_interpreter._domain_laws
+        self._rng = parent_interpreter._rng
+        
+    def execute_generator(self, func_def, args, closure=None):
+        """Execute the generator function body"""
+        # Create new local environment
+        old_local_env = self.local_env
+        
+        if closure is not None:
+            self.local_env = dict(closure)
+        else:
+            self.local_env = {}
+            
+        # Bind parameters
+        param_names = []
+        for param in func_def.parameters:
+            if isinstance(param, Parameter):
+                param_names.append(param.name)
+            else:
+                param_names.append(param)
+
+        for i, arg in enumerate(args):
+            if i < len(param_names):
+                self.local_env[param_names[i]] = arg
+
+        try:
+            # Execute body as generator
+            # interpret(body) returns a generator because body is a Block
+            gen = self.interpret(func_def.body)
+            if inspect.isgenerator(gen):
+                yield from gen
+            else:
+                # Should not happen for Block, but just in case
+                pass
+        except ReturnValue as ret:
+            # Generators in Python < 3.3 couldn't return values, but modern ones can (StopIteration value)
+            return ret.value
+        finally:
+            self.local_env = old_local_env
+
+    def interpret(self, node):
+        """
+        Generator version of interpret.
+        Returns a generator for control flow nodes.
+        Returns a value for expression nodes.
+        """
+        if isinstance(node, (Block, IfStatement, ForLoop, WhileLoop, TryExceptFinally, WithStatement, YieldExpr, Assignment)):
+            # These methods are overridden to be generators (or return generators)
+            if isinstance(node, Block):
+                return self.visit_block(node)
+            elif isinstance(node, IfStatement):
+                return self.visit_if_statement(node)
+            elif isinstance(node, ForLoop):
+                return self.visit_for_loop(node)
+            elif isinstance(node, WhileLoop):
+                return self.visit_while_loop(node)
+            elif isinstance(node, TryExceptFinally):
+                return self.visit_try_except_finally(node)
+            elif isinstance(node, WithStatement):
+                return self.visit_with_statement(node)
+            elif isinstance(node, YieldExpr):
+                return self.visit_yield_expr(node)
+            elif isinstance(node, Assignment):
+                return self.visit_assignment(node)
+            return None
+        elif isinstance(node, list):
+            # List of statements - treat as block
+            def _gen_list(stmts):
+                for stmt in stmts:
+                    res = self.interpret(stmt)
+                    if inspect.isgenerator(res):
+                        yield from res
+            return _gen_list(node)
+        else:
+            # For other nodes, we assume they are synchronous and don't yield
+            # This falls back to TraditionalInterpreter.interpret which returns a value
+            return super().interpret(node)
+
+    def visit_block(self, node):
+        for statement in node.statements:
+            result = self.interpret(statement)
+            if inspect.isgenerator(result):
+                yield from result
+            else:
+                # Value result (e.g. from expression statement), ignore or print?
+                # In Bayan/Python, expression statements are evaluated and result discarded (unless interactive)
+                pass
+
+    def visit_if_statement(self, node):
+        # condition is expression, interpret returns value
+        condition = self._truthy(self.interpret(node.condition))
+        if condition:
+            result = self.interpret(node.then_block)
+            if inspect.isgenerator(result):
+                yield from result
+        elif node.else_block:
+            result = self.interpret(node.else_block)
+            if inspect.isgenerator(result):
+                yield from result
+
+    def visit_for_loop(self, node):
+        # iterable is expression, interpret returns value
+        iterable = self._to_iterable(self.interpret(node.iterable))
+        
+        for item in iterable:
+            self.local_env[node.variable] = item
+            try:
+                result = self.interpret(node.body)
+                if inspect.isgenerator(result):
+                    yield from result
+            except BreakException:
+                break
+            except ContinueException:
+                continue
+
+    def visit_while_loop(self, node):
+        while self._truthy(self.interpret(node.condition)):
+            try:
+                result = self.interpret(node.body)
+                if inspect.isgenerator(result):
+                    yield from result
+            except BreakException:
+                break
+            except ContinueException:
+                continue
+
+    def visit_yield_expr(self, node):
+        value = None
+        if node.value:
+            value = self.interpret(node.value) # value is expression
+        yield value
+
+    def visit_assignment(self, node):
+        # Special handling for assignment to support 'x = yield y'
+        if isinstance(node.value, YieldExpr):
+            # Yield the value
+            val_to_yield = None
+            if node.value.value:
+                val_to_yield = self.interpret(node.value.value)
+            
+            # Yield
+            yield val_to_yield
+            sent_value = None 
+            
+            self.set_variable(node.name, sent_value)
+        else:
+            # Regular assignment
+            # We must return the value, but we are a generator.
+            # So we return via StopIteration
+            ret = super().visit_assignment(node)
+            return ret
+            
+    def visit_try_except_finally(self, node):
+        try:
+            result = self.interpret(node.try_block)
+            if inspect.isgenerator(result):
+                yield from result
+        except Exception as e:
+            handled = False
+            for handler in node.except_blocks:
+                exc_type = self.interpret(handler.exception_type) if handler.exception_type else Exception
+                if isinstance(e, exc_type):
+                    if handler.variable:
+                        self.local_env[handler.variable] = e
+                    result = self.interpret(handler.body)
+                    if inspect.isgenerator(result):
+                        yield from result
+                    handled = True
+                    break
+            if not handled:
+                raise e
+        finally:
+            if node.finally_block:
+                result = self.interpret(node.finally_block)
+                if inspect.isgenerator(result):
+                    yield from result
+
+    def visit_with_statement(self, node):
+        context = self.interpret(node.context_expr)
+        if hasattr(context, '__enter__'):
+            value = context.__enter__()
+        else:
+            value = context
+            
+        if node.var_name:
+            self.local_env[node.var_name] = value
+            
+        try:
+            result = self.interpret(node.body)
+            if inspect.isgenerator(result):
+                yield from result
+        finally:
+            if hasattr(context, '__exit__'):
+                context.__exit__(None, None, None)
 

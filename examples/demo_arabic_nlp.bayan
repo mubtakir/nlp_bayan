@@ -1,0 +1,19 @@
+# examples/demo_arabic_nlp.bayan
+# Demo for Advanced Arabic NLP
+
+import ai.nlp.arabic as ar
+
+hybrid {
+    text = "سافر المهندس خالد بالقطار إلى مكة المكرمة"
+    
+    # 1. Segmentation
+    segments = ar.segment(text)
+    # Print segments (simplified)
+    # In Bayan we can iterate
+    
+    # 2. POS Tagging
+    tags = ar.pos_tag(text)
+    
+    # 3. NER
+    entities = ar.extract_entities(text)
+}

@@ -3,7 +3,8 @@
 # ============================================
 
 # دالة: تحليل سؤال "ما هو"
-def parse_what_is(question):
+def parse_what_is(question): {
+}
 {
     # "ما هو X؟" -> استخرج X
     if question.startswith("ما هو "):
@@ -22,7 +23,8 @@ def parse_what_is(question):
 }
 
 # دالة: تحليل سؤال "هل"
-def parse_yes_no(question):
+def parse_yes_no(question): {
+}
 {
     # "هل X Y؟" -> استخرج X و Y
     if question.startswith("هل "):
@@ -36,7 +38,8 @@ def parse_yes_no(question):
 }
 
 # دالة: الإجابة على سؤال
-def answer_question(kb_module, inference_module, question):
+def answer_question(kb_module, inference_module, question): {
+}
 {
     # حاول "ما هو"
     subject = parse_what_is(question)
@@ -83,7 +86,8 @@ def answer_question(kb_module, inference_module, question):
 }
 
 # دالة: تقييم الإجابة
-def rate_answer(question, answer, rating):
+def rate_answer(question, answer, rating): {
+}
 {
     if rating > 0.7:
     {

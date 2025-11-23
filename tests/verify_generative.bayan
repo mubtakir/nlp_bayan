@@ -1,0 +1,51 @@
+hybrid {
+    import ai.lexicon as lex
+    import ai.morphology as morph
+
+    print("Verifying Generative Pipeline...")
+
+    # 1. Test Lexicon Lookup
+    print("\n--- Lexicon Lookup ---")
+    concept_key = "action_study"
+    
+    ar_entry = lex.lookup_lemma(concept_key, "ar")
+    en_entry = lex.lookup_lemma(concept_key, "en")
+
+    print("Concept: " + concept_key)
+    print("Arabic Lemma: " + str(ar_entry["lemma"]))
+    print("English Lemma: " + str(en_entry["lemma"]))
+
+    # 2. Test Arabic Morphology
+    print("\n--- Arabic Morphology ---")
+    verb_ar = ar_entry["lemma"] # درس
+    
+    past_3ms = morph.conjugate_arabic_verb(verb_ar, "past", "3ms")
+    pres_3ms = morph.conjugate_arabic_verb(verb_ar, "present", "3ms")
+    fut_3ms  = morph.conjugate_arabic_verb(verb_ar, "future", "3ms")
+    
+    print("Past (3ms): " + past_3ms)     # درس
+    print("Present (3ms): " + pres_3ms)  # يدرس
+    print("Future (3ms): " + fut_3ms)    # سيدرس
+
+    noun_ar = "طالب"
+    def_noun = morph.decline_arabic_noun(noun_ar, "def")
+    print("Definite Noun: " + def_noun) # الطالب
+
+    # 3. Test English Morphology
+    print("\n--- English Morphology ---")
+    verb_en = en_entry["lemma"] # study
+    
+    past_en = morph.conjugate_english_verb(verb_en, "past", "3s")
+    pres_3s = morph.conjugate_english_verb(verb_en, "present", "3s")
+    pres_1s = morph.conjugate_english_verb(verb_en, "present", "1s")
+    
+    print("Past: " + past_en)        # studied
+    print("Present (3s): " + pres_3s) # studies
+    print("Present (1s): " + pres_1s) # study
+
+    noun_en = "library"
+    plural = morph.pluralize_english_noun(noun_en)
+    print("Plural: " + plural) # libraries
+
+    print("\nVerification Complete.")
+}

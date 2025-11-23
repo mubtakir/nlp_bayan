@@ -8,8 +8,8 @@ authors:
     given-names: "Basel Yahya"
     name-particle: "باسل يحيى عبدالله"
     orcid: ""
-repository-code: "https://github.com/mubtakir/Bayan-Hybrid-Programming-Language"
-url: "https://github.com/mubtakir/Bayan-Hybrid-Programming-Language"
+repository-code: "https://github.com/mubtakir/nlp_bayan"
+url: "https://github.com/mubtakir/nlp_bayan"
 abstract: >
   Bayan is a revolutionary hybrid programming language that seamlessly
   combines three programming paradigms in one unified syntax: Imperative

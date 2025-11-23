@@ -6,14 +6,16 @@
 inference_rules = []
 
 # دالة: إضافة قاعدة استدلال
-def add_rule(rule_dict):
+def add_rule(rule_dict): {
+}
 {
     inference_rules.append(rule_dict)
     return True
 }
 
 # دالة: تطبيق الاستدلال
-def infer(kb_module, subject):
+def infer(kb_module, subject): {
+}
 {
     results = []
 
@@ -38,7 +40,8 @@ def infer(kb_module, subject):
 }
 
 # دالة: عدد القواعد
-def count_rules():
+def count_rules(): {
+}
 {
     return len(inference_rules)
 }
@@ -50,14 +53,16 @@ def count_rules():
 # ============================================
 
 # مساعد: توزيع مباشر من قاعدة المعرفة
-def _direct_distribution(kb_module, subject, predicate):
+def _direct_distribution(kb_module, subject, predicate): {
+}
 {
     return kb_module.find_distribution(subject, predicate)
 }
 
 # استدلال تعدي: subject هو Y و Y هو Z ينتج subject هو Z
 # الوزن = min(count(subject_to_Y), count(Y_to_Z))
-def _inferred_distribution(kb_module, subject):
+def _inferred_distribution(kb_module, subject): {
+}
 {
     kb = kb_module.show_all()
     inferred = {}
@@ -101,7 +106,8 @@ def _inferred_distribution(kb_module, subject):
 # source in {"direct", "inferred", "mixed"}
 
 # استدلال تعدي لعلاقة "نوع من": subject نوع من Y و Y نوع من Z ⇒ subject نوع من Z
-def _inferred_is_a_distribution(kb_module, subject):
+def _inferred_is_a_distribution(kb_module, subject): {
+}
 {
     kb = kb_module.show_all()
     inferred = {}
@@ -141,7 +147,8 @@ def _inferred_is_a_distribution(kb_module, subject):
 }
 
 # استدلال وراثة الخصائص: subject نوع من Y و Y له Z ⇒ subject له Z
-def _inferred_has_distribution(kb_module, subject):
+def _inferred_has_distribution(kb_module, subject): {
+}
 {
     kb = kb_module.show_all()
     inferred = {}
@@ -181,7 +188,8 @@ def _inferred_has_distribution(kb_module, subject):
 }
 
 # اختيار الاستدلال المناسب حسب العلاقة
-def _inferred_for_predicate(kb_module, subject, predicate):
+def _inferred_for_predicate(kb_module, subject, predicate): {
+}
 {
     if predicate == "هو":
     {
@@ -199,7 +207,8 @@ def _inferred_for_predicate(kb_module, subject, predicate):
 }
 
 
-def find_top_n_with_inference(kb_module, subject, predicate, n):
+def find_top_n_with_inference(kb_module, subject, predicate, n): {
+}
 {
     direct = _direct_distribution(kb_module, subject, predicate)
     inferred = _inferred_for_predicate(kb_module, subject, predicate)
@@ -285,7 +294,8 @@ def find_top_n_with_inference(kb_module, subject, predicate, n):
 # تفسير السلسلة: أفضل وسيط Y لِـ subject إلى target (إن وُجد)
 # يعيد {ok, via, weight}
 
-def explain_chain(kb_module, subject, target):
+def explain_chain(kb_module, subject, target): {
+}
 {
     kb = kb_module.show_all()
     key1 = subject + "_" + "هو"
@@ -329,7 +339,8 @@ def explain_chain(kb_module, subject, target):
 
 # تفسير وراثة الخاصية: يبحث عن وسيط من النوع Y بحيث subject نوع من Y و Y له target
 # يعيد {ok, via, weight}
-def explain_has_chain(kb_module, subject, target):
+def explain_has_chain(kb_module, subject, target): {
+}
 {
     kb = kb_module.show_all()
     key_isa = subject + "_" + "نوع من"
@@ -377,43 +388,50 @@ def explain_has_chain(kb_module, subject, target):
 
 answer_cfg = { "n": 2, "show_perc": True, "show_src": True, "show_explain": True }
 
-def set_default_n(n):
+def set_default_n(n): {
+}
 {
     answer_cfg["n"] = n
     return True
 }
 
-def get_default_n():
+def get_default_n(): {
+}
 {
     return answer_cfg["n"]
 }
 
-def set_show_percentages(flag):
+def set_show_percentages(flag): {
+}
 {
     answer_cfg["show_perc"] = flag
     return True
 }
 
-def set_show_sources(flag):
+def set_show_sources(flag): {
+}
 {
     answer_cfg["show_src"] = flag
     return True
 }
 
-def set_show_reasoning(flag):
+def set_show_reasoning(flag): {
+}
 {
     answer_cfg["show_explain"] = flag
     return True
 }
 
-def get_answer_config():
+def get_answer_config(): {
+}
 {
     return answer_cfg
 }
 
 # استعلام وفق الإعدادات الحالية (يستخدم default_n)
 
-def query_with_config(kb_module, subject, predicate):
+def query_with_config(kb_module, subject, predicate): {
+}
 {
     n = answer_cfg["n"]
     return find_top_n_with_inference(kb_module, subject, predicate, n)

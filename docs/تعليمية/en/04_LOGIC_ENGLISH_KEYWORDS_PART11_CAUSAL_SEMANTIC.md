@@ -8,6 +8,8 @@
 4. [Relation Types](#relation-types)
 5. [Practical Applications](#practical-applications)
 6. [Advanced Examples](#advanced-examples)
+7. [Advanced Helper Tools](#advanced-helper-tools)
+8. [Summary](#summary)
 
 ---
 
@@ -327,7 +329,55 @@ hybrid {
 
 ---
 
-## Summary
+## 7. Advanced Helper Tools
+
+A set of powerful helper tools has been added to facilitate working with the Causal-Semantic system.
+
+### 7.1 Reasoning Helpers
+
+These functions help explore the causal network and understand relationships:
+
+```bayan
+hybrid {
+    # 1. "why" function: Returns the direct cause
+    why("falls") -> "gravity"
+    
+    # 2. "what_if" function: Predicts the result
+    what_if("heat_water") -> "boils"
+    
+    # 3. "how" function: Shows the path between two concepts
+    how("study", "success") -> ["study", "knowledge", "success"]
+}
+```
+
+### 7.2 Explanation System
+
+The `explain` function provides a comprehensive natural language explanation for logical inferences:
+
+```bayan
+hybrid {
+    explain(why("falls")).
+    # Output: "The object falls because of gravity (strength: 1.0) when lifted up"
+}
+```
+
+### 7.3 Knowledge Export and Import
+
+You can now easily save and share knowledge bases:
+
+```bayan
+hybrid {
+    # Export current knowledge base to a JSON file
+    export_knowledge("my_knowledge.json", type="json").
+    
+    # Import knowledge from an external file
+    import_knowledge("physics_laws.json", type="json").
+}
+```
+
+---
+
+## 8. Summary
 
 ### 🎯 Main Benefits
 

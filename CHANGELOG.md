@@ -207,7 +207,7 @@ This is the first public release of Bayan Programming Language!
 
 Currently, there are no known critical issues. All 267 tests are passing.
 
-If you find a bug, please report it on GitHub: [Issues](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/issues)
+If you find a bug, please report it on GitHub: [Issues](https://github.com/mubtakir/nlp_bayan/issues)
 
 ---
 
@@ -227,15 +227,15 @@ If you find a bug, please report it on GitHub: [Issues](https://github.com/mubta
 ### From Source
 
 ```bash
-cd Bayan-Hybrid-Programming-Language
+cd nlp_bayan
 git pull origin main
 ```
 
 ### Fresh Install
 
 ```bash
-git clone https://github.com/mubtakir/Bayan-Hybrid-Programming-Language.git
-cd Bayan-Hybrid-Programming-Language
+git clone https://github.com/mubtakir/nlp_bayan.git
+cd nlp_bayan
 ```
 
 ---
@@ -266,9 +266,9 @@ See [AUTHORS.md](AUTHORS.md) for more details.
 
 ## Links | الروابط
 
-- **Repository**: https://github.com/mubtakir/Bayan-Hybrid-Programming-Language
-- **Issues**: https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/issues
-- **Discussions**: https://github.com/mubtakir/Bayan-Hybrid-Programming-Language/discussions
+- **Repository**: https://github.com/mubtakir/nlp_bayan
+- **Issues**: https://github.com/mubtakir/nlp_bayan/issues
+- **Discussions**: https://github.com/mubtakir/nlp_bayan/discussions
 - **Documentation**: [docs/](docs/)
 
 ---

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayan Unified Graph - الرسم البياني الموحد</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .node circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .node text {
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .layer-btn.active {
+            background-color: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-slate-200 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-md z-10">
+        <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold text-emerald-400">بيان <span class="text-slate-400 text-sm">الرسم الموحد</span>
+            </h1>
+        </div>
+        <div class="flex gap-2">
+            <!-- Layer Filters -->
+            <button onclick="toggleLayer('logic')" id="btn-logic"
+                class="layer-btn active px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-500 rounded">منطقي</button>
+            <button onclick="toggleLayer('procedural')" id="btn-procedural"
+                class="layer-btn active px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-500 rounded">إجرائي</button>
+            <button onclick="toggleLayer('oop')" id="btn-oop"
+                class="layer-btn active px-3 py-1 text-xs bg-red-600 hover:bg-red-500 rounded">كائني</button>
+            <button onclick="toggleLayer('entity')" id="btn-entity"
+                class="layer-btn active px-3 py-1 text-xs bg-amber-700 hover:bg-amber-600 rounded">كيانات</button>
+            <button onclick="runUnified()"
+                class="px-4 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-lg transition-all">تحقق
+                وتنفيذ ▶</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Editor & Info (Left Panel) -->
+        <div class="w-1/3 flex flex-col border-l border-slate-700 bg-slate-800/50">
+            <!-- Editor -->
+            <div class="h-1/2 flex flex-col border-b border-slate-700">
+                <div class="bg-slate-900 px-4 py-2 text-xs text-slate-400 font-mono border-b border-slate-800">EDITOR
+                </div>
+                <textarea id="codeEditor"
+                    class="flex-1 bg-slate-900 p-4 font-mono text-sm resize-none focus:outline-none text-emerald-50"
+                    dir="auto" placeholder="اكتب كود بيان متعدد النماذج...">
+# منطقي
+مبرمج(أحمد).
+يكتب_كود(X) :- مبرمج(X).
+
+# إجرائي
+def greet(name): {
+    return "مرحباً " + name
+}
+
+# كائني
+class Person: {
+    def __init__(self, name): {
+        self.name = name
+    }
+}
+</textarea>
+            </div>
+
+            <!-- Stats & Info -->
+            <div class="h-1/2 flex flex-col bg-slate-900">
+                <div class="flex border-b border-slate-800">
+                    <button onclick="showInfoTab('stats')" id="btn-stats"
+                        class="flex-1 py-2 text-xs font-bold bg-slate-800 text-emerald-400 border-b-2 border-emerald-500">إحصائيات</button>
+                    <button onclick="showInfoTab('trace')" id="btn-trace"
+                        class="flex-1 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800">مسار التحقق</button>
+                </div>
+
+                <div id="tab-stats" class="flex-1 overflow-auto p-4 space-y-2">
+                    <div class="text-slate-500 italic">بانتظار التنفيذ...</div>
+                </div>
+                <div id="tab-trace" class="hidden flex-1 overflow-auto p-4 font-mono text-xs space-y-1">
+                    <div class="text-slate-500 italic">بانتظار التنفيذ...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graph Visualization (Right Panel) -->
+        <div class="flex-1 relative bg-slate-950" id="graph-container">
+            <!-- Legend -->
+            <div class="absolute top-4 left-4 bg-slate-800/90 border border-slate-700 rounded-lg p-3 text-xs z-10">
+                <div class="font-bold mb-2">الألوان:</div>
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> منطقي
+                        (Logic)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-500"></span> إجرائي
+                        (Procedural)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> كائني
+                        (OOP)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-700"></span> كيانات
+                        (Entities)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-purple-500"></span> قواعد
+                        (Rules)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span> أحداث
+                        (Events)</div>
+                </div>
+            </div>
+            <svg id="graph-svg" class="w-full h-full"></svg>
+        </div>
+
+    </div>
+
+    <script>
+        // --- State ---
+        let currentData = null;
+        let activeLayers = new Set(['logic', 'procedural', 'oop', 'entity']);
+        let simulation = null;
+
+        // --- Layer Toggle ---
+        function toggleLayer(layer) {
+            const btn = document.getElementById(`btn-${layer}`);
+
+            if (activeLayers.has(layer)) {
+                activeLayers.delete(layer);
+                btn.classList.remove('active');
+                btn.style.opacity = '0.5';
+            } else {
+                activeLayers.add(layer);
+                btn.classList.add('active');
+                btn.style.opacity = '1';
+            }
+
+            // Update graph if data exists
+            if (currentData) {
+                updateGraph(currentData);
+            } else {
+                // Show message if no data yet
+                console.log(`Layer '${layer}' toggled. Run code first to see changes.`);
+            }
+        }
+
+        // --- Info Tab Toggle ---
+        function showInfoTab(tab) {
+            document.getElementById('tab-stats').classList.add('hidden');
+            document.getElementById('tab-trace').classList.add('hidden');
+            document.getElementById('btn-stats').className = "flex-1 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800";
+            document.getElementById('btn-trace').className = "flex-1 py-2 text-xs font-bold text-slate-400 hover:bg-slate-800";
+
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.getElementById('btn-' + tab).className = "flex-1 py-2 text-xs font-bold bg-slate-800 text-emerald-400 border-b-2 border-emerald-500";
+        }
+
+        // --- D3 Graph Logic ---
+        function updateGraph(data) {
+            currentData = data;
+            const svg = d3.select("#graph-svg");
+            svg.selectAll("*").remove();
+
+            const width = document.getElementById('graph-container').clientWidth;
+            const height = document.getElementById('graph-container').clientHeight;
+
+            // Filter nodes and links based on active layers
+            let filteredNodes = data.nodes;
+            let filteredLinks = data.links;
+
+            if (data.layers) {
+                const activeNodeIds = new Set();
+                for (const layer of activeLayers) {
+                    if (data.layers[layer]) {
+                        data.layers[layer].forEach(id => activeNodeIds.add(id));
+                    }
+                }
+                filteredNodes = data.nodes.filter(n => activeNodeIds.has(n.id));
+                const nodeIdSet = new Set(filteredNodes.map(n => n.id));
+                filteredLinks = data.links.filter(l => nodeIdSet.has(l.source.id || l.source) && nodeIdSet.has(l.target.id || l.target));
+            }
+
+            // Arrow marker
+            svg.append("defs").append("marker")
+                .attr("id", "arrow")
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 20)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#999");
+
+            const g = svg.append("g");
+
+            // Zoom behavior
+            svg.call(d3.zoom().on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            }));
+
+            simulation = d3.forceSimulation(filteredNodes)
+                .force("link", d3.forceLink(filteredLinks).id(d => d.id).distance(150))
+                .force("charge", d3.forceManyBody().strength(-400))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const link = g.append("g")
+                .selectAll("line")
+                .data(filteredLinks)
+                .join("line")
+                .attr("class", "link")
+                .attr("marker-end", "url(#arrow)")
+                .style("stroke-opacity", d => d.probability ? d.probability : 0.6)
+                .style("stroke-dasharray", d => (d.probability && d.probability < 1.0) ? "5,5" : "none");
+
+            const linkLabel = g.append("g")
+                .selectAll("text")
+                .data(filteredLinks)
+                .join("text")
+                .attr("text-anchor", "middle")
+                .style("font-size", "10px")
+                .style("fill", "#aaa")
+                .text(d => d.relationship + (d.probability && d.probability < 1.0 ? ` (${d.probability})` : ""));
+
+            const node = g.append("g")
+                .selectAll("g")
+                .data(filteredNodes)
+                .join("g")
+                .attr("class", "node")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            node.append("circle")
+                .attr("r", d => getNodeRadius(d))
+                .attr("fill", d => getNodeColor(d));
+
+            node.append("text")
+                .attr("dy", 25)
+                .attr("text-anchor", "middle")
+                .style("fill", "#e2e8f0")
+                .text(d => d.label);
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                linkLabel
+                    .attr("x", d => (d.source.x + d.target.x) / 2)
+                    .attr("y", d => (d.source.y + d.target.y) / 2);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        function getNodeColor(node) {
+            // Group-based colors
+            const colorMap = {
+                1: "#10b981",  // Green - Logic entities
+                2: "#3b82f6",  // Blue - Logic events
+                3: "#f59e0b",  // Orange - Values
+                4: "#8b5cf6",  // Purple - Rules
+                5: "#eab308",  // Yellow - Functions
+                6: "#ef4444",  // Red - Classes
+                7: "#92400e"   // Brown - Entities
+            };
+            return colorMap[node.group] || "#6b7280";
+        }
+
+        function getNodeRadius(node) {
+            if (node.group === 6) return 18; // Classes larger
+            if (node.group === 5) return 16; // Functions medium
+            if (node.group === 1) return 15; // Logic entities
+            if (node.group === 4) return 12; // Rules
+            return 10; // Default
+        }
+
+        // --- API Interaction ---
+        async function runUnified() {
+            const code = document.getElementById('codeEditor').value;
+            const statsDiv = document.getElementById('tab-stats');
+            const traceDiv = document.getElementById('tab-trace');
+
+            statsDiv.innerHTML = '<div class="text-slate-500 animate-pulse">جاري التحليل...</div>';
+            traceDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/ide/run_unified', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, mode: 'unified' })
+                });
+
+                const result = await response.json();
+
+                // Update Stats
+                if (result.graph && result.graph.stats) {
+                    const stats = result.graph.stats;
+                    statsDiv.innerHTML = `
+                        <div class="space-y-2">
+                            <div class="font-bold text-emerald-400">إحصائيات الرسم البياني:</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>إجمالي العقد:</div><div class="text-emerald-300">${stats.total_nodes}</div>
+                                <div>إجمالي الروابط:</div><div class="text-emerald-300">${stats.total_links}</div>
+                                <div>عقد منطقية:</div><div class="text-green-300">${stats.logic_nodes}</div>
+                                <div>عقد إجرائية:</div><div class="text-yellow-300">${stats.procedural_nodes}</div>
+                                <div>عقد كائنية:</div><div class="text-red-300">${stats.oop_nodes}</div>
+                                <div>عقد كيانات:</div><div class="text-amber-300">${stats.entity_nodes}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Update Trace
+                if (result.trace) {
+                    traceDiv.innerHTML = result.trace.map(line =>
+                        `<div class="border-l-2 border-slate-700 pl-2 hover:bg-slate-800/50 transition-colors">${line}</div>`
+                    ).join('');
+                }
+
+                // Update Graph
+                updateGraph(result.graph);
+
+            } catch (error) {
+                console.error(error);
+                statsDiv.innerHTML = `<div class="text-rose-500">خطأ في الاتصال: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

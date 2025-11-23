@@ -1,5 +1,10 @@
 # Conceptual surface realizer layer for Bayan
 
+hybrid {
+    import ai.lexicon as lex
+    import ai.morphology as morph
+}
+
 # Helper: shallow clone of a sequence list
 def _clone_sequence(seq):
 {
@@ -11,7 +16,6 @@ def _clone_sequence(seq):
     return cloned
 }
 
-
 # Realize directly from a SurfacePlan
 def realize_from_surface_plan(plan, register):
 {
@@ -20,14 +24,117 @@ def realize_from_surface_plan(plan, register):
         register = "neutral"
     }
 
-    tokens = _clone_sequence(plan["sequence"])
+    # 1. Get the abstract sequence
+    abstract_seq = plan["sequence"]
+    lang = plan["lang"]
+    
+    # 2. Transform into surface tokens using Lexicon & Morphology
+    surface_tokens = []
+    
+    for i in range(len(abstract_seq)):
+    {
+        node = abstract_seq[i]
+        
+        # Default to the node itself if not a dict or no concept
+        token_str = str(node)
+        
+        if isinstance(node, dict):
+        {
+            # Check if it has a concept to realize
+            if "concept_key" in node:
+            {
+                concept_id = node["concept_key"]
+                # Lookup lemma
+                entry = lex.lookup_lemma(concept_id, lang)
+                
+                if entry != None:
+                {
+                    lemma = entry["lemma"]
+                    pos = entry["pos"]
+                    
+                    # Apply Morphology based on POS and features
+                    features = {}
+                    if "features" in node:
+                    {
+                        features = node["features"]
+                    }
+                    
+                    if pos == "verb":
+                    {
+                        # Verb Conjugation
+                        tense = "past" # default
+                        if "tense" in features: { tense = features["tense"] }
+                        
+                        person = "3ms" # default
+                        if "person" in features: { person = features["person"] }
+                        
+                        if lang == "arabic" or lang == "ar":
+                        {
+                            token_str = morph.conjugate_arabic_verb(lemma, tense, person)
+                        }
+                        else:
+                        {
+                            # English needs person mapping (3ms -> 3s)
+                            en_person = "3s"
+                            if person == "1s": { en_person = "1s" }
+                            token_str = morph.conjugate_english_verb(lemma, tense, en_person)
+                        }
+                    }
+                    elif pos == "noun":
+                    {
+                        # Noun Declension / Pluralization
+                        if lang == "arabic" or lang == "ar":
+                        {
+                            definiteness = "indef"
+                            if "definiteness" in features: { definiteness = features["definiteness"] }
+                            token_str = morph.decline_arabic_noun(lemma, definiteness)
+                        }
+                        else:
+                        {
+                            number = "singular"
+                            if "number" in features: { number = features["number"] }
+                            if number == "plural":
+                            {
+                                token_str = morph.pluralize_english_noun(lemma)
+                            }
+                            else:
+                            {
+                                token_str = lemma
+                            }
+                            
+                            # English definite article is separate usually, but for simplicity:
+                            if "definiteness" in features and features["definiteness"] == "def":
+                            {
+                                token_str = "the " + token_str
+                            }
+                        }
+                    }
+                    else:
+                    {
+                        token_str = lemma
+                    }
+                }
+                else:
+                {
+                    # Concept not found, fallback to concept name
+                    token_str = "[" + concept_id + "]"
+                }
+            }
+            elif "symbol" in node:
+            {
+                token_str = node["symbol"]
+            }
+        }
+        
+        surface_tokens.append(token_str)
+    }
 
     return {
         "realization_type": "SurfaceRealization",
         "sentence_type": plan["sentence_type"],
         "lang": plan["lang"],
         "register": register,
-        "tokens": tokens,
+        "tokens": surface_tokens,
         "modifiers": plan["modifiers"],
         "source": "SurfacePlan"
     }

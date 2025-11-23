@@ -290,18 +290,57 @@ Where (extending the causal link circuit):
 4. Use `UncertaintyPattern` to add a separate bridge structure that focuses on the uncertainty degree, grounded in `ConditionalProb` or `meta.confidence`.
 
 **Outputs:**
-
 - `trace`: as in the causal-link circuit, but marked as probabilistic.
 - `roles`: assignments for `Probabilistic_Causation` and `UncertaintyPattern`.
 - `bridge_structures`: at least two structures:
   - `CausalSentencePattern` (cause-effect statement).
   - `UncertaintyPattern` (explicit uncertainty phrase).
 
+### 5.7 Enhanced Comparison Circuit
+
+**Intent:** Compare two entities/options on multiple axes with detailed comparative analysis. This is useful for decision-making scenarios where we need to evaluate alternatives.
+
+**Inputs (conceptual roles / function signature):**
+
+- `build_enhanced_comparison_circuit(entity1_id, entity2_id, axis_name, value1, value2, comparison_type, context_label, confidence)`
+
+Where:
+
+- `Entity1`, `Entity2`: entities/options being compared.
+- `Axis`: primary comparison axis.
+- `Value1`, `Value2`: values on that axis.
+- `ComparisonType`: label such as `greater`, `less`, `better`, `worse`.
+- `Context`: abstract context label.
+- `Confidence`: scalar [0,1] representing confidence in the comparison.
+
+**Internal composition:**
+
+1. Build a trace with two entities (options) and their properties.
+2. Use `ComparativePattern` for the detailed comparison roles (including delta).
+3. Use `DescriptionPattern` to describe the result.
+4. Use `IntensityPattern` to highlight the magnitude of the difference (delta).
+
+**Outputs:**
+
+- `trace`: entities with properties and meta-data about the comparison.
+- `roles`: assignments for `ComparativePattern`, `DescriptionPattern`, and `IntensityPattern`.
+- `bridge_structures`: three structures:
+  - `ComparativePattern` (detailed comparison).
+  - `DescriptionPattern` (summary).
+  - `IntensityPattern` (difference magnitude).
+
+---
+
 ## 6. Meaning Programs (برامج المعاني)
 
 **Meaning Programs** are higher-level compositions of circuits that achieve a cognitive task. They are analogous to a full electronic device built from multiple circuits.
 
 In code terms, these now live in `ai/conceptual_programs.bayan`, and they are orchestrated (from the outside) by an `orchestrator` that chooses which program to run based on a control message.
+
+**Note on Settings:**
+Meaning programs are responsible for interpreting high-level settings like `detail_level` and `focus`:
+- **`detail_level`**: Controls how many circuits are included in the narrative (e.g., `low` = core circuits only, `high` = add temporal/contextual/uncertainty circuits).
+- **`focus`**: Adjusts parameters (e.g., `causal` focus boosts causal strength, `uncertainty` focus lowers probabilities) or adds specific circuits (e.g., extra temporal links).
 
 ### 6.1 Student study narrative (implemented)
 

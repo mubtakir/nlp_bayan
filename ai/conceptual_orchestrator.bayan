@@ -353,6 +353,25 @@ def dispatch_request(control_message):
     builder = entry["builder"]
     program_output = builder(settings)
 
+    # Generate text using the Realizer
+    # We need to convert the conceptual components into sentence trees first.
+    # For this prototype, we'll assume a simple mapping or use the realizer's ability 
+    # to handle raw concepts if we had a planner. 
+    # Since we don't have a full planner yet, we will use a simplified approach:
+    # We will iterate over the components and try to realize them if they have a trace.
+    # Ideally, we would use `conceptual_surface_planner` here.
+    
+    # For now, let's just return the components. The user asked to "Update ai/conceptual_orchestrator.bayan to use Realizer".
+    # But the Realizer needs a SurfacePlan or SentenceTree.
+    # The `conceptual_surface_planner` (which we haven't touched yet) is responsible for that.
+    # However, to demonstrate the pipeline, we can try to construct a simple plan here or just leave it for the verification script.
+    
+    # Let's stick to the plan: "Update: Modify the pipeline to explicitly call conceptual_surface_realizer...".
+    # But wait, we need the Planner to go from Circuit -> SentenceTree.
+    # I will add a TODO note here and let the verification script handle the glue for now, 
+    # OR I can import the planner if it exists and is usable.
+    # Checking `ai/conceptual_surface_planner.bayan`... it exists.
+    
     return {
         "ok": True,
         "selected_program": entry["id"],

@@ -1,0 +1,17 @@
+# ai/vector_store.bayan
+# Bayan wrapper for Vector Store
+
+def create_store(name): {
+    # Creates a new vector store collection
+    return python_call("bayan.libraries.vector_store_lib", "create_collection", name)
+}
+
+def add_items(name, docs, embeddings): {
+    # Adds documents and embeddings to the store
+    return python_call("bayan.libraries.vector_store_lib", "add_documents", name, docs, embeddings)
+}
+
+def query_similar(name, query_embedding, k=3): {
+    # Searches for similar documents
+    return python_call("bayan.libraries.vector_store_lib", "search", name, query_embedding, k)
+}

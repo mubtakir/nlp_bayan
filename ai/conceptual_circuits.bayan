@@ -5,6 +5,52 @@
 # structures (trace segments + bridge structures) that can later
 # be realized into EN/AR via existing bridges.
 
+# --- Helper Functions ---
+
+def _validate_prob(val, name="probability"):
+{
+    if val < 0.0 or val > 1.0:
+    {
+        # In a real system, we might raise an error.
+        # Here we clamp and log (conceptually).
+        if val < 0.0: { return 0.0 }
+        if val > 1.0: { return 1.0 }
+    }
+    return val
+}
+
+def _build_entity(id, kind="generic_entity", domain="abstract_domain", properties=None):
+{
+    ent = {
+        "id": id,
+        "kind": kind,
+        "domain": domain
+    }
+    if properties != None:
+    {
+        ent["properties"] = properties
+    }
+    return ent
+}
+
+def _build_event(id, action, actors, targets, context, probability=1.0, intensity=None):
+{
+    evt = {
+        "id": id,
+        "action": action,
+        "actors": actors,
+        "targets": targets,
+        "context": context,
+        "probability": _validate_prob(probability, "event_prob")
+    }
+    if intensity != None:
+    {
+        evt["intensity"] = intensity
+    }
+    return evt
+}
+
+
 
 # First circuit: Action -> StateChange -> Evaluation
 #
@@ -47,35 +93,25 @@ def build_action_state_eval_circuit(
 {
     # 1) Build a minimal conceptual_trace segment
     delta_value = after_value - before_value
+    action_probability = _validate_prob(action_probability)
 
     entities = [
-        {
-            "id": actor_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain"
-        },
-        {
-            "id": patient_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain",
-            "properties": {
-                state_axis: before_value
-            }
-        }
+        _build_entity(actor_id),
+        _build_entity(patient_id, properties={state_axis: before_value})
     ]
 
     action_event_id = "Event_Action_1"
 
     events = [
-        {
-            "id": action_event_id,
-            "action": action_kind,
-            "actors": [actor_id],
-            "targets": [patient_id],
-            "intensity": action_intensity,
-            "probability": action_probability,
-            "context": context_label
-        }
+        _build_event(
+            action_event_id,
+            action_kind,
+            [actor_id],
+            [patient_id],
+            context_label,
+            action_probability,
+            action_intensity
+        )
     ]
 
     transforms = [
@@ -229,19 +265,10 @@ def build_comparison_in_context_circuit(
 ):
 {
     # 1) Minimal trace: two entities with axis-values
+    # 1) Minimal trace: two entities with axis-values
     entities = [
-        {
-            "id": entity1_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain",
-            "properties": {axis_name: value1}
-        },
-        {
-            "id": entity2_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain",
-            "properties": {axis_name: value2}
-        }
+        _build_entity(entity1_id, properties={axis_name: value1}),
+        _build_entity(entity2_id, properties={axis_name: value2})
     ]
 
     meta = {
@@ -333,36 +360,30 @@ def build_causal_link_circuit(
 {
     # 1) Entities for the two events
     entities = [
-        {
-            "id": cause_actor_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain"
-        },
-        {
-            "id": effect_actor_id,
-            "kind": "generic_entity",
-            "domain": "abstract_domain"
-        }
+        _build_entity(cause_actor_id),
+        _build_entity(effect_actor_id)
     ]
 
     # Two events: cause and effect
+    conditional_probability = _validate_prob(conditional_probability)
+    
     events = [
-        {
-            "id": cause_event_id,
-            "action": cause_action_kind,
-            "actors": [cause_actor_id],
-            "targets": [effect_actor_id],
-            "context": context_label,
-            "probability": conditional_probability
-        },
-        {
-            "id": effect_event_id,
-            "action": effect_action_kind,
-            "actors": [effect_actor_id],
-            "targets": [],
-            "context": context_label,
-            "probability": conditional_probability
-        }
+        _build_event(
+            cause_event_id,
+            cause_action_kind,
+            [cause_actor_id],
+            [effect_actor_id],
+            context_label,
+            conditional_probability
+        ),
+        _build_event(
+            effect_event_id,
+            effect_action_kind,
+            [effect_actor_id],
+            [],
+            context_label,
+            conditional_probability
+        )
     ]
 
     causal_links = [

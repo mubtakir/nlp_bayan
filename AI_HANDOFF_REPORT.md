@@ -835,7 +835,7 @@ Steps format: [name, fit_fn, transform_fn, params]
 ## 🤝 Handoff to Next AI — Current Status and Remaining Work (Wave 20)
 
 ### Current status
-- Repository: github.com/mubtakir/bayaan-lang (branch: main)
+- Repository: github.com/mubtakir/nlp_bayan (branch: main)
 - AI stdlib Waves: 1–20 complete
 - Tests: 379/379 passing (pytest -q)
 - Latest tag: ai-stdlib-v19

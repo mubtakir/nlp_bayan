@@ -1,0 +1,28 @@
+# مثال بسيط لاختبار الأزرار
+# Simple test for layer buttons
+
+# منطقي (سيظهر باللون الأخضر)
+مبرمج(أحمد).
+مبرمج(فاطمة).
+
+# قاعدة منطقية (سيظهر باللون البنفسجي)
+يكتب_كود(X) :- مبرمج(X).
+
+# إجرائي (سيظهر باللون الأصفر)
+def greet(name): {
+    return "مرحباً " + name
+}
+
+# كائني (سيظهر باللون الأحمر)
+class Person: {
+    def __init__(self, name): {
+        self.name = name
+    }
+}
+
+class Employee(Person): {
+    def __init__(self, name, job): {
+        super().__init__(name)
+        self.job = job
+    }
+}

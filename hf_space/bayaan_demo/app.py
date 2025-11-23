@@ -16,7 +16,7 @@ except Exception:
     HAS_FULL_PARSER = False
 
 DATASET_ID = "Mubtakir/bayaan-alignment-sample"
-METRICS_URL = "https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/results/metrics_v1.2_detailed.json"
+METRICS_URL = "https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/eval_framework/results/metrics_v1.2_detailed.json"
 
 _cached = {}
 

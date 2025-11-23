@@ -7,7 +7,8 @@ knowledge_base = {}
 
 # دالة: إضافة حقيقة (تراكمية)
 # تزيد عدد مرات ظهور القيمة لنفس (الموضوع، العلاقة)
-def add_fact(subject, predicate, value):
+def add_fact(subject, predicate, value): {
+}
 {
     key = subject + "_" + predicate
     # استبدال 'not in' بـ 'not (.. in ..)' لتوافق النحو
@@ -31,7 +32,8 @@ def add_fact(subject, predicate, value):
 # تعيد قاموساً يحوي: value, count, total, prob
 # prob = count / total
 
-def find_best_with_prob(subject, predicate):
+def find_best_with_prob(subject, predicate): {
+}
 {
     key = subject + "_" + predicate
     # استبدال 'not in' بـ 'not (.. in ..)'
@@ -66,7 +68,8 @@ def find_best_with_prob(subject, predicate):
 }
 
 # دالة: البحث عن حقيقة (ترجع أفضل قيمة فقط)
-def find_fact(subject, predicate):
+def find_fact(subject, predicate): {
+}
 {
     res = find_best_with_prob(subject, predicate)
     if res["found"]:
@@ -77,7 +80,8 @@ def find_fact(subject, predicate):
 }
 
 # دالة: توزيع القيم لكل (موضوع، علاقة)
-def find_distribution(subject, predicate):
+def find_distribution(subject, predicate): {
+}
 {
     key = subject + "_" + predicate
     if key in knowledge_base:
@@ -88,7 +92,8 @@ def find_distribution(subject, predicate):
 }
 
 # دالة: البحث بالموضوع (ترجع قائمة بأفضل القيم لكل علاقة)
-def find_by_subject(subject):
+def find_by_subject(subject): {
+}
 {
     results = []
     prefix = subject + "_"
@@ -109,7 +114,8 @@ def find_by_subject(subject):
 # دالة: أفضل N قيم مع النسب المئوية
 # تعيد قائمة من قواميس: [{value, count, prob, percent}]
 
-def find_top_n(subject, predicate, n):
+def find_top_n(subject, predicate, n): {
+}
 {
     key = subject + "_" + predicate
     if not (key in knowledge_base):
@@ -161,13 +167,15 @@ def find_top_n(subject, predicate, n):
 
 
 # دالة: عدد الحقائق (عدد المفاتيح الفريدة)
-def count_facts():
+def count_facts(): {
+}
 {
     return len(knowledge_base)
 }
 
 # دالة: عرض كل المعرفة
-def show_all():
+def show_all(): {
+}
 {
     return knowledge_base
 }
@@ -181,13 +189,15 @@ def show_all():
 # حالة السياق الحالية (تغيير داخل القاموس لتفادي إعادة الربط)
 context_state = { "current": "" }
 
-def set_context(ctx):
+def set_context(ctx): {
+}
 {
     context_state["current"] = ctx
     return True
 }
 
-def clear_context():
+def clear_context(): {
+}
 {
     context_state["current"] = ""
     return True
@@ -196,7 +206,8 @@ def clear_context():
 # إضافة حقيقة ضمن سياق معيّن
 # التخزين بمفتاح: subject_predicate_@_context
 
-def add_fact_in_ctx(subject, predicate, value, ctx):
+def add_fact_in_ctx(subject, predicate, value, ctx): {
+}
 {
     key = subject + "_" + predicate + "_@_" + ctx
     if not (key in knowledge_base):
@@ -217,7 +228,8 @@ def add_fact_in_ctx(subject, predicate, value, ctx):
 
 # توزيع ضمن سياق
 
-def find_distribution_in_ctx(subject, predicate, ctx):
+def find_distribution_in_ctx(subject, predicate, ctx): {
+}
 {
     key = subject + "_" + predicate + "_@_" + ctx
     if key in knowledge_base:
@@ -229,7 +241,8 @@ def find_distribution_in_ctx(subject, predicate, ctx):
 
 # أفضل قيمة ضمن سياق
 
-def find_best_with_prob_in_ctx(subject, predicate, ctx):
+def find_best_with_prob_in_ctx(subject, predicate, ctx): {
+}
 {
     key = subject + "_" + predicate + "_@_" + ctx
     if not (key in knowledge_base):
@@ -261,7 +274,8 @@ def find_best_with_prob_in_ctx(subject, predicate, ctx):
 
 # كشف التعارضات على (subject, predicate)
 
-def find_contradictions(subject, predicate):
+def find_contradictions(subject, predicate): {
+}
 {
     dist = find_distribution(subject, predicate)
     unique = 0
@@ -284,7 +298,8 @@ def find_contradictions(subject, predicate):
 # إضافة حقيقة عند تسمية زمنية
 # المفتاح: subject_predicate_#_tlabel
 
-def add_fact_at_t(subject, predicate, value, tlabel):
+def add_fact_at_t(subject, predicate, value, tlabel): {
+}
 {
     key = subject + "_" + predicate + "_#_" + tlabel
     if not (key in knowledge_base):
@@ -305,7 +320,8 @@ def add_fact_at_t(subject, predicate, value, tlabel):
 
 # أفضل قيمة عند تسمية زمنية
 
-def find_best_with_prob_at_t(subject, predicate, tlabel):
+def find_best_with_prob_at_t(subject, predicate, tlabel): {
+}
 {
     key = subject + "_" + predicate + "_#_" + tlabel
     if not (key in knowledge_base):
@@ -344,7 +360,8 @@ resolution_policy = { "current": "most_frequent" }
 
 # إضافة حقيقة مع ميتاداتا (زمن وثقة)
 
-def add_fact_meta(subject, predicate, value, ts, conf):
+def add_fact_meta(subject, predicate, value, ts, conf): {
+}
 {
     add_fact(subject, predicate, value)
     key = subject + "_" + predicate
@@ -376,7 +393,8 @@ def add_fact_meta(subject, predicate, value, ts, conf):
 
 # تغيير سياسة الترجيح
 
-def set_resolution_policy(pol):
+def set_resolution_policy(pol): {
+}
 {
     # القيم المدعومة: most_frequent, most_recent, highest_confidence
     resolution_policy["current"] = pol
@@ -385,14 +403,16 @@ def set_resolution_policy(pol):
 
 # الحصول على السياسة الحالية
 
-def get_resolution_policy():
+def get_resolution_policy(): {
+}
 {
     return resolution_policy["current"]
 }
 
 # اختيار أفضل قيمة حسب السياسة
 
-def find_best_with_policy(subject, predicate):
+def find_best_with_policy(subject, predicate): {
+}
 {
     pol = resolution_policy["current"]
     if pol == "most_frequent":

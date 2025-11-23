@@ -120,7 +120,7 @@
 - CI والضمان:
   - إضافة pre-commit لفحص الأحرف غير المطبوعة.
   - تشغيل pytest في CI مع ملخّص موجز.
-  - مزامنة الشجرة الفرعية (إن وُجدت): إن كان تدفّق العمل يعتمد على bayaan-lang ← nlp_bayan، حافظ على مصدر المزج من bayaan-lang إلى mubtakir/nlp_bayan، وأضِف المتغيّر السري NLP_BAYAN_PUSH_TOKEN إلى أسرار مستودع bayaan-lang.
+  - مزامنة الشجرة الفرعية (إن وُجدت): إن كان تدفّق العمل يعتمد على nlp_bayan ← nlp_bayan، حافظ على مصدر المزج من nlp_bayan إلى mubtakir/nlp_bayan، وأضِف المتغيّر السري NLP_BAYAN_PUSH_TOKEN إلى أسرار مستودع nlp_bayan.
   - حافظ على نقاء مستودعات اللغة: لا تفرض فحوصات English-only على ملفات Bayan العربية؛ اجعلها محصورة بملفات Python/CI.
 
 

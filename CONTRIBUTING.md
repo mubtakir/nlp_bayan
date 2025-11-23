@@ -47,8 +47,8 @@ Click the "Fork" button on GitHub to create your own copy.
 ### 2. Clone Your Fork
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Bayan-Hybrid-Programming-Language.git
-cd Bayan-Hybrid-Programming-Language
+git clone https://github.com/YOUR_USERNAME/nlp_bayan.git
+cd nlp_bayan
 ```
 
 ### 3. Create a Branch

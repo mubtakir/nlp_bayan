@@ -1,7 +1,7 @@
 # NEXT_MODEL_BRIEFING — موجز تنفيذي للموديل التالي (One‑Page)
 
 **تاريخ**: 2025‑11‑17
-**المستودع**: https://github.com/mubtakir/bayaan-lang
+**المستودع**: https://github.com/mubtakir/nlp_bayan
 **الفرع**: main
 **الحالة**: نظام متقدم - أولوية: إصلاح الاختبارات
 

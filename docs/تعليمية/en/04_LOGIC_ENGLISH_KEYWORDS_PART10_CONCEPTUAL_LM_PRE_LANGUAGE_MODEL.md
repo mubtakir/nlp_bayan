@@ -130,6 +130,7 @@ These represent **logic/conceptual circuits** and higher-level meaning programs,
 - Scenario «student studies subject with certain effort over time».
 - Scenario «medical treatment with uncertainty in outcome».
 - Scenario «financial investment with risk and expected return».
+- Scenario «enhanced detailed comparison between two options for decision making».
 
 Each meaning program uses:
 

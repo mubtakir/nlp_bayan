@@ -6,21 +6,29 @@ import ai.conceptual_circuits as circuits
 
 
 # Helper: merge multiple conceptual trace segments into a single trace.
-# Simple concatenation of list-like fields (entities, events, transforms, causal_links)
-# and last-wins for meta.
+# Handles None inputs, concatenates lists, and merges meta data.
 def merge_traces(traces):
 {
-    if len(traces) == 0:
+    if traces == None or len(traces) == 0:
     {
         return {}
     }
 
-    merged = {}
+    merged = {
+        "entities": [],
+        "events": [],
+        "transforms": [],
+        "causal_links": [],
+        "meta": {}
+    }
+    
     list_keys = ["entities", "events", "transforms", "causal_links"]
+    sources = []
 
     for i in range(len(traces)):
     {
         trace = traces[i]
+        if trace == None: { continue }
 
         # Merge list-like fields
         for k in range(len(list_keys)):
@@ -28,29 +36,40 @@ def merge_traces(traces):
             key = list_keys[k]
             if key in trace:
             {
-                if key in merged:
-                {
-                    dest_list = merged[key]
-                }
-                else:
-                {
-                    dest_list = []
-                    merged[key] = dest_list
-                }
-
                 local_list = trace[key]
+                # In a real system, we would deduplicate by ID here.
+                # For now, we just append.
                 for j in range(len(local_list)):
                 {
-                    dest_list.append(local_list[j])
+                    merged[key].append(local_list[j])
                 }
             }
         }
 
-        # Merge meta (override; last one wins)
+        # Merge meta
         if "meta" in trace:
         {
-            merged["meta"] = trace["meta"]
+            local_meta = trace["meta"]
+            # Collect sources
+            if "source" in local_meta:
+            {
+                sources.append(local_meta["source"])
+            }
+            # Copy other meta fields (last one wins for scalars)
+            for m_key in local_meta:
+            {
+                if m_key != "source":
+                {
+                    merged["meta"][m_key] = local_meta[m_key]
+                }
+            }
         }
+    }
+
+    # Finalize meta
+    if len(sources) > 0:
+    {
+        merged["meta"]["sources"] = sources
     }
 
     return merged

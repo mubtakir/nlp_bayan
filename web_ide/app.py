@@ -125,6 +125,144 @@ def healthz():
     return jsonify({'ok': True})
 
 
+@app.route('/ai_playground')
+def ai_playground():
+    return render_template('ai_playground.html')
+
+@app.route('/logic_graph')
+def logic_graph():
+    return render_template('logic_graph.html')
+
+@app.route('/unified_graph')
+def unified_graph():
+    return render_template('unified_graph.html')
+
+@app.route('/api/ide/run_logic', methods=['POST'])
+def api_run_logic():
+    data = request.json
+    code = data.get('code', '')
+    
+    # Use HybridInterpreter to run the code
+    from bayan.hybrid_interpreter import HybridInterpreter
+    from bayan.visualization import ExistentialVisualizer
+    import io
+    import sys
+    
+    interpreter = HybridInterpreter()
+    
+    # Capture stdout
+    old_stdout = sys.stdout
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    
+    try:
+        # Parse and interpret
+        from bayan.lexer import HybridLexer
+        from bayan.parser import HybridParser
+        
+        lexer = HybridLexer(code)
+        tokens = lexer.tokenize()
+        parser = HybridParser(tokens)
+        ast = parser.parse()
+        interpreter.interpret(ast)
+        
+        output = captured_output.getvalue()
+        
+        # Get Graph Data
+        visualizer = ExistentialVisualizer(interpreter)
+        graph_data = visualizer.export_d3_graph()
+        
+        # Get Trace and Contradictions
+        trace = interpreter.logical.trace
+        contradictions = interpreter.logical.check_contradictions()
+        
+        return jsonify({
+            'output': output,
+            'graph': graph_data,
+            'trace': trace,
+            'contradictions': contradictions
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'output': f"Error: {str(e)}",
+            'graph': {'nodes': [], 'links': []},
+            'trace': [f"Error: {str(e)}"],
+            'contradictions': []
+        }), 500
+    finally:
+        sys.stdout = old_stdout
+
+@app.route('/api/ide/run_unified', methods=['POST'])
+def api_run_unified():
+    data = request.json
+    code = data.get('code', '')
+    mode = data.get('mode', 'unified')  # logic, procedural, oop, entity, unified
+    
+    # Use HybridInterpreter to run the code
+    from bayan.hybrid_interpreter import HybridInterpreter
+    from bayan.visualization import ExistentialVisualizer
+    import io
+    import sys
+    
+    interpreter = HybridInterpreter()
+    
+    # Capture stdout
+    old_stdout = sys.stdout
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    
+    try:
+        # Parse and interpret
+        from bayan.lexer import HybridLexer
+        from bayan.parser import HybridParser
+        
+        lexer = HybridLexer(code)
+        tokens = lexer.tokenize()
+        parser = HybridParser(tokens)
+        ast = parser.parse()
+        interpreter.interpret(ast)
+        
+        output = captured_output.getvalue()
+        
+        # Get Graph Data based on mode
+        visualizer = ExistentialVisualizer(interpreter)
+        
+        if mode == 'logic':
+            graph_data = visualizer.export_d3_graph()
+        elif mode == 'procedural':
+            graph_data = visualizer.export_procedural_graph()
+        elif mode == 'oop':
+            graph_data = visualizer.export_oop_graph()
+        elif mode == 'entity':
+            graph_data = visualizer.export_entity_graph()
+        else:  # unified
+            graph_data = visualizer.export_unified_graph()
+        
+        # Get Trace and Contradictions
+        trace = interpreter.logical.trace
+        contradictions = interpreter.logical.check_contradictions()
+        
+        return jsonify({
+            'output': output,
+            'graph': graph_data,
+            'trace': trace,
+            'contradictions': contradictions
+        })
+        
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        return jsonify({
+            'output': f"Error: {str(e)}",
+            'graph': {'nodes': [], 'links': [], 'stats': {'total_nodes': 0, 'total_links': 0, 'logic_nodes': 0, 'procedural_nodes': 0, 'oop_nodes': 0, 'entity_nodes': 0}},
+            'trace': [f"Error: {str(e)}", error_trace],
+            'contradictions': []
+        }), 500
+    finally:
+        sys.stdout = old_stdout
+
+
 # -----------------------------
 # Routes: IDE file APIs
 # -----------------------------

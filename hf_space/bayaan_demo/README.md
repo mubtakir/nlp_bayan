@@ -26,7 +26,7 @@ Notes:
 
 Links:
 - Dataset: https://huggingface.co/datasets/Mubtakir/bayaan-alignment-sample
-- GitHub: https://github.com/mubtakir/bayaan-lang
+- GitHub: https://github.com/mubtakir/nlp_bayan
 - Eval framework results (v1.2 detailed):
-  https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/results/metrics_v1.2_detailed.json
+  https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/eval_framework/results/metrics_v1.2_detailed.json
 

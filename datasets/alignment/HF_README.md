@@ -29,9 +29,9 @@ Bilingual Arabic–English alignment dataset for the Bayaan hybrid programming l
 - License: CC BY 4.0
 
 روابط مهمة:
-- GitHub: https://github.com/mubtakir/bayaan-lang
-- Eval Framework (CLI + metrics): https://github.com/mubtakir/bayaan-lang/tree/main/eval_framework
-- Detailed metrics JSON (v1.2): https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/eval_framework/results/metrics_v1.2_detailed.json
+- GitHub: https://github.com/mubtakir/nlp_bayan
+- Eval Framework (CLI + metrics): https://github.com/mubtakir/nlp_bayan/tree/main/eval_framework
+- Detailed metrics JSON (v1.2): https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/eval_framework/results/metrics_v1.2_detailed.json
 - Hugging Face Space (demo): https://huggingface.co/spaces/Mubtakir/bayaan-demo
 
 ## Quickstart — البداية السريعة

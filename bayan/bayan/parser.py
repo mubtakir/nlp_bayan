@@ -88,6 +88,27 @@ class HybridParser:
         self.advance()
         return token
 
+    def _can_start_attribute(self, token):
+        """Check if token can start an attribute name"""
+        if not token:
+            return False
+        if token.type == TokenType.IDENTIFIER:
+            return True
+        # Check keywords allowed in eat_attribute_name
+        return token.type in (
+            TokenType.SIMILARITY, TokenType.BASED_ON, TokenType.DOMAIN,
+            TokenType.MEMORY, TokenType.KNOWLEDGE, TokenType.PATTERN,
+            TokenType.CONCEPT, TokenType.ROLE, TokenType.DEGREE,
+            TokenType.STATE_CHANGES, TokenType.ENTITIES, TokenType.RESULT,
+            TokenType.PARTICIPANTS, TokenType.STRENGTH, TokenType.TRANSFORM,
+            TokenType.REACTIONS, TokenType.STRUCTURE, TokenType.EXPRESS,
+            TokenType.LINGUISTIC_FORMS, TokenType.CONTENT, TokenType.CONTEXT,
+            TokenType.TIME, TokenType.PLACE, TokenType.SOURCE, TokenType.CERTAINTY,
+            TokenType.CURRENT_VALUE, TokenType.HISTORY, TokenType.FUTURE_PREDICTION,
+            TokenType.ROOT, TokenType.TAXONOMY, TokenType.CHARACTERS, TokenType.EVENT,
+            TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT
+        )
+
     def eat_attribute_name(self):
         """Consume an attribute/method name - can be IDENTIFIER or certain reserved keywords"""
         if self.match(TokenType.IDENTIFIER):
@@ -932,6 +953,11 @@ class HybridParser:
         # Parse chained attribute/subscript access on the target
         while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
             if self.match(TokenType.DOT):
+                # Check for line break to avoid consuming statement terminator
+                if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                    break
+                if not self._can_start_attribute(self.peek()):
+                    break
                 self.eat(TokenType.DOT)
                 attr_tok = self.eat_attribute_name()
                 attr_name = attr_tok.value
@@ -996,7 +1022,7 @@ class HybridParser:
             self.eat(TokenType.DOT)
             # Convert FunctionCall to Predicate
             if isinstance(expr, FunctionCall):
-                from .ast_nodes import Predicate, LogicalFact
+                from .ast_nodes import LogicalPredicate as Predicate, LogicalFact
                 predicate = Predicate(expr.function_name, expr.arguments)
                 return LogicalFact(predicate)
             return expr
@@ -1008,7 +1034,7 @@ class HybridParser:
                 self.eat(TokenType.DOT)
             # Convert FunctionCall to Predicate
             if isinstance(expr, FunctionCall):
-                from .ast_nodes import Predicate, LogicalRule
+                from .ast_nodes import LogicalPredicate as Predicate, LogicalRule
                 head = Predicate(expr.function_name, expr.arguments)
                 return LogicalRule(head, body)
             return expr
@@ -1249,6 +1275,10 @@ class HybridParser:
                 # Check for chained access after function call
                 while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                     if self.match(TokenType.DOT):
+                        if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                            break
+                        if not self._can_start_attribute(self.peek()):
+                            break
                         self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value
@@ -1271,6 +1301,10 @@ class HybridParser:
 
             while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                 if self.match(TokenType.DOT):
+                    if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                        break
+                    if not self._can_start_attribute(self.peek()):
+                        break
                     self.eat(TokenType.DOT)
                     attr_tok = self.eat_attribute_name()
                     attr_name = attr_tok.value
@@ -1320,6 +1354,10 @@ class HybridParser:
                 # Check for chained access: . or [ ] after a function call result
                 while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                     if self.match(TokenType.DOT):
+                        if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                            break
+                        if not self._can_start_attribute(self.peek()):
+                            break
                         self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value
@@ -1345,6 +1383,10 @@ class HybridParser:
 
                 while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                     if self.match(TokenType.DOT):
+                        if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                            break
+                        if not self._can_start_attribute(self.peek()):
+                            break
                         self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value
@@ -1383,6 +1425,10 @@ class HybridParser:
             # Allow chained access after self: . or [ ]
             while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                 if self.match(TokenType.DOT):
+                    if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                        break
+                    if not self._can_start_attribute(self.peek()):
+                        break
                     self.eat(TokenType.DOT)
                     attr_tok = self.eat_attribute_name()
                     attr_name = attr_tok.value
@@ -1460,6 +1506,10 @@ class HybridParser:
                 # Check for chained access: . or [ ] after a parenthesized expression
                 while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                     if self.match(TokenType.DOT):
+                        if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                            break
+                        if not self._can_start_attribute(self.peek()):
+                            break
                         self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value
@@ -1496,6 +1546,10 @@ class HybridParser:
                 # Check for chained access after function call
                 while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
                     if self.match(TokenType.DOT):
+                        if self.peek() and self.current_token and self.peek().line > self.current_token.line:
+                            break
+                        if not self._can_start_attribute(self.peek()):
+                            break
                         self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value

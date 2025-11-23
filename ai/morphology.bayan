@@ -1,0 +1,134 @@
+# Morphology Engine: Generates surface forms from lemmas
+# المولد الصرفي: يولد الكلمات المشكلة من الجذور
+
+# --- ARABIC MORPHOLOGY ---
+
+def conjugate_arabic_verb(lemma, tense, person_gender_number):
+{
+    # Simplified conjugation table for demonstration
+    # lemma assumed to be 3rd person masculine past (e.g., "درس")
+    
+    prefix = ""
+    suffix = ""
+
+    if tense == "past":
+    {
+        if person_gender_number == "3ms": { suffix = "" }
+        elif person_gender_number == "3fs": { suffix = "ت" }
+        elif person_gender_number == "3mp": { suffix = "وا" }
+        elif person_gender_number == "1s": { suffix = "ت" }
+    }
+    elif tense == "present":
+    {
+        if person_gender_number == "3ms": { 
+            prefix = "ي"
+            suffix = "" 
+        }
+        elif person_gender_number == "3fs": { 
+            prefix = "ت"
+            suffix = "" 
+        }
+        elif person_gender_number == "3mp": { 
+            prefix = "ي"
+            suffix = "ون" 
+        }
+        elif person_gender_number == "1s": { 
+            prefix = "أ"
+            suffix = "" 
+        }
+    }
+    elif tense == "future":
+    {
+        # Future is just sa- + present
+        prefix = "س"
+        present_res = conjugate_arabic_verb(lemma, "present", person_gender_number)
+        return prefix + present_res
+    }
+
+    return prefix + lemma + suffix
+}
+
+def decline_arabic_noun(lemma, definiteness, gender="m"):
+{
+    # Simplified: just handling Al- definition and Ta-Marbuta
+    if definiteness == "def":
+    {
+        if lemma.startswith("ال"):
+        {
+            return lemma
+        }
+        return "ال" + lemma
+    }
+    
+    return lemma
+}
+
+
+# --- ENGLISH MORPHOLOGY ---
+
+def conjugate_english_verb(lemma, tense, person_number):
+{
+    if tense == "past":
+    {
+        if lemma == "take": { return "took" }
+        if lemma == "eat": { return "ate" }
+        if lemma == "go": { return "went" }
+        
+        if lemma.endswith("e"):
+        {
+            return lemma + "d"
+        }
+        if lemma.endswith("y") and lemma != "play" and lemma != "stay":
+        {
+             return lemma[0:len(lemma)-1] + "ied"
+        }
+        return lemma + "ed" # Simplified regular
+    }
+    elif tense == "present":
+    {
+        if person_number == "3s":
+        {
+            if lemma.endswith("y"):
+            {
+                # study -> studies
+                # play -> plays (vowel+y) - simplified check
+                if lemma == "study" or lemma == "try":
+                {
+                     return lemma[0:len(lemma)-1] + "ies"
+                }
+            }
+            
+            if lemma.endswith("s") or lemma.endswith("sh") or lemma.endswith("ch"):
+            {
+                return lemma + "es"
+            }
+            
+            return lemma + "s"
+        }
+        return lemma
+    }
+    elif tense == "future":
+    {
+        return "will " + lemma
+    }
+
+    return lemma
+}
+
+def pluralize_english_noun(lemma):
+{
+    if lemma.endswith("y"):
+    {
+         if lemma == "library" or lemma == "city":
+         {
+             return lemma[0:len(lemma)-1] + "ies"
+         }
+    }
+    
+    if lemma.endswith("s"):
+    {
+        return lemma + "es"
+    }
+    
+    return lemma + "s"
+}

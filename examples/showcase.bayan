@@ -2,12 +2,14 @@
 
 print("[1] OOP: وراثة + super()\n")
 
-class A:
+class A: {
+}
 {
     def who(): { print("A") }
 }
 
-class B(A):
+class B(A): {
+}
 {
     def who():
     {

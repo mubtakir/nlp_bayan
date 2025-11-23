@@ -92,8 +92,8 @@
 > **Complete project access for AI models with 632+ files organized by category**
 
 - **AI Model Links (روابط للنماذج اللغوية):**
-  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
   - **Contains:** Direct links to all essential files (README, keywords reference, guides, tutorials, examples, AI libraries, domain libraries, conceptual libraries, and more)
 ```
 
@@ -111,8 +111,8 @@
 - **الحجم**: منظم حسب الفئة
 - **متى تستخدمه**: عندما تريد أن يطلع النموذج على المشروع بالكامل
 - **الروابط**:
-  - RAW: https://raw.githubusercontent.com/mubtakir/bayaan-lang/main/docs/AI_MODEL_LINKS.md
-  - GitHub plain: https://github.com/mubtakir/bayaan-lang/blob/main/docs/AI_MODEL_LINKS.md?plain=1
+  - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+  - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
 ```
 
 ---

@@ -12,7 +12,7 @@ import sys as _sys
 
 _submods = [
     'lexer', 'parser', 'logical_engine', 'hybrid_interpreter', 'traditional_interpreter',
-    'ast_nodes', 'object_system', 'import_system', 'builtins', 'entity_engine'
+    'ast_nodes', 'object_system', 'import_system', 'builtins', 'entity_engine', 'visualization'
 ]
 for _name in _submods:
     try:

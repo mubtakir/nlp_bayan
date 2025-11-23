@@ -141,7 +141,7 @@ All AI model documentation files have been updated to reflect the current projec
 ## 📞 جهات الاتصال / Contact
 
 للأسئلة أو الاستفسارات / For questions or inquiries:
-- المشروع / Project: https://github.com/mubtakir/bayaan-lang
+- المشروع / Project: https://github.com/mubtakir/nlp_bayan
 - التوثيق / Documentation: docs/تعليمية/README.md
 
 ---

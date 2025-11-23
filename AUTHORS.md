@@ -122,7 +122,7 @@ Ways to contribute:
 ## 📞 Contact | التواصل
 
 - **GitHub**: [@mubtakir](https://github.com/mubtakir)
-- **Repository**: [Bayan-Hybrid-Programming-Language](https://github.com/mubtakir/Bayan-Hybrid-Programming-Language)
+- **Repository**: [nlp_bayan](https://github.com/mubtakir/nlp_bayan)
 
 ---
 

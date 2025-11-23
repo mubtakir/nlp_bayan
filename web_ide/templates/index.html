@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيان - الصفحة الرئيسية</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: block;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .note {
+            background: #fef3c7;
+            border-right: 4px solid #f59e0b;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 5px;
+            text-align: right;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="emoji">🚀</div>
+        <h1>مرحباً في بيان</h1>
+        <p>اختر الواجهة التي تريد استخدامها:</p>
+
+        <div class="btn-container">
+            <a href="/logic_graph" class="btn btn-primary">
+                🎨 واجهة المنطق الرسومية
+                <br>
+                <small style="font-size: 0.7em; opacity: 0.9;">Logic Graph Interface</small>
+            </a>
+
+            <a href="/ide" class="btn btn-secondary">
+                💻 محرر الأكواد التقليدي
+                <br>
+                <small style="font-size: 0.7em; opacity: 0.9;">Traditional Code Editor</small>
+            </a>
+        </div>
+
+        <div class="note">
+            <strong>💡 نصيحة:</strong> لتجربة الرسم البياني التفاعلي للمنطق والعلاقات السببية، استخدم <strong>واجهة
+                المنطق الرسومية</strong>
+        </div>
+    </div>
+</body>
+
+</html>

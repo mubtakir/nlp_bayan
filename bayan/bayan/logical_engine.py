@@ -83,6 +83,25 @@ class Substitution:
     def __repr__(self):
         return f"Substitution({self.bindings})"
 
+class ProofNode:
+    """Represents a node in the proof tree"""
+    def __init__(self, goal, rule=None, children=None, substitution=None):
+        self.goal = goal
+        self.rule = rule
+        self.children = children or []
+        self.substitution = substitution
+
+    def __repr__(self):
+        return f"ProofNode({self.goal})"
+
+    def to_dict(self):
+        return {
+            'goal': str(self.goal),
+            'rule': str(self.rule) if self.rule else None,
+            'children': [child.to_dict() for child in self.children],
+            'substitution': str(self.substitution)
+        }
+
 class LogicalEngine:
     """The logical inference engine"""
     
@@ -90,7 +109,185 @@ class LogicalEngine:
         self.knowledge_base = {}  # {predicate_name: [facts/rules]}
         self.call_stack = []
         self.max_depth = 1000
+        self.trace = []  # List of strings describing inference steps
+
+    def check_contradictions(self):
+        """Check for logical contradictions in the knowledge base.
+        
+        A contradiction is defined as:
+        1. Two facts with the same predicate name and arguments but different values (if applicable).
+           For now, we check for simple direct contradictions like:
+           - is_active(x, true) AND is_active(x, false)
+           - color(x, red) AND color(x, blue) [assuming single value]
+        """
+        contradictions = []
+        
+        # 1. Check for boolean contradictions (true/false)
+        # Iterate over all predicates
+        for pred_name, items in self.knowledge_base.items():
+            facts = [item for item in items if isinstance(item, Fact)]
+            
+            # Group facts by arguments (excluding the last one if it's the value)
+            # This is a heuristic: assume last arg is value if it's a property
+            
+            # Simple check: Exact same predicate with different last argument?
+            # e.g. status(x, active) vs status(x, inactive)
+            
+            seen_args = {} # {args_tuple_without_last: (last_arg, fact)}
+            
+            for fact in facts:
+                if len(fact.predicate.args) < 2:
+                    continue
+                    
+                # Key is all args except the last one
+                key = tuple(str(arg) for arg in fact.predicate.args[:-1])
+                val = str(fact.predicate.args[-1])
+                
+                if key in seen_args:
+                    existing_val, existing_fact = seen_args[key]
+                    if existing_val != val:
+                        # Potential contradiction found!
+                        # We need to be careful. color(car, red) and color(car, blue) might be valid if it's multi-colored.
+                        # But for strict logic, we flag it.
+                        msg = f"Contradiction found: {fact.predicate} conflicts with {existing_fact.predicate}"
+                        contradictions.append(msg)
+                else:
+                    seen_args[key] = (val, fact)
+                    
+        return contradictions
+
+    def _log_trace(self, message, depth=0):
+        """Log a step in the verification trace"""
+        indent = "  " * depth
+        self.trace.append(f"{indent}{message}")
     
+    def _predicate_to_code(self, predicate):
+        """Convert predicate to code string without ? prefix for variables"""
+        args_str = ", ".join(
+            str(arg.value) if arg.is_variable else str(arg.value)
+            for arg in predicate.args
+        )
+        return f"{predicate.name}({args_str})"
+    
+    def to_json(self):
+        """Export knowledge base to JSON-serializable format"""
+        data = {}
+        for pred_name, items in self.knowledge_base.items():
+            data[pred_name] = []
+            for item in items:
+                if isinstance(item, Fact):
+                    data[pred_name].append({
+                        'type': 'fact',
+                        'predicate': self._predicate_to_code(item.predicate),
+                        'probability': item.probability
+                    })
+                elif isinstance(item, Rule):
+                    data[pred_name].append({
+                        'type': 'rule',
+                        'head': self._predicate_to_code(item.head),
+                        'body': [self._predicate_to_code(g) for g in item.body]
+                    })
+        return data
+
+    def from_json(self, data):
+        """Import knowledge base from JSON-serializable format"""
+        pass
+
+    def explain(self, goal):
+        """Explain how a goal is proved"""
+        proofs = self.solve_with_proof(goal)
+        explanations = []
+        for proof in proofs:
+            explanations.append(self._format_proof(proof))
+        return explanations
+
+    def _format_proof(self, node, depth=0):
+        indent = "  " * depth
+        text = f"{indent}Goal: {node.goal}\n"
+        if node.rule:
+            text += f"{indent}Derived from rule: {node.rule}\n"
+        elif not node.children:
+            text += f"{indent}Fact found.\n"
+        
+        for child in node.children:
+            text += self._format_proof(child, depth + 1)
+        return text
+
+    def solve_with_proof(self, goal, substitution=None):
+        """Solve a goal and return ProofNodes"""
+        if substitution is None:
+            substitution = Substitution()
+        
+        return self._solve_goal_proof(goal, substitution)
+
+    def _solve_goal_proof(self, goal, substitution):
+        """Solve a goal and return list of ProofNodes"""
+        from .ast_nodes import IsExpression
+        
+        proofs = []
+        
+        # Apply substitution
+        goal = self._apply_substitution(goal, substitution)
+        pred_name = goal.name
+        
+        if pred_name not in self.knowledge_base:
+            return proofs
+
+        for item in self.knowledge_base[pred_name]:
+            if isinstance(item, Fact):
+                new_sub = self._unify(goal, item.predicate, substitution.copy())
+                if new_sub is not None:
+                    proofs.append(ProofNode(goal, children=[], substitution=new_sub))
+            elif isinstance(item, Rule):
+                rule_proofs = self._prove_rule_proof(item, goal, substitution)
+                proofs.extend(rule_proofs)
+        
+        return proofs
+
+    def _prove_rule_proof(self, rule, goal, substitution):
+        proofs = []
+        renamed_rule = self._rename_variables(rule)
+        head_sub = self._unify(goal, renamed_rule.head, substitution)
+        if head_sub is None:
+            return proofs
+
+        # Prove body
+        body_proofs_lists = self._prove_body_proof(renamed_rule.body, head_sub)
+        
+        for body_proofs, final_sub in body_proofs_lists:
+            proofs.append(ProofNode(goal, rule=rule, children=body_proofs, substitution=final_sub))
+            
+        return proofs
+
+    def _prove_body_proof(self, body, substitution):
+        """Return list of (list of child proofs, final substitution)"""
+        if not body:
+            return [([], substitution)]
+        
+        first_goal = body[0]
+        rest_goals = body[1:]
+        
+        results = []
+        first_goal_proofs = self._solve_goal_proof(first_goal, substitution)
+        
+        for first_proof in first_goal_proofs:
+            if rest_goals:
+                rest_results = self._prove_body_proof(rest_goals, first_proof.substitution)
+                for rest_proofs, final_sub in rest_results:
+                    results.append(([first_proof] + rest_proofs, final_sub))
+            else:
+                results.append(([first_proof], first_proof.substitution))
+                
+        return results
+
+    def what_if(self, fact, query):
+        """Temporarily assert a fact and run a query"""
+        self.asserta(fact)
+        try:
+            return self.query(query)
+        finally:
+            self.retract(fact.predicate if isinstance(fact, Fact) else fact.head)
+
     def add_fact(self, fact):
         """Add a fact to the knowledge base"""
         pred_name = fact.predicate.name
@@ -180,8 +377,13 @@ class LogicalEngine:
             raise RuntimeError("Maximum recursion depth exceeded")
         
         self.call_stack.append(goal)
+        self._log_trace(f"Goal: {goal}", depth=len(self.call_stack)-1)
         try:
             solutions = self._solve_goal(goal, substitution)
+            if solutions:
+                self._log_trace(f"✓ Solved: {goal}", depth=len(self.call_stack)-1)
+            else:
+                self._log_trace(f"✗ Failed: {goal}", depth=len(self.call_stack)-1)
         finally:
             self.call_stack.pop()
         
@@ -290,6 +492,8 @@ class LogicalEngine:
         head_sub = self._unify(goal, renamed_rule.head, substitution)
         if head_sub is None:
             return solutions
+            
+        self._log_trace(f"Applying rule: {rule}", depth=len(self.call_stack))
 
         # Prove the body
         body_solutions = self._prove_body(renamed_rule.body, head_sub)
@@ -618,6 +822,21 @@ class LogicalEngine:
             else:
                 return None
 
+
+
+        # Handle unary operations
+        if isinstance(expr, UnaryOp):
+            operand = self._evaluate_arithmetic(expr.operand, substitution)
+            if operand is None:
+                return None
+
+            if expr.operator == '-':
+                return -operand
+            elif expr.operator == '+':
+                return operand
+            else:
+                return None
+
         return None
 
     def _evaluate_comparison(self, comp_pred, substitution):
@@ -792,3 +1011,67 @@ class LogicalEngine:
             return [substitution]
         return []
 
+
+    def export_proof_graph(self, proofs):
+        """Export proof tree as D3 graph"""
+        nodes = []
+        links = []
+        node_ids = set()
+        
+        def add_node(id, label, group, type_):
+            if id not in node_ids:
+                nodes.append({'id': id, 'label': label, 'group': group, 'type': type_})
+                node_ids.add(id)
+        
+        def process_proof(node, parent_id=None):
+            # Create node for this goal
+            node_id = f"node_{id(node)}"
+            label = str(node.goal)
+            
+            # Determine type
+            if node.rule:
+                type_ = 'rule_application'
+                group = 2 # Logic
+            elif not node.children:
+                type_ = 'fact'
+                group = 1 # Concept/Fact
+            else:
+                type_ = 'goal'
+                group = 3 # Value/Goal
+                
+            add_node(node_id, label, group, type_)
+            
+            if parent_id:
+                links.append({
+                    'source': parent_id,
+                    'target': node_id,
+                    'value': 1,
+                    'relationship': 'requires'
+                })
+                
+            # If it's a rule, maybe show the rule name as an intermediate node?
+            if node.rule:
+                rule_id = f"rule_{id(node)}"
+                rule_label = f"Rule: {node.rule.head.name}"
+                add_node(rule_id, rule_label, 4, 'rule') # Group 4 for Rules
+                
+                # Link Goal -> Rule
+                links.append({
+                    'source': node_id,
+                    'target': rule_id,
+                    'value': 1,
+                    'relationship': 'derived_by'
+                })
+                
+                # Link Rule -> Children
+                for child in node.children:
+                    process_proof(child, rule_id)
+            else:
+                # Direct children (shouldn't happen for facts, but maybe for other structures)
+                for child in node.children:
+                    process_proof(child, node_id)
+                    
+        for proof in proofs:
+            process_proof(proof)
+            
+        return {'nodes': nodes, 'links': links}
