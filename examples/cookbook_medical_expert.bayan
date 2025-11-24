@@ -1,0 +1,189 @@
+# medical_expert_system.bayan
+# نظام خبير طبي بسيط للتشخيص
+
+hybrid {
+    # ===== قاعدة المعرفة الطبية =====
+    
+    # الأعراض والأمراض مع درجة الارتباط (0.0 - 1.0)
+    fact symptom("حمى", "انفلونزا", 0.8).
+    fact symptom("سعال", "انفلونزا", 0.7).
+    fact symptom("احتقان_حلق", "انفلونزا", 0.6).
+    fact symptom("صداع", "انفلونزا", 0.5).
+    
+    fact symptom("حمى", "كوفيد-19", 0.9).
+    fact symptom("سعال", "كوفيد-19", 0.8).
+    fact symptom("فقدان_شم", "كوفيد-19", 0.9).
+    fact symptom("ضيق_تنفس", "كوفيد-19", 0.8).
+    
+    fact symptom("صداع", "صداع_نصفي", 0.9).
+    fact symptom("غثيان", "صداع_نصفي", 0.6).
+    fact symptom("حساسية_ضوء", "صداع_نصفي", 0.7).
+    
+    fact symptom("حمى", "التهاب_حلق", 0.7).
+    fact symptom("احتقان_حلق", "التهاب_حلق", 0.9).
+    fact symptom("صعوبة_بلع", "التهاب_حلق", 0.8).
+    
+    # قواعد منطقية للتشخيص
+    rule possible_disease(?disease) :-
+        symptom(?s, ?disease, ?conf),
+        has_symptom(?s).
+    
+    # ===== الدوال الإجرائية =====
+    
+    def get_symptoms_from_user() {
+        """الحصول على الأعراض من المستخدم"""
+        print("=== نظام التشخيص الطبي ===")
+        print("\nالأعراض المتاحة:")
+        print("1. حمى")
+        print("2. سعال  
+        print("3. احتقان_حلق")
+        print("4. صداع")
+        print("5. فقدان_شم")
+        print("6. ضيق_تنفس")
+        print("7. غثيان")
+        print("8. حساسية_ضوء")
+        print("9. صعوبة_بلع")
+        
+        symptoms = []
+        print("\nأدخل أعراضك (اكتب 'تم' للانتهاء):")
+        
+        while (True) {
+            symptom_input = input("عرض: ").strip()
+            
+            if (symptom_input == "تم" or symptom_input == "") {
+                break
+            }
+            
+            symptoms.append(symptom_input)
+        }
+        
+        return symptoms
+    }
+    
+    def calculate_confidence(disease, symptoms) {
+        """حساب ثقة التشخيص"""
+        confidences = []
+        
+        for s in (symptoms) {
+            results = query symptom(s, disease, ?conf)
+            for r in (results) {
+                confidences.append(r["?conf"])
+            }
+        }
+        
+        if (len(confidences) == 0) {
+            return 0.0
+        }
+        
+        return sum(confidences) / len(confidences)
+    }
+    
+    def diagnose(symptoms) {
+        """تشخيص المرض بناءً على الأعراض"""
+        
+        # تنظيف الحقائق السابقة
+        retractall(has_symptom(?)).
+        
+        # إضافة الأعراض الجديدة
+        for s in (symptoms) {
+            assertz(has_symptom(s))
+        }
+        
+        # الحصول على الأمراض المحتملة
+        diseases_results = query possible_disease(?disease)
+        
+        unique_diseases = []
+        for r in (diseases_results) {
+            disease = r["?disease"]
+            if (disease not in unique_diseases) {
+                unique_diseases.append(disease)
+            }
+        }
+        
+        # حساب الثقة لكل مرض
+        diagnoses = []
+        for disease in (unique_diseases) {
+            conf = calculate_confidence(disease, symptoms)
+            diagnoses.append({"disease": disease, "confidence": conf})
+        }
+        
+        # ترتيب حسب الثقة
+        sorted_diagnoses = sorted(
+            diagnoses,
+            key=lambda x: x["confidence"],
+            reverse=True
+        )
+        
+        return sorted_diagnoses
+    }
+    
+    def display_diagnosis(results, symptoms) {
+        """عرض نتائج التشخيص"""
+        
+        print("\n" + "="*50)
+        print("📋 تقرير التشخيص")
+        print("="*50)
+        
+        if (len(symptoms) == 0) {
+            print("⚠️  لم يتم إدخال أي أعراض!")
+            return
+        }
+        
+        print(f"\n🔍 الأعراض المدخلة: {', '.join(symptoms)}")
+        
+        if (len(results) == 0) {
+            print("\n❌ لم يتم العثور على تشخيص محتمل.")
+            print("💡 تأكد من كتابة الأعراض بشكل صحيح.")
+            return
+        }
+        
+        print("\n🏥 التشخيصات المحتملة:\n")
+        
+        for i in (range(min(3, len(results)))) {
+            disease = results[i]["disease"]
+            confidence = results[i]["confidence"]
+            percentage = confidence * 100
+            
+            # تحديد مستوى الثقة
+            if (confidence >= 0.7) {
+                level = "🔴 عالي"
+            } elif (confidence >= 0.5) {
+                level = "🟡 متوسط"
+            } else {
+                level = "🟢 منخفض"
+            }
+            
+            print(f"{i+1}. {disease}")
+            print(f"   درجة الثقة: {percentage:.1f}% {level}")
+            print()
+        }
+        
+        print("="*50)
+        print("⚕️  هذا تشخيص أولي فقط!")
+        print("📌 يُنصح بمراجعة طبيب مختص.")
+        print("="*50)
+    }
+    
+    # ===== البرنامج الرئيسي =====
+    
+    def main() {
+        """نقطة البداية للبرنامج"""
+        
+        print("\n🏥 مرحباً بك في نظام التشخيص الطبي الذكي")
+        print("───────────────────────────────────────────\n")
+        
+        # الحصول على الأعراض
+        symptoms = get_symptoms_from_user()
+        
+        # التشخيص
+        diagnosis_results = diagnose(symptoms)
+        
+        # عرض النتائج
+        display_diagnosis(diagnosis_results, symptoms)
+        
+        print("\n✨ شكراً لاستخدامك النظام!")
+    }
+    
+    # تشغيل البرنامج
+    main()
+}
