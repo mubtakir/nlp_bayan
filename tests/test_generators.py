@@ -49,7 +49,7 @@ def test_parse_yield_with_value():
     code = """
 def count(n): {
     i = 0
-    while i < n: {
+    while (i < n) {
         yield i
         i = i + 1
     }
@@ -108,7 +108,7 @@ def test_parse_yield_in_for_loop():
     """Test parsing yield inside for loop"""
     code = """
 def iterate(items): {
-    for item in items: {
+    for item in (items) {
         yield item
     }
 }
@@ -127,7 +127,7 @@ def test_parse_yield_with_expression():
     code = """
 def squares(n): {
     i = 0
-    while i < n: {
+    while (i < n) {
         yield i * i
         i = i + 1
     }
@@ -146,7 +146,7 @@ def test_parse_yield_with_function_call():
     """Test parsing yield with function call"""
     code = """
 def process(items): {
-    for item in items: {
+    for item in (items) {
         yield transform(item)
     }
 }
@@ -167,7 +167,7 @@ def fibonacci(n): {
     a = 0
     b = 1
     i = 0
-    while i < n: {
+    while (i < n) {
         yield a
         temp = a
         a = b
@@ -190,8 +190,8 @@ def test_parse_yield_with_conditional():
     """Test parsing yield with conditional"""
     code = """
 def filter_even(items): {
-    for item in items: {
-        if item % 2 == 0: {
+    for item in (items) {
+        if (item % 2 == 0) {
             yield item
         }
     }

@@ -27,25 +27,20 @@ def _parse_equivalence_and_add(kb_module, text): {
     s = text.strip()
     # أنماط مكافئة
     patterns = [" = ", " هو ", " هي ", " يعني ", " تعني ", " بمعنى ", " مرادف "]
-    for p in patterns:
-    {
-        if p in s:
-        {
+    for p in (patterns) {
+        if (p in s) {
             parts = s.split(p)
-            if len(parts) == 2:
-            {
+            if (len(parts) == 2) {
                 subject = _strip_punct(parts[0])
                 value = _strip_punct(parts[1])
-                if subject != "" and value != "":
-                {
+                if (subject != "" and value != "") {
                     # إذا كانت علاقة مرادفة (يعني/تعني/بمعنى/مرادف) اجعلها ثنائية الاتجاه
-                    if p == " يعني " or p == " تعني " or p == " بمعنى " or p == " مرادف ":
-                    {
+                    if (p == " يعني " or p == " تعني " or p == " بمعنى " or p == " مرادف ") {
                         kb_module.add_fact(subject, "هو", value)
                         kb_module.add_fact(value, "هو", subject)
                     }
-                    else:
-                    {
+                    else {
+                    
                         kb_module.add_fact(subject, "هو", value)
                     }
                     return "ADDED"
@@ -61,29 +56,23 @@ def _parse_is_a_and_add(kb_module, text): {
 }
 {
     s = text.strip()
-    if " نوع من " in s:
-    {
+    if (" نوع من " in s) {
         parts = s.split(" نوع من ")
-        if len(parts) == 2:
-        {
+        if (len(parts) == 2) {
             subject = _strip_punct(parts[0])
             value = _strip_punct(parts[1])
-            if subject != "" and value != "":
-            {
+            if (subject != "" and value != "") {
                 kb_module.add_fact(subject, "نوع من", value)
                 return "ADDED"
             }
         }
     }
-    if " نوعه " in s:
-    {
+    if (" نوعه " in s) {
         parts = s.split(" نوعه ")
-        if len(parts) == 2:
-        {
+        if (len(parts) == 2) {
             subject = _strip_punct(parts[0])
             value = _strip_punct(parts[1])
-            if subject != "" and value != "":
-            {
+            if (subject != "" and value != "") {
                 kb_module.add_fact(subject, "نوع من", value)
                 return "ADDED"
             }
@@ -97,15 +86,12 @@ def _parse_has_property_and_add(kb_module, text): {
 }
 {
     s = text.strip()
-    if " له " in s:
-    {
+    if (" له " in s) {
         parts = s.split(" له ")
-        if len(parts) == 2:
-        {
+        if (len(parts) == 2) {
             subject = _strip_punct(parts[0])
             value = _strip_punct(parts[1])
-            if subject != "" and value != "":
-            {
+            if (subject != "" and value != "") {
                 kb_module.add_fact(subject, "له", value)
                 return "ADDED"
             }
@@ -128,19 +114,15 @@ def parse_and_add(kb_module, sentence): {
         "أضف إلى معرفتك أن ", "اضف إلى معرفتك أن ", "أضف الى معرفتك أن ", "اضف الى معرفتك أن ",
         "أخبرك ", "اخبرك ", "تعلّم ", "تعلم ", "أضف إلى معرفتك ", "اضف إلى معرفتك ", "أضف الى معرفتك ", "اضف الى معرفتك "
     ]
-    for pref in prefixes:
-    {
-        if s.startswith(pref):
-        {
+    for pref in (prefixes) {
+        if (s.startswith(pref)) {
             rest = s.replace(pref, "")
             r1 = _parse_is_a_and_add(kb_module, rest)
-            if r1 == "ADDED":
-            {
+            if (r1 == "ADDED") {
                 return "ADDED"
             }
             r2 = _parse_has_property_and_add(kb_module, rest)
-            if r2 == "ADDED":
-            {
+            if (r2 == "ADDED") {
                 return "ADDED"
             }
             return _parse_equivalence_and_add(kb_module, rest)
@@ -148,13 +130,11 @@ def parse_and_add(kb_module, sentence): {
     }
     # بدون بادئة: جرّب التحليل المباشر
     r1 = _parse_is_a_and_add(kb_module, s)
-    if r1 == "ADDED":
-    {
+    if (r1 == "ADDED") {
         return "ADDED"
     }
     r2 = _parse_has_property_and_add(kb_module, s)
-    if r2 == "ADDED":
-    {
+    if (r2 == "ADDED") {
         return "ADDED"
     }
     return _parse_equivalence_and_add(kb_module, s)
@@ -174,8 +154,7 @@ def parse_what_subject(question): {
 {
     q = question.strip()
     q = q.replace("؟", "")
-    if q.startswith("ما هو "):
-    {
+    if (q.startswith("ما هو ")) {
         subject = q.replace("ما هو ", "")
         return subject.strip()
     }
@@ -192,48 +171,39 @@ def parse_question(question): {
 {
     q = question.strip()
     q = q.replace("؟", "")
-    if q.startswith("ما هو "):
-    {
+    if (q.startswith("ما هو ")) {
         s = q.replace("ما هو ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "هو" }
     }
-    if q.startswith("ما هي "):
-    {
+    if (q.startswith("ما هي ")) {
         s = q.replace("ما هي ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "هو" }
     }
-    if q.startswith("ماذا يعني "):
-    {
+    if (q.startswith("ماذا يعني ")) {
         s = q.replace("ماذا يعني ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "هو" }
     }
-    if q.startswith("ما معنى "):
-    {
+    if (q.startswith("ما معنى ")) {
         s = q.replace("ما معنى ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "هو" }
     }
-    if q.startswith("ما تعريف "):
-    {
+    if (q.startswith("ما تعريف ")) {
         s = q.replace("ما تعريف ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "هو" }
     }
-    if q.startswith("ما نوع "):
-    {
+    if (q.startswith("ما نوع ")) {
         s = q.replace("ما نوع ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "نوع من" }
     }
-    if q.startswith("ما الذي له "):
-    {
+    if (q.startswith("ما الذي له ")) {
         s = q.replace("ما الذي له ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "له" }
     }
-    if q.startswith("ما خصائص "):
-    {
+    if (q.startswith("ما خصائص ")) {
         s = q.replace("ما خصائص ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "له" }
     }
-    if q.startswith("ما هي خصائص "):
-    {
+    if (q.startswith("ما هي خصائص ")) {
         s = q.replace("ما هي خصائص ", "")
         return { "ok": True, "subject": s.strip(), "predicate": "له" }
     }

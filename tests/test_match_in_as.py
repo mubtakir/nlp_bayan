@@ -28,8 +28,7 @@ hybrid {
     text = "سافر خالد إلى مكة"
     match "سافر {اسم} إلى {مدينة}" in text as m
     
-    if m:
-    {
+    if (m) {
         who = m["اسم"]
         where = m["مدينة"]
     }
@@ -51,8 +50,7 @@ hybrid {
     tpl = template("User {name} scored {score:\\d+}")
     match tpl in line as m
     
-    if m:
-    {
+    if (m) {
         uname = m["name"]
         uscore = m["score"]
     }
@@ -73,8 +71,7 @@ hybrid {
     text = "hello world"
     match "goodbye {name}" in text as m
     
-    if m:
-    {
+    if (m) {
         result = "matched"
     }
     else:
@@ -97,8 +94,7 @@ hybrid {
     النص = "مرحبا سارة"
     طابق "مرحبا {اسم}" في النص كـ م
     
-    if م:
-    {
+    if (م) {
         من = م["اسم"]
     }
     print(من)
@@ -116,8 +112,7 @@ hybrid {
     sentence = "The cat sat on the mat"
     match "The {animal} sat on the {object}" in sentence as result
     
-    if result:
-    {
+    if (result) {
         a = result["animal"]
         o = result["object"]
     }
@@ -138,8 +133,7 @@ hybrid {
     data = "Temperature: 25.5 degrees"
     match "Temperature: {temp:\\d+\\.\\d+} degrees" in data as m
     
-    if m:
-    {
+    if (m) {
         temperature = m["temp"]
     }
     print(temperature)

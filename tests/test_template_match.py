@@ -20,7 +20,7 @@ def test_template_match_simple_ar():
       النص = "سافر خالد إلى مكة"
       tpl = template("سافر {اسم} إلى {مدينة}")
       m = match(tpl, النص)
-      if m: {
+      if (m) {
         who = m["اسم"]
         where = m["مدينة"]
       }
@@ -38,7 +38,7 @@ def test_template_match_with_regex_and_render():
       line = "User Ali scored 42"
       tpl = template("User {name} scored {score:\\d+}")
       m = match(tpl, line)
-      if m: {
+      if (m) {
         uname = m["name"]
         uscore = m["score"]
       }
@@ -56,7 +56,7 @@ def test_match_str_direct_without_compile():
     code = u"""
     hybrid {
       m = match("مرحبا {اسم}", "مرحبا سارة")
-      if m: { who = m["اسم"] }
+      if (m) { who = m["اسم"] }
     }
     """
     interp = run(code)

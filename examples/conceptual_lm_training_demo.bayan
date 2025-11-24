@@ -32,8 +32,7 @@ hybrid {
     print("Training examples generated:", len(training_data_1["training_examples"]))
     print("")
 
-    for i in range(len(training_data_1["training_examples"])):
-    {
+    for i in (range(len(training_data_1["training_examples"]))) {
         example = training_data_1["training_examples"][i]
         print("Example", i + 1, "(" + example["component_name"] + "):")
         print("  ", example["text"])
@@ -82,11 +81,9 @@ hybrid {
 
     # Check if comparison component exists
     has_comparison = False
-    for i in range(len(training_data_3["training_examples"])):
-    {
+    for i in (range(len(training_data_3["training_examples"]))) {
         example = training_data_3["training_examples"][i]
-        if example["component_name"] == "option_comparison":
-        {
+        if (example["component_name"] == "option_comparison") {
             has_comparison = True
             print("Comparison component found:")
             print("  ", example["text"])
@@ -94,8 +91,7 @@ hybrid {
         }
     }
 
-    if not has_comparison:
-    {
+    if (not has_comparison) {
         print("Note: Comparison component not found in this configuration")
         print("")
     }
@@ -105,17 +101,14 @@ hybrid {
     print("-" * 70)
 
     # Get a component trace
-    if len(result_1["components"]) > 0:
-    {
+    if (len(result_1["components"]) > 0) {
         first_component_key = None
-        for key in result_1["components"]:
-        {
+        for key in (result_1["components"]) {
             first_component_key = key
             break
         }
 
-        if first_component_key != None:
-        {
+        if (first_component_key != None) {
             component = result_1["components"][first_component_key]
             component_trace = component["trace"]
 

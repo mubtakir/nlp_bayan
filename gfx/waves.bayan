@@ -11,8 +11,7 @@ import random
 def wave_sine(n, amplitude, frequency, phase=0.0):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         y = amplitude * math.sin(2 * math.pi * frequency * t + phase)
         pts.append([t, y])
@@ -25,8 +24,7 @@ def wave_sine(n, amplitude, frequency, phase=0.0):
 def wave_square(n, amplitude, frequency, phase=0.0):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         s = math.sin(2 * math.pi * frequency * t + phase)
         y = amplitude if s >= 0 else -amplitude
@@ -40,8 +38,7 @@ def wave_square(n, amplitude, frequency, phase=0.0):
 def wave_triangle(n, amplitude, frequency, phase=0.0):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         # Triangle via arcsin(sin()) approximation
         s = math.sin(2 * math.pi * frequency * t + phase)
@@ -56,8 +53,7 @@ def wave_sawtooth(n, amplitude, frequency, phase=0.0):
 {
     pts = []
     phi = phase / (2 * math.pi)
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         u = frequency * t + phi
         u = u - math.floor(u)
@@ -72,8 +68,7 @@ def wave_sawtooth(n, amplitude, frequency, phase=0.0):
 def wave_noise(n, amplitude):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         y = amplitude * (random.random() * 2 - 1)
         pts.append([t, y])
@@ -86,36 +81,32 @@ def wave_noise(n, amplitude):
 def envelope_adsr(n, a=0.1, d=0.1, s=0.7, r=0.1):
 {
     e = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = 0 if n <= 1 else i / (n - 1)
         val = 0
-        if t <= a:
-        {
-            if a <= 0: { val = 1 }
-            else: { val = t / a }
+        if (t <= a) {
+            if (a <= 0) { val = 1 }
+            else { val = t / a }
         }
-        elif t <= a + d:
-        {
-            if d <= 0: { val = s }
-            else:
-            {
+        elif (t <= a + d) {
+            if (d <= 0) { val = s }
+            else {
+            
                 td = (t - a) / d
                 val = 1 - (1 - s) * td
             }
         }
-        elif t <= 1 - r:
-        {
+        elif (t <= 1 - r) {
             val = s
         }
-        else:
-        {
-            if r <= 0: { val = 0 }
-            else:
-            {
+        else {
+        
+            if (r <= 0) { val = 0 }
+            else {
+            
                 tr = (t - (1 - r)) / r
                 val = s * (1 - tr)
-                if val < 0: { val = 0 }
+                if (val < 0) { val = 0 }
             }
         }
         e.append(val)
@@ -130,15 +121,13 @@ def apply_envelope(points, env):
     n = len(points)
     m = len(env)
     out = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = points[i][0]
         y = points[i][1]
         scale = 1
-        if m > 0:
-        {
-            if i < m: { scale = env[i] }
-            else: { scale = env[m - 1] }
+        if (m > 0) {
+            if (i < m) { scale = env[i] }
+            else { scale = env[m - 1] }
         }
         out.append([t, y * scale])
     }
@@ -150,8 +139,7 @@ def apply_envelope(points, env):
 def wave_am(n, amplitude, carrier_freq, mod_freq, depth=0.5, phase=0.0):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         mod = 1 + depth * math.sin(2 * math.pi * mod_freq * t)
         y = amplitude * mod * math.sin(2 * math.pi * carrier_freq * t + phase)
@@ -165,8 +153,7 @@ def wave_am(n, amplitude, carrier_freq, mod_freq, depth=0.5, phase=0.0):
 def wave_fm(n, amplitude, carrier_freq, mod_freq, beta=1.0, phase=0.0):
 {
     pts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = i / (n - 1)
         y = amplitude * math.sin(2 * math.pi * carrier_freq * t + beta * math.sin(2 * math.pi * mod_freq * t) + phase)
         pts.append([t, y])
@@ -190,32 +177,28 @@ def _map_point(t, y, w, h, amplitude, margin):
 def wave_plot_svg(points, w, h, stroke="#e11", stroke_width=2, margin=10, amplitude_guess=None, show_axes=True, fill_area=False, area_fill=None, area_opacity=0.25):
 {
     n = len(points)
-    if n == 0: { return svg_wrap(w, h, "") }
+    if (n == 0) { return svg_wrap(w, h, "") }
     # Estimate amplitude from data if not provided
-    if amplitude_guess is None:
-    {
+    if (amplitude_guess is None) {
         amax = 0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             v = abs(points[i][1])
-            if v > amax: { amax = v }
+            if (v > amax) { amax = v }
         }
         amplitude_guess = amax if amax > 0 else 1
     }
     pen = pen_new()
     # Build line path
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = points[i][0]
         y = points[i][1]
         mp = _map_point(t, y, w, h, amplitude_guess, margin)
-        if i == 0:
-        {
+        if (i == 0) {
             pen_move(pen, mp[0], mp[1])
             x0 = mp[0]
         }
-        else:
-        {
+        else {
+        
             pen_line(pen, mp[0], mp[1])
         }
         xl = mp[0]
@@ -224,21 +207,18 @@ def wave_plot_svg(points, w, h, stroke="#e11", stroke_width=2, margin=10, amplit
 
     # Optional area fill under curve to baseline (y=0)
     area_svg = ""
-    if fill_area:
-    {
+    if (fill_area) {
         apen = pen_new()
-        for i in range(n):
-        {
+        for i in (range(n)) {
             t = points[i][0]
             y = points[i][1]
             mp = _map_point(t, y, w, h, amplitude_guess, margin)
-            if i == 0:
-            {
+            if (i == 0) {
                 pen_move(apen, mp[0], mp[1])
                 ax0 = mp[0]
             }
-            else:
-            {
+            else {
+            
                 pen_line(apen, mp[0], mp[1])
             }
             axl = mp[0]
@@ -254,8 +234,7 @@ def wave_plot_svg(points, w, h, stroke="#e11", stroke_width=2, margin=10, amplit
 
     # Axes
     axes = ""
-    if show_axes:
-    {
+    if (show_axes) {
         cx = svg_line(margin, h/2, w - margin, h/2, "#999", 1)
         cy = svg_line(margin, margin, margin, h - margin, "#999", 1)
         axes = cx + cy

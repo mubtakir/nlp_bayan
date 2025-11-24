@@ -19,16 +19,13 @@ hybrid {
         count_events = 0
         count_causal = 0
 
-        if has_entities:
-        {
+        if (has_entities) {
             count_entities = len(trace["entities"])
         }
-        if has_events:
-        {
+        if (has_events) {
             count_events = len(trace["events"])
         }
-        if has_causal:
-        {
+        if (has_causal) {
             count_causal = len(trace["causal_links"])
         }
 
@@ -52,8 +49,7 @@ hybrid {
         result = orchestrator.dispatch_request(msg)
         print("Selected program ok =", result["ok"])
 
-        if not result["ok"]:
-        {
+        if (not result["ok"]) {
             print("No matching program for this message.")
             print("")
             return
@@ -62,8 +58,7 @@ hybrid {
         print("Selected program id:", result["selected_program"])
         print("Program description:", result["program_description"])
 
-        if "settings" in result:
-        {
+        if ("settings" in result) {
             print("Control settings (detail_level, languages, perspective, focus, scenario_variant, time_horizon):")
             print(result["settings"])
         }

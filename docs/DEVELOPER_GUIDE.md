@@ -344,7 +344,7 @@ All Bayan code runs inside `hybrid { }` blocks:
 hybrid {
     # Imperative: variables, loops, conditions
     x = 10
-    if x > 5: {
+    if (x > 5) {
         print("x is large")
     }
     
@@ -393,7 +393,7 @@ hybrid {
     results = query student(?N, ?G), ?G >= 90?
     
     # Imperative: Print results
-    for result in results: {
+    for result in (results) {
         print(result["?N"])
     }
 }
@@ -616,7 +616,7 @@ hybrid {
     # Good style
     def calculate_sum(numbers): {
         total = 0
-        for num in numbers: {
+        for num in (numbers) {
             total = total + num
         }
         return total

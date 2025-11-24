@@ -5,8 +5,7 @@ import myutils
 print(myutils.hello("Bayan"))
 
 print("\n[2] دالة بايثون داخل حلقة بيان — متتاليات فيبوناتشي\n")
-for i in [0, 1, 2, 3, 4, 5, 6]:
-{
+for i in ([0, 1, 2, 3, 4, 5, 6]) {
     print(myutils.fib(i))
 }
 

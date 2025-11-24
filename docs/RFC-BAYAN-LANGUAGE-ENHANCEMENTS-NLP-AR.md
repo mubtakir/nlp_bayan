@@ -25,7 +25,7 @@
 
 مثال (صياغة مبدئية):
 ```bayan
-if exists maybe("is_green","garden"): { ok = True } else: { ok = False }
+if (exists maybe("is_green","garden")) { ok = True } else: { ok = False }
 sol = first path("A","B")
 xs = collect isa("x", "entity"), limit=10
 ```

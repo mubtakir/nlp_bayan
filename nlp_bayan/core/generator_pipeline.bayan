@@ -35,36 +35,30 @@ hybrid {
         w2 = seed2
         out = w1 + " " + w2
         i = 0
-        while i < steps:
-        {
+        while (i < steps) {
             use_tri = False
             tri_map = model3["tri"]
-            if w1 in tri_map:
-            {
-                if w2 in tri_map[w1]: { use_tri = True }
+            if (w1 in tri_map) {
+                if (w2 in tri_map[w1]) { use_tri = True }
             }
-            if use_tri:
-            {
+            if (use_tri) {
                 top = nlp.trigram_lm_predict_next(model3, w1, w2, 1)
             }
-            else:
-            {
+            else {
+            
                 top = []
             }
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 bi_map = model2["bi"]
-                if w2 in bi_map:
-                {
+                if (w2 in bi_map) {
                     top = nlp.bigram_lm_predict_next(model2, w2, 1)
                 }
-                else:
-                {
+                else {
+                
                     top = []
                 }
             }
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 break
             }
             w3 = top[0]
@@ -84,36 +78,30 @@ hybrid {
         w2 = seed2
         out = w1 + " " + w2
         i = 0
-        while i < steps:
-        {
+        while (i < steps) {
             use_tri = False
             tri_map = model3["tri"]
-            if w1 in tri_map:
-            {
-                if w2 in tri_map[w1]: { use_tri = True }
+            if (w1 in tri_map) {
+                if (w2 in tri_map[w1]) { use_tri = True }
             }
-            if use_tri:
-            {
+            if (use_tri) {
                 top = nlp.trigram_lm_predict_next(model3, w1, w2, top_k)
             }
-            else:
-            {
+            else {
+            
                 top = []
             }
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 bi_map = model2["bi"]
-                if w2 in bi_map:
-                {
+                if (w2 in bi_map) {
                     top = nlp.bigram_lm_predict_next(model2, w2, top_k)
                 }
-                else:
-                {
+                else {
+                
                     top = []
                 }
             }
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 break
             }
             w3 = top[0]
@@ -129,11 +117,10 @@ hybrid {
     # قواعد صرف/اتفاق مبسطة: إدخال "الى" بعد "ذهب" إن تلتها جهة مكانية
     def _is_place_token(tok, token_entity_map={}): {
         # أماكن شائعة: أضفنا المكتب/المسجد/السوق، ثم المستشفى/المطار/المطعم، والجامعة/الفندق/الملعب/الشاطئ/المتجر/المقهى، والمحطة/الميناء/المول
-        if tok == "البيت" or tok == "المدرسة" or tok == "المتحف" or tok == "الحديقة" or tok == "الساحة" or tok == "المكتبة" or tok == "المسجد" or tok == "السوق" or tok == "المكتب" or tok == "المستشفى" or tok == "المطار" or tok == "المطعم" or tok == "الجامعة" or tok == "الفندق" or tok == "الملعب" or tok == "الشاطئ" or tok == "المتجر" or tok == "المقهى" or tok == "المحطة" or tok == "الميناء" or tok == "المول": { return True }
-        if tok in token_entity_map:
-        {
+        if (tok == "البيت" or tok == "المدرسة" or tok == "المتحف" or tok == "الحديقة" or tok == "الساحة" or tok == "المكتبة" or tok == "المسجد" or tok == "السوق" or tok == "المكتب" or tok == "المستشفى" or tok == "المطار" or tok == "المطعم" or tok == "الجامعة" or tok == "الفندق" or tok == "الملعب" or tok == "الشاطئ" or tok == "المتجر" or tok == "المقهى" or tok == "المحطة" or tok == "الميناء" or tok == "المول") { return True }
+        if (tok in token_entity_map) {
             ent = token_entity_map[tok]
-            if ent == "house" or ent == "school" or ent == "museum" or ent == "garden" or ent == "square" or ent == "library" or ent == "mosque" or ent == "market" or ent == "workplace" or ent == "hospital" or ent == "airport" or ent == "restaurant" or ent == "university" or ent == "hotel" or ent == "stadium" or ent == "beach" or ent == "store" or ent == "cafe" or ent == "station" or ent == "port" or ent == "mall": { return True }
+            if (ent == "house" or ent == "school" or ent == "museum" or ent == "garden" or ent == "square" or ent == "library" or ent == "mosque" or ent == "market" or ent == "workplace" or ent == "hospital" or ent == "airport" or ent == "restaurant" or ent == "university" or ent == "hotel" or ent == "stadium" or ent == "beach" or ent == "store" or ent == "cafe" or ent == "station" or ent == "port" or ent == "mall") { return True }
         }
         return False
     }
@@ -142,59 +129,46 @@ hybrid {
         new_words = []
         i = 0
         n = len(words)
-        while i < n:
-        {
+        while (i < n) {
             w = words[i]
             new_words.append(w)
             # خريطة بسيطة من الفعل إلى حرف الجر المناسب عند مجيء مكان بعده
             prep = ""
-            if (w == "ذهب") or (w == "دخل") or (w == "عاد") or (w == "رجع"):
-            {
+            if ((w == "ذهب") or (w == "دخل") or (w == "عاد") or (w == "رجع")) {
                 prep = "الى"
             }
-            elif w == "خرج":
-            {
+            elif (w == "خرج") {
                 prep = "من"
             }
-            elif w == "جلس":
-            {
+            elif (w == "جلس") {
                 prep = "في"
             }
-            elif (w == "وصل") or (w == "توجه") or (w == "سافر") or (w == "انتقل") or (w == "اتجه") or (w == "قصد"):
-            {
+            elif ((w == "وصل") or (w == "توجه") or (w == "سافر") or (w == "انتقل") or (w == "اتجه") or (w == "قصد")) {
                 prep = "الى"
             }
-            elif w == "مر":
-            {
+            elif (w == "مر") {
                 prep = "ب"
             }
-            elif w == "اقترب":
-            {
+            elif (w == "اقترب") {
                 prep = "من"
             }
-            elif w == "ابتعد":
-            {
+            elif (w == "ابتعد") {
                 prep = "عن"
             }
-                elif w == "غادر":
-                {
+                elif (w == "غادر") {
                     prep = "من"
                 }
-                    elif w == "هرب":
-                    {
+                    elif (w == "هرب") {
                         prep = "من"
                     }
 
-                elif w == "استقر":
-                {
+                elif (w == "استقر") {
                     prep = "في"
                 }
 
-            if (prep != "") and (i + 1 < n):
-            {
+            if ((prep != "") and (i + 1 < n)) {
                 nxt = words[i + 1]
-                if (nxt != "الى") and (nxt != "من") and (nxt != "في") and (nxt != "ب") and (nxt != "عن") and _is_place_token(nxt, token_entity_map):
-                {
+                if ((nxt != "الى") and (nxt != "من") and (nxt != "في") and (nxt != "ب") and (nxt != "عن") and _is_place_token(nxt, token_entity_map)) {
                     new_words.append(prep)
                 }
             }
@@ -208,25 +182,22 @@ hybrid {
         merged = []
         i = 0
         n = len(words)
-        while i < n:
-        {
-            if (i + 1 < n):
-            {
+        while (i < n) {
+            if ((i + 1 < n)) {
                 cur = words[i]
                 nxt = words[i + 1]
-                if (cur == "ب") and _is_place_token(nxt, token_entity_map):
-                {
+                if ((cur == "ب") and _is_place_token(nxt, token_entity_map)) {
                     merged.append("ب" + nxt)
                     i = i + 2
                 }
-                else:
-                {
+                else {
+                
                     merged.append(cur)
                     i = i + 1
                 }
             }
-            else:
-            {
+            else {
+            
                 merged.append(words[i])
                 i = i + 1
             }
@@ -243,53 +214,43 @@ hybrid {
         words = [w1, w2]
         out = w1 + " " + w2
         i = 0
-        while i < steps:
-        {
+        while (i < steps) {
             use_tri = False
             tri_map = model3["tri"]
-            if w1 in tri_map:
-            {
-                if w2 in tri_map[w1]: { use_tri = True }
+            if (w1 in tri_map) {
+                if (w2 in tri_map[w1]) { use_tri = True }
             }
-            if use_tri:
-            {
+            if (use_tri) {
                 top = nlp.trigram_lm_predict_next(model3, w1, w2, top_k)
             }
-            else:
-            {
+            else {
+            
                 top = []
             }
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 bi_map = model2["bi"]
-                if w2 in bi_map:
-                {
+                if (w2 in bi_map) {
                     top = nlp.bigram_lm_predict_next(model2, w2, top_k)
                 }
-                else:
-                {
+                else {
+                
                     top = []
                 }
             }
 
             chosen = ""
-            if i == 0:
-            {
+            if (i == 0) {
                 place_pref = prefer_place
-                if place_pref == "":
-                {
+                if (place_pref == "") {
                     place_pref = ds.get_last_place()
                 }
-                if place_pref != "":
-                {
+                if (place_pref != "") {
                     # نفضّل المكان المحدد (صريحًا أو من حالة الحوار)
                     chosen = place_pref
                 }
             }
-            if chosen == "":
-            {
-                if len(top) == 0:
-                {
+            if (chosen == "") {
+                if (len(top) == 0) {
                     break
                 }
                 chosen = top[0]
@@ -305,19 +266,16 @@ hybrid {
 
         # صرف أساسي بعد التوليد
         post_words = _apply_basic_morpho_words(words, token_entity_map)
-        if merge_bi_al:
-        {
+        if (merge_bi_al) {
             post_words = _apply_orth_merge_b_al(post_words, token_entity_map)
         }
         final_out = ""
-        for idx in range(len(post_words)):
-        {
-            if idx == 0:
-            {
+        for idx in (range(len(post_words))) {
+            if (idx == 0) {
                 final_out = post_words[idx]
             }
-            else:
-            {
+            else {
+            
                 final_out = final_out + " " + post_words[idx]
             }
         }
@@ -329,15 +287,13 @@ hybrid {
         # تحميل مجال الاحتمالات + الكيانات (prob + entities)
         kb.load_selective(logical, ["prob", "entities"])
         # تهيئة المولّد العشوائي إن طُلِب ذلك لضمان قابلية إعادة الإنتاج
-        if rng_seed != -1:
-        {
+        if (rng_seed != -1) {
             data.set_seed(rng_seed)
         }
 
 
             # إن كانت المستندات فارغة، وفّر مجموعة افتراضية صغيرة لضمان توليد آمن
-            if len(docs) == 0:
-            {
+            if (len(docs) == 0) {
                 docs = [
                     "محمد ذهب المدرسة",
                     "محمد عاد البيت",
@@ -354,14 +310,12 @@ hybrid {
         words = [w1, w2]
             # قيود الطول: حد أدنى/أقصى للكلمات المولَّدة (دون احتساب الكلمتين البذريتين)
             max_steps = steps
-            if (max_length > 0) and (max_length < steps):
-            {
+            if ((max_length > 0) and (max_length < steps)) {
                 max_steps = max_length
             }
 
         i = 0
-        while i < max_steps:
-        {
+        while (i < max_steps) {
             src_type = "none"
             verb = w2
 
@@ -370,45 +324,37 @@ hybrid {
             # اختر Trigram إن كان سياقه موجودًا، وإلا جرّب Bigram
             use_tri = False
             tri_map = model3["tri"]
-            if w1 in tri_map:
-            {
-                if w2 in tri_map[w1]: { use_tri = True }
+            if (w1 in tri_map) {
+                if (w2 in tri_map[w1]) { use_tri = True }
             }
-            if use_tri:
-            {
+            if (use_tri) {
                 top = nlp.trigram_lm_predict_next(model3, w1, w2, top_k)
                 src_type = "tri"
             }
-            else:
-            {
+            else {
+            
                 top = []
             }
             # استخدام تفضيل KB دائمًا عند توفره: نفحص الأهداف المباشرة ثم الموروثة بحسب الفعل
-            if (len(token_entity_map) > 0) and (w1 in token_entity_map):
-            {
+            if ((len(token_entity_map) > 0) and (w1 in token_entity_map)) {
                 subj_ent = token_entity_map[w1]
                 kb_candidates_direct = []
                 kb_candidates_any = []
                 verb = w2
                 # ابحث أولاً عن الأهداف المباشرة مع تفضيل قواعد نوعية بحسب الفعل عند الخطوة الأولى
-                for tkn in token_entity_map:
-                {
+                for tkn in (token_entity_map) {
                     obj_ent = token_entity_map[tkn]
                     allow_direct = False
-                    if i == 0:
-                    {
-                        if verb == "دخل":
-                        {
-                            if holds_default_enter_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                    if (i == 0) {
+                        if (verb == "دخل") {
+                            if (holds_default_enter_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                            elif verb == "وصل":
-                            {
-                                if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                            elif (verb == "وصل") {
+                                if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                             }
 
-                        elif verb == "خرج":
-                        {
-                            if holds_default_exit_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "خرج") {
+                            if (holds_default_exit_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
 
 
@@ -416,336 +362,274 @@ hybrid {
 
 
 
-                        elif verb == "عاد":
-                        {
-                            if holds_default_return_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "عاد") {
+                            if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
 
-                            elif False:
-                            {
+                            elif (False) {
 
-                            if 0 == 1:
-                            {
+                            if (0 == 1) {
 
-                                if holds_default_return_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                                if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
 
                             }
 
                             }
 
-                        elif verb == "رجع":
-                        {
-                            if holds_default_return_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "رجع") {
+                            if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
 
 
-                        elif verb == "جلس":
-                        {
-                            if holds_default_sit_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "جلس") {
+                            if (holds_default_sit_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
 
 
-                        elif verb == "سافر":
-                        {
-                            if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "سافر") {
+                            if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "زار":
-                        {
-                            if holds_default_visit_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "زار") {
+                            if (holds_default_visit_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "مر":
-                        {
-                            if holds_default_pass_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "مر") {
+                            if (holds_default_pass_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "غادر":
-                        {
-                            if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "غادر") {
+                            if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "استقر":
-                        {
-                            if holds_default_settle_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "استقر") {
+                            if (holds_default_settle_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
 
 
 
 
-                        elif verb == "ذهب":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "ذهب") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "هرب":
-                        {
-                            if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "هرب") {
+                            if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "توجه":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "توجه") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "انتقل":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "انتقل") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "اتجه":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "اتجه") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        elif verb == "قصد":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        elif (verb == "قصد") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
-                        else:
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        else {
+                        
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                         }
                     }
-                    else:
-                    {
+                    else {
+                    
                         # في الخطوات اللاحقة نكتفي بالتفضيل العام للأهداف المباشرة
-                        if holds_default_go_target_direct(?F, subj_ent, obj_ent): { allow_direct = True }
+                        if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { allow_direct = True }
                     }
-                    if allow_direct:
-                    {
+                    if (allow_direct) {
                         kb_candidates_direct.append(tkn)
                     }
                 }
-                if len(kb_candidates_direct) > 0:
-                {
+                if (len(kb_candidates_direct) > 0) {
                     top = kb_candidates_direct
                     src_type = "kb"
                 }
-                else:
-                {
+                else {
+                
                     # إن لم توجد أهداف مباشرة، نبحث عن الموروثة/العامة
-                    for tkn in token_entity_map:
-                    {
+                    for tkn in (token_entity_map) {
                         obj_ent = token_entity_map[tkn]
                         allow_any = False
-                        if i == 0:
-                        {
-                            if verb == "دخل":
-                            {
-                                if holds_default_enter_target(?F, subj_ent, obj_ent): { allow_any = True }
+                        if (i == 0) {
+                            if (verb == "دخل") {
+                                if (holds_default_enter_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "خرج":
-                            {
-                                if holds_default_exit_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "خرج") {
+                                if (holds_default_exit_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "عاد":
-                            {
-                                if holds_default_return_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "عاد") {
+                                if (holds_default_return_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
 
-                            elif verb == "رجع":
-                            {
-                                if holds_default_return_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "رجع") {
+                                if (holds_default_return_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
 
-                            elif verb == "جلس":
-                            {
-                                if holds_default_sit_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "جلس") {
+                                if (holds_default_sit_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "سافر":
-                            {
-                                if holds_default_travel_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "سافر") {
+                                if (holds_default_travel_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "زار":
-                            {
-                                if holds_default_visit_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "زار") {
+                                if (holds_default_visit_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "مر":
-                            {
-                                if holds_default_pass_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "مر") {
+                                if (holds_default_pass_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "غادر":
-                            {
-                                if holds_default_depart_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "غادر") {
+                                if (holds_default_depart_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "استقر":
-                            {
-                                if holds_default_settle_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "استقر") {
+                                if (holds_default_settle_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
 
-                            elif verb == "ذهب":
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "ذهب") {
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "وصل":
-                            {
-                                if holds_default_travel_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "وصل") {
+                                if (holds_default_travel_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "هرب":
-                            {
-                                if holds_default_depart_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "هرب") {
+                                if (holds_default_depart_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "توجه":
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "توجه") {
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "انتقل":
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "انتقل") {
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "اتجه":
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "اتجه") {
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            elif verb == "قصد":
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            elif (verb == "قصد") {
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
-                            else:
-                            {
-                                if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                            else {
+                            
+                                if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                             }
                         }
-                        else:
-                        {
-                            if holds_default_go_target(?F, subj_ent, obj_ent): { allow_any = True }
+                        else {
+                        
+                            if (holds_default_go_target(?F, subj_ent, obj_ent)) { allow_any = True }
                         }
-                        if allow_any:
-                        {
+                        if (allow_any) {
                             kb_candidates_any.append(tkn)
                         }
                     }
-                    if len(kb_candidates_any) > 0:
-                    {
+                    if (len(kb_candidates_any) > 0) {
                         top = kb_candidates_any
                         src_type = "kb"
                     }
                 }
             }
             # fallback خاص: إن كان الفعل "خرج" ولا مرشح دلالي، اسمح بالسقوط إلى "البيت" إن وُجد في الخريطة
-            if (len(top) == 0) and (i == 0) and (len(token_entity_map) > 0) and (w2 == "خرج"):
-            {
+            if ((len(top) == 0) and (i == 0) and (len(token_entity_map) > 0) and (w2 == "خرج")) {
                 house_tokens = []
-                for tkn in token_entity_map:
-                {
-                    if token_entity_map[tkn] == "house":
-                    {
+                for tkn in (token_entity_map) {
+                    if (token_entity_map[tkn] == "house") {
                         house_tokens.append(tkn)
                     }
                 }
-                if len(house_tokens) > 0:
-                {
+                if (len(house_tokens) > 0) {
                     top = house_tokens
                     src_type = "kb"
                 }
             }
 
             # إن لم يُفلح التفضيل الدلالي؛ نعود لمسار Bigram التقليدي إن بقي 'top' فارغًا
-            if len(top) == 0:
-            {
+            if (len(top) == 0) {
                 bi_map = model2["bi"]
-                if w2 in bi_map:
-                {
+                if (w2 in bi_map) {
                     top = nlp.bigram_lm_predict_next(model2, w2, top_k)
                     src_type = "bi"
                 }
-                else:
-                {
+                else {
+                
                     top = []
                 }
             }
-            if len(top) == 0: { break }
+            if (len(top) == 0) { break }
 
             # ضبط top-k ديناميكيًا عندما يكون المصدر لغويًا إحصائيًا (tri/bi)
-            if (len(top) > 1) and ((src_type == "tri") or (src_type == "bi")):
-            {
+            if ((len(top) > 1) and ((src_type == "tri") or (src_type == "bi"))) {
                 p0 = 0.0
                 p1 = 0.0
-                if src_type == "tri":
-                {
+                if (src_type == "tri") {
                     p0 = nlp.trigram_lm_probability(model3, w1, w2, top[0])
                     p1 = nlp.trigram_lm_probability(model3, w1, w2, top[1])
                 }
-                else:
-                {
+                else {
+                
                     p0 = nlp.bigram_lm_probability(model2, w2, top[0])
                     p1 = nlp.bigram_lm_probability(model2, w2, top[1])
                 }
-                if p0 <= 0.0: { p0 = 0.000000000001 }
-                if p1 <= 0.0: { p1 = 0.000000000001 }
+                if (p0 <= 0.0) { p0 = 0.000000000001 }
+                if (p1 <= 0.0) { p1 = 0.000000000001 }
                 conf = p0 / (p0 + p1)
-                if conf >= 0.7:
-                {
+                if (conf >= 0.7) {
                     top = [top[0]]
                 }
             }
 
             # ترشيح بالـ KB إن توفّر map للكلمة → الكيان
             cand_pool = top
-            if len(token_entity_map) > 0:
-            {
+            if (len(token_entity_map) > 0) {
                 filtered = []
-                for idx in range(len(top)):
-                {
+                for idx in (range(len(top))) {
                     cand = top[idx]
                     allow = False
-                    if cand in token_entity_map:
-                    {
+                    if (cand in token_entity_map) {
                         ent = token_entity_map[cand]
                         # امنع الأشخاص كأهداف مباشرة بعد أفعال الحركة
-                        if (i == 0) and (ent == "person"):
-                        {
+                        if ((i == 0) and (ent == "person")) {
                             allow = False
                         }
-                        else:
-                        {
-                            if kb_pred == "maybe":
-                            {
-                                if maybe(?F, ent):
-                                {
+                        else {
+                        
+                            if (kb_pred == "maybe") {
+                                if (maybe(?F, ent)) {
                                     allow = True
                                 }
                             }
-                            elif kb_pred == "likely":
-                            {
-                                if likely(?F, ent):
-                                {
+                            elif (kb_pred == "likely") {
+                                if (likely(?F, ent)) {
                                     allow = True
                                 }
                             }
-                            else:
-                            {
+                            else {
+                            
                                 # إذا لم تُعرف الـ predicate، لا نرفض المرشح
                                 allow = True
                             }
                         }
                     }
                     # إن لم يوجد تعيين للكيان، نرفضه في هذا الطور لفرض الانضباط
-                    if allow: { filtered.append(cand) }
+                    if (allow) { filtered.append(cand) }
                 }
-                if len(filtered) > 0: { cand_pool = filtered }
+                if (len(filtered) > 0) { cand_pool = filtered }
             }
 
                 # تفضيل حالة الحوار (last_place) عند الأفعال العائدة في الخطوة الأولى
-                if use_dialogue_state and (i == 0) and ((w2 == "عاد") or (w2 == "رجع")):
-                {
+                if (use_dialogue_state and (i == 0) and ((w2 == "عاد") or (w2 == "رجع"))) {
                     place_pref = prefer_place
-                    if place_pref == "":
-                    {
+                    if (place_pref == "") {
                         place_pref = ds.get_last_place()
                     }
-                    if place_pref != "":
-                    {
+                    if (place_pref != "") {
                         # إن وُجد ضمن المرشحين انقله إلى المقدمة، وإلا أضِفه أمامًا
                         found = False
-                        for j in range(len(cand_pool)):
-                        {
-                            if cand_pool[j] == place_pref: { found = True }
+                        for j in (range(len(cand_pool))) {
+                            if (cand_pool[j] == place_pref) { found = True }
                         }
-                        if found:
-                        {
+                        if (found) {
                             new_pool = [place_pref]
-                            for j in range(len(cand_pool)):
-                            {
+                            for j in (range(len(cand_pool))) {
                                 c = cand_pool[j]
-                                if c != place_pref: { new_pool.append(c) }
+                                if (c != place_pref) { new_pool.append(c) }
                             }
                             cand_pool = new_pool
                         }
-                        else:
-                        {
+                        else {
+                        
                             cand_pool = [place_pref] + cand_pool
                         }
                     }
@@ -754,47 +638,38 @@ hybrid {
 
 
                 # منع تكرار n-gram سابق (no_repeat_ngram_size)
-                if (no_repeat_ngram_size > 0) and (len(cand_pool) > 0):
-                {
+                if ((no_repeat_ngram_size > 0) and (len(cand_pool) > 0)) {
                     N = no_repeat_ngram_size
-                    if N >= 2:
-                    {
+                    if (N >= 2) {
                         m = len(words)
-                        if m >= (N - 1):
-                        {
+                        if (m >= (N - 1)) {
                             orig_pool = cand_pool
                             new_pool = []
-                            for j in range(len(cand_pool)):
-                            {
+                            for j in (range(len(cand_pool))) {
                                 c = cand_pool[j]
                                 ok = True
                                 # قارن بادئة طولها N-1 تنتهي بالكلمة الأخيرة
                                 # إذا وُجدت سابقًا وكان تاليها == c فاحذفه
                                 start = 0
-                                while start <= (m - N):
-                                {
+                                while (start <= (m - N)) {
                                     match = True
-                                    for t in range(N - 1):
-                                    {
-                                        if words[start + t] != words[m - (N - 1) + t]:
-                                        {
+                                    for t in (range(N - 1)) {
+                                        if (words[start + t] != words[m - (N - 1) + t]) {
                                             match = False
                                         }
                                     }
-                                    if match and (words[start + (N - 1)] == c):
-                                    {
+                                    if (match and (words[start + (N - 1)] == c)) {
                                         ok = False
                                     }
                                     start = start + 1
                                 }
-                                if ok: { new_pool.append(c) }
+                                if (ok) { new_pool.append(c) }
                             }
-                            if len(new_pool) > 0:
-                            {
+                            if (len(new_pool) > 0) {
                                 cand_pool = new_pool
                             }
-                            else:
-                            {
+                            else {
+                            
                                 # تفادي فراغ المرشحين: نحتفظ بالمجموعة الأصلية
                                 cand_pool = orig_pool
                             }
@@ -803,146 +678,122 @@ hybrid {
                 }
 
             # تطبيق nucleus sampling اختياريًا قبل أخذ العينة الحرارية
-            if (top_p > 0.0) and (top_p < 1.0) and (len(cand_pool) > 1):
-            {
+            if ((top_p > 0.0) and (top_p < 1.0) and (len(cand_pool) > 1)) {
                 # احسب احتمالات المرشحين وفق المصدر
                 probs = []
                 sum_p = 0.0
 
-                for j in range(len(cand_pool)):
-                {
+                for j in (range(len(cand_pool))) {
                     c = cand_pool[j]
                     p = 0.0
-                    if src_type == "tri":
-                    {
+                    if (src_type == "tri") {
                         p = nlp.trigram_lm_probability(model3, w1, w2, c)
                     }
-                    elif src_type == "bi":
-                    {
+                    elif (src_type == "bi") {
                         p = nlp.bigram_lm_probability(model2, w2, c)
                     }
-                    else:
-                    {
+                    else {
+                    
                         p = nlp.bigram_lm_probability(model2, w2, c)
                     }
                     # تعزيز احتمالات المرشحين المتوافقين مع الKB بحسب الفعل
                     kb_w = 1.0
-                    if (i == 0) and (len(token_entity_map) > 0) and (w1 in token_entity_map) and (c in token_entity_map):
-                    {
+                    if ((i == 0) and (len(token_entity_map) > 0) and (w1 in token_entity_map) and (c in token_entity_map)) {
                         subj_ent = token_entity_map[w1]
                         obj_ent = token_entity_map[c]
                         direct = False
                         any_ok = False
-                        if verb == "دخل":
-                        {
-                            if holds_default_enter_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_enter_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        if (verb == "دخل") {
+                            if (holds_default_enter_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_enter_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "خرج":
-                        {
-                            if holds_default_exit_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_exit_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "خرج") {
+                            if (holds_default_exit_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_exit_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "عاد":
-                        {
-                            if holds_default_return_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_return_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "عاد") {
+                            if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_return_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
 
-                        elif verb == "رجع":
-                        {
-                            if holds_default_return_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_return_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "رجع") {
+                            if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_return_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
 
-                        elif verb == "جلس":
-                        {
-                            if holds_default_sit_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_sit_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "جلس") {
+                            if (holds_default_sit_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_sit_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "ذهب":
-                        {
-                            if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "ذهب") {
+                            if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
 
-                            elif verb == "توجه":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
+                            elif (verb == "توجه") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
 
 
 
 
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
 
-                                elif False:
-                                {
+                                elif (False) {
 
-                                if 0 == 1:
-                                {
+                                if (0 == 1) {
 
-                                    if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                    elif holds_default_travel_target(?F, subj_ent, obj_ent): { any_ok = True }
+                                    if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                    elif (holds_default_travel_target(?F, subj_ent, obj_ent)) { any_ok = True }
 
                                 }
 
                                 }
 
-                                        elif verb == "وصل":
-                                        {
-                                            if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                            elif holds_default_travel_target(?F, subj_ent, obj_ent): { any_ok = True }
+                                        elif (verb == "وصل") {
+                                            if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                            elif (holds_default_travel_target(?F, subj_ent, obj_ent)) { any_ok = True }
                                         }
 
 
-                            elif verb == "انتقل":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "انتقل") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "اتجه":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "اتجه") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "قصد":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "قصد") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
 
-                        elif verb == "سافر":
-                        {
-                            if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_travel_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "سافر") {
+                            if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_travel_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "زار":
-                        {
-                            if holds_default_visit_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_visit_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "زار") {
+                            if (holds_default_visit_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_visit_target(?F, subj_ent, obj_ent)) { any_ok = True }
 
-                            elif False:
-                            {
+                            elif (False) {
 
-                                if 0 == 1:
-                                {
+                                if (0 == 1) {
 
-                                if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_depart_target(?F, subj_ent, obj_ent): { any_ok = True }
+                                if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_depart_target(?F, subj_ent, obj_ent)) { any_ok = True }
 
                                 }
 
                             }
 
-                                    elif False:
-                                    {
+                                    elif (False) {
 
-                                if 0 == 1:
-                                {
+                                if (0 == 1) {
 
-                                        if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                        elif holds_default_depart_target(?F, subj_ent, obj_ent): { any_ok = True }
+                                        if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                        elif (holds_default_depart_target(?F, subj_ent, obj_ent)) { any_ok = True }
 
                                 }
 
@@ -952,45 +803,38 @@ hybrid {
 
 
                         }
-                        elif verb == "مر":
-                        {
-                            if holds_default_pass_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_pass_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "مر") {
+                            if (holds_default_pass_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_pass_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "غادر":
-                        {
-                            if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_depart_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "غادر") {
+                            if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_depart_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "استقر":
-                        {
-                            if holds_default_settle_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_settle_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "استقر") {
+                            if (holds_default_settle_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_settle_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
 
-                        if direct: { kb_w = 1.6 }
-                        elif any_ok: { kb_w = 1.2 }
+                        if (direct) { kb_w = 1.6 }
+                        elif (any_ok) { kb_w = 1.2 }
                     }
                     p = p * kb_w
-                    if p <= 0.0: { p = 0.000000000001 }
+                    if (p <= 0.0) { p = 0.000000000001 }
                     probs.append(p)
                     sum_p = sum_p + p
                 }
-                if sum_p > 0.0:
-                {
+                if (sum_p > 0.0) {
                     # طَبِّع ثم خذ أصغر غلاف cumulative >= top_p
                     norm = []
-                    for j in range(len(probs)): { norm.append(probs[j] / sum_p) }
+                    for j in (range(len(probs))) { norm.append(probs[j] / sum_p) }
                     # فرز المؤشرات تنازليًا حسب الاحتمال
                     idxs = []
-                    for j in range(len(norm)): { idxs.append(j) }
+                    for j in (range(len(norm))) { idxs.append(j) }
                     # sort idxs by norm[j] desc
-                    for a in range(len(idxs)):
-                    {
-                        for b in range(a + 1, len(idxs)):
-                        {
-                            if norm[idxs[b]] > norm[idxs[a]]:
-                            {
+                    for a in (range(len(idxs))) {
+                        for b in (range(a + 1, len(idxs))) {
+                            if (norm[idxs[b]] > norm[idxs[a]]) {
                                 tmp = idxs[a]
                                 idxs[a] = idxs[b]
                                 idxs[b] = tmp
@@ -999,18 +843,15 @@ hybrid {
                     }
                     acc = 0.0
                     keep = []
-                    for k in range(len(idxs)):
-                    {
+                    for k in (range(len(idxs))) {
                         acc = acc + norm[idxs[k]]
                         keep.append(idxs[k])
-                        if acc >= top_p: { break }
+                        if (acc >= top_p) { break }
                     }
-                    if len(keep) > 0:
-                    {
+                    if (len(keep) > 0) {
                         # أعِد ترتيب cand_pool وفق keep بنفس الترتيب المفروز
                         new_pool = []
-                        for k in range(len(keep)):
-                        {
+                        for k in (range(len(keep))) {
                             new_pool.append(cand_pool[idxs[k]])
                         }
                         cand_pool = new_pool
@@ -1020,84 +861,69 @@ hybrid {
 
             # اختيار الكلمة التالية: حتمي عند temperature=0، وإلا بعينة احتمالية مع ضبط الحرارة
             chosen = cand_pool[0]
-            if (temperature > 0.0) and (len(cand_pool) > 1):
-            {
+            if ((temperature > 0.0) and (len(cand_pool) > 1)) {
                 invT = 1.0 / temperature
                 weights = []
                 total_w = 0.0
-                for j in range(len(cand_pool)):
-                {
+                for j in (range(len(cand_pool))) {
                     c = cand_pool[j]
                     p = 0.0
-                    if src_type == "tri":
-                    {
+                    if (src_type == "tri") {
                         p = nlp.trigram_lm_probability(model3, w1, w2, c)
                     }
-                    elif src_type == "bi":
-                    {
+                    elif (src_type == "bi") {
                         p = nlp.bigram_lm_probability(model2, w2, c)
                     }
-                    else:
-                    {
+                    else {
+                    
                         # 'kb' أو غيرها: نستخدم bigram كوزن تقريبي
                         p = nlp.bigram_lm_probability(model2, w2, c)
                     }
                     # تعزيز احتمالات المرشحين المتوافقين مع الKB بحسب الفعل
                     kb_w = 1.0
-                    if (i == 0) and (len(token_entity_map) > 0) and (w1 in token_entity_map) and (c in token_entity_map):
-                    {
+                    if ((i == 0) and (len(token_entity_map) > 0) and (w1 in token_entity_map) and (c in token_entity_map)) {
                         subj_ent = token_entity_map[w1]
                         obj_ent = token_entity_map[c]
                         direct = False
                         any_ok = False
-                        if verb == "دخل":
-                        {
+                        if (verb == "دخل") {
                             # استخدام once لتحسين الأداء (نحتاج حل واحد فقط للتحقق)
-                            once { if holds_default_enter_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_enter_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                            once { if (holds_default_enter_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_enter_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "خرج":
-                        {
-                            once { if holds_default_exit_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_exit_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "خرج") {
+                            once { if (holds_default_exit_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_exit_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "عاد":
-                        {
-                            once { if holds_default_return_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_return_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "عاد") {
+                            once { if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_return_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
 
-                        elif verb == "رجع":
-                        {
-                            once { if holds_default_return_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_return_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "رجع") {
+                            once { if (holds_default_return_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_return_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
 
-                        elif verb == "جلس":
-                        {
-                            once { if holds_default_sit_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_sit_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "جلس") {
+                            once { if (holds_default_sit_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_sit_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "ذهب":
-                        {
-                            once { if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "ذهب") {
+                            once { if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "سافر":
-                        {
-                            once { if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_travel_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "سافر") {
+                            once { if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_travel_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "زار":
-                        {
-                            once { if holds_default_visit_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-                            if not direct: { once { if holds_default_visit_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+                        elif (verb == "زار") {
+                            once { if (holds_default_visit_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+                            if (not direct) { once { if (holds_default_visit_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
                         }
-                        elif verb == "مر":
-
-                            {
-                                if holds_default_pass_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_pass_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "مر") {
+                                if (holds_default_pass_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_pass_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
 
 
@@ -1107,69 +933,58 @@ hybrid {
 
 
 
-                            elif verb == "توجه":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "توجه") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "انتقل":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "انتقل") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "اتجه":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "اتجه") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "قصد":
-                            {
-                                if holds_default_go_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_go_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "قصد") {
+                                if (holds_default_go_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_go_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "وصل":
-                            {
-                                if holds_default_travel_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_travel_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "وصل") {
+                                if (holds_default_travel_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_travel_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
-                            elif verb == "هرب":
-                            {
-                                if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                                elif holds_default_depart_target(?F, subj_ent, obj_ent): { any_ok = True }
+                            elif (verb == "هرب") {
+                                if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                                elif (holds_default_depart_target(?F, subj_ent, obj_ent)) { any_ok = True }
                             }
 
-                        elif verb == "غادر":
-                        {
-                            if holds_default_depart_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_depart_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "غادر") {
+                            if (holds_default_depart_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_depart_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
-                        elif verb == "استقر":
-                        {
-                            if holds_default_settle_target_direct(?F, subj_ent, obj_ent): { direct = True }
-                            elif holds_default_settle_target(?F, subj_ent, obj_ent): { any_ok = True }
+                        elif (verb == "استقر") {
+                            if (holds_default_settle_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+                            elif (holds_default_settle_target(?F, subj_ent, obj_ent)) { any_ok = True }
                         }
 
-                        if direct: { kb_w = 1.6 }
-                        elif any_ok: { kb_w = 1.2 }
+                        if (direct) { kb_w = 1.6 }
+                        elif (any_ok) { kb_w = 1.2 }
                     }
-                    if p <= 0.0: { p = 0.000000000001 }
+                    if (p <= 0.0) { p = 0.000000000001 }
                     p = p * kb_w
                     w = pow(p, invT)
                     weights.append(w)
                     total_w = total_w + w
                 }
-                if total_w > 0.0:
-                {
+                if (total_w > 0.0) {
                     # اختيار موزون باستخدام data.rand() لضمان قابلية إعادة الإنتاج
                     u = data.rand()
                     thresh = u * total_w
                     acc = 0.0
                     idx_chosen = 0
-                    for j in range(len(weights)):
-                    {
+                    for j in (range(len(weights))) {
                         acc = acc + weights[j]
-                        if acc >= thresh:
-                        {
+                        if (acc >= thresh) {
                             idx_chosen = j
                             break
                         }
@@ -1182,8 +997,7 @@ hybrid {
             out = out + " " + w3
             words.append(w3)
             # إيقاف مبكر إن صادفنا رمز توقف بعد بلوغ الحد الأدنى للطول
-            if (len(stop_tokens) > 0) and (w3 in stop_tokens) and ((i + 1) >= min_length):
-            {
+            if ((len(stop_tokens) > 0) and (w3 in stop_tokens) and ((i + 1) >= min_length)) {
                 break
             }
             w1 = w2
@@ -1197,29 +1011,23 @@ hybrid {
 
 
         post_words = _apply_basic_morpho_words(words, token_entity_map)
-        if merge_bi_al:
-        {
+        if (merge_bi_al) {
             post_words = _apply_orth_merge_b_al(post_words, token_entity_map)
         }
 
             # تحديث حالة الحوار: حفظ آخر مكان مذكور إن وُجد
-            if use_dialogue_state and (len(token_entity_map) > 0):
-            {
+            if (use_dialogue_state and (len(token_entity_map) > 0)) {
                 last_seen = ""
-                for idx in range(len(post_words)):
-                {
+                for idx in (range(len(post_words))) {
                     w = post_words[idx]
-                    if w in token_entity_map:
-                    {
+                    if (w in token_entity_map) {
                         ent = token_entity_map[w]
-                        if ent != "person":
-                        {
+                        if (ent != "person") {
                             last_seen = w
                         }
                     }
                 }
-                if last_seen != "":
-                {
+                if (last_seen != "") {
                     ds.set_last_place(last_seen)
                 }
             }
@@ -1228,14 +1036,12 @@ hybrid {
 
 
         final_out = ""
-        for idx in range(len(post_words)):
-        {
-            if idx == 0:
-            {
+        for idx in (range(len(post_words))) {
+            if (idx == 0) {
                 final_out = post_words[idx]
             }
-            else:
-            {
+            else {
+            
                 final_out = final_out + " " + post_words[idx]
             }
         }

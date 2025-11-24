@@ -100,15 +100,13 @@ def get_lexicon():
 def lookup_lemma(concept_key, lang):
 {
     # Normalize lang
-    if lang == "arabic": { lang = "ar" }
-    elif lang == "english": { lang = "en" }
+    if (lang == "arabic") { lang = "ar" }
+    elif (lang == "english") { lang = "en" }
 
     lex = get_lexicon()
-    if concept_key in lex:
-    {
+    if (concept_key in lex) {
         entry = lex[concept_key]
-        if lang in entry:
-        {
+        if (lang in entry) {
             return entry[lang]
         }
     }

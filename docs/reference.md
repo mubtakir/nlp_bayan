@@ -238,12 +238,10 @@ hybrid {
 ### التحكم (Control)
 - if/elif/else:
   ```bayan
-  if cond:
-  {
+  if (cond) {
       ...
   }
-  elif other:
-  {
+  elif (other) {
       ...
   }
   else:
@@ -253,8 +251,7 @@ hybrid {
   ```
 - for-in (أي قابل للتكرار):
   ```bayan
-  for x in iterable:
-  {
+  for x in (iterable) {
       ...
   }
   ```

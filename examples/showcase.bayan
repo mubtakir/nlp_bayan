@@ -24,10 +24,8 @@ b.who()
 print("\n[2] تراكيب بيانات + تكرار + عضوية\n")
 nums = [1, 2, 3, 4]
 print(3 in nums)  # True
-for n in nums:
-{
-    if n % 2 == 0:
-    {
+for n in (nums) {
+    if (n % 2 == 0) {
         print(n)
     }
 }

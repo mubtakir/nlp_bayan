@@ -769,16 +769,18 @@ class HybridParser:
     def parse_if_statement(self):
         """Parse an if statement with optional elif chain and else"""
         if_tok = self.eat(TokenType.IF)
+        self.eat(TokenType.LPAREN)
         condition = self.parse_expression()
-        self.eat(TokenType.COLON)
+        self.eat(TokenType.RPAREN)
         then_branch = self.parse_block()
 
         # Collect zero or more elif branches
         elif_branches = []
         while self.match(TokenType.ELIF):
             self.eat(TokenType.ELIF)
+            self.eat(TokenType.LPAREN)
             elif_cond = self.parse_expression()
-            self.eat(TokenType.COLON)
+            self.eat(TokenType.RPAREN)
             elif_block = self.parse_block()
             elif_branches.append((elif_cond, elif_block))
 
@@ -786,7 +788,6 @@ class HybridParser:
         else_branch = None
         if self.match(TokenType.ELSE):
             self.eat(TokenType.ELSE)
-            self.eat(TokenType.COLON)
             else_branch = self.parse_block()
 
         # Build nested IfStatements for elif chain (right-associative)
@@ -801,8 +802,9 @@ class HybridParser:
         for_tok = self.eat(TokenType.FOR)
         var_name = self.eat(TokenType.IDENTIFIER).value
         self.eat(TokenType.IN)
+        self.eat(TokenType.LPAREN)
         iterable = self.parse_expression()
-        self.eat(TokenType.COLON)
+        self.eat(TokenType.RPAREN)
 
         # Parse optional invariants before body
         invariants = []
@@ -822,8 +824,9 @@ class HybridParser:
     def parse_while_loop(self):
         """Parse a while loop (with optional invariants)"""
         while_tok = self.eat(TokenType.WHILE)
+        self.eat(TokenType.LPAREN)
         condition = self.parse_expression()
-        self.eat(TokenType.COLON)
+        self.eat(TokenType.RPAREN)
 
         # Parse optional invariants before body
         invariants = []

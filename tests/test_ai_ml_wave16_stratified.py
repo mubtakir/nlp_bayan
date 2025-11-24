@@ -24,32 +24,25 @@ def test_ml_stratified_kfold_and_split():
       v0_ones = 0
       v1_ones = 0
       v2_ones = 0
-      for i in range(len(v0)):
-      {
-        if y[v0[i]] == 1:
-        {
+      for i in (range(len(v0))) {
+        if (y[v0[i]] == 1) {
           v0_ones = v0_ones + 1
         }
       }
-      for i in range(len(v1)):
-      {
-        if y[v1[i]] == 1:
-        {
+      for i in (range(len(v1))) {
+        if (y[v1[i]] == 1) {
           v1_ones = v1_ones + 1
         }
       }
-      for i in range(len(v2)):
-      {
-        if y[v2[i]] == 1:
-        {
+      for i in (range(len(v2))) {
+        if (y[v2[i]] == 1) {
           v2_ones = v2_ones + 1
         }
       }
       sum_ones = v0_ones + v1_ones + v2_ones
       # stratified train/test split
       X = []
-      for i in range(len(y)):
-      {
+      for i in (range(len(y))) {
         row = []
         row.append(i)
         X.append(row)
@@ -57,10 +50,8 @@ def test_ml_stratified_kfold_and_split():
       parts = ml.train_test_split_stratified(X, y, 0.25, True, 42)
       y_te = parts[3]
       test_ones = 0
-      for i in range(len(y_te)):
-      {
-        if y_te[i] == 1:
-        {
+      for i in (range(len(y_te))) {
+        if (y_te[i] == 1) {
           test_ones = test_ones + 1
         }
       }

@@ -11,8 +11,8 @@ hybrid {
     }
 
     def get_last_entity(): {
-        if "last_entity" in DIALOGUE: { return DIALOGUE["last_entity"] }
-        else: { return "" }
+        if ("last_entity" in DIALOGUE) { return DIALOGUE["last_entity"] }
+        else { return "" }
     }
 
     def set_last_place(name): {
@@ -20,8 +20,8 @@ hybrid {
     }
 
     def get_last_place(): {
-        if "last_place" in DIALOGUE: { return DIALOGUE["last_place"] }
-        else: { return "" }
+        if ("last_place" in DIALOGUE) { return DIALOGUE["last_place"] }
+        else { return "" }
     }
 
     def set_last_speaker(name): {
@@ -29,8 +29,8 @@ hybrid {
     }
 
     def get_last_speaker(): {
-        if "last_speaker" in DIALOGUE: { return DIALOGUE["last_speaker"] }
-        else: { return "" }
+        if ("last_speaker" in DIALOGUE) { return DIALOGUE["last_speaker"] }
+        else { return "" }
     }
 }
 

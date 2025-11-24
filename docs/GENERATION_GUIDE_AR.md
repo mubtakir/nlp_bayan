@@ -140,7 +140,7 @@ hybrid {
   text = "سافر خالد إلى مكة"
   match "سافر {اسم} إلى {مدينة}" in text as m
 
-  if m: {
+  if (m) {
     who = m["اسم"]
     where = m["مدينة"]
     print(who)    # "خالد"
@@ -151,7 +151,7 @@ hybrid {
   data = "Temperature: 25.5 degrees"
   match "Temperature: {temp:\\d+\\.\\d+} degrees" in data as result
 
-  if result: {
+  if (result) {
     temp = result["temp"]
     print(temp)  # "25.5"
   }
@@ -161,7 +161,7 @@ hybrid {
   tpl = template("User {name} scored {score:\\d+}")
   match tpl in line as m2
 
-  if m2: {
+  if (m2) {
     print(m2["name"])   # "Ali"
     print(m2["score"])  # "42"
   }
@@ -186,26 +186,26 @@ hybrid {
   x = 3.14159
   y = 3.14160
 
-  if x ~= y: {
+  if (x ~= y) {
     print("متقاربان!")  # سيطبع لأن الفرق < 0.0001 (epsilon الافتراضي)
   }
 
   # يمكن استخدام الرمز ≈ أيضاً
-  if x ≈ y: {
+  if (x ≈ y) {
     print("متقاربان!")
   }
 
   # مقارنة نصوص (تساوي دقيق)
   a = "مرحبا"
   b = "مرحبا"
-  if a ~= b: {
+  if (a ~= b) {
     print("متطابقان!")
   }
 
   # استخدام في سياق عربي
   درجة1 = 98.5
   درجة2 = 98.50001
-  if درجة1 ≈ درجة2: {
+  if (درجة1 ≈ درجة2) {
     print("الدرجتان متقاربتان")
   }
 }

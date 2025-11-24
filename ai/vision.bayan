@@ -4,15 +4,13 @@
 def threshold(image, t, high=1, low=0):
 {
     out = []
-    for i in range(len(image)):
-    {
+    for i in (range(len(image))) {
         row = image[i]
         new_row = []
-        for j in range(len(row)):
-        {
+        for j in (range(len(row))) {
             v = row[j]
-            if v >= t: { new_row.append(high) }
-            else: { new_row.append(low) }
+            if (v >= t) { new_row.append(high) }
+            else { new_row.append(low) }
         }
         out.append(new_row)
     }
@@ -31,19 +29,15 @@ def عتبة(صورة, حد, عالي=1, منخفض=0): { return threshold(صو�
 def conv2d_valid_3x3(image, kernel):
 {
     h = len(image)
-    if h == 0: { return [] }
+    if (h == 0) { return [] }
     w = len(image[0])
     out = []
-    for i in range(1, h - 1):
-    {
+    for i in (range(1, h - 1)) {
         row = []
-        for j in range(1, w - 1):
-        {
+        for j in (range(1, w - 1)) {
             s = 0.0
-            for di in range(-1, 2):
-            {
-                for dj in range(-1, 2):
-                {
+            for di in (range(-1, 2)) {
+                for dj in (range(-1, 2)) {
                     ki = di + 1
                     kj = dj + 1
                     s = s + kernel[ki][kj] * image[i + di][j + dj]
@@ -75,11 +69,9 @@ def sobel_edges(image):
     gx = conv2d_valid_3x3(image, sobel_x_kernel())
     gy = conv2d_valid_3x3(image, sobel_y_kernel())
     out = []
-    for i in range(len(gx)):
-    {
+    for i in (range(len(gx))) {
         row = []
-        for j in range(len(gx[0])):
-        {
+        for j in (range(len(gx[0]))) {
             vx = gx[i][j]
             vy = gy[i][j]
             mag2 = vx*vx + vy*vy

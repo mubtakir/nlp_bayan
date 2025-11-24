@@ -72,20 +72,16 @@ sorted_data = sorted(data)
 
 # Check if all positive
 all_positive = True
-for val in data:
-{
-    if val <= 0:
-    {
+for val in (data) {
+    if (val <= 0) {
         all_positive = False
     }
 }
 
 # Check if any large
 any_large = False
-for val in data:
-{
-    if val > 25:
-    {
+for val in (data) {
+    if (val > 25) {
         any_large = True
     }
 }
@@ -207,8 +203,7 @@ class DataProcessor:
         range_val = max_val - min_val
         
         normalized = []
-        for val in data:
-        {
+        for val in (data) {
             norm_val = (val - min_val) / range_val
             normalized.append(norm_val)
         }

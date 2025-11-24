@@ -40,11 +40,9 @@ def load_into(target_logical): {
 }
 {
     kb = logical.knowledge_base
-    for pred in kb:
-    {
+    for pred in (kb) {
         items = kb[pred]
-        for item in items:
-        {
+        for item in (items) {
             target_logical.assertz(item)
         }
     }
@@ -63,15 +61,11 @@ def load_selective(target_logical, only): {
     }
 
     allowed = []
-    for key in only:
-    {
-        if key in domains:
-        {
+    for key in (only) {
+        if (key in domains) {
             preds = domains[key]
-            for p in preds:
-            {
-                if not (p in allowed):
-                {
+            for p in (preds) {
+                if (not (p in allowed)) {
                     allowed.append(p)
                 }
             }
@@ -79,13 +73,10 @@ def load_selective(target_logical, only): {
     }
 
     kb = logical.knowledge_base
-    for pred in kb:
-    {
-        if pred in allowed:
-        {
+    for pred in (kb) {
+        if (pred in allowed) {
             items = kb[pred]
-            for item in items:
-            {
+            for item in (items) {
                 target_logical.assertz(item)
             }
         }
@@ -121,8 +112,7 @@ def synset(head, items, default=0.7, kind="syn", domain="lexicon"): {
     {
         # Prefer Python duck typing: has .items()
         it = items.items()
-        for kv in it:
-        {
+        for kv in (it) {
             k = kv[0]
             v = kv[1]
             s = d
@@ -140,13 +130,10 @@ def synset(head, items, default=0.7, kind="syn", domain="lexicon"): {
     except Exception:
     {
         # If string: split by comma then colon
-        if isinstance(items, str):
-        {
+        if (isinstance(items, str)) {
             parts = [p.strip() for p in items.split(',') if p.strip()]
-            for part in parts:
-            {
-                if ':' in part:
-                {
+            for part in (parts) {
+                if (':' in part) {
                     tmp = part.split(':', 1)
                     nm = tmp[0]
                     sc = tmp[1]
@@ -159,31 +146,28 @@ def synset(head, items, default=0.7, kind="syn", domain="lexicon"): {
                         pairs.append((nm.strip(), d))
                     }
                 }
-                else:
-                {
+                else {
+                
                     pairs.append((part, d))
                 }
             }
         }
-        else:
-        {
+        else {
+        
             # Assume list/iterable: accept (name, score) or name
             try:
             {
-                for it in items:
-                {
-                    if isinstance(it, (list, tuple)) and len(it) >= 1:
-                    {
+                for it in (items) {
+                    if (isinstance(it, (list, tuple)) and len(it) >= 1) {
                         nm = str(it[0])
                         sc = d
-                        if len(it) >= 2:
-                        {
+                        if (len(it) >= 2) {
                             sc = float(it[1])
                         }
                         pairs.append((nm, sc))
                     }
-                    else:
-                    {
+                    else {
+                    
                         pairs.append((str(it), d))
                     }
                 }
@@ -195,8 +179,7 @@ def synset(head, items, default=0.7, kind="syn", domain="lexicon"): {
         }
     }
 
-    for pair in pairs:
-    {
+    for pair in (pairs) {
         nm = pair[0]
         sc = pair[1]
         assert_similar(head, nm, sc, kind=kind, domain=domain)

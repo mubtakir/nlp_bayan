@@ -14,16 +14,14 @@ hybrid {
     
     result = orchestrator.dispatch_request(control_msg)
     
-    if result["ok"]:
-    {
+    if (result["ok"]) {
         print("Program executed successfully.")
         components = result["components"]
         
         # 2. Manually bridge to Realizer (since Planner is not fully integrated yet)
         # We will construct a mock SurfacePlan for the 'treatment_causal' component
         
-        if "treatment_causal" in components:
-        {
+        if ("treatment_causal" in components) {
             print("\n--- Realizing 'treatment_causal' Component ---")
             # The component has a trace, but we need to map it to a linear sequence.
             # For this test, we manually create the sequence based on the known circuit structure.
@@ -66,8 +64,8 @@ hybrid {
             print("English Output: " + text_en)
         }
     }
-    else:
-    {
+    else {
+    
         print("Error: " + result["error"])
     }
 

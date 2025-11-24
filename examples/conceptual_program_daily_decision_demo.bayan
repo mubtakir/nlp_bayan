@@ -42,8 +42,7 @@ hybrid {
     result = orchestrator.dispatch_request(control_msg)
     print("Orchestrator result ok: " + str(result["ok"]))
     
-    if result["ok"]:
-    {
+    if (result["ok"]) {
         print("Program ID: " + result["selected_program"])
         trace2 = result["trace"]
         print("Entities: " + str(len(trace2["entities"])))
@@ -66,8 +65,7 @@ hybrid {
     result2 = orchestrator.dispatch_request(control_msg2)
     print("Orchestrator result ok: " + str(result2["ok"]))
     
-    if result2["ok"]:
-    {
+    if (result2["ok"]) {
         print("Program ID: " + result2["selected_program"])
         trace3 = result2["trace"]
         print("Entities: " + str(len(trace3["entities"])))
@@ -88,8 +86,7 @@ hybrid {
 
     print("Causal links with optimistic variant:")
     links = trace_opt["causal_links"]
-    for i in range(len(links)):
-    {
+    for i in (range(len(links))) {
         link = links[i]
         print("  Strength: " + str(link["strength"]) + ", Prob: " + str(link["prob"]))
     }
@@ -107,8 +104,7 @@ hybrid {
 
     print("Causal links with pessimistic variant:")
     links_pess = trace_pess["causal_links"]
-    for i in range(len(links_pess)):
-    {
+    for i in (range(len(links_pess))) {
         link = links_pess[i]
         print("  Strength: " + str(link["strength"]) + ", Prob: " + str(link["prob"]))
     }

@@ -82,12 +82,10 @@ hybrid {
 
     all_results = [action_result, state_result, desc_result, intensity_result]
 
-    for i in range(len(all_results)):
-    {
+    for i in (range(len(all_results))) {
         res = all_results[i]
         exs = res["examples"]
-        for j in range(len(exs)):
-        {
+        for j in (range(len(exs))) {
             examples.append(exs[j])
         }
     }
@@ -96,8 +94,7 @@ hybrid {
     print("")
 
     print("Example texts:")
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
         print("-", i, ":", ex["text"])
     }
@@ -114,8 +111,7 @@ hybrid {
     trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
 
     print("==== Bigram vs Trigram LM scores for circuit examples ====")
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
         sc_bg = bigram_scores[i]
         sc_tri = trigram_scores[i]

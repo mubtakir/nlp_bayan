@@ -21,11 +21,9 @@ def tree_to_example(conceptual_trace, blueprint_roles, sentence_tree, register="
 def examples_to_corpus(examples):
 {
     docs = []
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
-        if "text" in ex:
-        {
+        if ("text" in ex) {
             docs.append(ex["text"])
         }
     }
@@ -55,8 +53,7 @@ def train_bigram_lm_from_examples(examples, alpha=1.0):
 def score_example_with_bigram(example, model):
 {
     text = ""
-    if "text" in example:
-    {
+    if ("text" in example) {
         text = example["text"]
     }
     ce = nlp.bigram_lm_cross_entropy(model, text)
@@ -72,8 +69,7 @@ def score_example_with_bigram(example, model):
 def score_examples_with_bigram(examples, model):
 {
     scores = []
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
         metrics = score_example_with_bigram(ex, model)
         scores.append(metrics)
@@ -89,8 +85,7 @@ def build_lm_examples_for_structure(conceptual_trace, blueprint_roles, bridge_st
 {
     sent = lang_bridge.realize(bridge_structure)
     examples = []
-    for i in range(len(langs)):
-    {
+    for i in (range(len(langs))) {
         lang = langs[i]
         plan = surface_planner.plan_surface(sent, lang)
         tree = sentence_tree.build_tree(sent, plan)
@@ -117,8 +112,7 @@ def train_trigram_lm_from_examples(examples, alpha=1.0):
 def score_example_with_trigram(example, model):
 {
     text = ""
-    if "text" in example:
-    {
+    if ("text" in example) {
         text = example["text"]
     }
     ce = nlp.trigram_lm_cross_entropy(model, text)
@@ -134,8 +128,7 @@ def score_example_with_trigram(example, model):
 def score_examples_with_trigram(examples, model):
 {
     scores = []
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
         metrics = score_example_with_trigram(ex, model)
         scores.append(metrics)

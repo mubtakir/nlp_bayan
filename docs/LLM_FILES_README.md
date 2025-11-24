@@ -236,7 +236,7 @@
 ```bayan
 hybrid {
     def factorial(n): {
-        if n <= 1: {
+        if (n <= 1) {
             return 1
         }
         return n * factorial(n - 1)
@@ -277,7 +277,7 @@ hybrid {
         results = query recommend(user, ?Book)?
         
         print("Recommendations for " + user + ":")
-        for result in results: {
+        for result in (results) {
             print("  - " + result["?Book"])
         }
     }

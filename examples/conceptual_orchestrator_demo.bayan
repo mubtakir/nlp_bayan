@@ -15,14 +15,12 @@ hybrid {
         roles = circuit_output["roles"]
         bridges = circuit_output["bridge_structures"]
 
-        for i in range(len(pairs)):
-        {
+        for i in (range(len(pairs))) {
             pair = pairs[i]
             role_key = pair[0]
             bridge_key = pair[1]
 
-            if role_key in roles and bridge_key in bridges:
-            {
+            if (role_key in roles and bridge_key in bridges) {
                 bridge = bridges[bridge_key]
                 result = lm_bridge.build_lm_examples_for_structure(
                     local_trace,
@@ -33,8 +31,7 @@ hybrid {
                 )
 
                 exs = result["examples"]
-                for j in range(len(exs)):
-                {
+                for j in (range(len(exs))) {
                     examples.append(exs[j])
                 }
             }
@@ -57,8 +54,7 @@ hybrid {
             "perspective": "neutral",
             "focus": None
         }
-        if "settings" in orchestrator_output:
-        {
+        if ("settings" in orchestrator_output) {
             settings = orchestrator_output["settings"]
         }
 
@@ -69,31 +65,26 @@ hybrid {
         perspective = settings["perspective"]
 
         scenario_variant = "neutral"
-        if "scenario_variant" in settings:
-        {
+        if ("scenario_variant" in settings) {
             scenario_variant = settings["scenario_variant"]
         }
 
         time_horizon = "medium_term"
-        if "time_horizon" in settings:
-        {
+        if ("time_horizon" in settings) {
             time_horizon = settings["time_horizon"]
         }
 
         # Map perspective to a simple register hint for the LM bridge.
         register = "neutral"
-        if perspective == "first_person":
-        {
+        if (perspective == "first_person") {
             register = "casual"
         }
-        elif perspective == "third_person_formal":
-        {
+        elif (perspective == "third_person_formal") {
             register = "formal"
         }
 
         # Student study program
-        if program_id == "student_study":
-        {
+        if (program_id == "student_study") {
             # Always realize the main action/state evaluation.
             add_examples_for_pairs(
                 components["action_state_eval"],
@@ -108,8 +99,7 @@ hybrid {
             )
 
             # Medium and high detail: include causal link (unless focus excludes it).
-            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
-            {
+            if ((detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal")) {
                 add_examples_for_pairs(
                     components["causal_link"],
                     [["Probabilistic_Causation", "CausalSentencePattern"]],
@@ -121,8 +111,7 @@ hybrid {
 
             # High detail: also include temporal/contextual/uncertain links,
             # conditioned on focus when specified.
-            if detail_level == "high" and (focus == None or focus == "temporal"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "temporal")) {
                 add_examples_for_pairs(
                     components["temporal_sequence"],
                     [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
@@ -132,8 +121,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "context"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "context")) {
                 add_examples_for_pairs(
                     components["contextual_event"],
                     [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
@@ -143,8 +131,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "uncertainty"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "uncertainty")) {
                 add_examples_for_pairs(
                     components["uncertain_cause_effect"],
                     [
@@ -159,8 +146,7 @@ hybrid {
         }
 
         # Medical treatment program
-        if program_id == "medical_treatment":
-        {
+        if (program_id == "medical_treatment") {
             add_examples_for_pairs(
                 components["treatment_state"],
                 [
@@ -174,8 +160,7 @@ hybrid {
             )
 
             # Medium and high detail: include causal link (unless focus excludes it).
-            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
-            {
+            if ((detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal")) {
                 add_examples_for_pairs(
                     components["treatment_causal"],
                     [["Probabilistic_Causation", "CausalSentencePattern"]],
@@ -185,8 +170,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "temporal"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "temporal")) {
                 add_examples_for_pairs(
                     components["temporal_sequence"],
                     [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
@@ -196,8 +180,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "context"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "context")) {
                 add_examples_for_pairs(
                     components["contextual_followup"],
                     [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
@@ -207,8 +190,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive")) {
                 add_examples_for_pairs(
                     components["uncertain_side_effect"],
                     [
@@ -223,8 +205,7 @@ hybrid {
         }
 
         # Economic investment program
-        if program_id == "economic_investment":
-        {
+        if (program_id == "economic_investment") {
             add_examples_for_pairs(
                 components["investment_state"],
                 [
@@ -238,8 +219,7 @@ hybrid {
             )
 
             # Medium and high detail: include causal link (unless focus excludes it).
-            if (detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal"):
-            {
+            if ((detail_level == "medium" or detail_level == "high") and (focus == None or focus == "causal")) {
                 add_examples_for_pairs(
                     components["investment_causal"],
                     [["Probabilistic_Causation", "CausalSentencePattern"]],
@@ -249,8 +229,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "temporal"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "temporal")) {
                 add_examples_for_pairs(
                     components["temporal_sequence"],
                     [["TemporalOrderPattern", "Temporal_CausalSentencePattern"]],
@@ -260,8 +239,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "context"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "context")) {
                 add_examples_for_pairs(
                     components["contextual_research"],
                     [["ContextualizationPattern", "Contextual_DescriptionPattern"]],
@@ -271,8 +249,7 @@ hybrid {
                 )
             }
 
-            if detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive"):
-            {
+            if (detail_level == "high" and (focus == None or focus == "uncertainty") and (scenario_variant != "positive")) {
                 add_examples_for_pairs(
                     components["uncertain_risk"],
                     [
@@ -297,8 +274,7 @@ hybrid {
         result = orchestrator.dispatch_request(control_message)
         print("Selected program ok =", result["ok"])
 
-        if not result["ok"]:
-        {
+        if (not result["ok"]) {
             print("No matching program for control message.")
             return
         }
@@ -306,8 +282,7 @@ hybrid {
         print("Selected program id:", result["selected_program"])
         print("Program description:", result["program_description"])
 
-        if "settings" in result:
-        {
+        if ("settings" in result) {
             print("Control settings (detail_level, languages, perspective, focus, scenario_variant, time_horizon):")
             print(result["settings"])
         }
@@ -321,8 +296,7 @@ hybrid {
         examples = build_lm_examples_for_program(result)
         print("Number of LM examples:", len(examples))
         print("Example texts:")
-        for i in range(len(examples)):
-        {
+        for i in (range(len(examples))) {
             ex = examples[i]
             print("-", i, ":", ex["text"])
         }
@@ -338,8 +312,7 @@ hybrid {
         trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
 
         print("==== Bigram vs Trigram LM scores for orchestrated corpus ====")
-        for i in range(len(examples)):
-        {
+        for i in (range(len(examples))) {
             ex = examples[i]
             sc_bg = bigram_scores[i]
             sc_tri = trigram_scores[i]

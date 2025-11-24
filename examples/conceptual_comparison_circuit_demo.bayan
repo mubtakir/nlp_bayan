@@ -66,8 +66,7 @@ print("  Quality: منتج_أ (0.85) vs منتج_ب (0.65) -> better")
 print("  Price: منتج_أ (200) vs منتج_ب (150) -> greater")
 print("")
 print("Roles in quality comparison:")
-for key in comparison_quality["roles"]["ComparativePattern"]:
-{
+for key in (comparison_quality["roles"]["ComparativePattern"]) {
     print("  " + key + ":", comparison_quality["roles"]["ComparativePattern"][key])
 }
 print("")
@@ -87,13 +86,11 @@ control_msg = {
 result = orchestrator.dispatch_request(control_msg)
 
 print("Daily decision program components:")
-for key in result["components"]:
-{
+for key in (result["components"]) {
     print("  - " + key)
 }
 
-if "option_comparison" in result["components"]:
-{
+if ("option_comparison" in result["components"]) {
     comp = result["components"]["option_comparison"]
     print("")
     print("Option comparison details:")
@@ -123,8 +120,7 @@ comparison_demo = circuits.build_enhanced_comparison_circuit(
 )
 
 print("Bridge structures available:")
-for key in comparison_demo["bridge_structures"]:
-{
+for key in (comparison_demo["bridge_structures"]) {
     print("  - " + key)
 }
 print("")
@@ -133,8 +129,7 @@ print("ComparativePattern bridge structure:")
 comp_bridge = comparison_demo["bridge_structures"]["ComparativePattern"]
 print("  Pattern:", comp_bridge["pattern"])
 print("  Slots:")
-for slot_key in comp_bridge["slots"]:
-{
+for slot_key in (comp_bridge["slots"]) {
     print("    " + slot_key + ":", comp_bridge["slots"][slot_key])
 }
 print("")

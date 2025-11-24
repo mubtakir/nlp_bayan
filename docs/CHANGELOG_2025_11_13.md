@@ -34,14 +34,14 @@
 
 **قبل**:
 ```bayan
-if holds_default_enter_target_direct(?F, subj_ent, obj_ent): { direct = True }
-elif holds_default_enter_target(?F, subj_ent, obj_ent): { any_ok = True }
+if (holds_default_enter_target_direct(?F, subj_ent, obj_ent)) { direct = True }
+elif (holds_default_enter_target(?F, subj_ent, obj_ent)) { any_ok = True }
 ```
 
 **بعد**:
 ```bayan
-once { if holds_default_enter_target_direct(?F, subj_ent, obj_ent): { direct = True } }
-if not direct: { once { if holds_default_enter_target(?F, subj_ent, obj_ent): { any_ok = True } } }
+once { if (holds_default_enter_target_direct(?F, subj_ent, obj_ent)) { direct = True } }
+if (not direct) { once { if (holds_default_enter_target(?F, subj_ent, obj_ent)) { any_ok = True } } }
 ```
 
 **الأماكن المحدثة**: 8 أفعال (دخل، خرج، عاد، رجع، جلس، ذهب، سافر، زار)
@@ -424,7 +424,7 @@ def function_name(params):
 def absolute_value(x):
     ensures result >= 0
     {
-        if x < 0: {
+        if (x < 0) {
             return -x
         }
         return x
@@ -987,8 +987,7 @@ result = 10 |> process  # result = 21
 
 # Process multiple values
 values = [1, 2, 3, 4, 5]
-for v in values:
-{
+for v in (values) {
     transformed = v |> process
     print(str(v) + " -> " + str(transformed))
 }
@@ -1015,10 +1014,8 @@ for v in values:
 def filter_positive(lst):
 {
     result = []
-    for item in lst:
-    {
-        if item > 0:
-        {
+    for item in (lst) {
+        if (item > 0) {
             result = result + [item]
         }
     }
@@ -1028,8 +1025,7 @@ def filter_positive(lst):
 def sum_list(lst):
 {
     total = 0
-    for item in lst:
-    {
+    for item in (lst) {
         total = total + item
     }
     return total

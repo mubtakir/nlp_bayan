@@ -173,24 +173,20 @@ def build_tree(sentence_roles, plan):
     # Generic dispatcher from sentence_roles + surface plan to a symbolic tree
     stype = sentence_roles["type"]
 
-    if stype == "ActionSentence":
-    {
+    if (stype == "ActionSentence") {
         return build_action_tree(sentence_roles, plan)
     }
-    elif stype == "CausalSentence":
-    {
+    elif (stype == "CausalSentence") {
         return build_causal_tree(sentence_roles, plan)
     }
-    elif stype == "DescriptionSentence":
-    {
+    elif (stype == "DescriptionSentence") {
         return build_description_tree(sentence_roles, plan)
     }
-    elif stype == "IntensitySentence":
-    {
+    elif (stype == "IntensitySentence") {
         return build_intensity_tree(sentence_roles, plan)
     }
-    else:
-    {
+    else {
+    
         # Fallback: keep the structure as a shallow tree with a single root
         return {
             "tree_type": "SentenceTree",

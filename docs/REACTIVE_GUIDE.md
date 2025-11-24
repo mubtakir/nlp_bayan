@@ -201,8 +201,7 @@ alerts = []
 
 watch celsius:
 {
-    if celsius > 30:
-    {
+    if (celsius > 30) {
         alerts = alerts + ["High temperature warning!"]
     }
     print("Temperature changed:")
@@ -228,8 +227,7 @@ computed is_valid = len(username) > 0 and len(password) >= 8
 
 watch is_valid:
 {
-    if is_valid:
-    {
+    if (is_valid) {
         print("Form is valid")
     }
     else:

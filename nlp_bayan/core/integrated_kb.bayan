@@ -216,11 +216,9 @@ hybrid {
     def load_into(target_logical):
     {
     kb = logical.knowledge_base
-    for pred in kb:
-    {
+    for pred in (kb) {
         items = kb[pred]
-        for item in items:
-        {
+        for item in (items) {
             target_logical.assertz(item)
         }
     }
@@ -267,15 +265,11 @@ hybrid {
 
         # Build allowed predicate set
         allowed = []
-        for key in only:
-        {
-            if key in domains:
-            {
+        for key in (only) {
+            if (key in domains) {
                 preds = domains[key]
-                for p in preds:
-                {
-                    if not (p in allowed):
-                    {
+                for p in (preds) {
+                    if (not (p in allowed)) {
                         allowed.append(p)
                     }
                 }
@@ -283,13 +277,10 @@ hybrid {
         }
 
         kb = logical.knowledge_base
-        for pred in kb:
-        {
-            if pred in allowed:
-            {
+        for pred in (kb) {
+            if (pred in allowed) {
                 items = kb[pred]
-                for item in items:
-                {
+                for item in (items) {
                     target_logical.assertz(item)
                 }
             }

@@ -180,7 +180,7 @@ def test_parse_async_for_loop():
     code = """
 async def process_all(urls): {
     results = []
-    for url in urls: {
+    for url in (urls) {
         data = await fetch(url)
         results.append(data)
     }

@@ -108,32 +108,26 @@ def realize_intensity(bp):
 def realize(bp):
 {
     pat_name = bp["pattern"]
-    if pat_name == "ActionSentencePattern":
-    {
+    if (pat_name == "ActionSentencePattern") {
         return realize_action(bp)
     }
-    elif pat_name == "StateChangeSentencePattern":
-    {
+    elif (pat_name == "StateChangeSentencePattern") {
         return realize_state_change(bp)
     }
-    elif pat_name == "UncertaintyPattern":
-    {
+    elif (pat_name == "UncertaintyPattern") {
         return realize_uncertainty(bp)
     }
-    elif pat_name == "CausalSentencePattern":
-    {
+    elif (pat_name == "CausalSentencePattern") {
         return realize_causal(bp)
     }
-    elif pat_name == "DescriptionPattern":
-    {
+    elif (pat_name == "DescriptionPattern") {
         return realize_description(bp)
     }
-    elif pat_name == "IntensityPattern":
-    {
+    elif (pat_name == "IntensityPattern") {
         return realize_intensity(bp)
     }
-    else:
-    {
+    else {
+    
         # Unknown pattern: keep it symbolic
         return {
             "type": "UnknownPattern",

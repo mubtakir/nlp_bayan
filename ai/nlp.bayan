@@ -5,10 +5,8 @@ def detect_language(text):
 {
     arabic_letters = "ءاأإآبتثجحخدذرزسشصضطظعغفقكلمنهوىييةؤئ"
     arabic_punct = "،؛"
-    for ch in text:
-    {
-        if arabic_letters.find(ch) != -1 or arabic_punct.find(ch) != -1:
-        {
+    for ch in (text) {
+        if (arabic_letters.find(ch) != -1 or arabic_punct.find(ch) != -1) {
             return "arabic"
         }
     }
@@ -21,10 +19,8 @@ def remove_punctuation(text):
     # simplified ASCII-only punctuation list; removed question marks to avoid parser token issues
     punct = '.,!;:()[]{}-_/|@#$%^&*+=~<>'
     chars = []
-    for ch in text:
-    {
-        if punct.find(ch) == -1:
-        {
+    for ch in (text) {
+        if (punct.find(ch) == -1) {
             chars.append(ch)
         }
     }
@@ -34,8 +30,7 @@ def remove_punctuation(text):
 
 def preprocess_text(text, language="auto"):
 {
-    if language == "auto":
-    {
+    if (language == "auto") {
         language = detect_language(text)
     }
     text = remove_punctuation(text)
@@ -43,10 +38,8 @@ def preprocess_text(text, language="auto"):
     # normalize spaces
     tmp = text.split()
     words = []
-    for w in tmp:
-    {
-        if len(w) > 0:
-        {
+    for w in (tmp) {
+        if (len(w) > 0) {
             words.append(w)
         }
     }
@@ -57,8 +50,7 @@ def preprocess_text(text, language="auto"):
 
 def tokenize_text(text, language="auto"):
 {
-    if language == "auto":
-    {
+    if (language == "auto") {
         language = detect_language(text)
     }
     # naive whitespace tokenization
@@ -73,20 +65,17 @@ def detect_sentiment(text):
     positive = {"جيد", "رائع", "ممتاز", "جميل", "سعيد", "happy", "good", "excellent", "great", "awesome"}
     negative = {"سيء", "فظيع", "مزعج", "حزين", "bad", "terrible", "awful", "poor", "horrible"}
     score = 0
-    for w in words:
-    {
-        if w in positive:
-        {
+    for w in (words) {
+        if (w in positive) {
             score = score + 1
         }
-        elif w in negative:
-        {
+        elif (w in negative) {
             score = score - 1
         }
     }
-    if score > 0: { return "positive" }
-    elif score < 0: { return "negative" }
-    else: { return "neutral" }
+    if (score > 0) { return "positive" }
+    elif (score < 0) { return "negative" }
+    else { return "neutral" }
 }
 
 # --- Arabic wrappers ---
@@ -97,9 +86,9 @@ def تجزئة_نص(نص, لغة="auto"): { return tokenize_text(نص, language=
 def كشف_مشاعر(نص):
 {
     نتيجة = detect_sentiment(نص)
-    if نتيجة == "positive": { return "إيجابي" }
-    elif نتيجة == "negative": { return "سلبي" }
-    else: { return "محايد" }
+    if (نتيجة == "positive") { return "إيجابي" }
+    elif (نتيجة == "negative") { return "سلبي" }
+    else { return "محايد" }
 }
 
 
@@ -109,12 +98,10 @@ def كشف_مشاعر(نص):
 def ngrams_from_tokens(tokens, n):
 {
     grams = []
-    for i in range(len(tokens) - n + 1):
-    {
+    for i in (range(len(tokens) - n + 1)) {
         j = 0
         parts = []
-        while j < n:
-        {
+        while (j < n) {
             parts.append(tokens[i + j])
             j = j + 1
         }
@@ -133,8 +120,7 @@ def compute_tfidf(docs):
     N = len(docs)
     processed_docs = []
     tokens_list = []
-    for i in range(N):
-    {
+    for i in (range(N)) {
         p = preprocess_text(docs[i], language="auto")
         toks = tokenize_text(p, language="auto")
         processed_docs.append(p)
@@ -142,24 +128,20 @@ def compute_tfidf(docs):
     }
     # document frequency
     df = {}
-    for toks in tokens_list:
-    {
+    for toks in (tokens_list) {
         seen = {}
-        for w in toks:
-        {
-            if w in seen:
-            {
+        for w in (toks) {
+            if (w in seen) {
                 # skip
             }
-            else:
-            {
+            else {
+            
                 seen[w] = 1
-                if w in df:
-                {
+                if (w in df) {
                     df[w] = df[w] + 1
                 }
-                else:
-                {
+                else {
+                
                     df[w] = 1
                 }
             }
@@ -167,31 +149,25 @@ def compute_tfidf(docs):
     }
     # idf values (no log)
     idf = {}
-    for term in df:
-    {
+    for term in (df) {
         idf[term] = 1.0 + (N / (df[term] + 1.0))
     }
     # tf-idf per document
     out = []
-    for toks in tokens_list:
-    {
+    for toks in (tokens_list) {
         tf = {}
-        for w in toks:
-        {
-            if w in tf:
-            { tf[w] = tf[w] + 1.0 }
-            else:
-            { tf[w] = 1.0 }
+        for w in (toks) {
+            if (w in tf) { tf[w] = tf[w] + 1.0 }
+            else {
+             tf[w] = 1.0 }
         }
         total = len(toks)
-        for w in tf:
-        {
-            if w in idf:
-            {
+        for w in (tf) {
+            if (w in idf) {
                 tf[w] = (tf[w] / total) * idf[w]
             }
-            else:
-            {
+            else {
+            
                 tf[w] = (tf[w] / total)
             }
         }
@@ -212,14 +188,11 @@ def حساب_tfidf(نصوص): { return compute_tfidf(نصوص) }
 def ngrams_range_from_tokens(tokens, n_min, n_max):
 {
     grams = []
-    for n in range(n_min, n_max + 1):
-    {
-        for i in range(len(tokens) - n + 1):
-        {
+    for n in (range(n_min, n_max + 1)) {
+        for i in (range(len(tokens) - n + 1)) {
             parts = []
             j = 0
-            while j < n:
-            {
+            while (j < n) {
                 parts.append(tokens[i + j])
                 j = j + 1
             }
@@ -236,13 +209,11 @@ def char_ngrams(text, n_min, n_max):
 {
     s = text
     out = []
-    for n in range(n_min, n_max + 1):
-    {
+    for n in (range(n_min, n_max + 1)) {
         L = len(s)
         max_i = L - n + 1
-        if max_i < 0: { max_i = 0 }
-        for i in range(max_i):
-        {
+        if (max_i < 0) { max_i = 0 }
+        for i in (range(max_i)) {
             j = i + n
             out.append(s[i:j])
         }
@@ -262,16 +233,13 @@ def compute_tfidf_log(docs):
 {
     N = len(docs)
     tokens_list = []
-    for i in range(N):
-    {
+    for i in (range(N)) {
         # inline preprocess/tokenize (portable)
         txt = docs[i]
         punct = ".,!;:"
         chars = []
-        for ch in txt:
-        {
-            if punct.find(ch) == -1:
-            {
+        for ch in (txt) {
+            if (punct.find(ch) == -1) {
                 chars.append(ch)
             }
         }
@@ -283,18 +251,15 @@ def compute_tfidf_log(docs):
     }
     # document frequency
     df = {}
-    for toks in tokens_list:
-    {
+    for toks in (tokens_list) {
         seen = {}
-        for w in toks:
-        {
-            if w in seen: { seen[w] = seen[w] }
-            else: { seen[w] = 1 }
+        for w in (toks) {
+            if (w in seen) { seen[w] = seen[w] }
+            else { seen[w] = 1 }
         }
-        for w in seen:
-        {
-            if w in df: { df[w] = df[w] + 1 }
-            else: { df[w] = 1 }
+        for w in (seen) {
+            if (w in df) { df[w] = df[w] + 1 }
+            else { df[w] = 1 }
         }
     }
     # ln via binary search over pow(e, x)
@@ -302,54 +267,48 @@ def compute_tfidf_log(docs):
     def_ln = 0.0  # placeholder (not used as function)
     # compute idf per term
     idf = {}
-    for term in df:
-    {
+    for term in (df) {
         # compute y = 1 + N/(df+1)
         y = 1.0 + (N / (df[term] + 1.0))
         # ln(y): binary search
         lo = -50.0
         hi = 50.0
         it = 0
-        while it < 40:
-        {
+        while (it < 40) {
             mid = (lo + hi) / 2.0
             val = pow(e, mid)
-            if val < y: { lo = mid }
-            else: { hi = mid }
+            if (val < y) { lo = mid }
+            else { hi = mid }
             it = it + 1
         }
         idf[term] = (lo + hi) / 2.0
     }
     # tf-idf per document with sublinear tf
     out = []
-    for toks in tokens_list:
-    {
+    for toks in (tokens_list) {
         tf_counts = {}
-        for w in toks:
-        {
-            if w in tf_counts: { tf_counts[w] = tf_counts[w] + 1.0 }
-            else: { tf_counts[w] = 1.0 }
+        for w in (toks) {
+            if (w in tf_counts) { tf_counts[w] = tf_counts[w] + 1.0 }
+            else { tf_counts[w] = 1.0 }
         }
         tfidf = {}
-        for w in tf_counts:
-        {
+        for w in (tf_counts) {
             # tf_weight = 1 + ln(count)
             cnt = tf_counts[w]
             y = 1.0 + cnt
             lo = -50.0
             hi = 50.0
             it = 0
-            while it < 40:
-            {
+            while (it < 40) {
                 mid = (lo + hi) / 2.0
                 val = pow(e, mid)
-                if val < y: { lo = mid }
-                else: { hi = mid }
+                if (val < y) { lo = mid }
+                else { hi = mid }
                 it = it + 1
             }
             tf_w = 1.0 + ( (lo + hi) / 2.0 )
-            if w in idf: { tfidf[w] = tf_w * idf[w] }
-            else: { tfidf[w] = tf_w }
+            if (w in idf) { tfidf[w] = tf_w * idf[w] }
+            else { tfidf[w] = tf_w }
         }
         out.append(tfidf)
     }
@@ -363,15 +322,14 @@ def normalize_arabic(text):
     # remove diacritics and tatweel
     diac = "ًٌٍَُِّْـ"
     chars = []
-    for ch in text:
-    {
-        if diac.find(ch) != -1: { continue }
+    for ch in (text) {
+        if (diac.find(ch) != -1) { continue }
         # map common forms
-        if ch == "أ" or ch == "إ" or ch == "آ": { ch = "ا" }
-        elif ch == "ى": { ch = "ي" }
-        elif ch == "ؤ": { ch = "و" }
-        elif ch == "ئ": { ch = "ي" }
-        elif ch == "ة": { ch = "ه" }
+        if (ch == "أ" or ch == "إ" or ch == "آ") { ch = "ا" }
+        elif (ch == "ى") { ch = "ي" }
+        elif (ch == "ؤ") { ch = "و" }
+        elif (ch == "ئ") { ch = "ي" }
+        elif (ch == "ة") { ch = "ه" }
         chars.append(ch)
     }
     sep = ""
@@ -383,24 +341,23 @@ def arabic_light_stem_token(token):
     t = token
     # remove common prefixes (order matters)
     # combos with AL
-    if len(t) > 3 and (t.startswith("وال") or t.startswith("بال") or t.startswith("فال") or t.startswith("كال")): { t = t[3:] }
-    if len(t) > 2 and t.startswith("لل"): { t = t[2:] }
+    if (len(t) > 3 and (t.startswith("وال") or t.startswith("بال") or t.startswith("فال") or t.startswith("كال"))) { t = t[3:] }
+    if (len(t) > 2 and t.startswith("لل")) { t = t[2:] }
     # bare AL
-    if len(t) > 3 and t.startswith("ال"): { t = t[2:] }
+    if (len(t) > 3 and t.startswith("ال")) { t = t[2:] }
     # single-letter clitics (do not strip ك/ل unless with AL already handled)
-    if len(t) > 2 and (t[0] == "و" or t[0] == "ف" or t[0] == "ب"): { t = t[1:] }
+    if (len(t) > 2 and (t[0] == "و" or t[0] == "ف" or t[0] == "ب")) { t = t[1:] }
     # remove common suffixes
-    if len(t) > 3 and (t.endswith("ات") or t.endswith("ون") or t.endswith("ان") or t.endswith("ين")): { t = t[0:len(t) - 2] }
-    elif len(t) > 2 and (t.endswith("ة") or t.endswith("ه")): { t = t[0:len(t) - 1] }
-    elif len(t) > 2 and (t.endswith("ي") or t.endswith("ك")): { t = t[0:len(t) - 1] }
+    if (len(t) > 3 and (t.endswith("ات") or t.endswith("ون") or t.endswith("ان") or t.endswith("ين"))) { t = t[0:len(t) - 2] }
+    elif (len(t) > 2 and (t.endswith("ة") or t.endswith("ه"))) { t = t[0:len(t) - 1] }
+    elif (len(t) > 2 and (t.endswith("ي") or t.endswith("ك"))) { t = t[0:len(t) - 1] }
     return t
 }
 
 def arabic_light_stem_tokens(tokens):
 {
     out = []
-    for w in tokens:
-    {
+    for w in (tokens) {
         out.append(arabic_light_stem_token(w))
     }
     return out
@@ -417,14 +374,13 @@ def compute_tfidf_log_norm(docs):
 {
     vecs = compute_tfidf_log(docs)
     out = []
-    for i in range(len(vecs)):
-    {
+    for i in (range(len(vecs))) {
         v = vecs[i]
         norm2 = 0.0
-        for t in v: { norm2 = norm2 + v[t] * v[t] }
-        if norm2 > 0.0: { norm = pow(norm2, 0.5) } else: { norm = 1.0 }
+        for t in (v) { norm2 = norm2 + v[t] * v[t] }
+        if (norm2 > 0.0) { norm = pow(norm2, 0.5) } else { norm = 1.0 }
         v2 = {}
-        for t in v: { v2[t] = v[t] / norm }
+        for t in (v) { v2[t] = v[t] / norm }
         out.append(v2)
     }
     return out
@@ -439,42 +395,36 @@ def compute_tfidf_options(docs, sublinear_tf=True, smooth_idf=True):
     # tokenize simple: lowercase, split on spaces after removing punctuation
     def _is_letter_or_digit(c):
     {
-        if c >= "a" and c <= "z": { return True }
-        if c >= "0" and c <= "9": { return True }
-        if c >= "A" and c <= "Z": { return True }
+        if (c >= "a" and c <= "z") { return True }
+        if (c >= "0" and c <= "9") { return True }
+        if (c >= "A" and c <= "Z") { return True }
         return False
     }
     n = len(docs)
     tokens_list = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         s = docs[i]
         t = ""
-        for j in range(len(s)):
-        {
+        for j in (range(len(s))) {
             c = s[j]
-            if _is_letter_or_digit(c): { t = t + c.lower() }
-            else: { t = t + " " }
+            if (_is_letter_or_digit(c)) { t = t + c.lower() }
+            else { t = t + " " }
         }
         parts = t.split(" ")
         toks = []
-        for k in range(len(parts)):
-        {
-            if parts[k] != "": { toks.append(parts[k]) }
+        for k in (range(len(parts))) {
+            if (parts[k] != "") { toks.append(parts[k]) }
         }
         tokens_list.append(toks)
     }
     # document frequencies
     df = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         seen = {}
         toks = tokens_list[i]
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             term = toks[j]
-            if seen.get(term, False) == False:
-            {
+            if (seen.get(term, False) == False) {
                 df[term] = df.get(term, 0) + 1
                 seen[term] = True
             }
@@ -483,61 +433,53 @@ def compute_tfidf_options(docs, sublinear_tf=True, smooth_idf=True):
     # idf
     e = 2.718281828
     idf = {}
-    for term in df:
-    {
-        if smooth_idf == True:
-        {
+    for term in (df) {
+        if (smooth_idf == True) {
             y = 1.0 + (1.0 * n) / (df[term] + 1.0)
         }
-        else:
-        {
-            if df[term] == 0: { y = 1.0 }
-            else: { y = (1.0 * n) / df[term] }
+        else {
+        
+            if (df[term] == 0) { y = 1.0 }
+            else { y = (1.0 * n) / df[term] }
         }
         # ln(y) via binary search
         lo = -50.0
         hi = 50.0
         it = 0
-        while it < 40:
-        {
+        while (it < 40) {
             mid = (lo + hi) / 2.0
             val = pow(e, mid)
-            if val < y: { lo = mid }
-            else: { hi = mid }
+            if (val < y) { lo = mid }
+            else { hi = mid }
             it = it + 1
         }
         idf[term] = (lo + hi) / 2.0
     }
     # tf * idf per doc
     vecs = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         toks = tokens_list[i]
         counts = {}
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
             counts[w] = counts.get(w, 0) + 1
         }
         vec = {}
-        for w in counts:
-        {
+        for w in (counts) {
             cnt = 1.0 * counts[w]
             tfw = cnt
-            if sublinear_tf == True:
-            {
+            if (sublinear_tf == True) {
                 # 1 + ln(cnt)
                 y = cnt
-                if y < 1.0: { y = 1.0 }
+                if (y < 1.0) { y = 1.0 }
                 lo = -50.0
                 hi = 50.0
                 it = 0
-                while it < 40:
-                {
+                while (it < 40) {
                     mid = (lo + hi) / 2.0
                     val = pow(e, mid)
-                    if val < y: { lo = mid }
-                    else: { hi = mid }
+                    if (val < y) { lo = mid }
+                    else { hi = mid }
                     it = it + 1
                 }
                 ln_cnt = (lo + hi) / 2.0
@@ -580,31 +522,29 @@ AR_STOPWORDS_EXT = {"او", "الى", "انا", "نحن", "انت", "انتم", 
 
 def remove_stopwords_extended(text, language="auto"):
 {
-    if language == "auto": { language = detect_language(text) }
+    if (language == "auto") { language = detect_language(text) }
     p = preprocess_text(text, language)
     toks = tokenize_text(p, language)
     out = []
-    for w in toks:
-    {
+    for w in (toks) {
         skip = False
-        if language == "arabic":
-        {
-            if w in AR_STOPWORDS: { skip = True }
-            else:
-            {
-                if w in AR_STOPWORDS_EXT: { skip = True }
+        if (language == "arabic") {
+            if (w in AR_STOPWORDS) { skip = True }
+            else {
+            
+                if (w in AR_STOPWORDS_EXT) { skip = True }
             }
         }
-        else:
-        {
-            if w in EN_STOPWORDS: { skip = True }
-            else:
-            {
-                if w in EN_STOPWORDS_EXT: { skip = True }
+        else {
+        
+            if (w in EN_STOPWORDS) { skip = True }
+            else {
+            
+                if (w in EN_STOPWORDS_EXT) { skip = True }
             }
         }
-        if skip: { }
-        else: { out.append(w) }
+        if (skip) { }
+        else { out.append(w) }
     }
     sep = " "
     return sep.join(out)
@@ -620,19 +560,17 @@ AR_STOPWORDS = {"هذا", "هذه", "ذلك", "تلك", "و", "أو", "في", "�
 
 def remove_stopwords(text, language="auto"):
 {
-    if language == "auto": { language = detect_language(text) }
+    if (language == "auto") { language = detect_language(text) }
     p = preprocess_text(text, language)
     toks = tokenize_text(p, language)
     out = []
-    for w in toks:
-    {
-        if language == "arabic":
-        {
-            if w in AR_STOPWORDS: { continue }
+    for w in (toks) {
+        if (language == "arabic") {
+            if (w in AR_STOPWORDS) { continue }
         }
-        else:
-        {
-            if w in EN_STOPWORDS: { continue }
+        else {
+        
+            if (w in EN_STOPWORDS) { continue }
         }
         out.append(w)
     }
@@ -646,19 +584,17 @@ def cosine_similarity_dicts(v1, v2):
 {
     # dot
     dot = 0.0
-    for k in v1:
-    {
-        if k in v2:
-        {
+    for k in (v1) {
+        if (k in v2) {
             dot = dot + v1[k] * v2[k]
         }
     }
     # norms
     n1 = 0.0
-    for k in v1: { n1 = n1 + v1[k] * v1[k] }
+    for k in (v1) { n1 = n1 + v1[k] * v1[k] }
     n2 = 0.0
-    for k in v2: { n2 = n2 + v2[k] * v2[k] }
-    if n1 == 0 or n2 == 0: { return 0.0 }
+    for k in (v2) { n2 = n2 + v2[k] * v2[k] }
+    if (n1 == 0 or n2 == 0) { return 0.0 }
     return dot / (pow(n1, 0.5) * pow(n2, 0.5))
 }
 
@@ -676,15 +612,13 @@ def naive_bayes_train_text(docs, labels, alpha=1.0):
     N = len(docs)
     classes = []
     seen_cls = {}
-    for i in range(N):
-    {
+    for i in (range(N)) {
         c = labels[i]
-        if c in seen_cls:
-        {
+        if (c in seen_cls) {
             seen_cls[c] = seen_cls[c]
         }
-        else:
-        {
+        else {
+        
             seen_cls[c] = 1
             classes.append(c)
         }
@@ -693,19 +627,16 @@ def naive_bayes_train_text(docs, labels, alpha=1.0):
     token_counts = {}
     class_token_totals = {}
     vocab = {}
-    for i in range(N):
-    {
+    for i in (range(N)) {
         c = labels[i]
-        if c in class_doc_counts: { class_doc_counts[c] = class_doc_counts[c] + 1 }
-        else: { class_doc_counts[c] = 1 }
+        if (c in class_doc_counts) { class_doc_counts[c] = class_doc_counts[c] + 1 }
+        else { class_doc_counts[c] = 1 }
         # inline preprocess/tokenize to avoid from-import scope issues
         txt = docs[i]
         punct = ".,!;:"
         chars = []
-        for ch in txt:
-        {
-            if punct.find(ch) == -1:
-            {
+        for ch in (txt) {
+            if (punct.find(ch) == -1) {
                 chars.append(ch)
             }
         }
@@ -713,26 +644,24 @@ def naive_bayes_train_text(docs, labels, alpha=1.0):
         txt2 = sep0.join(chars)
         txt2 = txt2.lower()
         toks = txt2.split()
-        if c in token_counts:
-        {
+        if (c in token_counts) {
             token_counts[c] = token_counts[c]
         }
-        else:
-        {
+        else {
+        
             token_counts[c] = {}
             class_token_totals[c] = 0
         }
-        for t in toks:
-        {
-            if t in vocab: { vocab[t] = vocab[t] }
-            else: { vocab[t] = 1 }
-            if t in token_counts[c]: { token_counts[c][t] = token_counts[c][t] + 1 }
-            else: { token_counts[c][t] = 1 }
+        for t in (toks) {
+            if (t in vocab) { vocab[t] = vocab[t] }
+            else { vocab[t] = 1 }
+            if (t in token_counts[c]) { token_counts[c][t] = token_counts[c][t] + 1 }
+            else { token_counts[c][t] = 1 }
             class_token_totals[c] = class_token_totals[c] + 1
         }
     }
     V = 0
-    for _ in vocab: { V = V + 1 }
+    for _ in (vocab) { V = V + 1 }
     model = {"classes": classes, "class_doc_counts": class_doc_counts, "token_counts": token_counts, "class_token_totals": class_token_totals, "vocab_size": V, "alpha": alpha}
     return model
 }
@@ -749,15 +678,13 @@ def naive_bayes_predict_text(model, doc):
     alpha = model["alpha"]
     # total documents
     N = 0
-    for c in classes: { N = N + class_doc_counts[c] }
+    for c in (classes) { N = N + class_doc_counts[c] }
     # inline preprocess/tokenize
     txt = doc
     punct = ".,!;:"
     chars = []
-    for ch in txt:
-    {
-        if punct.find(ch) == -1:
-        {
+    for ch in (txt) {
+        if (punct.find(ch) == -1) {
             chars.append(ch)
         }
     }
@@ -767,24 +694,21 @@ def naive_bayes_predict_text(model, doc):
     toks = txt2.split()
     best_c = classes[0]
     best_score = -1.0
-    for ci in range(len(classes)):
-    {
+    for ci in (range(len(classes))) {
         c = classes[ci]
         prior = class_doc_counts[c] / N
         score = prior
         total_c = class_token_totals[c]
-        for i in range(len(toks)):
-        {
+        for i in (range(len(toks))) {
             t = toks[i]
             count_tc = 0
-            if t in token_counts[c]: { count_tc = token_counts[c][t] }
+            if (t in token_counts[c]) { count_tc = token_counts[c][t] }
             num = count_tc + alpha
             den = total_c + alpha * V
-            if den == 0: { den = 1.0 }
+            if (den == 0) { den = 1.0 }
             score = score * (num / den)
         }
-        if best_score == -1.0 or score > best_score:
-        {
+        if (best_score == -1.0 or score > best_score) {
             best_score = score
             best_c = c
         }
@@ -803,15 +727,13 @@ def naive_bayes_predict_proba_text(model, doc):
     V = model["vocab_size"]
     alpha = model["alpha"]
     N = 0
-    for c in classes: { N = N + class_doc_counts[c] }
+    for c in (classes) { N = N + class_doc_counts[c] }
     # inline preprocess/tokenize
     txt = doc
     punct = ".,!;:"
     chars = []
-    for ch in txt:
-    {
-        if punct.find(ch) == -1:
-        {
+    for ch in (txt) {
+        if (punct.find(ch) == -1) {
             chars.append(ch)
         }
     }
@@ -821,20 +743,18 @@ def naive_bayes_predict_proba_text(model, doc):
     toks = txt2.split()
     scores = {}
     total = 0.0
-    for ci in range(len(classes)):
-    {
+    for ci in (range(len(classes))) {
         c = classes[ci]
         prior = class_doc_counts[c] / N
         s = prior
         total_c = class_token_totals[c]
-        for i in range(len(toks)):
-        {
+        for i in (range(len(toks))) {
             t = toks[i]
             count_tc = 0
-            if t in token_counts[c]: { count_tc = token_counts[c][t] }
+            if (t in token_counts[c]) { count_tc = token_counts[c][t] }
             num = count_tc + alpha
             den = total_c + alpha * V
-            if den == 0: { den = 1.0 }
+            if (den == 0) { den = 1.0 }
             s = s * (num / den)
         }
         scores[c] = s
@@ -842,21 +762,18 @@ def naive_bayes_predict_proba_text(model, doc):
     }
     # normalize
     probs = {}
-    if total == 0.0:
-    {
+    if (total == 0.0) {
         # uniform
         k = len(classes)
-        if k == 0: { return probs }
+        if (k == 0) { return probs }
         val = 1.0 / k
-        for ci in range(len(classes)):
-        {
+        for ci in (range(len(classes))) {
             c = classes[ci]
             probs[c] = val
         }
         return probs
     }
-    for ci in range(len(classes)):
-    {
+    for ci in (range(len(classes))) {
         c = classes[ci]
         probs[c] = scores[c] / total
     }
@@ -879,15 +796,12 @@ def bigram_lm_train(docs, alpha=1.0):
     uni = {}
     bi = {}
     vocab = {}
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         txt = docs[i]
         punct = ".,!;:"
         chars = []
-        for ch in txt:
-        {
-            if punct.find(ch) == -1:
-            {
+        for ch in (txt) {
+            if (punct.find(ch) == -1) {
                 chars.append(ch)
             }
         }
@@ -895,21 +809,19 @@ def bigram_lm_train(docs, alpha=1.0):
         t2 = sep0.join(chars)
         t2 = t2.lower()
         toks = t2.split()
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
-            if w in uni: { uni[w] = uni[w] + 1 } else: { uni[w] = 1 }
-            if w in vocab: { vocab[w] = vocab[w] } else: { vocab[w] = 1 }
-            if (j + 1) < len(toks):
-            {
+            if (w in uni) { uni[w] = uni[w] + 1 } else { uni[w] = 1 }
+            if (w in vocab) { vocab[w] = vocab[w] } else { vocab[w] = 1 }
+            if ((j + 1) < len(toks)) {
                 w2 = toks[j + 1]
-                if w in bi: { bi[w] = bi[w] } else: { bi[w] = {} }
-                if w2 in bi[w]: { bi[w][w2] = bi[w][w2] + 1 } else: { bi[w][w2] = 1 }
+                if (w in bi) { bi[w] = bi[w] } else { bi[w] = {} }
+                if (w2 in bi[w]) { bi[w][w2] = bi[w][w2] + 1 } else { bi[w][w2] = 1 }
             }
         }
     }
     V = 0
-    for _ in vocab: { V = V + 1 }
+    for _ in (vocab) { V = V + 1 }
     model = {"uni": uni, "bi": bi, "V": V, "alpha": alpha}
     return model
 }
@@ -922,15 +834,14 @@ def bigram_lm_probability(model, w1, w2):
     V = model["V"]
     alpha = model["alpha"]
     c1 = 0
-    if w1 in uni: { c1 = uni[w1] }
+    if (w1 in uni) { c1 = uni[w1] }
     c12 = 0
-    if w1 in bi:
-    {
-        if w2 in bi[w1]: { c12 = bi[w1][w2] }
+    if (w1 in bi) {
+        if (w2 in bi[w1]) { c12 = bi[w1][w2] }
     }
     num = c12 + alpha
     den = c1 + alpha * V
-    if den == 0: { den = 1.0 }
+    if (den == 0) { den = 1.0 }
     return num / den
 }
 
@@ -942,15 +853,12 @@ def trigram_lm_train(docs, alpha=1.0):
     bi = {}
     tri = {}
     vocab = {}
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         txt = docs[i]
         punct = ".,!;:"
         chars = []
-        for ch in txt:
-        {
-            if punct.find(ch) == -1:
-            {
+        for ch in (txt) {
+            if (punct.find(ch) == -1) {
                 chars.append(ch)
             }
         }
@@ -958,29 +866,26 @@ def trigram_lm_train(docs, alpha=1.0):
         t2 = sep0.join(chars)
         t2 = t2.lower()
         toks = t2.split()
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w0 = toks[j]
-            if w0 in uni: { uni[w0] = uni[w0] + 1 } else: { uni[w0] = 1 }
-            if w0 in vocab: { vocab[w0] = vocab[w0] } else: { vocab[w0] = 1 }
-            if (j + 1) < len(toks):
-            {
+            if (w0 in uni) { uni[w0] = uni[w0] + 1 } else { uni[w0] = 1 }
+            if (w0 in vocab) { vocab[w0] = vocab[w0] } else { vocab[w0] = 1 }
+            if ((j + 1) < len(toks)) {
                 w1 = toks[j + 1]
-                if w0 in bi: { bi[w0] = bi[w0] } else: { bi[w0] = {} }
-                if w1 in bi[w0]: { bi[w0][w1] = bi[w0][w1] + 1 } else: { bi[w0][w1] = 1 }
+                if (w0 in bi) { bi[w0] = bi[w0] } else { bi[w0] = {} }
+                if (w1 in bi[w0]) { bi[w0][w1] = bi[w0][w1] + 1 } else { bi[w0][w1] = 1 }
             }
-            if (j + 2) < len(toks):
-            {
+            if ((j + 2) < len(toks)) {
                 w1b = toks[j + 1]
                 w2b = toks[j + 2]
-                if w0 in tri: { tri[w0] = tri[w0] } else: { tri[w0] = {} }
-                if w1b in tri[w0]: { tri[w0][w1b] = tri[w0][w1b] } else: { tri[w0][w1b] = {} }
-                if w2b in tri[w0][w1b]: { tri[w0][w1b][w2b] = tri[w0][w1b][w2b] + 1 } else: { tri[w0][w1b][w2b] = 1 }
+                if (w0 in tri) { tri[w0] = tri[w0] } else { tri[w0] = {} }
+                if (w1b in tri[w0]) { tri[w0][w1b] = tri[w0][w1b] } else { tri[w0][w1b] = {} }
+                if (w2b in tri[w0][w1b]) { tri[w0][w1b][w2b] = tri[w0][w1b][w2b] + 1 } else { tri[w0][w1b][w2b] = 1 }
             }
         }
     }
     V = 0
-    for _ in vocab: { V = V + 1 }
+    for _ in (vocab) { V = V + 1 }
     model = {"uni": uni, "bi": bi, "tri": tri, "V": V, "alpha": alpha}
     return model
 }
@@ -994,17 +899,15 @@ def trigram_lm_probability(model, w1, w2, w3):
     alpha = model["alpha"]
     c12 = 0
     c123 = 0
-    if w1 in tri:
-    {
-        if w2 in tri[w1]:
-        {
-            for w in tri[w1][w2]: { c12 = c12 + tri[w1][w2][w] }
-            if w3 in tri[w1][w2]: { c123 = tri[w1][w2][w3] }
+    if (w1 in tri) {
+        if (w2 in tri[w1]) {
+            for w in (tri[w1][w2]) { c12 = c12 + tri[w1][w2][w] }
+            if (w3 in tri[w1][w2]) { c123 = tri[w1][w2][w3] }
         }
     }
     num = c123 + alpha
     den = c12 + alpha * V
-    if den == 0: { den = 1.0 }
+    if (den == 0) { den = 1.0 }
     return num / den
 }
 
@@ -1013,17 +916,15 @@ def trigram_lm_predict_next(model, w1, w2, top_n=3):
 {
     uni = model["uni"]
     cands = []
-    for w3 in uni:
-    {
+    for w3 in (uni) {
         p = trigram_lm_probability(model, w1, w2, w3)
         cands.append([p, w3])
     }
     cands = sorted(cands)
     out = []
     start = len(cands) - top_n
-    if start < 0: { start = 0 }
-    for i in range(len(cands) - 1, start - 1, -1):
-    {
+    if (start < 0) { start = 0 }
+    for i in (range(len(cands) - 1, start - 1, -1)) {
         out.append(cands[i][1])
     }
     return out
@@ -1036,17 +937,15 @@ def bigram_lm_predict_next(model, w1, top_n=3):
     uni = model["uni"]
     # collect candidates
     cands = []
-    for w2 in uni:
-    {
+    for w2 in (uni) {
         p = bigram_lm_probability(model, w1, w2)
         cands.append([p, w2])
     }
     cands = sorted(cands)
     out = []
     start = len(cands) - top_n
-    if start < 0: { start = 0 }
-    for i in range(len(cands) - 1, start - 1, -1):
-    {
+    if (start < 0) { start = 0 }
+    for i in (range(len(cands) - 1, start - 1, -1)) {
         out.append(cands[i][1])
     }
     return out
@@ -1074,47 +973,38 @@ def أفضل_التالي_ثلاثي(نموذج, كلمة1, كلمة2, أعلى=
 def vocab_build(docs, max_features, min_freq):
 {
     freq = {}
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         text = docs[i]
         tokens = tokenize_text(text)
-        for j in range(len(tokens)):
-        {
+        for j in (range(len(tokens))) {
             w = normalize_arabic(tokens[j])  # Normalize tokens
             freq[w] = freq.get(w, 0) + 1
         }
     }
 
     terms = []
-    for w in freq:
-    {
-        if freq[w] >= min_freq:
-        {
+    for w in (freq) {
+        if (freq[w] >= min_freq) {
             terms.append(w)
         }
     }
 
     m = len(terms)
-    for i in range(m):
-    {
+    for i in (range(m)) {
         best = i
-        for j in range(i + 1, m):
-        {
-            if freq[terms[j]] > freq[terms[best]]:
-            {
+        for j in (range(i + 1, m)) {
+            if (freq[terms[j]] > freq[terms[best]]) {
                 best = j
             }
         }
-        if best != i:
-        {
+        if (best != i) {
             tmp = terms[i]
             terms[i] = terms[best]
             terms[best] = tmp
         }
     }
 
-    if len(terms) > max_features:
-    {
+    if (len(terms) > max_features) {
         terms = terms[:max_features]
     }
 
@@ -1124,8 +1014,7 @@ def vocab_build(docs, max_features, min_freq):
 
     token_to_id = {}
     id_to_token = {}
-    for i in range(len(all_terms)):
-    {
+    for i in (range(len(all_terms))) {
         token_to_id[all_terms[i]] = i
         id_to_token[i] = all_terms[i]
     }
@@ -1149,15 +1038,13 @@ def vocab_encode_tokens(tokens, vocab_obj):
     token_to_id = vocab_obj["token_to_id"]
     unk_id = vocab_obj["unk_id"]
     ids = []
-    for i in range(len(tokens)):
-    {
+    for i in (range(len(tokens))) {
         token = normalize_arabic(tokens[i])  # Normalize before lookup
-        if token in token_to_id:
-        {
+        if (token in token_to_id) {
             ids.append(token_to_id[token])
         }
-        else:
-        {
+        else {
+        
             ids.append(unk_id)  # Unknown token
         }
     }
@@ -1171,15 +1058,13 @@ def vocab_decode_ids(ids, vocab_obj):
     id_to_token = vocab_obj["id_to_token"]
     unk_id = vocab_obj["unk_id"]
     tokens = []
-    for i in range(len(ids)):
-    {
+    for i in (range(len(ids))) {
         id_val = ids[i]
-        if id_val in id_to_token:
-        {
+        if (id_val in id_to_token) {
             tokens.append(id_to_token[id_val])
         }
-        else:
-        {
+        else {
+        
             tokens.append(id_to_token[unk_id])  # Unknown ID -> UNK token
         }
     }
@@ -1218,24 +1103,20 @@ def cooccurrence_build(docs, window_size):
     word_id = 0
 
     # Build vocabulary and co-occurrence counts
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         text = docs[i]
         tokens = tokenize_text(text)
 
         # Normalize tokens
         normalized_tokens = []
-        for j in range(len(tokens)):
-        {
+        for j in (range(len(tokens))) {
             normalized_tokens.append(normalize_arabic(tokens[j]))
         }
 
         # Add to vocabulary
-        for j in range(len(normalized_tokens)):
-        {
+        for j in (range(len(normalized_tokens))) {
             word = normalized_tokens[j]
-            if not (word in vocab):
-            {
+            if (not (word in vocab)) {
                 vocab[word] = word_id
                 word_id = word_id + 1
                 cooc[word] = {}
@@ -1243,25 +1124,21 @@ def cooccurrence_build(docs, window_size):
         }
 
         # Count co-occurrences within window
-        for j in range(len(normalized_tokens)):
-        {
+        for j in (range(len(normalized_tokens))) {
             word = normalized_tokens[j]
 
             # Look at context words within window
             start = max(0, j - window_size)
             end = min(len(normalized_tokens), j + window_size + 1)
 
-            for k in range(start, end):
-            {
-                if k != j:
-                {
+            for k in (range(start, end)) {
+                if (k != j) {
                     context_word = normalized_tokens[k]
-                    if context_word in cooc[word]:
-                    {
+                    if (context_word in cooc[word]) {
                         cooc[word][context_word] = cooc[word][context_word] + 1
                     }
-                    else:
-                    {
+                    else {
+                    
                         cooc[word][context_word] = 1
                     }
                 }
@@ -1281,12 +1158,11 @@ def cooccurrence_vector(model, word):
     word_normalized = normalize_arabic(word)
     cooc = model["cooc"]
 
-    if word_normalized in cooc:
-    {
+    if (word_normalized in cooc) {
         return cooc[word_normalized]
     }
-    else:
-    {
+    else {
+    
         return {}
     }
 }
@@ -1301,8 +1177,7 @@ def cooccurrence_similarity(model, word1, word2):
     v2 = cooccurrence_vector(model, word2)
 
     # If either vector is empty, return 0
-    if len(v1) == 0 or len(v2) == 0:
-    {
+    if (len(v1) == 0 or len(v2) == 0) {
         return 0.0
     }
 
@@ -1313,18 +1188,15 @@ def cooccurrence_similarity(model, word1, word2):
 
     # Get all unique context words
     all_words = {}
-    for w in v1:
-    {
+    for w in (v1) {
         all_words[w] = 1
     }
-    for w in v2:
-    {
+    for w in (v2) {
         all_words[w] = 1
     }
 
     # Compute dot product and magnitudes
-    for w in all_words:
-    {
+    for w in (all_words) {
         count1 = v1.get(w, 0)
         count2 = v2.get(w, 0)
 
@@ -1334,8 +1206,7 @@ def cooccurrence_similarity(model, word1, word2):
     }
 
     # Compute cosine similarity
-    if mag1 == 0.0 or mag2 == 0.0:
-    {
+    if (mag1 == 0.0 or mag2 == 0.0) {
         return 0.0
     }
 
@@ -1343,12 +1214,10 @@ def cooccurrence_similarity(model, word1, word2):
     similarity = dot_product / (math.sqrt(mag1) * math.sqrt(mag2))
 
     # Clamp to [0, 1]
-    if similarity < 0.0:
-    {
+    if (similarity < 0.0) {
         similarity = 0.0
     }
-    if similarity > 1.0:
-    {
+    if (similarity > 1.0) {
         similarity = 1.0
     }
 
@@ -1385,13 +1254,11 @@ def char_ngram_vocab_build(docs, n, max_features, min_freq):
     freq = {}
 
     # Extract character n-grams from all documents
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         text = docs[i]
 
         # Generate character n-grams
-        for j in range(len(text) - n + 1):
-        {
+        for j in (range(len(text) - n + 1)) {
             ngram = text[j:j+n]
             freq[ngram] = freq.get(ngram, 0) + 1
         }
@@ -1399,28 +1266,22 @@ def char_ngram_vocab_build(docs, n, max_features, min_freq):
 
     # Filter by min_freq
     filtered = []
-    for ngram in freq:
-    {
-        if freq[ngram] >= min_freq:
-        {
+    for ngram in (freq) {
+        if (freq[ngram] >= min_freq) {
             filtered.append(ngram)
         }
     }
 
     # Sort by frequency (descending)
     sorted_ngrams = []
-    for ngram in filtered:
-    {
+    for ngram in (filtered) {
         sorted_ngrams.append((ngram, freq[ngram]))
     }
 
     # Simple bubble sort by frequency
-    for i in range(len(sorted_ngrams)):
-    {
-        for j in range(i + 1, len(sorted_ngrams)):
-        {
-            if sorted_ngrams[j][1] > sorted_ngrams[i][1]:
-            {
+    for i in (range(len(sorted_ngrams))) {
+        for j in (range(i + 1, len(sorted_ngrams))) {
+            if (sorted_ngrams[j][1] > sorted_ngrams[i][1]) {
                 temp = sorted_ngrams[i]
                 sorted_ngrams[i] = sorted_ngrams[j]
                 sorted_ngrams[j] = temp
@@ -1430,8 +1291,7 @@ def char_ngram_vocab_build(docs, n, max_features, min_freq):
 
     # Take top max_features
     terms = []
-    for i in range(min(max_features, len(sorted_ngrams))):
-    {
+    for i in (range(min(max_features, len(sorted_ngrams)))) {
         terms.append(sorted_ngrams[i][0])
     }
 
@@ -1441,8 +1301,7 @@ def char_ngram_vocab_build(docs, n, max_features, min_freq):
 
     token_to_id = {}
     id_to_token = {}
-    for i in range(len(all_terms)):
-    {
+    for i in (range(len(all_terms))) {
         token_to_id[all_terms[i]] = i
         id_to_token[i] = all_terms[i]
     }
@@ -1469,16 +1328,14 @@ def char_ngram_encode(text, vocab, n):
     ids = []
 
     # Generate character n-grams
-    for i in range(len(text) - n + 1):
-    {
+    for i in (range(len(text) - n + 1)) {
         ngram = text[i:i+n]
 
-        if ngram in token_to_id:
-        {
+        if (ngram in token_to_id) {
             ids.append(token_to_id[ngram])
         }
-        else:
-        {
+        else {
+        
             ids.append(unk_id)
         }
     }
@@ -1508,8 +1365,7 @@ def sequence_add_bos_eos(ids, bos_id, eos_id):
     # Returns: [bos_id] + ids + [eos_id]
 
     result = [bos_id]
-    for i in range(len(ids)):
-    {
+    for i in (range(len(ids))) {
         result.append(ids[i])
     }
     result.append(eos_id)
@@ -1525,29 +1381,24 @@ def sequence_pad(sequences, pad_id, max_len):
 
     padded = []
 
-    for i in range(len(sequences)):
-    {
+    for i in (range(len(sequences))) {
         seq = sequences[i]
         padded_seq = []
 
         # Copy original sequence
-        for j in range(len(seq)):
-        {
+        for j in (range(len(seq))) {
             padded_seq.append(seq[j])
         }
 
         # Pad to max_len
-        while len(padded_seq) < max_len:
-        {
+        while (len(padded_seq) < max_len) {
             padded_seq.append(pad_id)
         }
 
         # Truncate if longer than max_len
-        if len(padded_seq) > max_len:
-        {
+        if (len(padded_seq) > max_len) {
             truncated = []
-            for j in range(max_len):
-            {
+            for j in (range(max_len)) {
                 truncated.append(padded_seq[j])
             }
             padded_seq = truncated
@@ -1568,20 +1419,17 @@ def sequence_batch(sequences, batch_size):
     batches = []
     current_batch = []
 
-    for i in range(len(sequences)):
-    {
+    for i in (range(len(sequences))) {
         current_batch.append(sequences[i])
 
-        if len(current_batch) == batch_size:
-        {
+        if (len(current_batch) == batch_size) {
             batches.append(current_batch)
             current_batch = []
         }
     }
 
     # Add remaining sequences as last batch
-    if len(current_batch) > 0:
-    {
+    if (len(current_batch) > 0) {
         batches.append(current_batch)
     }
 
@@ -1594,14 +1442,12 @@ def sequence_cross_entropy_from_log_probs(log_probs):
     # Compute cross-entropy from log probabilities
     # CE = -mean(log_probs)
 
-    if len(log_probs) == 0:
-    {
+    if (len(log_probs) == 0) {
         return 0.0
     }
 
     sum_log_probs = 0.0
-    for i in range(len(log_probs)):
-    {
+    for i in (range(len(log_probs))) {
         sum_log_probs = sum_log_probs + log_probs[i]
     }
 
@@ -1664,8 +1510,7 @@ def lm_prepare_id_sequences(docs, vocab):
 
     sequences = []
 
-    for i in range(len(docs)):
-    {
+    for i in (range(len(docs))) {
         text = docs[i]
         tokens = tokenize_text(text)
         ids = vocab_encode_tokens(tokens, vocab)
@@ -1686,27 +1531,23 @@ def lm_make_input_target(seqs):
     inputs = []
     targets = []
 
-    for i in range(len(seqs)):
-    {
+    for i in (range(len(seqs))) {
         seq = seqs[i]
 
-        if len(seq) < 2:
-        {
+        if (len(seq) < 2) {
             # Skip sequences that are too short
             continue
         }
 
         # Input is all tokens except last
         input_seq = []
-        for j in range(len(seq) - 1):
-        {
+        for j in (range(len(seq) - 1)) {
             input_seq.append(seq[j])
         }
 
         # Target is all tokens except first
         target_seq = []
-        for j in range(1, len(seq)):
-        {
+        for j in (range(1, len(seq))) {
             target_seq.append(seq[j])
         }
 
@@ -1724,26 +1565,23 @@ def bigram_lm_text_log_probs(model, text):
     # Returns: list of log probabilities
 
     tokens = tokenize_text(text)
-    if len(tokens) < 2:
-    {
+    if (len(tokens) < 2) {
         return []
     }
 
     log_probs = []
 
-    for i in range(len(tokens) - 1):
-    {
+    for i in (range(len(tokens) - 1)) {
         w1 = tokens[i]
         w2 = tokens[i + 1]
         prob = bigram_lm_probability(model, w1, w2)
 
         import math
-        if prob > 0.0:
-        {
+        if (prob > 0.0) {
             log_probs.append(math.log(prob))
         }
-        else:
-        {
+        else {
+        
             # Use a very small probability for zero probabilities
             log_probs.append(math.log(0.0000000001))
         }
@@ -1759,27 +1597,24 @@ def trigram_lm_text_log_probs(model, text):
     # Returns: list of log probabilities
 
     tokens = tokenize_text(text)
-    if len(tokens) < 3:
-    {
+    if (len(tokens) < 3) {
         return []
     }
 
     log_probs = []
 
-    for i in range(len(tokens) - 2):
-    {
+    for i in (range(len(tokens) - 2)) {
         w1 = tokens[i]
         w2 = tokens[i + 1]
         w3 = tokens[i + 2]
         prob = trigram_lm_probability(model, w1, w2, w3)
 
         import math
-        if prob > 0.0:
-        {
+        if (prob > 0.0) {
             log_probs.append(math.log(prob))
         }
-        else:
-        {
+        else {
+        
             # Use a very small probability for zero probabilities
             log_probs.append(math.log(0.0000000001))
         }
@@ -1841,29 +1676,25 @@ def بيربلكسيتي_ثلاثي_من_نص(model, text):
 def bigram_lm_cross_entropy(model, text):
 {
     tokens = tokenize_text(text)
-    if len(tokens) < 2:
-    {
+    if (len(tokens) < 2) {
         return 0.0
     }
 
     log_prob_sum = 0.0
     count = 0
 
-    for i in range(len(tokens) - 1):
-    {
+    for i in (range(len(tokens) - 1)) {
         w1 = tokens[i]
         w2 = tokens[i + 1]
         prob = bigram_lm_probability(model, w1, w2)
-        if prob > 0:
-        {
+        if (prob > 0) {
             import math
             log_prob_sum = log_prob_sum + math.log(prob)
             count = count + 1
         }
     }
 
-    if count == 0:
-    {
+    if (count == 0) {
         return 0.0
     }
 
@@ -1882,30 +1713,26 @@ def bigram_lm_perplexity(model, text):
 def trigram_lm_cross_entropy(model, text):
 {
     tokens = tokenize_text(text)
-    if len(tokens) < 3:
-    {
+    if (len(tokens) < 3) {
         return 0.0
     }
 
     log_prob_sum = 0.0
     count = 0
 
-    for i in range(len(tokens) - 2):
-    {
+    for i in (range(len(tokens) - 2)) {
         w1 = tokens[i]
         w2 = tokens[i + 1]
         w3 = tokens[i + 2]
         prob = trigram_lm_probability(model, w1, w2, w3)
-        if prob > 0:
-        {
+        if (prob > 0) {
             import math
             log_prob_sum = log_prob_sum + math.log(prob)
             count = count + 1
         }
     }
 
-    if count == 0:
-    {
+    if (count == 0) {
         return 0.0
     }
 
@@ -1926,9 +1753,9 @@ def trigram_lm_perplexity(model, text):
 # Helper: ASCII letters/digits check (top-level; avoid nested defs)
 def _tok_is_alnum_en(c):
 {
-    if c >= "a" and c <= "z": { return True }
-    if c >= "0" and c <= "9": { return True }
-    if c >= "A" and c <= "Z": { return True }
+    if (c >= "a" and c <= "z") { return True }
+    if (c >= "0" and c <= "9") { return True }
+    if (c >= "A" and c <= "Z") { return True }
     return False
 }
 
@@ -1939,17 +1766,15 @@ def _tok_simple(text):
 {
     s = text
     t = ""
-    for i in range(len(s)):
-    {
+    for i in (range(len(s))) {
         c = s[i]
-        if _tok_is_alnum_en(c): { t = t + c.lower() }
-        else: { t = t + " " }
+        if (_tok_is_alnum_en(c)) { t = t + c.lower() }
+        else { t = t + " " }
     }
     parts = t.split(" ")
     toks = []
-    for i in range(len(parts)):
-    {
-        if parts[i] != "": { toks.append(parts[i]) }
+    for i in (range(len(parts))) {
+        if (parts[i] != "") { toks.append(parts[i]) }
     }
     return toks
 }
@@ -1964,19 +1789,16 @@ def bm25_build(docs, k1=1.5, b=0.75):
     lengths = []
     dfs = {}
     term_counts = []
-    for i in range(N):
-    {
+    for i in (range(N)) {
         toks = _tok_simple(docs[i])
         tokens_list.append(toks)
         lengths.append(len(toks))
         counts = {}
         seen = {}
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
             counts[w] = counts.get(w, 0) + 1
-            if seen.get(w, False) == False:
-            {
+            if (seen.get(w, False) == False) {
                 dfs[w] = dfs.get(w, 0) + 1
                 seen[w] = True
             }
@@ -1985,9 +1807,9 @@ def bm25_build(docs, k1=1.5, b=0.75):
     }
     # average doc length
     total_len = 0.0
-    for i in range(len(lengths)): { total_len = total_len + lengths[i] }
+    for i in (range(len(lengths))) { total_len = total_len + lengths[i] }
     avgdl = 1.0
-    if N > 0: { avgdl = total_len / (1.0 * N) }
+    if (N > 0) { avgdl = total_len / (1.0 * N) }
     model = {"N": N, "df": dfs, "lengths": lengths, "avgdl": avgdl, "k1": k1, "b": b, "counts": term_counts}
     return model
 }
@@ -2008,48 +1830,42 @@ def bm25_score(model, qtext):
     # precompute query term set (unique)
     q_seen = {}
     q_terms = []
-    for i in range(len(q_toks)):
-    {
+    for i in (range(len(q_toks))) {
         w = q_toks[i]
-        if q_seen.get(w, False) == False:
-        {
+        if (q_seen.get(w, False) == False) {
             q_seen[w] = True
             q_terms.append(w)
         }
     }
     e = 2.718281828
     scores = []
-    for di in range(N):
-    {
+    for di in (range(N)) {
         dl = lengths[di]
         cnts = counts_list[di]
         s = 0.0
-        for ti in range(len(q_terms)):
-        {
+        for ti in (range(len(q_terms))) {
             term = q_terms[ti]
             df = dfs.get(term, 0)
-            if df == 0: { continue }
+            if (df == 0) { continue }
             # idf = ln((N - df + 0.5)/(df + 0.5) + 1)
             num = (1.0 * N) - df + 0.5
             den = df + 0.5
-            if den == 0.0: { den = 1.0 }
+            if (den == 0.0) { den = 1.0 }
             ratio = num / den
             y = ratio + 1.0
             lo = -50.0
             hi = 50.0
             it = 0
-            while it < 40:
-            {
+            while (it < 40) {
                 mid = (lo + hi) / 2.0
                 val = pow(e, mid)
-                if val < y: { lo = mid }
-                else: { hi = mid }
+                if (val < y) { lo = mid }
+                else { hi = mid }
                 it = it + 1
             }
             idf = (lo + hi) / 2.0
             tf = cnts.get(term, 0)
-            if tf > 0:
-            {
+            if (tf > 0) {
                 K = k1 * (1.0 - b + b * (dl / avgdl))
                 s = s + idf * ( (tf * (k1 + 1.0)) / (tf + K) )
             }
@@ -2065,25 +1881,22 @@ def jaccard_similarity(list1, list2):
 {
     a = {}
     b = {}
-    for i in range(len(list1)):
-    {
+    for i in (range(len(list1))) {
         a[list1[i]] = 1
     }
-    for i in range(len(list2)):
-    {
+    for i in (range(len(list2))) {
         b[list2[i]] = 1
     }
     inter = 0
     ua = 0
-    for k in a: { ua = ua + 1 }
+    for k in (a) { ua = ua + 1 }
     ub = 0
-    for k in b: { ub = ub + 1 }
-    for k in a:
-    {
-        if b.get(k, 0) != 0: { inter = inter + 1 }
+    for k in (b) { ub = ub + 1 }
+    for k in (a) {
+        if (b.get(k, 0) != 0) { inter = inter + 1 }
     }
     uni = ua + ub - inter
-    if uni == 0: { return 0.0 }
+    if (uni == 0) { return 0.0 }
     return inter / (1.0 * uni)
 }
 
@@ -2093,25 +1906,22 @@ def dice_similarity(list1, list2):
 {
     a = {}
     b = {}
-    for i in range(len(list1)):
-    {
+    for i in (range(len(list1))) {
         a[list1[i]] = True
     }
-    for j in range(len(list2)):
-    {
+    for j in (range(len(list2))) {
         b[list2[j]] = True
     }
     inter = 0
     sa = 0
     sb = 0
-    for k in a:
-    {
+    for k in (a) {
         sa = sa + 1
-        if b.get(k, False): { inter = inter + 1 }
+        if (b.get(k, False)) { inter = inter + 1 }
     }
-    for k in b: { sb = sb + 1 }
+    for k in (b) { sb = sb + 1 }
     denom = sa + sb
-    if denom == 0: { return 0.0 }
+    if (denom == 0) { return 0.0 }
     return (2.0 * inter) / (1.0 * denom)
 }
 
@@ -2121,20 +1931,19 @@ def overlap_coefficient(list1, list2):
 {
     a = {}
     b = {}
-    for i in range(len(list1)): { a[list1[i]] = True }
-    for j in range(len(list2)): { b[list2[j]] = True }
+    for i in (range(len(list1))) { a[list1[i]] = True }
+    for j in (range(len(list2))) { b[list2[j]] = True }
     inter = 0
     sa = 0
     sb = 0
-    for k in a:
-    {
+    for k in (a) {
         sa = sa + 1
-        if b.get(k, False): { inter = inter + 1 }
+        if (b.get(k, False)) { inter = inter + 1 }
     }
-    for k in b: { sb = sb + 1 }
+    for k in (b) { sb = sb + 1 }
     denom = sa
-    if sb < denom: { denom = sb }
-    if denom == 0: { return 0.0 }
+    if (sb < denom) { denom = sb }
+    if (denom == 0) { return 0.0 }
     return inter / (1.0 * denom)
 }
 
@@ -2155,20 +1964,17 @@ def compute_tfidf_vocab_limit(docs, max_features=100, sublinear_tf=True, smooth_
     n = len(docs)
     tokens_list = []
     # tokenize
-    for i in range(n): { tokens_list.append(_tok_simple(docs[i])) }
+    for i in (range(n)) { tokens_list.append(_tok_simple(docs[i])) }
     # df and total counts
     df = {}
     tot_counts = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         seen = {}
         toks = tokens_list[i]
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
             tot_counts[w] = tot_counts.get(w, 0) + 1
-            if seen.get(w, False) == False:
-            {
+            if (seen.get(w, False) == False) {
                 df[w] = df.get(w, 0) + 1
                 seen[w] = True
             }
@@ -2176,19 +1982,16 @@ def compute_tfidf_vocab_limit(docs, max_features=100, sublinear_tf=True, smooth_
     }
     # build sortable list [df, tot, term]
     trip = []
-    for term in df:
-    {
+    for term in (df) {
         dfi = df[term]
         tci = tot_counts.get(term, 0)
         trip.append([dfi, tci, term])
     }
     m = len(trip)
     # selection sort by df desc, then tot desc, then term asc
-    for i in range(m):
-    {
+    for i in (range(m)) {
         best = i
-        for j in range(i + 1, m):
-        {
+        for j in (range(i + 1, m)) {
             d1 = trip[j][0]
             t1 = trip[j][1]
             s1 = trip[j][2]
@@ -2196,16 +1999,14 @@ def compute_tfidf_vocab_limit(docs, max_features=100, sublinear_tf=True, smooth_
             t2 = trip[best][1]
             s2 = trip[best][2]
             take = False
-            if d1 > d2: { take = True }
-            elif d1 == d2:
-            {
-                if t1 > t2: { take = True }
-                elif t1 == t2:
-                {
-                    if s1 < s2: { take = True }
+            if (d1 > d2) { take = True }
+            elif (d1 == d2) {
+                if (t1 > t2) { take = True }
+                elif (t1 == t2) {
+                    if (s1 < s2) { take = True }
                 }
             }
-            if take == True: { best = j }
+            if (take == True) { best = j }
         }
         tmp = trip[i]
         trip[i] = trip[best]
@@ -2214,68 +2015,58 @@ def compute_tfidf_vocab_limit(docs, max_features=100, sublinear_tf=True, smooth_
     # allowed set
     allowed = {}
     topk = max_features
-    if topk > m: { topk = m }
-    for i in range(topk):
-    {
+    if (topk > m) { topk = m }
+    for i in (range(topk)) {
         term = trip[i][2]
         allowed[term] = True
     }
     # idf for allowed terms
     e = 2.718281828
     idf = {}
-    for term in allowed:
-    {
-        if smooth_idf == True:
-        {
+    for term in (allowed) {
+        if (smooth_idf == True) {
             y = 1.0 + (1.0 * n) / (df.get(term, 0) + 1.0)
         }
-        else:
-        {
-            if df.get(term, 0) == 0: { y = 1.0 }
-            else: { y = (1.0 * n) / df.get(term, 0) }
+        else {
+        
+            if (df.get(term, 0) == 0) { y = 1.0 }
+            else { y = (1.0 * n) / df.get(term, 0) }
         }
         lo = -50.0
         hi = 50.0
         it = 0
-        while it < 40:
-        {
+        while (it < 40) {
             mid = (lo + hi) / 2.0
             val = pow(e, mid)
-            if val < y: { lo = mid } else: { hi = mid }
+            if (val < y) { lo = mid } else { hi = mid }
             it = it + 1
         }
         idf[term] = (lo + hi) / 2.0
     }
     # vecs per doc
     vecs = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         toks = tokens_list[i]
         counts = {}
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
             counts[w] = counts.get(w, 0) + 1
         }
         vec = {}
-        for w in counts:
-        {
-            if allowed.get(w, False) == True:
-            {
+        for w in (counts) {
+            if (allowed.get(w, False) == True) {
                 cnt = 1.0 * counts[w]
                 tfw = cnt
-                if sublinear_tf == True:
-                {
+                if (sublinear_tf == True) {
                     y = cnt
-                    if y < 1.0: { y = 1.0 }
+                    if (y < 1.0) { y = 1.0 }
                     lo = -50.0
                     hi = 50.0
                     it = 0
-                    while it < 40:
-                    {
+                    while (it < 40) {
                         mid = (lo + hi) / 2.0
                         val = pow(e, mid)
-                        if val < y: { lo = mid } else: { hi = mid }
+                        if (val < y) { lo = mid } else { hi = mid }
                         it = it + 1
                     }
                     ln_cnt = (lo + hi) / 2.0
@@ -2302,29 +2093,25 @@ def levenshtein_distance(s1, s2):
     m = len(s2)
     # dp matrix (n+1) x (m+1)
     dp = []
-    for i in range(n + 1):
-    {
+    for i in (range(n + 1)) {
         row = []
-        for j in range(m + 1):
-        {
+        for j in (range(m + 1)) {
             row.append(0)
         }
         dp.append(row)
     }
-    for i in range(n + 1): { dp[i][0] = i }
-    for j in range(m + 1): { dp[0][j] = j }
-    for i in range(1, n + 1):
-    {
-        for j in range(1, m + 1):
-        {
+    for i in (range(n + 1)) { dp[i][0] = i }
+    for j in (range(m + 1)) { dp[0][j] = j }
+    for i in (range(1, n + 1)) {
+        for j in (range(1, m + 1)) {
             cost = 0
-            if s1[i - 1] == s2[j - 1]: { cost = 0 } else: { cost = 1 }
+            if (s1[i - 1] == s2[j - 1]) { cost = 0 } else { cost = 1 }
             a = dp[i - 1][j] + 1      # deletion
             b = dp[i][j - 1] + 1      # insertion
             c = dp[i - 1][j - 1] + cost  # substitution
             best = a
-            if b < best: { best = b }
-            if c < best: { best = c }
+            if (b < best) { best = b }
+            if (c < best) { best = c }
             dp[i][j] = best
         }
     }
@@ -2340,27 +2127,23 @@ def مسافة_ليفنشتاين(نص1, نص2):
     n = len(s1)
     m = len(s2)
     dp = []
-    for i in range(n + 1):
-    {
+    for i in (range(n + 1)) {
         row = []
-        for j in range(m + 1):
-        { row.append(0) }
+        for j in (range(m + 1)) { row.append(0) }
         dp.append(row)
     }
-    for i in range(n + 1): { dp[i][0] = i }
-    for j in range(m + 1): { dp[0][j] = j }
-    for i in range(1, n + 1):
-    {
-        for j in range(1, m + 1):
-        {
+    for i in (range(n + 1)) { dp[i][0] = i }
+    for j in (range(m + 1)) { dp[0][j] = j }
+    for i in (range(1, n + 1)) {
+        for j in (range(1, m + 1)) {
             cost = 0
-            if s1[i - 1] == s2[j - 1]: { cost = 0 } else: { cost = 1 }
+            if (s1[i - 1] == s2[j - 1]) { cost = 0 } else { cost = 1 }
             a = dp[i - 1][j] + 1
             b = dp[i][j - 1] + 1
             c = dp[i - 1][j - 1] + cost
             best = a
-            if b < best: { best = b }
-            if c < best: { best = c }
+            if (b < best) { best = b }
+            if (c < best) { best = c }
             dp[i][j] = best
         }
     }
@@ -2375,32 +2158,27 @@ def damerau_levenshtein_distance(s1, s2):
     n = len(s1)
     m = len(s2)
     dp = []
-    for i in range(n + 1):
-    {
+    for i in (range(n + 1)) {
         row = []
-        for j in range(m + 1): { row.append(0) }
+        for j in (range(m + 1)) { row.append(0) }
         dp.append(row)
     }
-    for i in range(n + 1): { dp[i][0] = i }
-    for j in range(m + 1): { dp[0][j] = j }
-    for i in range(1, n + 1):
-    {
-        for j in range(1, m + 1):
-        {
+    for i in (range(n + 1)) { dp[i][0] = i }
+    for j in (range(m + 1)) { dp[0][j] = j }
+    for i in (range(1, n + 1)) {
+        for j in (range(1, m + 1)) {
             cost = 0
-            if s1[i - 1] == s2[j - 1]: { cost = 0 } else: { cost = 1 }
+            if (s1[i - 1] == s2[j - 1]) { cost = 0 } else { cost = 1 }
             a = dp[i - 1][j] + 1
             b = dp[i][j - 1] + 1
             c = dp[i - 1][j - 1] + cost
             best = a
-            if b < best: { best = b }
-            if c < best: { best = c }
-            if i > 1 and j > 1:
-            {
-                if s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]:
-                {
+            if (b < best) { best = b }
+            if (c < best) { best = c }
+            if (i > 1 and j > 1) {
+                if (s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]) {
                     t = dp[i - 2][j - 2] + 1
-                    if t < best: { best = t }
+                    if (t < best) { best = t }
                 }
             }
             dp[i][j] = best
@@ -2421,43 +2199,36 @@ def مسافة_دامراو_ليفنشتاين(نص1, نص2): { return damerau_l
 def cosine_similarity(list1, list2):
 {
     counts1 = {}
-    for i in range(len(list1)):
-    {
+    for i in (range(len(list1))) {
         w = list1[i]
         counts1[w] = counts1.get(w, 0) + 1
     }
     counts2 = {}
-    for i in range(len(list2)):
-    {
+    for i in (range(len(list2))) {
         w = list2[i]
         counts2[w] = counts2.get(w, 0) + 1
     }
     dot = 0.0
-    for w in counts1:
-    {
+    for w in (counts1) {
         v1 = 1.0 * counts1[w]
         v2 = 1.0 * counts2.get(w, 0)
         dot = dot + v1 * v2
     }
     n1 = 0.0
-    for w in counts1:
-    {
+    for w in (counts1) {
         v = 1.0 * counts1[w]
         n1 = n1 + v * v
     }
     n2 = 0.0
-    for w in counts2:
-    {
+    for w in (counts2) {
         v = 1.0 * counts2[w]
         n2 = n2 + v * v
     }
-    if n1 <= 0.0 or n2 <= 0.0:
-    {
+    if (n1 <= 0.0 or n2 <= 0.0) {
         return 0.0
     }
     denom = pow(n1, 0.5) * pow(n2, 0.5)
-    if denom == 0.0:
-    {
+    if (denom == 0.0) {
         return 0.0
     }
     return dot / denom
@@ -2468,43 +2239,36 @@ def cosine_similarity(list1, list2):
 def تشابه_جيبي(قائمة1, قائمة2):
 {
     counts1 = {}
-    for i in range(len(قائمة1)):
-    {
+    for i in (range(len(قائمة1))) {
         w = قائمة1[i]
         counts1[w] = counts1.get(w, 0) + 1
     }
     counts2 = {}
-    for i in range(len(قائمة2)):
-    {
+    for i in (range(len(قائمة2))) {
         w = قائمة2[i]
         counts2[w] = counts2.get(w, 0) + 1
     }
     dot = 0.0
-    for w in counts1:
-    {
+    for w in (counts1) {
         v1 = 1.0 * counts1[w]
         v2 = 1.0 * counts2.get(w, 0)
         dot = dot + v1 * v2
     }
     n1 = 0.0
-    for w in counts1:
-    {
+    for w in (counts1) {
         v = 1.0 * counts1[w]
         n1 = n1 + v * v
     }
     n2 = 0.0
-    for w in counts2:
-    {
+    for w in (counts2) {
         v = 1.0 * counts2[w]
         n2 = n2 + v * v
     }
-    if n1 <= 0.0 or n2 <= 0.0:
-    {
+    if (n1 <= 0.0 or n2 <= 0.0) {
         return 0.0
     }
     denom = pow(n1, 0.5) * pow(n2, 0.5)
-    if denom == 0.0:
-    {
+    if (denom == 0.0) {
         return 0.0
     }
     return dot / denom
@@ -2515,24 +2279,20 @@ def تشابه_جيبي(قائمة1, قائمة2):
 def similarity(list1, list2, metric):
 {
     m = metric
-    if m == "jaccard":
-    {
+    if (m == "jaccard") {
         return jaccard_similarity(list1, list2)
     }
-    elif m == "dice":
-    {
+    elif (m == "dice") {
         return dice_similarity(list1, list2)
     }
-    elif m == "cosine":
-    {
+    elif (m == "cosine") {
         return cosine_similarity(list1, list2)
     }
-    elif m == "overlap":
-    {
+    elif (m == "overlap") {
         return overlap_coefficient(list1, list2)
     }
-    else:
-    {
+    else {
+    
         return 0.0
     }
 }
@@ -2551,46 +2311,40 @@ def bm25_score_with_term_weights(model, qtext, weights):
     q_toks = _tok_simple(qtext)
     q_seen = {}
     q_terms = []
-    for i in range(len(q_toks)):
-    {
+    for i in (range(len(q_toks))) {
         w = q_toks[i]
-        if q_seen.get(w, False) == False:
-        {
+        if (q_seen.get(w, False) == False) {
             q_seen[w] = True
             q_terms.append(w)
         }
     }
     e = 2.718281828
     scores = []
-    for di in range(N):
-    {
+    for di in (range(N)) {
         dl = lengths[di]
         cnts = counts_list[di]
         s = 0.0
-        for ti in range(len(q_terms)):
-        {
+        for ti in (range(len(q_terms))) {
             term = q_terms[ti]
             df = dfs.get(term, 0)
-            if df == 0: { continue }
+            if (df == 0) { continue }
             num = (1.0 * N) - df + 0.5
             den = df + 0.5
-            if den == 0.0: { den = 1.0 }
+            if (den == 0.0) { den = 1.0 }
             ratio = num / den
             y = ratio + 1.0
             lo = -50.0
             hi = 50.0
             it = 0
-            while it < 40:
-            {
+            while (it < 40) {
                 mid = (lo + hi) / 2.0
                 val = pow(e, mid)
-                if val < y: { lo = mid } else: { hi = mid }
+                if (val < y) { lo = mid } else { hi = mid }
                 it = it + 1
             }
             idf = (lo + hi) / 2.0
             tf = cnts.get(term, 0)
-            if tf > 0:
-            {
+            if (tf > 0) {
                 K = k1 * (1.0 - b + b * (dl / avgdl))
                 wmult = 1.0 * weights.get(term, 1.0)
                 s = s + wmult * idf * ( (tf * (k1 + 1.0)) / (tf + K) )
@@ -2624,19 +2378,16 @@ def bm25_top_k(model, qtext, k=5):
     out = []
     # Select top k via simple selection
     kk = k
-    if kk > n: { kk = n }
+    if (kk > n) { kk = n }
     i = 0
-    while i < kk:
-    {
+    while (i < kk) {
         # find max
         max_idx = 0
         max_val = -1.0
         j = 0
-        while j < n:
-        {
+        while (j < n) {
             val = scores[j]
-            if val > max_val:
-            {
+            if (val > max_val) {
                 max_val = val
                 max_idx = j
             }
@@ -2667,12 +2418,10 @@ def lcs_length(s1, s2):
     # build (n+1) x (m+1) table of zeros
     dp = []
     i = 0
-    while i < n + 1:
-    {
+    while (i < n + 1) {
         row = []
         j = 0
-        while j < m + 1:
-        {
+        while (j < m + 1) {
             row.append(0)
             j = j + 1
         }
@@ -2680,22 +2429,19 @@ def lcs_length(s1, s2):
         i = i + 1
     }
     i = 1
-    while i <= n:
-    {
+    while (i <= n) {
         j = 1
-        while j <= m:
-        {
+        while (j <= m) {
             a = s1[i - 1]
             b = s2[j - 1]
-            if a == b:
-            {
+            if (a == b) {
                 dp[i][j] = dp[i - 1][j - 1] + 1
             }
-            else:
-            {
+            else {
+            
                 v1 = dp[i - 1][j]
                 v2 = dp[i][j - 1]
-                if v1 > v2: { dp[i][j] = v1 } else: { dp[i][j] = v2 }
+                if (v1 > v2) { dp[i][j] = v1 } else { dp[i][j] = v2 }
             }
             j = j + 1
         }
@@ -2713,10 +2459,9 @@ def jaccard_char_ngrams(text1, text2, n=3):
     # text1 n-grams
     L1 = len(text1)
     max1 = L1 - n + 1
-    if max1 < 0: { max1 = 0 }
+    if (max1 < 0) { max1 = 0 }
     i = 0
-    while i < max1:
-    {
+    while (i < max1) {
         j = i + n
         g = text1[i:j]
         set1[g] = 1
@@ -2725,10 +2470,9 @@ def jaccard_char_ngrams(text1, text2, n=3):
     # text2 n-grams
     L2 = len(text2)
     max2 = L2 - n + 1
-    if max2 < 0: { max2 = 0 }
+    if (max2 < 0) { max2 = 0 }
     i = 0
-    while i < max2:
-    {
+    while (i < max2) {
         j = i + n
         g = text2[i:j]
         set2[g] = 1
@@ -2737,11 +2481,11 @@ def jaccard_char_ngrams(text1, text2, n=3):
     inter = 0
     union = 0
     # union count
-    for k in set1: { union = union + 1 }
-    for k in set2: { if not (k in set1): { union = union + 1 } }
+    for k in (set1) { union = union + 1 }
+    for k in (set2) { if (not (k in set1)) { union = union + 1 } }
     # intersection count
-    for k in set1: { if k in set2: { inter = inter + 1 } }
-    if union == 0: { return 0.0 }
+    for k in (set1) { if (k in set2) { inter = inter + 1 } }
+    if (union == 0) { return 0.0 }
     return inter / union
 }
 
@@ -2760,39 +2504,35 @@ def jaro_similarity(s1, s2):
 {
     n = len(s1)
     m = len(s2)
-    if n == 0 and m == 0: { return 1.0 }
-    if n == 0 or m == 0: { return 0.0 }
-    if s1 == s2: { return 1.0 }
+    if (n == 0 and m == 0) { return 1.0 }
+    if (n == 0 or m == 0) { return 0.0 }
+    if (s1 == s2) { return 1.0 }
     # match distance = floor(max(n,m)/2) - 1
     mm = n
-    if m > n: { mm = m }
+    if (m > n) { mm = m }
     half = 0
     r = mm
-    while r >= 2:
-    {
+    while (r >= 2) {
         r = r - 2
         half = half + 1
     }
     md = half - 1
-    if md < 0: { md = 0 }
+    if (md < 0) { md = 0 }
     matched1 = []
     matched2 = []
-    for i in range(n): { matched1.append(0) }
-    for j in range(m): { matched2.append(0) }
+    for i in (range(n)) { matched1.append(0) }
+    for j in (range(m)) { matched2.append(0) }
     matches = 0
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         start = i - md
-        if start < 0: { start = 0 }
+        if (start < 0) { start = 0 }
         end = i + md + 1
-        if end > m: { end = m }
+        if (end > m) { end = m }
         j = start
         found = 0
-        while j < end:
-        {
-            if matched2[j] == 0 and s1[i] == s2[j]:
-            {
+        while (j < end) {
+            if (matched2[j] == 0 and s1[i] == s2[j]) {
                 matched1[i] = 1
                 matched2[j] = 1
                 matches = matches + 1
@@ -2803,19 +2543,16 @@ def jaro_similarity(s1, s2):
         }
         i = i + 1
     }
-    if matches == 0: { return 0.0 }
+    if (matches == 0) { return 0.0 }
     # count transpositions
     t = 0
     k = 0
     i = 0
-    while i < n:
-    {
-        if matched1[i] == 1:
-        {
-            while k < m and matched2[k] == 0: { k = k + 1 }
-            if k < m:
-            {
-                if s1[i] != s2[k]: { t = t + 1 }
+    while (i < n) {
+        if (matched1[i] == 1) {
+            while (k < m and matched2[k] == 0) { k = k + 1 }
+            if (k < m) {
+                if (s1[i] != s2[k]) { t = t + 1 }
                 k = k + 1
             }
         }
@@ -2842,12 +2579,11 @@ def jaro_winkler_similarity(s1, s2, p=0.1, max_prefix=4):
     n1 = len(s1)
     n2 = len(s2)
     limit = max_prefix
-    if limit > n1: { limit = n1 }
-    if limit > n2: { limit = n2 }
-    while i < limit:
-    {
-        if s1[i] == s2[i]: { l = l + 1 }
-        else: { break }
+    if (limit > n1) { limit = n1 }
+    if (limit > n2) { limit = n2 }
+    while (i < limit) {
+        if (s1[i] == s2[i]) { l = l + 1 }
+        else { break }
         i = i + 1
     }
     return j + (l * p * (1.0 - j))
@@ -2861,10 +2597,9 @@ def dice_char_ngrams(text1, text2, n=2):
     set2 = {}
     L1 = len(text1)
     max1 = L1 - n + 1
-    if max1 < 0: { max1 = 0 }
+    if (max1 < 0) { max1 = 0 }
     i = 0
-    while i < max1:
-    {
+    while (i < max1) {
         j = i + n
         g = text1[i:j]
         set1[g] = 1
@@ -2872,10 +2607,9 @@ def dice_char_ngrams(text1, text2, n=2):
     }
     L2 = len(text2)
     max2 = L2 - n + 1
-    if max2 < 0: { max2 = 0 }
+    if (max2 < 0) { max2 = 0 }
     i = 0
-    while i < max2:
-    {
+    while (i < max2) {
         j = i + n
         g = text2[i:j]
         set2[g] = 1
@@ -2884,11 +2618,11 @@ def dice_char_ngrams(text1, text2, n=2):
     inter = 0
     s1sz = 0
     s2sz = 0
-    for k in set1: { s1sz = s1sz + 1 }
-    for k in set2: { s2sz = s2sz + 1 }
-    for k in set1: { if k in set2: { inter = inter + 1 } }
+    for k in (set1) { s1sz = s1sz + 1 }
+    for k in (set2) { s2sz = s2sz + 1 }
+    for k in (set1) { if (k in set2) { inter = inter + 1 } }
     denom = s1sz + s2sz
-    if denom == 0: { return 0.0 }
+    if (denom == 0) { return 0.0 }
     return (2.0 * inter) / (denom * 1.0)
 }
 
@@ -2910,19 +2644,16 @@ def soft_tfidf_build(docs, sim_threshold=0.9):
 {
     N = len(docs)
     tokens_list = []
-    for i in range(N): { tokens_list.append(_tok_simple(docs[i])) }
+    for i in (range(N)) { tokens_list.append(_tok_simple(docs[i])) }
     # document frequency
     df = {}
     terms_seen = {}
-    for i in range(N):
-    {
+    for i in (range(N)) {
         seen = {}
         toks = tokens_list[i]
-        for j in range(len(toks)):
-        {
+        for j in (range(len(toks))) {
             w = toks[j]
-            if seen.get(w, 0) == 0:
-            {
+            if (seen.get(w, 0) == 0) {
                 df[w] = df.get(w, 0) + 1
                 seen[w] = 1
             }
@@ -2930,11 +2661,10 @@ def soft_tfidf_build(docs, sim_threshold=0.9):
     }
     # terms list
     terms = []
-    for t in df: { terms.append(t) }
+    for t in (df) { terms.append(t) }
     # idf without log for portability: 1 + N/(df+1)
     idf = {}
-    for t in df:
-    {
+    for t in (df) {
         idf[t] = 1.0 + (1.0 * N) / (df[t] + 1.0)
     }
     model = {"terms": terms, "idf": idf, "threshold": sim_threshold}
@@ -2950,21 +2680,18 @@ def soft_tfidf_vector(text, model):
     thr = model["threshold"]
     toks = _tok_simple(text)
     m = len(toks)
-    if m == 0: { return {} }
+    if (m == 0) { return {} }
     vec = {}
-    for ti in range(len(terms)):
-    {
+    for ti in (range(len(terms))) {
         t = terms[ti]
         tf_soft = 0.0
-        for i in range(m):
-        {
+        for i in (range(m)) {
             w = toks[i]
             # Jaro-Winkler similarity
             s = jaro_winkler_similarity(w, t, 0.1, 4)
-            if s >= thr: { tf_soft = tf_soft + s }
+            if (s >= thr) { tf_soft = tf_soft + s }
         }
-        if tf_soft > 0.0:
-        {
+        if (tf_soft > 0.0) {
             vec[t] = (tf_soft / m) * idf.get(t, 1.0)
         }
     }

@@ -340,7 +340,7 @@
 ```bayan
 هجين {
     def check_age(age): {
-        if age < 0: {
+        if (age < 0) {
             raise ValueError("العمر لا يمكن أن يكون سالباً")
         }
         return age

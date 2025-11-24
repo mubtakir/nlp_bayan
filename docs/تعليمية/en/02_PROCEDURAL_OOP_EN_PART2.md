@@ -11,8 +11,8 @@ Here we check whether `x` is greater than, equal to, or less than `5` and print 
 ```bayan
 hybrid {
     x = 10
-    if x > 5: { print("x > 5") }
-    elif x == 5: { print("x == 5") }
+    if (x > 5) { print("x > 5") }
+    elif (x == 5) { print("x == 5") }
     else: { print("x < 5") }
 }
 ```
@@ -23,9 +23,9 @@ Bayan supports both `for` and `while` loops. `for` is great when you know how ma
 In this example, we loop forward with `range(3)` and then count down with a `while` loop.
 ```bayan
 hybrid {
-    for i in range(3): { print(i) }
+    for i in (range(3)) { print(i) }
     i = 2
-    while i >= 0: { print(i); i = i - 1 }
+    while (i >= 0) { print(i); i = i - 1 }
 }
 ```
 
@@ -49,7 +49,7 @@ In this example we check `b == 0` inside the `div` function, print an error mess
 ```bayan
 hybrid {
     def div(a, b): {
-        if b == 0: { print("Error: division by zero"); return None }
+        if (b == 0) { print("Error: division by zero"); return None }
         return a / b
     }
     print(str(div(10, 2)))

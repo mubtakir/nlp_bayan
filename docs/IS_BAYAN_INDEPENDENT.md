@@ -41,7 +41,7 @@ Bayan has a different syntax from Python:
 ```bayan
 # بيان: كتل بالأقواس المعقوفة (لا تعتمد على المسافات)
 # Bayan: Blocks with braces (no indentation required)
-if x > 5: {
+if (x > 5) {
     print("greater")
 }
 

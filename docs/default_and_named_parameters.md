@@ -122,8 +122,7 @@ user4 = create_user(name="سارة", age=30, active=False)
 def power(base, exponent=2):
 {
     result = 1
-    for i in range(exponent):
-    {
+    for i in (range(exponent)) {
         result = result * base
     }
     return result
@@ -149,8 +148,7 @@ area3 = rectangle_area(height=10, width=5)
 ```bayan
 def format_text(text, prefix=">>", suffix="<<", uppercase=False):
 {
-    if uppercase:
-    {
+    if (uppercase) {
         text = text.upper()
     }
     return prefix + " " + text + " " + suffix

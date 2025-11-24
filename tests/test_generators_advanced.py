@@ -14,7 +14,7 @@ def test_generator_with_try_except():
     """Test generator with yield inside try/except block"""
     code = """
 def safe_divide(numbers, divisor): {
-    for num in numbers: {
+    for num in (numbers) {
         try: {
             yield num / divisor
         } except ZeroDivisionError as e: {
@@ -43,7 +43,7 @@ def test_generator_with_exception_caught():
     """Test generator that catches exceptions and yields error values"""
     code = """
 def safe_process(items): {
-    for item in items: {
+    for item in (items) {
         try: {
             result = 10 / item
             yield result
@@ -75,7 +75,7 @@ def test_generator_with_finally():
 cleanup_count = 0
 
 def generator_with_cleanup(items): {
-    for item in items: {
+    for item in (items) {
         try: {
             yield item * 2
         } finally: {
@@ -107,7 +107,7 @@ def test_generator_with_nested_try():
     """Test generator with nested try/except blocks"""
     code = """
 def nested_try_generator(items): {
-    for item in items: {
+    for item in (items) {
         try: {
             try: {
                 yield 100 / item
@@ -143,9 +143,9 @@ def test_generator_yield_in_except_block():
     """Test yielding from except block itself"""
     code = """
 def error_reporter(operations): {
-    for op in operations: {
+    for op in (operations) {
         try: {
-            if op == "error": {
+            if (op == "error") {
                 x = 1 / 0
             } else: {
                 yield "ok"
@@ -176,9 +176,9 @@ def test_generator_yield_in_finally():
     """Test yielding from finally block"""
     code = """
 def generator_with_finally_yield(items): {
-    for item in items: {
+    for item in (items) {
         try: {
-            if item > 5: {
+            if (item > 5) {
                 yield item
             }
         } finally: {

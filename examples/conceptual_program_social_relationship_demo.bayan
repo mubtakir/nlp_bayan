@@ -41,14 +41,12 @@ hybrid {
         roles = circuit_output["roles"]
         bridges = circuit_output["bridge_structures"]
 
-        for i in range(len(pairs)):
-        {
+        for i in (range(len(pairs))) {
             pair = pairs[i]
             role_key = pair[0]
             bridge_key = pair[1]
 
-            if role_key in roles and bridge_key in bridges:
-            {
+            if (role_key in roles and bridge_key in bridges) {
                 bridge = bridges[bridge_key]
                 result = lm_bridge.build_lm_examples_for_structure(
                     local_trace,
@@ -59,8 +57,7 @@ hybrid {
                 )
 
                 exs = result["examples"]
-                for j in range(len(exs)):
-                {
+                for j in (range(len(exs))) {
                     examples.append(exs[j])
                 }
             }
@@ -114,8 +111,7 @@ hybrid {
 
     # Show a few examples
     print("Sample LM examples (first 6):")
-    for i in range(min(6, len(examples))):
-    {
+    for i in (range(min(6, len(examples)))) {
         ex = examples[i]
         print("  [" + str(i+1) + "]")
         print("      " + str(ex))

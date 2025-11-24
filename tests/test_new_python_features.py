@@ -200,16 +200,16 @@ def test_all_true():
     code = """
 lst1 = [True, True, True]
 result1 = True
-for item in lst1: {
-    if not item: {
+for item in (lst1) {
+    if (not item) {
         result1 = False
     }
 }
 
 lst2 = [True, False, True]
 result2 = True
-for item in lst2: {
-    if not item: {
+for item in (lst2) {
+    if (not item) {
         result2 = False
     }
 }
@@ -224,16 +224,16 @@ def test_any_true():
     code = """
 lst1 = [False, False, False]
 result1 = False
-for item in lst1: {
-    if item: {
+for item in (lst1) {
+    if (item) {
         result1 = True
     }
 }
 
 lst2 = [False, True, False]
 result2 = False
-for item in lst2: {
-    if item: {
+for item in (lst2) {
+    if (item) {
         result2 = True
     }
 }
@@ -259,8 +259,8 @@ def test_flatten():
     code = """
 nested = [[1, 2], [3, 4], [5, 6]]
 result = []
-for sublist in nested: {
-    for item in sublist: {
+for sublist in (nested) {
+    for item in (sublist) {
         result = result + [item]
     }
 }

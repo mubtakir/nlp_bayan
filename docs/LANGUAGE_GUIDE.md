@@ -16,16 +16,14 @@ Bayan is a hybrid programming language that combines traditional imperative prog
 
 ```bayan
 # Blocks = colon + braces; indentation optional
-if x > 0:
-{
+if (x > 0) {
     print("positive")
 }
 ```
 Equivalent without indentation:
 
 ```bayan
-if x > 0:
-{
+if (x > 0) {
 print("positive")
 }
 ```
@@ -54,20 +52,17 @@ person = {name: "Ali", age: 30}
 
 ```bayan
 # If statement
-if x > 5:
-{
+if (x > 5) {
     print("x is greater than 5")
 }
 
 # For loop
-for i in range(10):
-{
+for i in (range(10)) {
     print(i)
 }
 
 # While loop
-while x > 0:
-{
+while (x > 0) {
     x = x - 1
 }
 ```
@@ -173,7 +168,7 @@ def قسمة(أ, ب):
 def absolute_value(x):
     ensures result >= 0
     {
-        if x < 0: {
+        if (x < 0) {
             return -x
         }
         return x
@@ -451,8 +446,7 @@ hybrid {
     number(20).
 
     # Mixed code
-    if number(x):
-    {
+    if (number(x)) {
         print("x is a number")
     }
 }

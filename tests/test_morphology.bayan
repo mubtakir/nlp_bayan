@@ -24,6 +24,6 @@ print("Imperative (2mp): " + conjugate_arabic_verb(verb, "imperative", "2mp"))
 # Test Root Extraction
 print("\n--- Root Extraction Test ---")
 words = ["كاتب", "مكتوب", "استكتاب", "يكتبون", "الكاتبة"]
-for w in words: {
+for w in (words) {
     print("Word: " + w + " -> Root: " + extract_root(w))
 }

@@ -29,14 +29,13 @@ print("👤 المستخدم: ما هو AI؟")
 print("")
 
 answer1 = simple_kb.find_fact("AI", "هو")
-if answer1:
-{
+if (answer1) {
     print("🤖 النظام:")
     print(answer1)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -47,14 +46,13 @@ print("👤 المستخدم: ما هو ML؟")
 print("")
 
 answer2 = simple_kb.find_fact("ML", "هو")
-if answer2:
-{
+if (answer2) {
     print("🤖 النظام:")
     print(answer2)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -63,24 +61,22 @@ print("━" * 70)
 print("👤 المستخدم: ما هي ML؟")
 print("")
 q_ml = simple_parser.parse_question("ما هي ML؟")
-if q_ml["ok"]:
-{
+if (q_ml["ok"]) {
     res_ml = simple_kb.find_best_with_prob(q_ml["subject"], q_ml["predicate"])
-    if res_ml["found"]:
-    {
+    if (res_ml["found"]) {
         print("🤖 النظام:")
         print(res_ml["value"])
         print("📊 النسبة المئوية:")
         print(res_ml["percent"])
         print("📊 المصدر: قاعدة المعرفة")
     }
-    else:
-    {
+    else {
+    
         print("🤖 النظام: لا أعرف")
     }
 }
-else:
-{
+else {
+
     print("🤖 النظام: لم أفهم صيغة السؤال")
 }
 print("")
@@ -92,14 +88,13 @@ print("👤 المستخدم: ما هو بيان؟")
 print("")
 
 answer3 = simple_kb.find_fact("بيان", "هو")
-if answer3:
-{
+if (answer3) {
     print("🤖 النظام:")
     print(answer3)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -127,16 +122,15 @@ print("👤 المستخدم: ما هو Python؟")
 print("")
 
 res_py = simple_kb.find_best_with_prob("Python", "هو")
-if res_py["found"]:
-{
+if (res_py["found"]) {
     print("🤖 النظام:")
     print(res_py["value"])
     print("📊 النسبة المئوية:")
     print(res_py["percent"])
     print("📊 المصدر: المعرفة المضافة حديثاً!")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -159,27 +153,24 @@ simple_parser.parse_and_add(simple_kb, s4)
 
 print("👤 المستخدم: ما هو عدد الكترونات المدار الاول؟")
 res_e = simple_kb.find_best_with_prob("عدد الكترونات المدار الاول", "هو")
-if res_e["found"]:
-{
+if (res_e["found"]) {
     print("🤖 النظام:")
     print(res_e["value"])
     print("📊 النسبة المئوية:")
     print(res_e["percent"])
     print("🏅 أفضل 2:")
     top2 = simple_kb.find_top_n("عدد الكترونات المدار الاول", "هو", 2)
-    if len(top2) > 0:
-    {
+    if (len(top2) > 0) {
         print("1)", top2[0]["value"], "-", top2[0]["percent"], "%")
     }
-    if len(top2) > 1:
-    {
+    if (len(top2) > 1) {
         print("2)", top2[1]["value"], "-", top2[1]["percent"], "%")
     }
     print("📊 التوزيع:")
     print(simple_kb.find_distribution("عدد الكترونات المدار الاول", "هو"))
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -195,32 +186,27 @@ simple_parser.parse_and_add(simple_kb, "لغة برمجة هو وسيلة لبن
 
 print("👤 المستخدم: ما هو Python؟ (مع الاستدلال)")
 res_inf = simple_inference.find_top_n_with_inference(simple_kb, "Python", "هو", 2)
-if len(res_inf) > 0:
-{
+if (len(res_inf) > 0) {
     print("🤖 النظام (أفضل 2 مع الاستدلال):")
     i = 0
-    while i < len(res_inf):
-    {
+    while (i < len(res_inf)) {
         item = res_inf[i]
         # عرض المصدر
         print(i + 1, ")", item["value"], "-", item["percent"], "%", "[" + item["source"] + "]")
         i = i + 1
     }
     # تفسير السلسلة للقيمة الثانية إن كانت مستنتجة
-    if len(res_inf) > 1:
-    {
-        if res_inf[1]["source"] != "direct":
-        {
+    if (len(res_inf) > 1) {
+        if (res_inf[1]["source"] != "direct") {
             exp = simple_inference.explain_chain(simple_kb, "Python", res_inf[1]["value"])
-            if exp["ok"]:
-            {
+            if (exp["ok"]) {
                 print("🔎 تفسير:", "Python", "هو", exp["via"], "و", exp["via"], "هو", res_inf[1]["value"])
             }
         }
     }
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أملك ما أستدل به")
 }
 print("")
@@ -233,15 +219,13 @@ print("")
 simple_parser.parse_and_add(simple_kb, "CPU مرادف المعالج المركزي")
 print("👤 المستخدم: ما هو CPU؟")
 res_syn1 = simple_inference.find_top_n_with_inference(simple_kb, "CPU", "هو", 1)
-if len(res_syn1) > 0:
-{
+if (len(res_syn1) > 0) {
     item = res_syn1[0]
     print("🤖 النظام:", item["value"], "-", item["percent"], "%", "[" + item["source"] + "]")
 }
 print("👤 المستخدم: ما هو المعالج المركزي؟")
 res_syn2 = simple_inference.find_top_n_with_inference(simple_kb, "المعالج المركزي", "هو", 1)
-if len(res_syn2) > 0:
-{
+if (len(res_syn2) > 0) {
     item = res_syn2[0]
     print("🤖 النظام:", item["value"], "-", item["percent"], "%", "[" + item["source"] + "]")
 }
@@ -257,15 +241,12 @@ simple_parser.parse_and_add(simple_kb, "كلب نوع من حيوان")
 simple_parser.parse_and_add(simple_kb, "حيوان له يتنفس")
 print("👤 المستخدم: ما الذي له كلب؟")
 res_prop = simple_inference.find_top_n_with_inference(simple_kb, "كلب", "له", 1)
-if len(res_prop) > 0:
-{
+if (len(res_prop) > 0) {
     item = res_prop[0]
     print("🤖 النظام:", item["value"], "-", item["percent"], "%", "[" + item["source"] + "]")
-    if item["source"] != "direct":
-    {
+    if (item["source"] != "direct") {
         exp2 = simple_inference.explain_has_chain(simple_kb, "كلب", item["value"])
-        if exp2["ok"]:
-        {
+        if (exp2["ok"]) {
             print("🔎 تفسير:", "كلب", "نوع من", exp2["via"], "و", exp2["via"], "له", item["value"])
         }
     }
@@ -277,12 +258,10 @@ simple_parser.parse_and_add(simple_kb, "لغة برمجة نوع من علم ا�
 simple_parser.parse_and_add(simple_kb, "Python نوع من لغة برمجة")
 print("👤 المستخدم: ما نوع Python؟")
 res_isa = simple_inference.find_top_n_with_inference(simple_kb, "Python", "نوع من", 2)
-if len(res_isa) > 0:
-{
+if (len(res_isa) > 0) {
     print("🤖 النظام (أفضل 2):")
     i2 = 0
-    while i2 < len(res_isa):
-    {
+    while (i2 < len(res_isa)) {
         it2 = res_isa[i2]
         print(i2 + 1, ")", it2["value"], "-", it2["percent"], "%", "[" + it2["source"] + "]")
         i2 = i2 + 1
@@ -296,8 +275,7 @@ print("⚠️ كشف التعارضات")
 print("=" * 70)
 print("")
 conf = simple_kb.find_contradictions("عدد الكترونات المدار الاول", "هو")
-if conf["conflict"]:
-{
+if (conf["conflict"]) {
     print("تم رصد تعارض. التوزيع:")
     print(conf["distribution"])
 }
@@ -311,14 +289,12 @@ print("")
 simple_kb.add_fact_in_ctx("Python", "هو", "ثعبان", "علم الأحياء")
 print("👤 المستخدم: ما هو Python؟ (سياق: علم الأحياء)")
 res_ctx = simple_kb.find_best_with_prob_in_ctx("Python", "هو", "علم الأحياء")
-if res_ctx["found"]:
-{
+if (res_ctx["found"]) {
     print("🤖 النظام:", res_ctx["value"], "-", res_ctx["percent"], "%", "[context]")
 }
 print("👤 المستخدم: ما هو Python؟ (بلا سياق)")
 res_noctx = simple_kb.find_best_with_prob("Python", "هو")
-if res_noctx["found"]:
-{
+if (res_noctx["found"]) {
     print("🤖 النظام:", res_noctx["value"], "-", res_noctx["percent"], "%", "[global]")
 }
 print("")
@@ -332,14 +308,12 @@ simple_kb.add_fact_at_t("USD/EGP", "هو", "30", "2023")
 simple_kb.add_fact_at_t("USD/EGP", "هو", "50", "2024")
 print("👤 المستخدم: ما هو USD/EGP؟ (سنة: 2023)")
 res_t1 = simple_kb.find_best_with_prob_at_t("USD/EGP", "هو", "2023")
-if res_t1["found"]:
-{
+if (res_t1["found"]) {
     print("🤖 النظام:", res_t1["value"], "-", res_t1["percent"], "%")
 }
 print("👤 المستخدم: ما هو USD/EGP؟ (سنة: 2024)")
 res_t2 = simple_kb.find_best_with_prob_at_t("USD/EGP", "هو", "2024")
-if res_t2["found"]:
-{
+if (res_t2["found"]) {
     print("🤖 النظام:", res_t2["value"], "-", res_t2["percent"], "%")
 }
 print("")
@@ -356,24 +330,21 @@ simple_kb.add_fact_meta("بلوتو", "هو", "كوكب قزم", "2006-08-24", 0
 simple_kb.set_resolution_policy("most_frequent")
 print("👤 المستخدم: ما هو بلوتو؟ [سياسة: الأكثر شيوعاً]")
 res_pf = simple_kb.find_best_with_policy("بلوتو", "هو")
-if res_pf["found"]:
-{
+if (res_pf["found"]) {
     print("🤖 النظام:", res_pf["value"], "-", res_pf["percent"], "%")
 }
 
 simple_kb.set_resolution_policy("most_recent")
 print("👤 المستخدم: ما هو بلوتو؟ [سياسة: الأحدث]")
 res_pr = simple_kb.find_best_with_policy("بلوتو", "هو")
-if res_pr["found"]:
-{
+if (res_pr["found"]) {
     print("🤖 النظام:", res_pr["value"], "-", res_pr["percent"], "%")
 }
 
 simple_kb.set_resolution_policy("highest_confidence")
 print("👤 المستخدم: ما هو بلوتو؟ [سياسة: الأوثق]")
 res_pc = simple_kb.find_best_with_policy("بلوتو", "هو")
-if res_pc["found"]:
-{
+if (res_pc["found"]) {
     print("🤖 النظام:", res_pc["value"], "-", res_pc["percent"], "%")
 }
 print("")
@@ -390,24 +361,20 @@ simple_inference.set_show_percentages(False)
 print("👤 المستخدم: أعطني أفضل 3 لقيم (عدد الكترونات المدار الاول)")
 items_cfg = simple_inference.query_with_config(simple_kb, "عدد الكترونات المدار الاول", "هو")
 cfg = simple_inference.get_answer_config()
-if len(items_cfg) > 0:
-{
+if (len(items_cfg) > 0) {
     i3 = 0
-    while i3 < len(items_cfg):
-    {
+    while (i3 < len(items_cfg)) {
         it3 = items_cfg[i3]
-        if cfg["show_perc"] and cfg["show_src"]:
-        {
+        if (cfg["show_perc"] and cfg["show_src"]) {
             print(i3 + 1, ")", it3["value"], "-", it3["percent"], "%")
         }
-        else:
-        {
-            if cfg["show_perc"]:
-            {
+        else {
+        
+            if (cfg["show_perc"]) {
                 print(i3 + 1, ")", it3["value"], "-", it3["percent"], "%")
             }
-            else:
-            {
+            else {
+            
                 print(i3 + 1, ")", it3["value"])
             }
         }

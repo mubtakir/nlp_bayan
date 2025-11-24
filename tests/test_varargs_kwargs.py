@@ -17,8 +17,7 @@ def test_varargs_basic():
     def sum_all(*numbers):
     {
         total = 0
-        for num in numbers:
-        {
+        for num in (numbers) {
             total = total + num
         }
         return total
@@ -46,8 +45,7 @@ def test_varargs_with_regular_params():
     def greet(greeting, *names):
     {
         result = greeting + ": "
-        for name in names:
-        {
+        for name in (names) {
             result = result + name + " "
         }
         return result
@@ -71,8 +69,7 @@ def test_kwargs_basic():
     def print_info(**info):
     {
         result = ""
-        for key in info:
-        {
+        for key in (info) {
             result = result + key + "=" + str(info[key]) + " "
         }
         return result
@@ -101,15 +98,13 @@ def test_varargs_and_kwargs():
     {
         result = str(required) + "|"
         
-        for arg in args:
-        {
+        for arg in (args) {
             result = result + str(arg) + ","
         }
         
         result = result + "|"
         
-        for key in kwargs:
-        {
+        for key in (kwargs) {
             result = result + key + "=" + str(kwargs[key]) + ","
         }
         
@@ -137,8 +132,7 @@ def test_varargs_with_defaults():
     def func(a, b=10, *args):
     {
         total = a + b
-        for arg in args:
-        {
+        for arg in (args) {
             total = total + arg
         }
         return total
@@ -175,8 +169,7 @@ def test_neural_network_layer_example():
         }
         
         # Override with options
-        for key in options:
-        {
+        for key in (options) {
             layer_info[key] = options[key]
         }
         
@@ -261,8 +254,7 @@ def test_varargs_in_class_method():
         def sum(self, *numbers):
         {
             total = 0
-            for num in numbers:
-            {
+            for num in (numbers) {
                 total = total + num
             }
             return total

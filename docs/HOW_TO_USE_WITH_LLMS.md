@@ -157,7 +157,7 @@ print(response.choices[0].message.content)
 ```bayan
 hybrid {
     total = 0
-    for i in range(1, 101): {
+    for i in (range(1, 101)) {
         total = total + i
     }
     print("Sum: " + str(total))
@@ -187,7 +187,7 @@ hybrid {
         }
         
         def withdraw(self, amount): {
-            if amount > self.balance: {
+            if (amount > self.balance) {
                 print("Insufficient funds")
                 return self.balance
             }
@@ -224,7 +224,7 @@ hybrid {
     # استعلام
     results = query diagnosis("patient1", ?D)?
     
-    for result in results: {
+    for result in (results) {
         print("Diagnosis: " + result["?D"])
     }
 }
@@ -254,7 +254,7 @@ hybrid {
     
     results = query student(?N, ?G), ?G >= 90?
     
-    for result in results: {
+    for result in (results) {
         print("Excellent student: " + result["?N"])
     }
 }

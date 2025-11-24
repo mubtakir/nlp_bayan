@@ -26,8 +26,7 @@ trace_low = result_low["trace"]
 components_low = result_low["components"]
 
 print("Components generated (low detail):")
-for key in components_low:
-{
+for key in (components_low) {
     print("  - " + key)
 }
 print("Total components:", len(components_low))
@@ -49,8 +48,7 @@ result_medium = orchestrator.dispatch_request(control_msg_medium)
 components_medium = result_medium["components"]
 
 print("Components generated (medium detail):")
-for key in components_medium:
-{
+for key in (components_medium) {
     print("  - " + key)
 }
 print("Total components:", len(components_medium))
@@ -72,8 +70,7 @@ result_high = orchestrator.dispatch_request(control_msg_high)
 components_high = result_high["components"]
 
 print("Components generated (high detail):")
-for key in components_high:
-{
+for key in (components_high) {
     print("  - " + key)
 }
 print("Total components:", len(components_high))
@@ -95,13 +92,12 @@ result_causal = orchestrator.dispatch_request(control_msg_causal)
 trace_causal = result_causal["trace"]
 
 print("Causal links in trace:")
-if "causal_links" in trace_causal:
-{
+if ("causal_links" in trace_causal) {
     causal_links = trace_causal["causal_links"]
     print("  Total causal links:", len(causal_links))
 }
-else:
-{
+else {
+
     print("  No causal_links field in trace")
 }
 print("")
@@ -122,8 +118,7 @@ result_temporal = orchestrator.dispatch_request(control_msg_temporal)
 components_temporal = result_temporal["components"]
 
 print("Components with temporal focus:")
-for key in components_temporal:
-{
+for key in (components_temporal) {
     print("  - " + key)
 }
 print("Total components:", len(components_temporal))
@@ -145,8 +140,7 @@ result_uncertain = orchestrator.dispatch_request(control_msg_uncertain)
 components_uncertain = result_uncertain["components"]
 
 print("Components with uncertainty focus:")
-for key in components_uncertain:
-{
+for key in (components_uncertain) {
     print("  - " + key)
 }
 print("Total components:", len(components_uncertain))

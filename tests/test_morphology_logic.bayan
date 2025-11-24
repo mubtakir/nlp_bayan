@@ -23,7 +23,7 @@ print("Pattern مفعول for علم: " + word2)
 
 # Test 3: Root extraction
 words = ["كاتب", "مكتوب", "الدارس"]
-for w in words: {
+for w in (words) {
     r = extract_root(w)
     print("Root of " + w + ": " + r)
 }

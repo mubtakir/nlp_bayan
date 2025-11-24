@@ -177,7 +177,7 @@ def اسم_الدالة(معاملات):
 def absolute_value(x):
     ensures result >= 0
     {
-        if x < 0: {
+        if (x < 0) {
             return -x
         }
         return x

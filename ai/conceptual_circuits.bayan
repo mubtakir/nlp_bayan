@@ -9,12 +9,11 @@
 
 def _validate_prob(val, name="probability"):
 {
-    if val < 0.0 or val > 1.0:
-    {
+    if (val < 0.0 or val > 1.0) {
         # In a real system, we might raise an error.
         # Here we clamp and log (conceptually).
-        if val < 0.0: { return 0.0 }
-        if val > 1.0: { return 1.0 }
+        if (val < 0.0) { return 0.0 }
+        if (val > 1.0) { return 1.0 }
     }
     return val
 }
@@ -26,8 +25,7 @@ def _build_entity(id, kind="generic_entity", domain="abstract_domain", propertie
         "kind": kind,
         "domain": domain
     }
-    if properties != None:
-    {
+    if (properties != None) {
         ent["properties"] = properties
     }
     return ent
@@ -43,8 +41,7 @@ def _build_event(id, action, actors, targets, context, probability=1.0, intensit
         "context": context,
         "probability": _validate_prob(probability, "event_prob")
     }
-    if intensity != None:
-    {
+    if (intensity != None) {
         evt["intensity"] = intensity
     }
     return evt

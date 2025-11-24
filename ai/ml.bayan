@@ -4,25 +4,23 @@
 def linear_regression(x, y):
 {
     n = len(x)
-    if n == 0: { return [0, 0] }
+    if (n == 0) { return [0, 0] }
     mx = sum(x) / n
     my = sum(y) / n
     num = 0
     den = 0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         dx = x[i] - mx
         dy = y[i] - my
         num = num + dx * dy
         den = den + dx * dx
     }
     slope = 0
-    if den == 0:
-    {
+    if (den == 0) {
         slope = 0
     }
-    else:
-    {
+    else {
+    
         slope = num / den
     }
     intercept = my - slope * mx
@@ -33,8 +31,7 @@ def linear_regression(x, y):
 def euclidean_distance(a, b):
 {
     s = 0
-    for i in range(len(a)):
-    {
+    for i in (range(len(a))) {
         d = a[i] - b[i]
         s = s + d * d
     }
@@ -44,15 +41,12 @@ def euclidean_distance(a, b):
 def k_nearest_neighbors_predict(train_data, train_labels, samples, k=3):
 {
     preds = []
-    for sample in samples:
-    {
+    for sample in (samples) {
         pairs = []  # [ [dist, label], ... ]
-        for i in range(len(train_data)):
-        {
+        for i in (range(len(train_data))) {
             # Inline Euclidean distance to avoid external dependency
             dist = 0
-            for t in range(len(sample)):
-            {
+            for t in (range(len(sample))) {
                 diff = sample[t] - train_data[i][t]
                 dist = dist + diff * diff
             }
@@ -62,25 +56,21 @@ def k_nearest_neighbors_predict(train_data, train_labels, samples, k=3):
         pairs = sorted(pairs)
         # vote among first k
         counts = {}
-        for j in range(k):
-        {
+        for j in (range(k)) {
             lab = pairs[j][1]
-            if lab in counts:
-            {
+            if (lab in counts) {
                 counts[lab] = counts[lab] + 1
             }
-            else:
-            {
+            else {
+            
                 counts[lab] = 1
             }
         }
         best_lab = ""
         best_cnt = -1
-        for lab in counts:
-        {
+        for lab in (counts) {
             c = counts[lab]
-            if c > best_cnt:
-            {
+            if (c > best_cnt) {
                 best_cnt = c
                 best_lab = lab
             }
@@ -96,74 +86,62 @@ def k_nearest_neighbors_predict(train_data, train_labels, samples, k=3):
 def k_means(data, k, max_iters=10):
 {
     n = len(data)
-    if n == 0: { return [[], []] }
+    if (n == 0) { return [[], []] }
     d = len(data[0])
     # initialize centers as first k points (simple and deterministic)
     centers = []
-    for c in range(k):
-    {
+    for c in (range(k)) {
         centers.append(data[c])
     }
     # labels init
     labels = []
-    for i in range(n): { labels.append(0) }
+    for i in (range(n)) { labels.append(0) }
 
-    for it in range(max_iters):
-    {
+    for it in (range(max_iters)) {
         changed = 0
         # assign step
-        for i in range(n):
-        {
+        for i in (range(n)) {
             best = -1
             best_dist = 0
-            for c in range(k):
-            {
+            for c in (range(k)) {
                 dist = 0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff * diff
                 }
-                if best == -1 or dist < best_dist:
-                {
+                if (best == -1 or dist < best_dist) {
                     best = c
                     best_dist = dist
                 }
             }
-            if labels[i] != best: { changed = changed + 1 }
+            if (labels[i] != best) { changed = changed + 1 }
             labels[i] = best
         }
         # update step
         new_centers = []
         counts = []
-        for c in range(k):
-        {
+        for c in (range(k)) {
             vec = []
-            for j in range(d): { vec.append(0.0) }
+            for j in (range(d)) { vec.append(0.0) }
             new_centers.append(vec)
             counts.append(0)
         }
-        for i in range(n):
-        {
+        for i in (range(n)) {
             lbl = labels[i]
             counts[lbl] = counts[lbl] + 1
-            for j in range(d):
-            {
+            for j in (range(d)) {
                 new_centers[lbl][j] = new_centers[lbl][j] + data[i][j]
             }
         }
-        for c in range(k):
-        {
-            if counts[c] > 0:
-            {
-                for j in range(d):
-                {
+        for c in (range(k)) {
+            if (counts[c] > 0) {
+                for j in (range(d)) {
                     new_centers[c][j] = new_centers[c][j] / counts[c]
                 }
             }
         }
         centers = new_centers
-        if changed == 0: { break }
+        if (changed == 0) { break }
     }
     return [centers, labels]
 }
@@ -173,24 +151,21 @@ def k_means(data, k, max_iters=10):
 def logistic_regression_train(X, y, lr=0.1, epochs=200, l2=0.0):
 {
     n = len(X)
-    if n == 0: { return [[0.0], 0.0] }
+    if (n == 0) { return [[0.0], 0.0] }
     d = len(X[0])
     # weights init
     w = []
-    for j in range(d): { w.append(0.0) }
+    for j in (range(d)) { w.append(0.0) }
     b = 0.0
     e = 2.718281828
 
-    for ep in range(epochs):
-    {
-        for i in range(n):
-        {
+    for ep in (range(epochs)) {
+        for i in (range(n)) {
             z = b
-            for j in range(d): { z = z + w[j] * X[i][j] }
+            for j in (range(d)) { z = z + w[j] * X[i][j] }
             p = 1.0 / (1.0 + pow(e, -z))
             err = p - y[i]
-            for j in range(d):
-            {
+            for j in (range(d)) {
                 # L2 regularization
                 w[j] = w[j] - lr * (err * X[i][j] + l2 * w[j])
             }
@@ -204,15 +179,13 @@ def logistic_regression_predict(X, w, b, threshold=0.5):
 {
     preds = []
     e = 2.718281828
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         z = b
-        for j in range(len(X[i])): { z = z + w[j] * X[i][j] }
+        for j in (range(len(X[i]))) { z = z + w[j] * X[i][j] }
         p = 1.0 / (1.0 + pow(e, -z))
-        if p >= threshold:
-        { preds.append(1) }
-        else:
-        { preds.append(0) }
+        if (p >= threshold) { preds.append(1) }
+        else {
+         preds.append(0) }
     }
     return preds
 }
@@ -238,22 +211,20 @@ def train_test_split(X, y, test_ratio=0.25):
     n = len(X)
     # approximate integer using round
     test_n = round(n * test_ratio)
-    if test_n < 0: { test_n = 0 }
-    if test_n > n: { test_n = n }
+    if (test_n < 0) { test_n = 0 }
+    if (test_n > n) { test_n = n }
     split_idx = n - test_n
     X_train = []
     X_test = []
     y_train = []
     y_test = []
-    for i in range(n):
-    {
-        if i < split_idx:
-        {
+    for i in (range(n)) {
+        if (i < split_idx) {
             X_train.append(X[i])
             y_train.append(y[i])
         }
-        else:
-        {
+        else {
+        
             X_test.append(X[i])
             y_test.append(y[i])
         }
@@ -268,38 +239,33 @@ def train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42):
     n = len(X)
     # group indices by label
     groups = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         L = y[i]
-        if L in groups:
-        {
+        if (L in groups) {
             groups[L].append(i)
         }
-        else:
-        {
+        else {
+        
             lst = []
             lst.append(i)
             groups[L] = lst
         }
     }
     # optional shuffle within each label group (LCG + Fisher–Yates)
-    if shuffle:
-    {
+    if (shuffle) {
         a = 1103515245
         c = 12345
         m = 2147483648
         state = seed
-        for L in groups:
-        {
+        for L in (groups) {
             idxs = groups[L]
             gn = len(idxs)
-            for ii in range(gn - 1, -1, -1):
-            {
+            for ii in (range(gn - 1, -1, -1)) {
                 state = (a * state + c) % m
                 u = state / m
                 t = u * (ii + 1)
                 j = 0
-                while (j + 1) <= t: { j = j + 1 }
+                while ((j + 1) <= t) { j = j + 1 }
                 # swap
                 tmp = idxs[ii]
                 idxs[ii] = idxs[j]
@@ -313,26 +279,23 @@ def train_test_split_stratified(X, y, test_ratio=0.25, shuffle=True, seed=42):
     X_test = []
     y_train = []
     y_test = []
-    for L in groups:
-    {
+    for L in (groups) {
         idxs = groups[L]
         g = len(idxs)
         t = (g * test_ratio) + 0.5
         tcount = 0
-        while (tcount + 1) <= t: { tcount = tcount + 1 }
-        if tcount < 0: { tcount = 0 }
-        if tcount > g: { tcount = g }
+        while ((tcount + 1) <= t) { tcount = tcount + 1 }
+        if (tcount < 0) { tcount = 0 }
+        if (tcount > g) { tcount = g }
         # split: first tcount -> test, rest -> train
-        for ii in range(g):
-        {
+        for ii in (range(g)) {
             gi = idxs[ii]
-            if ii < tcount:
-            {
+            if (ii < tcount) {
                 X_test.append(X[gi])
                 y_test.append(y[gi])
             }
-            else:
-            {
+            else {
+            
                 X_train.append(X[gi])
                 y_train.append(y[gi])
             }
@@ -348,16 +311,14 @@ def precision_score(y_true, y_pred, pos_label=1):
 {
     tp = 0
     fp = 0
-    for i in range(len(y_true)):
-    {
-        if y_pred[i] == pos_label:
-        {
-            if y_true[i] == pos_label: { tp = tp + 1 }
-            else: { fp = fp + 1 }
+    for i in (range(len(y_true))) {
+        if (y_pred[i] == pos_label) {
+            if (y_true[i] == pos_label) { tp = tp + 1 }
+            else { fp = fp + 1 }
         }
     }
     denom = tp + fp
-    if denom == 0: { return 0.0 }
+    if (denom == 0) { return 0.0 }
     return tp / denom
 }
 
@@ -365,16 +326,14 @@ def recall_score(y_true, y_pred, pos_label=1):
 {
     tp = 0
     fn = 0
-    for i in range(len(y_true)):
-    {
-        if y_true[i] == pos_label:
-        {
-            if y_pred[i] == pos_label: { tp = tp + 1 }
-            else: { fn = fn + 1 }
+    for i in (range(len(y_true))) {
+        if (y_true[i] == pos_label) {
+            if (y_pred[i] == pos_label) { tp = tp + 1 }
+            else { fn = fn + 1 }
         }
     }
     denom = tp + fn
-    if denom == 0: { return 0.0 }
+    if (denom == 0) { return 0.0 }
     return tp / denom
 }
 
@@ -383,7 +342,7 @@ def f1_score(y_true, y_pred, pos_label=1):
     p = precision_score(y_true, y_pred, pos_label)
     r = recall_score(y_true, y_pred, pos_label)
     denom = p + r
-    if denom == 0: { return 0.0 }
+    if (denom == 0) { return 0.0 }
     return 2 * p * r / denom
 }
 
@@ -392,30 +351,25 @@ def f1_score(y_true, y_pred, pos_label=1):
 def k_means_pp_init(data, k):
 {
     n = len(data)
-    if n == 0: { return [] }
+    if (n == 0) { return [] }
     d = len(data[0])
     centers = []
     centers.append(data[0])
-    while len(centers) < k:
-    {
+    while (len(centers) < k) {
         best_idx = 0
         best_min_dist = -1
-        for i in range(n):
-        {
+        for i in (range(n)) {
             # compute min squared distance to existing centers
             min_d = -1
-            for c in range(len(centers)):
-            {
+            for c in (range(len(centers))) {
                 dist = 0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff*diff
                 }
-                if min_d == -1 or dist < min_d: { min_d = dist }
+                if (min_d == -1 or dist < min_d) { min_d = dist }
             }
-            if best_min_dist == -1 or min_d > best_min_dist:
-            {
+            if (best_min_dist == -1 or min_d > best_min_dist) {
                 best_min_dist = min_d
                 best_idx = i
             }
@@ -428,29 +382,24 @@ def k_means_pp_init(data, k):
 def k_means_pp(data, k, max_iters=10):
 {
     n = len(data)
-    if n == 0: { return [[], []] }
+    if (n == 0) { return [[], []] }
     d = len(data[0])
     centers = []
     centers.append(data[0])
-    while len(centers) < k:
-    {
+    while (len(centers) < k) {
         best_idx = 0
         best_min_dist = -1
-        for i in range(n):
-        {
+        for i in (range(n)) {
             min_d = -1
-            for c in range(len(centers)):
-            {
+            for c in (range(len(centers))) {
                 dist = 0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff*diff
                 }
-                if min_d == -1 or dist < min_d: { min_d = dist }
+                if (min_d == -1 or dist < min_d) { min_d = dist }
             }
-            if best_min_dist == -1 or min_d > best_min_dist:
-            {
+            if (best_min_dist == -1 or min_d > best_min_dist) {
                 best_min_dist = min_d
                 best_idx = i
             }
@@ -458,65 +407,53 @@ def k_means_pp(data, k, max_iters=10):
         centers.append(data[best_idx])
     }
     labels = []
-    for i in range(n): { labels.append(0) }
+    for i in (range(n)) { labels.append(0) }
 
-    for it in range(max_iters):
-    {
+    for it in (range(max_iters)) {
         changed = 0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             best = -1
             best_dist = 0
-            for c in range(k):
-            {
+            for c in (range(k)) {
                 dist = 0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff*diff
                 }
-                if best == -1 or dist < best_dist:
-                {
+                if (best == -1 or dist < best_dist) {
                     best = c
                     best_dist = dist
                 }
             }
-            if labels[i] != best: { changed = changed + 1 }
+            if (labels[i] != best) { changed = changed + 1 }
             labels[i] = best
         }
         new_centers = []
         counts = []
-        for c in range(k):
-        {
+        for c in (range(k)) {
             vec = []
-            for j in range(d):
-            {
+            for j in (range(d)) {
                 vec.append(0.0)
             }
             new_centers.append(vec)
             counts.append(0)
         }
-        for i in range(n):
-        {
+        for i in (range(n)) {
             lbl = labels[i]
             counts[lbl] = counts[lbl] + 1
-            for j in range(d):
-            {
+            for j in (range(d)) {
                 new_centers[lbl][j] = new_centers[lbl][j] + data[i][j]
             }
         }
-        for c in range(k):
-        {
-            if counts[c] > 0:
-            {
-                for j in range(d):
-                {
+        for c in (range(k)) {
+            if (counts[c] > 0) {
+                for j in (range(d)) {
                     new_centers[c][j] = new_centers[c][j] / counts[c]
                 }
             }
         }
         centers = new_centers
-        if changed == 0: { break }
+        if (changed == 0) { break }
     }
     return [centers, labels]
 }
@@ -529,12 +466,11 @@ def confusion_matrix(y_true, y_pred, pos_label=1, neg_label=0):
     tn = 0
     fp = 0
     fn = 0
-    for i in range(len(y_true)):
-    {
-        if y_true[i] == pos_label and y_pred[i] == pos_label: { tp = tp + 1 }
-        elif y_true[i] == pos_label and y_pred[i] != pos_label: { fn = fn + 1 }
-        elif y_true[i] != pos_label and y_pred[i] == pos_label: { fp = fp + 1 }
-        else: { tn = tn + 1 }
+    for i in (range(len(y_true))) {
+        if (y_true[i] == pos_label and y_pred[i] == pos_label) { tp = tp + 1 }
+        elif (y_true[i] == pos_label and y_pred[i] != pos_label) { fn = fn + 1 }
+        elif (y_true[i] != pos_label and y_pred[i] == pos_label) { fp = fp + 1 }
+        else { tn = tn + 1 }
     }
     return [[tn, fp], [fn, tp]]
 }
@@ -545,11 +481,10 @@ def accuracy_score(y_true, y_pred):
 {
     correct = 0
     n = len(y_true)
-    for i in range(n):
-    {
-        if y_true[i] == y_pred[i]: { correct = correct + 1 }
+    for i in (range(n)) {
+        if (y_true[i] == y_pred[i]) { correct = correct + 1 }
     }
-    if n > 0: { return correct / n }
+    if (n > 0) { return correct / n }
     return 0.0
 }
 
@@ -558,59 +493,50 @@ def accuracy_score(y_true, y_pred):
 def confusion_matrix_multi(y_true, y_pred, labels):
 {
     labs = []
-    if len(labels) == 0:
-    {
+    if (len(labels) == 0) {
         seen = {}
-        for i in range(len(y_true)):
-        {
+        for i in (range(len(y_true))) {
             l = y_true[i]
-            if l in seen:
-            {
+            if (l in seen) {
                 # skip
             }
-            else:
-            {
+            else {
+            
                 seen[l] = 1
                 labs.append(l)
             }
         }
-        for i in range(len(y_pred)):
-        {
+        for i in (range(len(y_pred))) {
             l = y_pred[i]
-            if l in seen:
-            {
+            if (l in seen) {
                 # skip
             }
-            else:
-            {
+            else {
+            
                 seen[l] = 1
                 labs.append(l)
             }
         }
     }
-    else:
-    {
-        for i in range(len(labels)):
-        {
+    else {
+    
+        for i in (range(len(labels))) {
             labs.append(labels[i])
         }
     }
     m = len(labs)
     mat = []
-    for i in range(m):
-    {
+    for i in (range(m)) {
         row = []
-        for j in range(m): { row.append(0) }
+        for j in (range(m)) { row.append(0) }
         mat.append(row)
     }
     idx = {}
-    for i in range(m): { idx[labs[i]] = i }
-    for i in range(len(y_true)):
-    {
+    for i in (range(m)) { idx[labs[i]] = i }
+    for i in (range(len(y_true))) {
         t = y_true[i]
         p = y_pred[i]
-        if t in idx and p in idx:
-        {
+        if (t in idx and p in idx) {
             r = idx[t]
             c = idx[p]
             mat[r][c] = mat[r][c] + 1
@@ -624,66 +550,60 @@ def classification_report(y_true, y_pred, labels):
 {
     # infer labels if needed
     labs = []
-    if len(labels) == 0:
-    {
+    if (len(labels) == 0) {
         seen = {}
-        for i in range(len(y_true)):
-        {
+        for i in (range(len(y_true))) {
             l = y_true[i]
-            if l in seen: { }
-            else:
-            {
+            if (l in seen) { }
+            else {
+            
                 seen[l] = 1
                 labs.append(l)
             }
         }
-        for i in range(len(y_pred)):
-        {
+        for i in (range(len(y_pred))) {
             l = y_pred[i]
-            if l in seen: { }
-            else:
-            {
+            if (l in seen) { }
+            else {
+            
                 seen[l] = 1
                 labs.append(l)
             }
         }
     }
-    else:
-    {
-        for i in range(len(labels)): { labs.append(labels[i]) }
+    else {
+    
+        for i in (range(len(labels))) { labs.append(labels[i]) }
     }
     m = len(labs)
     per_class = {}
     tp_total = 0
     fp_total = 0
     fn_total = 0
-    for li in range(m):
-    {
+    for li in (range(m)) {
         L = labs[li]
         tp = 0
         fp = 0
         fn = 0
         supp = 0
-        for i in range(len(y_true)):
-        {
-            if y_true[i] == L:
-            {
+        for i in (range(len(y_true))) {
+            if (y_true[i] == L) {
                 supp = supp + 1
 
 
-                if y_pred[i] == L: { tp = tp + 1 } else: { fn = fn + 1 }
+                if (y_pred[i] == L) { tp = tp + 1 } else { fn = fn + 1 }
             }
-            else:
-            {
-                if y_pred[i] == L: { fp = fp + 1 }
+            else {
+            
+                if (y_pred[i] == L) { fp = fp + 1 }
             }
         }
         prec = 0.0
         reca = 0.0
         f1 = 0.0
-        if (tp + fp) > 0: { prec = tp / (tp + fp) }
-        if (tp + fn) > 0: { reca = tp / (tp + fn) }
-        if (prec + reca) > 0.0: { f1 = 2.0 * prec * reca / (prec + reca) }
+        if ((tp + fp) > 0) { prec = tp / (tp + fp) }
+        if ((tp + fn) > 0) { reca = tp / (tp + fn) }
+        if ((prec + reca) > 0.0) { f1 = 2.0 * prec * reca / (prec + reca) }
         d = {}
         d["precision"] = prec
         d["recall"] = reca
@@ -697,10 +617,8 @@ def classification_report(y_true, y_pred, labels):
     macro_p = 0.0
     macro_r = 0.0
     macro_f = 0.0
-    if m > 0:
-    {
-        for li in range(m):
-        {
+    if (m > 0) {
+        for li in (range(m)) {
             L = labs[li]
             macro_p = macro_p + per_class[L]["precision"]
             macro_r = macro_r + per_class[L]["recall"]
@@ -713,24 +631,21 @@ def classification_report(y_true, y_pred, labels):
     micro_p = 0.0
     micro_r = 0.0
     micro_f = 0.0
-    if (tp_total + fp_total) > 0: { micro_p = tp_total / (tp_total + fp_total) }
-    if (tp_total + fn_total) > 0: { micro_r = tp_total / (tp_total + fn_total) }
-    if (micro_p + micro_r) > 0.0: { micro_f = 2.0 * micro_p * micro_r / (micro_p + micro_r) }
+    if ((tp_total + fp_total) > 0) { micro_p = tp_total / (tp_total + fp_total) }
+    if ((tp_total + fn_total) > 0) { micro_r = tp_total / (tp_total + fn_total) }
+    if ((micro_p + micro_r) > 0.0) { micro_f = 2.0 * micro_p * micro_r / (micro_p + micro_r) }
     acc = accuracy_score(y_true, y_pred)
     # weighted averages by support
     supp_sum = 0
-    for li in range(m):
-    {
+    for li in (range(m)) {
         L = labs[li]
         supp_sum = supp_sum + per_class[L]["support"]
     }
     w_p = 0.0
     w_r = 0.0
     w_f = 0.0
-    if supp_sum > 0:
-    {
-        for li in range(m):
-        {
+    if (supp_sum > 0) {
+        for li in (range(m)) {
             L = labs[li]
             s = per_class[L]["support"]
             w_p = w_p + per_class[L]["precision"] * s
@@ -768,9 +683,9 @@ def matthews_corrcoef(y_true, y_pred, pos_label=1, neg_label=0):
     prod = a * b
     prod = prod * c
     prod = prod * d
-    if prod <= 0: { return 0.0 }
+    if (prod <= 0) { return 0.0 }
     denom = pow(prod * 1.0, 0.5)
-    if denom == 0.0: { return 0.0 }
+    if (denom == 0.0) { return 0.0 }
     return num / denom
 }
 
@@ -783,40 +698,36 @@ def cohen_kappa_score(y_true, y_pred, labels):
     m = len(labs)
     # totals
     total = 0
-    for i in range(m):
-    {
-        for j in range(m): { total = total + mat[i][j] }
+    for i in (range(m)) {
+        for j in (range(m)) { total = total + mat[i][j] }
     }
-    if total == 0: { return 0.0 }
+    if (total == 0) { return 0.0 }
     # observed agreement (Po)
     diag = 0
-    for i in range(m): { diag = diag + mat[i][i] }
+    for i in (range(m)) { diag = diag + mat[i][i] }
     po = diag / (total * 1.0)
     # expected agreement (Pe) from marginals
     row_sum = []
     col_sum = []
-    for i in range(m):
-    {
+    for i in (range(m)) {
         row_sum.append(0)
         col_sum.append(0)
     }
-    for i in range(m):
-    {
+    for i in (range(m)) {
         rs = 0
-        for j in range(m): { rs = rs + mat[i][j] }
+        for j in (range(m)) { rs = rs + mat[i][j] }
         row_sum[i] = rs
     }
-    for j in range(m):
-    {
+    for j in (range(m)) {
         cs = 0
-        for i in range(m): { cs = cs + mat[i][j] }
+        for i in (range(m)) { cs = cs + mat[i][j] }
         col_sum[j] = cs
     }
     pe_num = 0.0
-    for i in range(m): { pe_num = pe_num + (row_sum[i] * col_sum[i] * 1.0) }
+    for i in (range(m)) { pe_num = pe_num + (row_sum[i] * col_sum[i] * 1.0) }
     pe = pe_num / ( (total * 1.0) * (total * 1.0) )
     one_minus_pe = 1.0 - pe
-    if one_minus_pe == 0.0: { return 0.0 }
+    if (one_minus_pe == 0.0) { return 0.0 }
     return (po - pe) / one_minus_pe
 }
 
@@ -828,10 +739,9 @@ def logistic_regression_predict_proba(X, w, b):
 {
     probs = []
     e = 2.718281828
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         z = b
-        for j in range(len(X[i])): { z = z + w[j] * X[i][j] }
+        for j in (range(len(X[i]))) { z = z + w[j] * X[i][j] }
         p = 1.0 / (1.0 + pow(e, -z))
         probs.append(p)
     }
@@ -845,17 +755,15 @@ def roc_curve(y_true, y_scores, pos_label=1):
     # collect unique thresholds
     seen = {}
     thresholds = []
-    for i in range(len(y_scores)):
-    {
+    for i in (range(len(y_scores))) {
 
 
         s = y_scores[i]
-        if s in seen:
-        {
+        if (s in seen) {
             # skip
         }
-        else:
-        {
+        else {
+        
             seen[s] = 1
             thresholds.append(s)
         }
@@ -866,8 +774,7 @@ def roc_curve(y_true, y_scores, pos_label=1):
     thresholds = sorted(thresholds)
     # reverse order to go from high threshold to low
     thr_desc = []
-    for i in range(len(thresholds)):
-    {
+    for i in (range(len(thresholds))) {
         thr_desc.append(thresholds[len(thresholds) - 1 - i])
     }
     fprs = []
@@ -876,30 +783,27 @@ def roc_curve(y_true, y_scores, pos_label=1):
     # count positives and negatives
     P = 0
     N = 0
-    for i in range(len(y_true)):
-    {
-        if y_true[i] == pos_label: { P = P + 1 }
-        else: { N = N + 1 }
+    for i in (range(len(y_true))) {
+        if (y_true[i] == pos_label) { P = P + 1 }
+        else { N = N + 1 }
     }
-    for t in thr_desc:
-    {
+    for t in (thr_desc) {
         tp = 0
         fp = 0
         fn = 0
         tn = 0
-        for i in range(len(y_scores)):
-        {
+        for i in (range(len(y_scores))) {
             pred = 0
-            if y_scores[i] >= t: { pred = 1 }
-            if y_true[i] == pos_label and pred == 1: { tp = tp + 1 }
-            elif y_true[i] == pos_label and pred == 0: { fn = fn + 1 }
-            elif y_true[i] != pos_label and pred == 1: { fp = fp + 1 }
-            else: { tn = tn + 1 }
+            if (y_scores[i] >= t) { pred = 1 }
+            if (y_true[i] == pos_label and pred == 1) { tp = tp + 1 }
+            elif (y_true[i] == pos_label and pred == 0) { fn = fn + 1 }
+            elif (y_true[i] != pos_label and pred == 1) { fp = fp + 1 }
+            else { tn = tn + 1 }
         }
         fpr = 0.0
         tpr = 0.0
-        if N > 0: { fpr = fp / N }
-        if P > 0: { tpr = tp / P }
+        if (N > 0) { fpr = fp / N }
+        if (P > 0) { tpr = tp / P }
         fprs.append(fpr)
         tprs.append(tpr)
         out_thr.append(t)
@@ -912,14 +816,12 @@ def roc_curve(y_true, y_scores, pos_label=1):
 def auc_roc(fprs, tprs):
 {
     pairs = []
-    for i in range(len(fprs)):
-    {
+    for i in (range(len(fprs))) {
         pairs.append([fprs[i], tprs[i]])
     }
     pairs = sorted(pairs)
     area = 0.0
-    for i in range(len(pairs) - 1):
-    {
+    for i in (range(len(pairs) - 1)) {
         x1 = pairs[i][0]
         y1 = pairs[i][1]
         x2 = pairs[i+1][0]
@@ -937,22 +839,19 @@ def k_fold_indices(n, k, shuffle=True, seed=42):
 {
     # build indices
     idx = []
-    for i in range(n): { idx.append(i) }
+    for i in (range(n)) { idx.append(i) }
     # optional shuffle using inline LCG + Fisher–Yates
-    if shuffle:
-    {
+    if (shuffle) {
         a = 1103515245
         c = 12345
         m = 2147483648
         state = seed
-        for i in range(n - 1, -1, -1):
-        {
+        for i in (range(n - 1, -1, -1)) {
             state = (a * state + c) % m
             u = state / m
             t = u * (i + 1)
             j = 0
-            while (j + 1) <= t:
-            {
+            while ((j + 1) <= t) {
                 j = j + 1
             }
             # swap idx[i], idx[j]
@@ -964,8 +863,7 @@ def k_fold_indices(n, k, shuffle=True, seed=42):
     # fold sizes (avoid // by manual divmod)
     q = 0
     r = n
-    while r >= k:
-    {
+    while (r >= k) {
         r = r - k
         q = q + 1
     }
@@ -973,18 +871,17 @@ def k_fold_indices(n, k, shuffle=True, seed=42):
     rem = r
     start = 0
     folds = []
-    for f in range(k):
-    {
+    for f in (range(k)) {
         size = base
-        if f < rem: { size = size + 1 }
+        if (f < rem) { size = size + 1 }
         # val indices [start, start+size)
         val_idx = []
         end = start + size
-        for i in range(start, end): { val_idx.append(idx[i]) }
+        for i in (range(start, end)) { val_idx.append(idx[i]) }
         # train = all others
         train_idx = []
-        for i in range(0, start): { train_idx.append(idx[i]) }
-        for i in range(end, n): { train_idx.append(idx[i]) }
+        for i in (range(0, start)) { train_idx.append(idx[i]) }
+        for i in (range(end, n)) { train_idx.append(idx[i]) }
         folds.append([train_idx, val_idx])
         start = end
     }
@@ -1003,15 +900,13 @@ def stratified_k_fold_indices(y, k, shuffle=True, seed=42):
     n = len(y)
     # group indices by label
     groups = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         L = y[i]
-        if L in groups:
-        {
+        if (L in groups) {
             groups[L].append(i)
         }
-        else:
-        {
+        else {
+        
             lst = []
             lst.append(i)
             groups[L] = lst
@@ -1019,25 +914,22 @@ def stratified_k_fold_indices(y, k, shuffle=True, seed=42):
     }
     # initialize val lists per fold
     val_lists = []
-    for f in range(k): { val_lists.append([]) }
+    for f in (range(k)) { val_lists.append([]) }
     # optional shuffle per label group (LCG + Fisher–Yates)
     a = 1103515245
     c = 12345
     m = 2147483648
     state = seed
-    for L in groups:
-    {
+    for L in (groups) {
         idxs = groups[L]
-        if shuffle:
-        {
+        if (shuffle) {
             gn = len(idxs)
-            for ii in range(gn - 1, -1, -1):
-            {
+            for ii in (range(gn - 1, -1, -1)) {
                 state = (a * state + c) % m
                 u = state / m
                 t = u * (ii + 1)
                 j = 0
-                while (j + 1) <= t: { j = j + 1 }
+                while ((j + 1) <= t) { j = j + 1 }
                 # swap
                 tmp = idxs[ii]
                 idxs[ii] = idxs[j]
@@ -1046,14 +938,12 @@ def stratified_k_fold_indices(y, k, shuffle=True, seed=42):
         }
         # round-robin assignment
         gi = 0
-        while gi < len(idxs):
-        {
+        while (gi < len(idxs)) {
             f = gi
             # modulo without %: f = gi - k * floor(gi/k)
             q = 0
             r = gi
-            while r >= k:
-            {
+            while (r >= k) {
                 r = r - k
                 q = q + 1
             }
@@ -1064,20 +954,17 @@ def stratified_k_fold_indices(y, k, shuffle=True, seed=42):
     }
     # build folds [train_idx, val_idx]
     folds = []
-    for f in range(k):
-    {
+    for f in (range(k)) {
         val_idx = val_lists[f]
         seen = {}
-        for i in range(len(val_idx)): { seen[val_idx[i]] = 1 }
+        for i in (range(len(val_idx))) { seen[val_idx[i]] = 1 }
         train_idx = []
-        for i in range(n):
-        {
-            if i in seen:
-            {
+        for i in (range(n)) {
+            if (i in seen) {
                 # skip
             }
-            else:
-            {
+            else {
+            
                 train_idx.append(i)
             }
         }
@@ -1102,22 +989,19 @@ def k_fold_evaluate_logistic(X, y, k=5, lr=0.1, epochs=200, shuffle=True, seed=4
     f_sum = 0.0
     a_sum = 0.0
     m = 0
-    for fi in range(len(folds)):
-    {
+    for fi in (range(len(folds))) {
         tr_idx = folds[fi][0]
         va_idx = folds[fi][1]
         Xtr = []
         ytr = []
-        for i in range(len(tr_idx)):
-        {
+        for i in (range(len(tr_idx))) {
             idx = tr_idx[i]
             Xtr.append(X[idx])
             ytr.append(y[idx])
         }
         Xva = []
         yva = []
-        for i in range(len(va_idx)):
-        {
+        for i in (range(len(va_idx))) {
             idx = va_idx[i]
             Xva.append(X[idx])
             yva.append(y[idx])
@@ -1136,7 +1020,7 @@ def k_fold_evaluate_logistic(X, y, k=5, lr=0.1, epochs=200, shuffle=True, seed=4
         a_sum = a_sum + a
         m = m + 1
     }
-    if m == 0: { return [0.0, 0.0, 0.0, 0.0] }
+    if (m == 0) { return [0.0, 0.0, 0.0, 0.0] }
     return [p_sum / m, r_sum / m, f_sum / m, a_sum / m]
 }
 
@@ -1148,22 +1032,19 @@ def k_fold_evaluate_knn(X, y, k_folds=5, k_neighbors=3, shuffle=True, seed=42):
     folds = k_fold_indices(n, k_folds, shuffle, seed)
     a_sum = 0.0
     m = 0
-    for fi in range(len(folds)):
-    {
+    for fi in (range(len(folds))) {
         tr_idx = folds[fi][0]
         va_idx = folds[fi][1]
         Xtr = []
         ytr = []
-        for i in range(len(tr_idx)):
-        {
+        for i in (range(len(tr_idx))) {
             idx = tr_idx[i]
             Xtr.append(X[idx])
             ytr.append(y[idx])
         }
         Xva = []
         yva = []
-        for i in range(len(va_idx)):
-        {
+        for i in (range(len(va_idx))) {
             idx = va_idx[i]
             Xva.append(X[idx])
             yva.append(y[idx])
@@ -1173,7 +1054,7 @@ def k_fold_evaluate_knn(X, y, k_folds=5, k_neighbors=3, shuffle=True, seed=42):
         a_sum = a_sum + a
         m = m + 1
     }
-    if m == 0: { return 0.0 }
+    if (m == 0) { return 0.0 }
     return a_sum / m
 }
 
@@ -1185,35 +1066,31 @@ def k_fold_cross_val_accuracy(X, y, model="logistic", k_folds=5, lr=0.1, epochs=
     folds = k_fold_indices(n, k_folds, shuffle, seed)
     a_sum = 0.0
     m = 0
-    for fi in range(len(folds)):
-    {
+    for fi in (range(len(folds))) {
         tr_idx = folds[fi][0]
         va_idx = folds[fi][1]
         Xtr = []
         ytr = []
-        for i in range(len(tr_idx)):
-        {
+        for i in (range(len(tr_idx))) {
             idx = tr_idx[i]
             Xtr.append(X[idx])
             ytr.append(y[idx])
         }
         Xva = []
         yva = []
-        for i in range(len(va_idx)):
-        {
+        for i in (range(len(va_idx))) {
             idx = va_idx[i]
             Xva.append(X[idx])
             yva.append(y[idx])
         }
-        if model == "logistic":
-        {
+        if (model == "logistic") {
             wb = logistic_regression_train(Xtr, ytr, lr, epochs)
             w = wb[0]
             b = wb[1]
             yhat = logistic_regression_predict(Xva, w, b, 0.5)
         }
-        else:
-        {
+        else {
+        
             # default to KNN
             yhat = k_nearest_neighbors_predict(Xtr, ytr, Xva, k_neighbors)
         }
@@ -1221,7 +1098,7 @@ def k_fold_cross_val_accuracy(X, y, model="logistic", k_folds=5, lr=0.1, epochs=
         a_sum = a_sum + a
         m = m + 1
     }
-    if m == 0: { return 0.0 }
+    if (m == 0) { return 0.0 }
     return a_sum / m
 }
 
@@ -1241,7 +1118,7 @@ def تقييم_طي_تقاطعي_عام(س, ت, نموذج="logistic", طيات=
 def k_means_pp_prob_init(data, k, seed=42):
 {
     n = len(data)
-    if n == 0: { return [] }
+    if (n == 0) { return [] }
     d = len(data[0])
     # LCG helpers
     def _lcg_next(state):
@@ -1270,60 +1147,51 @@ def تقسيم_تدريب_اختبار_طبقي(س, ت, نسبة_اختبار=0.
     u = st[1]
     t = u * n
     idx = 0
-    while (idx + 1) <= t:
-    {
+    while ((idx + 1) <= t) {
         idx = idx + 1
     }
     centers.append(data[idx])
     # choose remaining centers with probability proportional to D^2
-    while len(centers) < k:
-    {
+    while (len(centers) < k) {
         # compute distances D[i]
         D = []
         total = 0.0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             min_d = -1
-            for c in range(len(centers)):
-            {
+            for c in (range(len(centers))) {
                 dist = 0.0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff*diff
                 }
-                if min_d == -1 or dist < min_d: { min_d = dist }
+                if (min_d == -1 or dist < min_d) { min_d = dist }
             }
             D.append(min_d)
             total = total + min_d
         }
-        if total == 0.0:
-        {
+        if (total == 0.0) {
             # fallback to random index
             st2 = _lcg_next(state)
             state = st2[0]
             u2 = st2[1]
             tt = u2 * n
             j = 0
-            while (j + 1) <= tt:
-            {
+            while ((j + 1) <= tt) {
                 j = j + 1
             }
             centers.append(data[j])
         }
-        else:
-        {
+        else {
+        
             st3 = _lcg_next(state)
             state = st3[0]
             u3 = st3[1]
             target = u3 * total
             cum = 0.0
             chosen = 0
-            for i in range(n):
-            {
+            for i in (range(n)) {
                 cum = cum + D[i]
-                if cum >= target:
-                {
+                if (cum >= target) {
                     chosen = i
                     break
                 }
@@ -1339,7 +1207,7 @@ def تقسيم_تدريب_اختبار_طبقي(س, ت, نسبة_اختبار=0.
 def k_means_pp_prob(data, k, max_iters=10, seed=42):
 {
     n = len(data)
-    if n == 0: { return [[], []] }
+    if (n == 0) { return [[], []] }
     d = len(data[0])
     # Inline probabilistic k-means++ initialization (avoid helper from-import issues)
     centers = []
@@ -1353,57 +1221,48 @@ def k_means_pp_prob(data, k, max_iters=10, seed=42):
     u = state / m
     t = u * n
     idx = 0
-    while (idx + 1) <= t:
-    {
+    while ((idx + 1) <= t) {
         idx = idx + 1
     }
     centers.append(data[idx])
     # choose remaining centers with probability proportional to D^2
-    while len(centers) < k:
-    {
+    while (len(centers) < k) {
         # compute distances D[i]
         D = []
         total = 0.0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             min_d = -1
-            for cidx in range(len(centers)):
-            {
+            for cidx in (range(len(centers))) {
                 dist = 0.0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[cidx][j]
                     dist = dist + diff*diff
                 }
-                if min_d == -1 or dist < min_d: { min_d = dist }
+                if (min_d == -1 or dist < min_d) { min_d = dist }
             }
             D.append(min_d)
             total = total + min_d
         }
-        if total == 0.0:
-        {
+        if (total == 0.0) {
             state = (a * state + c) % m
             u2 = state / m
             tt = u2 * n
             j = 0
-            while (j + 1) <= tt:
-            {
+            while ((j + 1) <= tt) {
                 j = j + 1
             }
             centers.append(data[j])
         }
-        else:
-        {
+        else {
+        
             state = (a * state + c) % m
             u3 = state / m
             target = u3 * total
             cum = 0.0
             chosen = 0
-            for i in range(n):
-            {
+            for i in (range(n)) {
                 cum = cum + D[i]
-                if cum >= target:
-                {
+                if (cum >= target) {
                     chosen = i
                     break
                 }
@@ -1413,56 +1272,47 @@ def k_means_pp_prob(data, k, max_iters=10, seed=42):
 
     }
     labels = []
-    for i in range(n): { labels.append(0) }
+    for i in (range(n)) { labels.append(0) }
 
-    for it in range(max_iters):
-    {
+    for it in (range(max_iters)) {
         changed = 0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             best = -1
             best_dist = 0
-            for c in range(k):
-            {
+            for c in (range(k)) {
                 dist = 0
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     diff = data[i][j] - centers[c][j]
                     dist = dist + diff*diff
                 }
-                if best == -1 or dist < best_dist:
-                {
+                if (best == -1 or dist < best_dist) {
                     best = c
                     best_dist = dist
                 }
             }
-            if labels[i] != best: { changed = changed + 1 }
+            if (labels[i] != best) { changed = changed + 1 }
             labels[i] = best
         }
         new_centers = []
         counts = []
-        for c in range(k):
-        {
+        for c in (range(k)) {
             vec = []
-            for j in range(d): { vec.append(0.0) }
+            for j in (range(d)) { vec.append(0.0) }
             new_centers.append(vec)
             counts.append(0)
         }
-        for i in range(n):
-        {
+        for i in (range(n)) {
             lbl = labels[i]
             counts[lbl] = counts[lbl] + 1
-            for j in range(d): { new_centers[lbl][j] = new_centers[lbl][j] + data[i][j] }
+            for j in (range(d)) { new_centers[lbl][j] = new_centers[lbl][j] + data[i][j] }
         }
-        for c in range(k):
-        {
-            if counts[c] > 0:
-            {
-                for j in range(d): { new_centers[c][j] = new_centers[c][j] / counts[c] }
+        for c in (range(k)) {
+            if (counts[c] > 0) {
+                for j in (range(d)) { new_centers[c][j] = new_centers[c][j] / counts[c] }
             }
         }
         centers = new_centers
-        if changed == 0: { break }
+        if (changed == 0) { break }
     }
     return [centers, labels]
 }
@@ -1522,21 +1372,18 @@ def _dtree_make_leaf(label):
 
 def _dtree_majority(ys, labs):
 {
-    if len(ys) == 0: { return 0 }
+    if (len(ys) == 0) { return 0 }
     cnt = {}
-    for i in range(len(ys)):
-    {
+    for i in (range(len(ys))) {
         v = ys[i]
         cnt[v] = cnt.get(v, 0) + 1
     }
     best = labs[0]
     bestc = -1
-    for i in range(len(labs)):
-    {
+    for i in (range(len(labs))) {
         lb = labs[i]
         c = cnt.get(lb, 0)
-        if c > bestc:
-        {
+        if (c > bestc) {
             bestc = c
             best = lb
         }
@@ -1547,11 +1394,10 @@ def _dtree_majority(ys, labs):
 
 def _dtree_all_same(ys):
 {
-    if len(ys) == 0: { return True }
+    if (len(ys) == 0) { return True }
     a = ys[0]
-    for i in range(1, len(ys)):
-    {
-        if ys[i] != a: { return False }
+    for i in (range(1, len(ys))) {
+        if (ys[i] != a) { return False }
     }
     return True
 }
@@ -1561,22 +1407,18 @@ def _dtree_uniq_sorted_vals(Xv, j):
 {
     seen = {}
     arr = []
-    for i in range(len(Xv)):
-    {
+    for i in (range(len(Xv))) {
         v = Xv[i][j]
-        if seen.get(v, False) == False:
-        {
+        if (seen.get(v, False) == False) {
             seen[v] = True
             arr.append(v)
         }
     }
     m = len(arr)
-    for p in range(m):
-    {
+    for p in (range(m)) {
         idx_min = p
-        for q in range(p+1, m):
-        {
-            if arr[q] < arr[idx_min]: { idx_min = q }
+        for q in (range(p+1, m)) {
+            if (arr[q] < arr[idx_min]) { idx_min = q }
         }
         tmp = arr[p]
         arr[p] = arr[idx_min]
@@ -1589,39 +1431,34 @@ def _dtree_uniq_sorted_vals(Xv, j):
 def _dtree_impurity_counts(counts, criterion):
 {
     tot = 0.0
-    for k in counts: { tot = tot + counts[k] }
-    if tot == 0.0: { return 0.0 }
-    if criterion == "gini":
-    {
+    for k in (counts) { tot = tot + counts[k] }
+    if (tot == 0.0) { return 0.0 }
+    if (criterion == "gini") {
         s = 0.0
-        for k in counts:
-        {
+        for k in (counts) {
             p = counts[k] / tot
             s = s + p * p
         }
         return 1.0 - s
     }
-    else:
-    {
+    else {
+    
         # entropy
         ee = 2.718281828
         s = 0.0
-        for k in counts:
-        {
+        for k in (counts) {
             c = counts[k]
-            if c > 0:
-            {
+            if (c > 0) {
                 p = c / tot
                 yv = p
                 lo = -50.0
                 hi = 50.0
                 it = 0
-                while it < 40:
-                {
+                while (it < 40) {
                     mid = (lo + hi) / 2.0
                     val = pow(ee, mid)
-                    if val < yv: { lo = mid }
-                    else: { hi = mid }
+                    if (val < yv) { lo = mid }
+                    else { hi = mid }
                     it = it + 1
                 }
                 ln_p = (lo + hi) / 2.0
@@ -1635,25 +1472,21 @@ def _dtree_impurity_counts(counts, criterion):
 
 def dtree_build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
 {
-    if depth >= max_depth or len(yv) < min_samples_split or _dtree_all_same(yv):
-    {
+    if (depth >= max_depth or len(yv) < min_samples_split or _dtree_all_same(yv)) {
         return _dtree_make_leaf(_dtree_majority(yv, labs))
     }
     nloc = len(yv)
     m = 0
-    if len(Xv) > 0: { m = len(Xv[0]) }
+    if (len(Xv) > 0) { m = len(Xv[0]) }
     best_imp = 1000000000.0
     best_f = -1
     best_thr = 0.0
     best_left_idx = []
     best_right_idx = []
-    for j in range(m):
-    {
+    for j in (range(m)) {
         uniq = _dtree_uniq_sorted_vals(Xv, j)
-        if len(uniq) > 1:
-        {
-            for t in range(len(uniq) - 1):
-            {
+        if (len(uniq) > 1) {
+            for t in (range(len(uniq) - 1)) {
                 thr = (uniq[t] + uniq[t+1]) / 2.0
                 left_counts = {}
                 right_counts = {}
@@ -1661,31 +1494,27 @@ def dtree_build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
                 n_right = 0.0
                 left_idx = []
                 right_idx = []
-                for i in range(len(Xv)):
-                {
+                for i in (range(len(Xv))) {
                     v = Xv[i][j]
-                    if v <= thr:
-                    {
+                    if (v <= thr) {
                         left_idx.append(i)
                         n_left = n_left + 1.0
                         lb = yv[i]
                         left_counts[lb] = left_counts.get(lb, 0) + 1
                     }
-                    else:
-                    {
+                    else {
+                    
                         right_idx.append(i)
                         n_right = n_right + 1.0
                         lb = yv[i]
                         right_counts[lb] = right_counts.get(lb, 0) + 1
                     }
                 }
-                if n_left > 0.0 and n_right > 0.0:
-                {
+                if (n_left > 0.0 and n_right > 0.0) {
                     il = _dtree_impurity_counts(left_counts, criterion)
                     ir = _dtree_impurity_counts(right_counts, criterion)
                     wimp = (n_left / (1.0 * nloc)) * il + (n_right / (1.0 * nloc)) * ir
-                    if wimp < best_imp:
-                    {
+                    if (wimp < best_imp) {
                         best_imp = wimp
                         best_f = j
                         best_thr = thr
@@ -1696,22 +1525,19 @@ def dtree_build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
             }
         }
     }
-    if best_f == -1:
-    {
+    if (best_f == -1) {
         return _dtree_make_leaf(_dtree_majority(yv, labs))
     }
     X_left = []
     y_left = []
     X_right = []
     y_right = []
-    for ii in range(len(best_left_idx)):
-    {
+    for ii in (range(len(best_left_idx))) {
         idx = best_left_idx[ii]
         X_left.append(Xv[idx])
         y_left.append(yv[idx])
     }
-    for ii in range(len(best_right_idx)):
-    {
+    for ii in (range(len(best_right_idx))) {
         idx = best_right_idx[ii]
         X_right.append(Xv[idx])
         y_right.append(yv[idx])
@@ -1733,11 +1559,9 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     # collect label order
     labs = []
     seen_lab = {}
-    for i in range(len(y)):
-    {
+    for i in (range(len(y))) {
         lb = y[i]
-        if seen_lab.get(lb, False) == False:
-        {
+        if (seen_lab.get(lb, False) == False) {
             labs.append(lb)
             seen_lab[lb] = True
         }
@@ -1748,21 +1572,18 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     }
     def _majority(ys, labs):
     {
-        if len(ys) == 0: { return 0 }
+        if (len(ys) == 0) { return 0 }
         cnt = {}
-        for i in range(len(ys)):
-        {
+        for i in (range(len(ys))) {
             v = ys[i]
             cnt[v] = cnt.get(v, 0) + 1
         }
         best = labs[0]
         bestc = -1
-        for i in range(len(labs)):
-        {
+        for i in (range(len(labs))) {
             lb = labs[i]
             c = cnt.get(lb, 0)
-            if c > bestc:
-            {
+            if (c > bestc) {
                 bestc = c
                 best = lb
             }
@@ -1771,11 +1592,10 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     }
     def _all_same(ys):
     {
-        if len(ys) == 0: { return True }
+        if (len(ys) == 0) { return True }
         a = ys[0]
-        for i in range(1, len(ys)):
-        {
-            if ys[i] != a: { return False }
+        for i in (range(1, len(ys))) {
+            if (ys[i] != a) { return False }
         }
         return True
     }
@@ -1783,22 +1603,18 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     {
         seen = {}
         arr = []
-        for i in range(len(Xv)):
-        {
+        for i in (range(len(Xv))) {
             v = Xv[i][j]
-            if seen.get(v, False) == False:
-            {
+            if (seen.get(v, False) == False) {
                 seen[v] = True
                 arr.append(v)
             }
         }
         m = len(arr)
-        for p in range(m):
-        {
+        for p in (range(m)) {
             idx_min = p
-            for q in range(p+1, m):
-            {
-                if arr[q] < arr[idx_min]: { idx_min = q }
+            for q in (range(p+1, m)) {
+                if (arr[q] < arr[idx_min]) { idx_min = q }
             }
             tmp = arr[p]
             arr[p] = arr[idx_min]
@@ -1809,39 +1625,34 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     def _impurity_counts(counts, criterion):
     {
         tot = 0.0
-        for k in counts: { tot = tot + counts[k] }
-        if tot == 0.0: { return 0.0 }
-        if criterion == "gini":
-        {
+        for k in (counts) { tot = tot + counts[k] }
+        if (tot == 0.0) { return 0.0 }
+        if (criterion == "gini") {
             s = 0.0
-            for k in counts:
-            {
+            for k in (counts) {
                 p = counts[k] / tot
                 s = s + p * p
             }
             return 1.0 - s
         }
-        else:
-        {
+        else {
+        
             # entropy
             ee = 2.718281828
             s = 0.0
-            for k in counts:
-            {
+            for k in (counts) {
                 c = counts[k]
-                if c > 0:
-                {
+                if (c > 0) {
                     p = c / tot
                     yv = p
                     lo = -50.0
                     hi = 50.0
                     it = 0
-                    while it < 40:
-                    {
+                    while (it < 40) {
                         mid = (lo + hi) / 2.0
                         val = pow(ee, mid)
-                        if val < yv: { lo = mid }
-                        else: { hi = mid }
+                        if (val < yv) { lo = mid }
+                        else { hi = mid }
                         it = it + 1
                     }
                     ln_p = (lo + hi) / 2.0
@@ -1853,25 +1664,21 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
     }
     def _build(Xv, yv, depth, max_depth, min_samples_split, criterion, labs):
     {
-        if depth >= max_depth or len(yv) < min_samples_split or _all_same(yv):
-        {
+        if (depth >= max_depth or len(yv) < min_samples_split or _all_same(yv)) {
             return _make_leaf(_majority(yv, labs))
         }
         nloc = len(yv)
         m = 0
-        if len(Xv) > 0: { m = len(Xv[0]) }
+        if (len(Xv) > 0) { m = len(Xv[0]) }
         best_imp = 1000000000.0
         best_f = -1
         best_thr = 0.0
         best_left_idx = []
         best_right_idx = []
-        for j in range(m):
-        {
+        for j in (range(m)) {
             uniq = _uniq_sorted_vals(Xv, j)
-            if len(uniq) > 1:
-            {
-                for t in range(len(uniq) - 1):
-                {
+            if (len(uniq) > 1) {
+                for t in (range(len(uniq) - 1)) {
                     thr = (uniq[t] + uniq[t+1]) / 2.0
                     left_counts = {}
                     right_counts = {}
@@ -1879,31 +1686,27 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
                     n_right = 0.0
                     left_idx = []
                     right_idx = []
-                    for i in range(len(Xv)):
-                    {
+                    for i in (range(len(Xv))) {
                         v = Xv[i][j]
-                        if v <= thr:
-                        {
+                        if (v <= thr) {
                             left_idx.append(i)
                             n_left = n_left + 1.0
                             lb = yv[i]
                             left_counts[lb] = left_counts.get(lb, 0) + 1
                         }
-                        else:
-                        {
+                        else {
+                        
                             right_idx.append(i)
                             n_right = n_right + 1.0
                             lb = yv[i]
                             right_counts[lb] = right_counts.get(lb, 0) + 1
                         }
                     }
-                    if n_left > 0.0 and n_right > 0.0:
-                    {
+                    if (n_left > 0.0 and n_right > 0.0) {
                         il = _impurity_counts(left_counts, criterion)
                         ir = _impurity_counts(right_counts, criterion)
                         wimp = (n_left / (1.0 * nloc)) * il + (n_right / (1.0 * nloc)) * ir
-                        if wimp < best_imp:
-                        {
+                        if (wimp < best_imp) {
                             best_imp = wimp
                             best_f = j
                             best_thr = thr
@@ -1914,22 +1717,19 @@ def decision_tree_train(X, y, max_depth=3, criterion="gini", min_samples_split=2
                 }
             }
         }
-        if best_f == -1:
-        {
+        if (best_f == -1) {
             return _make_leaf(_majority(yv, labs))
         }
         X_left = []
         y_left = []
         X_right = []
         y_right = []
-        for ii in range(len(best_left_idx)):
-        {
+        for ii in (range(len(best_left_idx))) {
             idx = best_left_idx[ii]
             X_left.append(Xv[idx])
             y_left.append(yv[idx])
         }
-        for ii in range(len(best_right_idx)):
-        {
+        for ii in (range(len(best_right_idx))) {
             idx = best_right_idx[ii]
             X_right.append(Xv[idx])
             y_right.append(yv[idx])
@@ -1947,21 +1747,18 @@ def decision_tree_predict(tree, X):
 {
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         node = tree
-        while True:
-        {
-            if node.get("is_leaf", False) == True:
-            {
+        while (True) {
+            if (node.get("is_leaf", False) == True) {
                 preds.append(node.get("label", 0))
                 break
             }
             f = node.get("feature", 0)
             thr = node.get("threshold", 0.0)
             v = X[i][f]
-            if v <= thr: { node = node.get("left", {}) }
-            else: { node = node.get("right", {}) }
+            if (v <= thr) { node = node.get("left", {}) }
+            else { node = node.get("right", {}) }
         }
     }
     return preds
@@ -1981,23 +1778,20 @@ def توقع_شجرة_قرار(شجرة, س): { return decision_tree_predict(ش�
 def perceptron_train(X, y, lr=1.0, epochs=20):
 {
     n = len(X)
-    if n == 0: { return [[0.0], 0.0] }
+    if (n == 0) { return [[0.0], 0.0] }
     d = len(X[0])
     w = []
-    for j in range(d): { w.append(0.0) }
+    for j in (range(d)) { w.append(0.0) }
     b = 0.0
-    for ep in range(epochs):
-    {
-        for i in range(n):
-        {
+    for ep in (range(epochs)) {
+        for i in (range(n)) {
             z = b
-            for j in range(d): { z = z + w[j] * X[i][j] }
+            for j in (range(d)) { z = z + w[j] * X[i][j] }
             pred = 0
-            if z >= 0.0: { pred = 1 }
+            if (z >= 0.0) { pred = 1 }
             err = y[i] - pred
-            if err != 0:
-            {
-                for j in range(d): { w[j] = w[j] + lr * err * X[i][j] }
+            if (err != 0) {
+                for j in (range(d)) { w[j] = w[j] + lr * err * X[i][j] }
                 b = b + lr * err
             }
         }
@@ -2009,11 +1803,10 @@ def perceptron_train(X, y, lr=1.0, epochs=20):
 def perceptron_predict(X, w, b):
 {
     out = []
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         z = b
-        for j in range(len(X[i])): { z = z + w[j] * X[i][j] }
-        if z >= 0.0: { out.append(1) } else: { out.append(0) }
+        for j in (range(len(X[i]))) { z = z + w[j] * X[i][j] }
+        if (z >= 0.0) { out.append(1) } else { out.append(0) }
     }
     return out
 }
@@ -2024,23 +1817,19 @@ def perceptron_ovr_train(X, y, lr=1.0, epochs=20):
 {
     labs = []
     seen = {}
-    for i in range(len(y)):
-    {
+    for i in (range(len(y))) {
         lb = y[i]
-        if seen.get(lb, False) == False:
-        {
+        if (seen.get(lb, False) == False) {
             seen[lb] = True
             labs.append(lb)
         }
     }
     models = []  # list of {"w": w, "b": b, "label": L}
-    for li in range(len(labs)):
-    {
+    for li in (range(len(labs))) {
         L = labs[li]
         yb = []
-        for i in range(len(y)):
-        {
-            if y[i] == L: { yb.append(1) } else: { yb.append(0) }
+        for i in (range(len(y))) {
+            if (y[i] == L) { yb.append(1) } else { yb.append(0) }
         }
         wb = perceptron_train(X, yb, lr, epochs)
         w = wb[0]
@@ -2056,28 +1845,24 @@ def perceptron_ovr_predict(model, X):
     models = model.get("models", [])
     labs = model.get("labels", [])
     out = []
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         best = 0
         best_score = 0.0
-        if len(models) > 0:
-        {
+        if (len(models) > 0) {
             best = models[0].get("label", 0)
             w0 = models[0].get("w", [])
             b0 = models[0].get("b", 0.0)
             z0 = b0
-            for j in range(len(X[i])): { z0 = z0 + w0[j] * X[i][j] }
+            for j in (range(len(X[i]))) { z0 = z0 + w0[j] * X[i][j] }
             best_score = z0
         }
-        for mi in range(1, len(models)):
-        {
+        for mi in (range(1, len(models))) {
             w = models[mi].get("w", [])
             b = models[mi].get("b", 0.0)
             L = models[mi].get("label", 0)
             z = b
-            for j in range(len(X[i])): { z = z + w[j] * X[i][j] }
-            if z > best_score:
-            {
+            for j in (range(len(X[i]))) { z = z + w[j] * X[i][j] }
+            if (z > best_score) {
                 best_score = z
                 best = L
             }
@@ -2092,14 +1877,11 @@ def perceptron_ovr_predict(model, X):
 def k_nearest_neighbors_weighted_predict(train_data, train_labels, samples, k=3):
 {
     preds = []
-    for sample in samples:
-    {
+    for sample in (samples) {
         pairs = []  # [ [dist, label], ... ]
-        for i in range(len(train_data)):
-        {
+        for i in (range(len(train_data))) {
             dist = 0.0
-            for t in range(len(sample)):
-            {
+            for t in (range(len(sample))) {
                 diff = sample[t] - train_data[i][t]
                 dist = dist + diff * diff
             }
@@ -2109,20 +1891,17 @@ def k_nearest_neighbors_weighted_predict(train_data, train_labels, samples, k=3)
         pairs = sorted(pairs)
         # weighted vote among first k
         weights = {}
-        for j in range(k):
-        {
+        for j in (range(k)) {
             d = pairs[j][0]
             lab = pairs[j][1]
             w = 0.0
-            if d == 0.0: { w = 1000000000.0 } else: { w = 1.0 / d }
+            if (d == 0.0) { w = 1000000000.0 } else { w = 1.0 / d }
             weights[lab] = weights.get(lab, 0.0) + w
         }
         best_lab = ""
         best_w = -1.0
-        for lab in weights:
-        {
-            if weights[lab] > best_w:
-            {
+        for lab in (weights) {
+            if (weights[lab] > best_w) {
                 best_w = weights[lab]
                 best_lab = lab
             }
@@ -2164,17 +1943,16 @@ def rf_perm(n, seed):
 {
     # Inside-out Fisher–Yates
     perm = []
-    for i in range(n): { perm.append(0) }
+    for i in (range(n)) { perm.append(0) }
     state = seed
-    for i in range(n):
-    {
+    for i in (range(n)) {
         perm[i] = i
         pair = rf_lcg_next(state)
         state = pair[0]
         u = pair[1]
         t = u * (i + 1)
         j = 0
-        while (j + 1) <= t: { j = j + 1 }
+        while ((j + 1) <= t) { j = j + 1 }
         tmp = perm[i]
         perm[i] = perm[j]
         perm[j] = tmp
@@ -2185,12 +1963,12 @@ def rf_perm(n, seed):
 
 def rf_choose_k_features(m, k, seed):
 {
-    if k > m: { k = m }
+    if (k > m) { k = m }
     res = rf_perm(m, seed)
     perm = res[0]
     state = res[1]
     feats = []
-    for i in range(k): { feats.append(perm[i]) }
+    for i in (range(k)) { feats.append(perm[i]) }
     return [feats, state]
 }
 
@@ -2199,14 +1977,13 @@ def rf_bootstrap_indices(n, size, seed):
 {
     idxs = []
     state = seed
-    for s in range(size):
-    {
+    for s in (range(size)) {
         pair = rf_lcg_next(state)
         state = pair[0]
         u = pair[1]
         t = u * n
         j = 0
-        while (j + 1) <= t: { j = j + 1 }
+        while ((j + 1) <= t) { j = j + 1 }
         idxs.append(j)
     }
     return [idxs, state]
@@ -2216,11 +1993,9 @@ def rf_bootstrap_indices(n, size, seed):
 def rf_extract_features_rows(X, feats):
 {
     Xs = []
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         row = []
-        for fi in range(len(feats)):
-        {
+        for fi in (range(len(feats))) {
             row.append(X[i][feats[fi]])
         }
         Xs.append(row)
@@ -2232,17 +2007,15 @@ def rf_extract_features_rows(X, feats):
 def rf_tree_predict_row(node, row):
 {
     cur = node
-    while True:
-    {
-        if cur.get("is_leaf", False) == True:
-        {
+    while (True) {
+        if (cur.get("is_leaf", False) == True) {
             return cur.get("label", 0)
         }
         f = cur.get("feature", 0)
         thr = cur.get("threshold", 0.0)
         val = row[f]
-        if val <= thr: { cur = cur.get("left", {}) }
-        else: { cur = cur.get("right", {}) }
+        if (val <= thr) { cur = cur.get("left", {}) }
+        else { cur = cur.get("right", {}) }
     }
 }
 
@@ -2250,27 +2023,25 @@ def rf_tree_predict_row(node, row):
 def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, feature_subsample_ratio=1.0, sample_ratio=1.0, criterion="gini", seed=42):
 {
     n = len(X)
-    if n == 0: { return {"trees": [], "features": []} }
+    if (n == 0) { return {"trees": [], "features": []} }
     m = len(X[0])
     fcount = m
     r = feature_subsample_ratio
-    if r < 1.0:
-    {
+    if (r < 1.0) {
         # compute floor(m*r) but >=1
         rr = r * m
         k = 0
-        while (k + 1) <= rr: { k = k + 1 }
-        if k < 1: { k = 1 }
+        while ((k + 1) <= rr) { k = k + 1 }
+        if (k < 1) { k = 1 }
         fcount = k
     }
     ssize = n
     sr = sample_ratio
-    if sr < 1.0:
-    {
+    if (sr < 1.0) {
         rr = sr * n
         k = 0
-        while (k + 1) <= rr: { k = k + 1 }
-        if k < 1: { k = 1 }
+        while ((k + 1) <= rr) { k = k + 1 }
+        if (k < 1) { k = 1 }
         ssize = k
     }
     trees = []
@@ -2279,35 +2050,30 @@ def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, featu
     # collect label order like decision_tree_train
     labs = []
     seen = {}
-    for i in range(len(y)):
-    {
+    for i in (range(len(y))) {
         lb = y[i]
-        if seen.get(lb, False) == False:
-        {
+        if (seen.get(lb, False) == False) {
             seen[lb] = True
             labs.append(lb)
         }
     }
-    for t in range(n_trees):
-    {
+    for t in (range(n_trees)) {
         # Deterministic feature choice and bootstrap to avoid helper visibility issues
         feats = []
-        for i in range(fcount): { feats.append(i) }
+        for i in (range(fcount)) { feats.append(i) }
         idxs = []
-        for i in range(ssize): { idxs.append(i) }
+        for i in (range(ssize)) { idxs.append(i) }
         Xb = []
         yb = []
-        for i in range(len(idxs)):
-        {
+        for i in (range(len(idxs))) {
             Xb.append(X[idxs[i]])
             yb.append(y[idxs[i]])
         }
         # Extract selected features
         Xb_sub = []
-        for i in range(len(Xb)):
-        {
+        for i in (range(len(Xb))) {
             row2 = []
-            for fi in range(len(feats)): { row2.append(Xb[i][feats[fi]]) }
+            for fi in (range(len(feats))) { row2.append(Xb[i][feats[fi]]) }
             Xb_sub.append(row2)
         }
         # Inline tiny depth-2 tree builder to avoid cross-function lookup issues
@@ -2315,152 +2081,130 @@ def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, featu
         # Build root split
         best_f = -1
         best_score = 1000000000.0
-        for fi in range(len(feats)):
-        {
+        for fi in (range(len(feats))) {
             # compute misclassification for threshold 0.5
             l0 = 0
             l1 = 0
             r0 = 0
             r1 = 0
-            for ii in range(len(Xb_sub)):
-            {
+            for ii in (range(len(Xb_sub))) {
                 v = Xb_sub[ii][fi]
                 lb = yb[ii]
-                if v <= 0.5:
-                {
-                    if lb == labs[0]: { l0 = l0 + 1 } else: { l1 = l1 + 1 }
+                if (v <= 0.5) {
+                    if (lb == labs[0]) { l0 = l0 + 1 } else { l1 = l1 + 1 }
                 }
-                else:
-                {
-                    if lb == labs[0]: { r0 = r0 + 1 } else: { r1 = r1 + 1 }
+                else {
+                
+                    if (lb == labs[0]) { r0 = r0 + 1 } else { r1 = r1 + 1 }
                 }
             }
             # error = total - majority(left) - majority(right)
             lm = l0
-            if l1 > lm: { lm = l1 }
+            if (l1 > lm) { lm = l1 }
             rm = r0
-            if r1 > rm: { rm = r1 }
+            if (r1 > rm) { rm = r1 }
             err = (l0 + l1 + r0 + r1) - lm - rm
-            if err < best_score:
-            {
+            if (err < best_score) {
                 best_score = err
                 best_f = fi
             }
         }
-        if best_f == -1:
-        {
+        if (best_f == -1) {
             # majority leaf
             c0 = 0
             c1 = 0
-            for ii in range(len(yb)):
-            {
-                if yb[ii] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+            for ii in (range(len(yb))) {
+                if (yb[ii] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
             }
             lbl = labs[0]
-            if c1 > c0:
-            {
-                if len(labs) > 1:
-                {
+            if (c1 > c0) {
+                if (len(labs) > 1) {
                     lbl = labs[1]
                 }
-                else:
-                {
+                else {
+                
                     lbl = labs[0]
                 }
             }
             tree = {"is_leaf": True, "label": lbl}
         }
-        else:
-        {
+        else {
+        
             # build depth-2 tree
             left_idx = []
             right_idx = []
-            for ii in range(len(Xb_sub)):
-            {
-                if Xb_sub[ii][best_f] <= 0.5: { left_idx.append(ii) } else: { right_idx.append(ii) }
+            for ii in (range(len(Xb_sub))) {
+                if (Xb_sub[ii][best_f] <= 0.5) { left_idx.append(ii) } else { right_idx.append(ii) }
             }
             # choose second feature (first different from best_f if available)
             sec_f = -1
-            for fi2 in range(len(feats)):
-            {
-                if fi2 != best_f:
-                {
+            for fi2 in (range(len(feats))) {
+                if (fi2 != best_f) {
                     sec_f = fi2
                     break
                 }
             }
             left_node = {}
             right_node = {}
-            if sec_f == -1 or max_depth <= 1:
-            {
+            if (sec_f == -1 or max_depth <= 1) {
                 # majority for left branch
                 c0 = 0
                 c1 = 0
-                for jj in range(len(left_idx)):
-                {
+                for jj in (range(len(left_idx))) {
                     idd = left_idx[jj]
-                    if yb[idd] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                    if (yb[idd] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
                 left_node = {"is_leaf": True, "label": labs[0]}
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         left_node = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         left_node = {"is_leaf": True, "label": labs[0]}
                     }
                 }
                 # majority for right branch
                 c0 = 0
                 c1 = 0
-                for jj in range(len(right_idx)):
-                {
+                for jj in (range(len(right_idx))) {
                     idd = right_idx[jj]
-                    if yb[idd] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                    if (yb[idd] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
                 right_node = {"is_leaf": True, "label": labs[0]}
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         right_node = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         right_node = {"is_leaf": True, "label": labs[0]}
                     }
                 }
             }
-            else:
-            {
+            else {
+            
                 # split left on sec_f
                 l_li = []
                 l_ri = []
-                for jj in range(len(left_idx)):
-                {
+                for jj in (range(len(left_idx))) {
                     idd = left_idx[jj]
-                    if Xb_sub[idd][sec_f] <= 0.5: { l_li.append(idd) } else: { l_ri.append(idd) }
+                    if (Xb_sub[idd][sec_f] <= 0.5) { l_li.append(idd) } else { l_ri.append(idd) }
                 }
                 # build left subtree (split by sec_f)
                 left_left = {"is_leaf": True, "label": labs[0]}
                 # majority for left-left
                 c0 = 0
                 c1 = 0
-                for kk in range(len(l_li)):
-                {
-                    if yb[l_li[kk]] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                for kk in (range(len(l_li))) {
+                    if (yb[l_li[kk]] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         left_left = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         left_left = {"is_leaf": True, "label": labs[0]}
                     }
                 }
@@ -2468,18 +2212,15 @@ def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, featu
                 left_right = {"is_leaf": True, "label": labs[0]}
                 c0 = 0
                 c1 = 0
-                for kk in range(len(l_ri)):
-                {
-                    if yb[l_ri[kk]] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                for kk in (range(len(l_ri))) {
+                    if (yb[l_ri[kk]] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         left_right = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         left_right = {"is_leaf": True, "label": labs[0]}
                     }
                 }
@@ -2487,27 +2228,23 @@ def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, featu
                 # similarly for right branch
                 r_li = []
                 r_ri = []
-                for jj in range(len(right_idx)):
-                {
+                for jj in (range(len(right_idx))) {
                     idd = right_idx[jj]
-                    if Xb_sub[idd][sec_f] <= 0.5: { r_li.append(idd) } else: { r_ri.append(idd) }
+                    if (Xb_sub[idd][sec_f] <= 0.5) { r_li.append(idd) } else { r_ri.append(idd) }
                 }
                 # left leaf
                 c0 = 0
                 c1 = 0
                 left2 = {"is_leaf": True, "label": labs[0]}
-                for kk in range(len(r_li)):
-                {
-                    if yb[r_li[kk]] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                for kk in (range(len(r_li))) {
+                    if (yb[r_li[kk]] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         left2 = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         left2 = {"is_leaf": True, "label": labs[0]}
                     }
                 }
@@ -2515,18 +2252,15 @@ def random_forest_train(X, y, n_trees=5, max_depth=3, min_samples_split=2, featu
                 c0 = 0
                 c1 = 0
                 right2 = {"is_leaf": True, "label": labs[0]}
-                for kk in range(len(r_ri)):
-                {
-                    if yb[r_ri[kk]] == labs[0]: { c0 = c0 + 1 } else: { c1 = c1 + 1 }
+                for kk in (range(len(r_ri))) {
+                    if (yb[r_ri[kk]] == labs[0]) { c0 = c0 + 1 } else { c1 = c1 + 1 }
                 }
-                if c1 > c0:
-                {
-                    if len(labs) > 1:
-                    {
+                if (c1 > c0) {
+                    if (len(labs) > 1) {
                         right2 = {"is_leaf": True, "label": labs[1]}
                     }
-                    else:
-                    {
+                    else {
+                    
                         right2 = {"is_leaf": True, "label": labs[0]}
                     }
                 }
@@ -2547,37 +2281,31 @@ def random_forest_predict(model, X):
     feats_list = model.get("features", [])
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         votes = {}
-        for ti in range(len(trees)):
-        {
+        for ti in (range(len(trees))) {
             feats = feats_list[ti]
             row = []
-            for fi in range(len(feats)): { row.append(X[i][feats[fi]]) }
+            for fi in (range(len(feats))) { row.append(X[i][feats[fi]]) }
             # Inline tree prediction
             cur = trees[ti]
-            while True:
-            {
-                if cur.get("is_leaf", False):
-                {
+            while (True) {
+                if (cur.get("is_leaf", False)) {
                     lab = cur.get("label", 0)
                     break
                 }
                 f = cur.get("feature", 0)
                 thr = cur.get("threshold", 0.0)
                 val = row[f]
-                if val <= thr: { cur = cur.get("left", {}) }
-                else: { cur = cur.get("right", {}) }
+                if (val <= thr) { cur = cur.get("left", {}) }
+                else { cur = cur.get("right", {}) }
             }
             votes[lab] = votes.get(lab, 0) + 1
         }
         best_lab = 0
         best_c = -1
-        for k in votes:
-        {
-            if votes[k] > best_c:
-            {
+        for k in (votes) {
+            if (votes[k] > best_c) {
                 best_c = votes[k]
                 best_lab = k
             }
@@ -2602,31 +2330,28 @@ def توقع_غابة_عشوائية(نموذج, س): { return random_forest_pre
 def linear_svm_train(X, y, lr=0.1, epochs=50, C=1.0):
 {
     n = len(X)
-    if n == 0: { return [[0.0], 0.0] }
+    if (n == 0) { return [[0.0], 0.0] }
     d = len(X[0])
     w = []
-    for j in range(d): { w.append(0.0) }
+    for j in (range(d)) { w.append(0.0) }
     b = 0.0
-    for ep in range(epochs):
-    {
-        for i in range(n):
-        {
+    for ep in (range(epochs)) {
+        for i in (range(n)) {
             yi = y[i]
             yi2 = -1
-            if yi != 0: { yi2 = 1 }
+            if (yi != 0) { yi2 = 1 }
             # dot
             z = 0.0
-            for j in range(d): { z = z + w[j] * X[i][j] }
+            for j in (range(d)) { z = z + w[j] * X[i][j] }
             z = z + b
             margin = yi2 * z
-            if margin >= 1.0:
-            {
+            if (margin >= 1.0) {
                 # no update needed when correctly classified with margin
             }
-            else:
-            {
+            else {
+            
                 # simple hinge SGD update without weight decay for stability on tiny datasets
-                for j in range(d): { w[j] = w[j] + lr * C * yi2 * X[i][j] }
+                for j in (range(d)) { w[j] = w[j] + lr * C * yi2 * X[i][j] }
                 b = b + lr * C * yi2
             }
         }
@@ -2639,12 +2364,11 @@ def linear_svm_predict(X, w, b):
 {
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         z = 0.0
-        for j in range(len(w)): { z = z + w[j] * X[i][j] }
+        for j in (range(len(w))) { z = z + w[j] * X[i][j] }
         z = z + b
-        if z >= 0.0: { preds.append(1) } else: { preds.append(0) }
+        if (z >= 0.0) { preds.append(1) } else { preds.append(0) }
     }
     return preds
 }
@@ -2665,49 +2389,42 @@ def linear_svm_ovr_train(X, y, lr=0.1, epochs=50, C=1.0):
     n = len(y)
     labs = []
     seen = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         lb = y[i]
-        if seen.get(lb, False) == False:
-        {
+        if (seen.get(lb, False) == False) {
             seen[lb] = True
             labs.append(lb)
         }
     }
     m = len(labs)
     d = 0
-    if n > 0: { d = len(X[0]) }
+    if (n > 0) { d = len(X[0]) }
     Ws = []
     Bs = []
-    for k in range(m):
-    {
+    for k in (range(m)) {
         # build binary labels 0/1 for class labs[k]
         yb = []
-        for i in range(n):
-        {
-            if y[i] == labs[k]: { yb.append(1) } else: { yb.append(0) }
+        for i in (range(n)) {
+            if (y[i] == labs[k]) { yb.append(1) } else { yb.append(0) }
         }
         # inline binary linear SVM training (hinge loss SGD)
         w = []
-        for j in range(d): { w.append(0.0) }
+        for j in (range(d)) { w.append(0.0) }
         b = 0.0
-        for ep in range(epochs):
-        {
-            for i in range(n):
-            {
+        for ep in (range(epochs)) {
+            for i in (range(n)) {
                 yi = yb[i]
                 yi2 = -1
-                if yi != 0: { yi2 = 1 }
+                if (yi != 0) { yi2 = 1 }
                 z = 0.0
-                for j in range(d): { z = z + w[j] * X[i][j] }
+                for j in (range(d)) { z = z + w[j] * X[i][j] }
                 z = z + b
                 margin = yi2 * z
-                if margin >= 1.0:
-                {
+                if (margin >= 1.0) {
                 }
-                else:
-                {
-                    for j in range(d): { w[j] = w[j] + lr * C * yi2 * X[i][j] }
+                else {
+                
+                    for j in (range(d)) { w[j] = w[j] + lr * C * yi2 * X[i][j] }
                     b = b + lr * C * yi2
                 }
             }
@@ -2729,26 +2446,22 @@ def linear_svm_ovr_predict(model, X):
     m = len(labs)
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         best_j = 0
         best_z = -1000000000.0
-        for k in range(m):
-        {
+        for k in (range(m)) {
             w = Ws[k]
             b = Bs[k]
             z = 0.0
-            for j in range(len(w)): { z = z + w[j] * X[i][j] }
+            for j in (range(len(w))) { z = z + w[j] * X[i][j] }
             z = z + b
-            if k == 0:
-            {
+            if (k == 0) {
                 best_z = z
                 best_j = 0
             }
-            else:
-            {
-                if z > best_z:
-                {
+            else {
+            
+                if (z > best_z) {
                     best_z = z
                     best_j = k
                 }
@@ -2765,25 +2478,22 @@ def linear_svm_ovr_predict(model, X):
 def bagging_train(X, y, n_estimators=5, max_depth=3, min_samples_split=2, sample_ratio=1.0, seed=42):
 {
     n = len(X)
-    if n == 0: { return {"trees": []} }
+    if (n == 0) { return {"trees": []} }
     d = len(X[0])
     trees = []
     # number of samples per bootstrap
     m = n
-    if sample_ratio < 1.0:
-    {
+    if (sample_ratio < 1.0) {
         t = sample_ratio * n
         mm = 0
-        while (mm + 1) <= t: { mm = mm + 1 }
-        if mm < 1: { mm = 1 }
+        while ((mm + 1) <= t) { mm = mm + 1 }
+        if (mm < 1) { mm = 1 }
         m = mm
     }
-    for t in range(n_estimators):
-    {
+    for t in (range(n_estimators)) {
         # bootstrap indices (deterministic PRNG based on seed)
         idxs = []
-        for i in range(m):
-        {
+        for i in (range(m)) {
             seed = (seed * 1664525 + 1013904223) % 4294967296
             k = seed % n
             idxs.append(k)
@@ -2794,24 +2504,20 @@ def bagging_train(X, y, n_estimators=5, max_depth=3, min_samples_split=2, sample
         best_acc = -1.0
         best_left = 0
         best_right = 0
-        for j in range(d):
-        {
+        for j in (range(d)) {
             # collect unique values for feature j
             uniq = {}
             vals = []
-            for ii in range(m):
-            {
+            for ii in (range(m)) {
                 v = X[idxs[ii]][j]
                 vals.append(v)
-                if uniq.get(v, False) == False: { uniq[v] = True }
+                if (uniq.get(v, False) == False) { uniq[v] = True }
             }
             # build sorted unique list
             uniq_list = []
-            for ii in range(len(vals)):
-            {
+            for ii in (range(len(vals))) {
                 vv = vals[ii]
-                if uniq.get(vv, False):
-                {
+                if (uniq.get(vv, False)) {
                     # mark consumed
                     uniq[vv] = False
                     uniq_list.append(vv)
@@ -2820,71 +2526,60 @@ def bagging_train(X, y, n_estimators=5, max_depth=3, min_samples_split=2, sample
             uniq_list = sorted(uniq_list)
             # candidate thresholds
             cands = []
-            if len(uniq_list) <= 1:
-            {
-                if len(uniq_list) == 1: { cands.append(uniq_list[0]) }
+            if (len(uniq_list) <= 1) {
+                if (len(uniq_list) == 1) { cands.append(uniq_list[0]) }
             }
-            else:
-            {
-                for u in range(len(uniq_list) - 1):
-                {
+            else {
+            
+                for u in (range(len(uniq_list) - 1)) {
                     cands.append((uniq_list[u] + uniq_list[u+1]) / 2.0)
                 }
             }
-            for ci in range(len(cands)):
-            {
+            for ci in (range(len(cands))) {
                 thr = cands[ci]
                 # majority labels on both sides
                 left_counts = {}
                 right_counts = {}
-                for ii in range(m):
-                {
+                for ii in (range(m)) {
                     idx = idxs[ii]
                     val = X[idx][j]
                     label = y[idx]
-                    if val < thr:
-                    {
+                    if (val < thr) {
                         left_counts[label] = left_counts.get(label, 0) + 1
                     }
-                    else:
-                    {
+                    else {
+                    
                         right_counts[label] = right_counts.get(label, 0) + 1
                     }
                 }
                 left_label = 0
                 left_best = -1
-                for lb in left_counts:
-                {
+                for lb in (left_counts) {
                     c = left_counts.get(lb, 0)
-                    if c > left_best:
-                    {
+                    if (c > left_best) {
                         left_best = c
                         left_label = lb
                     }
                 }
                 right_label = 0
                 right_best = -1
-                for lb in right_counts:
-                {
+                for lb in (right_counts) {
                     c = right_counts.get(lb, 0)
-                    if c > right_best:
-                    {
+                    if (c > right_best) {
                         right_best = c
                         right_label = lb
                     }
                 }
                 # accuracy on bootstrap
                 acc = 0
-                for ii in range(m):
-                {
+                for ii in (range(m)) {
                     idx = idxs[ii]
                     val = X[idx][j]
                     pred = left_label
-                    if val >= thr: { pred = right_label }
-                    if pred == y[idx]: { acc = acc + 1 }
+                    if (val >= thr) { pred = right_label }
+                    if (pred == y[idx]) { acc = acc + 1 }
                 }
-                if acc > best_acc:
-                {
+                if (acc > best_acc) {
                     best_acc = acc
                     best_feat = j
                     best_thr = thr
@@ -2904,11 +2599,9 @@ def bagging_predict(model, X):
     trees = model.get("trees", [])
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         votes = {}
-        for t in range(len(trees)):
-        {
+        for t in (range(len(trees))) {
             tr = trees[t]
             j = tr.get("j", 0)
             thr = tr.get("thr", 0.0)
@@ -2916,16 +2609,14 @@ def bagging_predict(model, X):
             right_lab = tr.get("right", 0)
             val = X[i][j]
             lab = left_lab
-            if val >= thr: { lab = right_lab }
+            if (val >= thr) { lab = right_lab }
             votes[lab] = votes.get(lab, 0) + 1
         }
         best_lab = 0
         best_cnt = -1
-        for lb in votes:
-        {
+        for lb in (votes) {
             c = votes.get(lb, 0)
-            if c > best_cnt:
-            {
+            if (c > best_cnt) {
                 best_cnt = c
                 best_lab = lb
             }
@@ -2945,104 +2636,92 @@ def bagging_predict(model, X):
 def adaboost_train(X, y, n_estimators=10):
 {
     n = len(X)
-    if n == 0: { return {"stumps": []} }
+    if (n == 0) { return {"stumps": []} }
     d = len(X[0])
     # initialize sample weights uniformly
     w = []
-    for i in range(n): { w.append(1.0 / n) }
+    for i in (range(n)) { w.append(1.0 / n) }
     stumps = []
     e = 2.718281828
 
     # natural log via bisection on exp
     def _ln(val):
     {
-        if val <= 0.0: { return -50.0 }
+        if (val <= 0.0) { return -50.0 }
         lo = -50.0
         hi = 50.0
         it = 0
-        while it < 40:
-        {
+        while (it < 40) {
             mid = (lo + hi) / 2.0
             ev = pow(e, mid)
-            if ev < val: { lo = mid } else: { hi = mid }
+            if (ev < val) { lo = mid } else { hi = mid }
             it = it + 1
         }
         return (lo + hi) / 2.0
     }
 
     t = 0
-    while t < n_estimators:
-    {
+    while (t < n_estimators) {
         best_err = 2.0
         best_j = 0
         best_thr = 0.0
         best_left = 0
         best_right = 0
         # search best weighted stump
-        for j in range(d):
-        {
+        for j in (range(d)) {
             # unique sorted values for feature j
             seen = {}
             uniq = []
-            for i in range(n):
-            {
+            for i in (range(n)) {
                 v = X[i][j]
-                if seen.get(v, False) == False:
-                {
+                if (seen.get(v, False) == False) {
                     seen[v] = True
                     uniq.append(v)
                 }
             }
             uniq = sorted(uniq)
             cands = []
-            if len(uniq) <= 1:
-            {
-                if len(uniq) == 1: { cands.append(uniq[0]) }
+            if (len(uniq) <= 1) {
+                if (len(uniq) == 1) { cands.append(uniq[0]) }
             }
-            else:
-            {
-                for u in range(len(uniq) - 1):
-                {
+            else {
+            
+                for u in (range(len(uniq) - 1)) {
                     cands.append((uniq[u] + uniq[u+1]) / 2.0)
                 }
             }
-            for ci in range(len(cands)):
-            {
+            for ci in (range(len(cands))) {
                 thr = cands[ci]
                 # weighted counts on both sides
                 l0 = 0.0
                 l1 = 0.0
                 r0 = 0.0
                 r1 = 0.0
-                for i in range(n):
-                {
+                for i in (range(n)) {
                     val = X[i][j]
                     yi = y[i]
                     wi = w[i]
-                    if val < thr:
-                    {
-                        if yi == 1: { l1 = l1 + wi } else: { l0 = l0 + wi }
+                    if (val < thr) {
+                        if (yi == 1) { l1 = l1 + wi } else { l0 = l0 + wi }
                     }
-                    else:
-                    {
-                        if yi == 1: { r1 = r1 + wi } else: { r0 = r0 + wi }
+                    else {
+                    
+                        if (yi == 1) { r1 = r1 + wi } else { r0 = r0 + wi }
                     }
                 }
                 left_label = 0
-                if l1 >= l0: { left_label = 1 }
+                if (l1 >= l0) { left_label = 1 }
                 right_label = 0
-                if r1 >= r0: { right_label = 1 }
+                if (r1 >= r0) { right_label = 1 }
                 # compute weighted error
                 err = 0.0
-                for i in range(n):
-                {
+                for i in (range(n)) {
                     val = X[i][j]
                     pred = left_label
-                    if val >= thr: { pred = right_label }
-                    if pred != y[i]: { err = err + w[i] }
+                    if (val >= thr) { pred = right_label }
+                    if (pred != y[i]) { err = err + w[i] }
                 }
-                if err < best_err:
-                {
+                if (err < best_err) {
                     best_err = err
                     best_j = j
                     best_thr = thr
@@ -3052,42 +2731,39 @@ def adaboost_train(X, y, n_estimators=10):
             }
         }
         # stop if weak learner is not better than chance
-        if best_err >= 0.499999:
-        {
+        if (best_err >= 0.499999) {
             break
         }
         # compute alpha
         ee = best_err
-        if ee < 0.000001: { ee = 0.000001 }
-        if ee > 0.999999: { ee = 0.999999 }
+        if (ee < 0.000001) { ee = 0.000001 }
+        if (ee > 0.999999) { ee = 0.999999 }
         ratio = (1.0 - ee) / ee
         alpha = 0.5 * _ln(ratio)
         # store stump
         stumps.append({"j": best_j, "thr": best_thr, "left": best_left, "right": best_right, "alpha": alpha})
         # update weights
-        for i in range(n):
-        {
+        for i in (range(n)) {
             yi = y[i]
             ysgn = -1.0
-            if yi == 1: { ysgn = 1.0 }
+            if (yi == 1) { ysgn = 1.0 }
             val = X[i][best_j]
             pred = best_left
-            if val >= best_thr: { pred = best_right }
+            if (val >= best_thr) { pred = best_right }
             psgn = -1.0
-            if pred == 1: { psgn = 1.0 }
+            if (pred == 1) { psgn = 1.0 }
             expo = -alpha * ysgn * psgn
             w[i] = w[i] * pow(e, expo)
         }
         # normalize weights
         s = 0.0
-        for i in range(n): { s = s + w[i] }
-        if s == 0.0:
-        {
-            for i in range(n): { w[i] = 1.0 / n }
+        for i in (range(n)) { s = s + w[i] }
+        if (s == 0.0) {
+            for i in (range(n)) { w[i] = 1.0 / n }
         }
-        else:
-        {
-            for i in range(n): { w[i] = w[i] / s }
+        else {
+        
+            for i in (range(n)) { w[i] = w[i] / s }
         }
         t = t + 1
     }
@@ -3100,11 +2776,9 @@ def adaboost_predict(model, X):
     stumps = model.get("stumps", [])
     n = len(X)
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         score = 0.0
-        for t in range(len(stumps)):
-        {
+        for t in (range(len(stumps))) {
             st = stumps[t]
             j = st.get("j", 0)
             thr = st.get("thr", 0.0)
@@ -3113,12 +2787,12 @@ def adaboost_predict(model, X):
             a = st.get("alpha", 0.0)
             val = X[i][j]
             lab = left_lab
-            if val >= thr: { lab = right_lab }
+            if (val >= thr) { lab = right_lab }
             sgn = -1.0
-            if lab == 1: { sgn = 1.0 }
+            if (lab == 1) { sgn = 1.0 }
             score = score + a * sgn
         }
-        if score >= 0.0: { preds.append(1) } else: { preds.append(0) }
+        if (score >= 0.0) { preds.append(1) } else { preds.append(0) }
     }
     return preds
 }
@@ -3147,27 +2821,25 @@ def توقع_ادابوست(نموذج, س): { return adaboost_predict(نموذ�
 def naive_bayes_train(docs_tokens, y, alpha=1.0):
 {
     n = len(docs_tokens)
-    if n == 0: { return {"classes": [], "prior": {}, "likelihoods": {}, "unk": {}, "vocab": []} }
+    if (n == 0) { return {"classes": [], "prior": {}, "likelihoods": {}, "unk": {}, "vocab": []} }
     class_counts = {}
     token_counts = {}  # class -> dict token->count
     total_tokens = {}  # class -> total token count
     vocab = {}
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         c = y[i]
         doc = docs_tokens[i]
-        if not (c in class_counts): { class_counts[c] = 0 }
+        if (not (c in class_counts)) { class_counts[c] = 0 }
         class_counts[c] = class_counts[c] + 1
-        if not (c in token_counts): { token_counts[c] = {} }
-        if not (c in total_tokens): { total_tokens[c] = 0 }
+        if (not (c in token_counts)) { token_counts[c] = {} }
+        if (not (c in total_tokens)) { total_tokens[c] = 0 }
         j = 0
-        while j < len(doc):
-        {
+        while (j < len(doc)) {
             t = doc[j]
             # update class token counts
             cur = 0
-            if t in token_counts[c]: { cur = token_counts[c][t] }
+            if (t in token_counts[c]) { cur = token_counts[c][t] }
             token_counts[c][t] = cur + 1
             total_tokens[c] = total_tokens[c] + 1
             vocab[t] = 1
@@ -3177,32 +2849,30 @@ def naive_bayes_train(docs_tokens, y, alpha=1.0):
     }
     # classes list
     classes = []
-    for c in class_counts: { classes.append(c) }
+    for c in (class_counts) { classes.append(c) }
     # priors
     prior = {}
-    for c in class_counts: { prior[c] = class_counts[c] / n }
+    for c in (class_counts) { prior[c] = class_counts[c] / n }
     # likelihoods with Laplace smoothing
     V = 0
-    for v in vocab: { V = V + 1 }
+    for v in (vocab) { V = V + 1 }
     likelihoods = {}
     unk = {}
-    for c in class_counts:
-    {
+    for c in (class_counts) {
         likelihoods[c] = {}
         denom = total_tokens[c] + alpha * V
         # unknown token prob for this class
         unk[c] = alpha / denom
-        for t in vocab:
-        {
+        for t in (vocab) {
             cnt = 0
-            if t in token_counts[c]: { cnt = token_counts[c][t] }
+            if (t in token_counts[c]) { cnt = token_counts[c][t] }
             likelihoods[c][t] = (cnt + alpha) / denom
         }
     }
     model = {"classes": classes, "prior": prior, "likelihoods": likelihoods, "unk": unk, "vocab": []}
     # store vocab list (optional)
     vv = []
-    for t in vocab: { vv.append(t) }
+    for t in (vocab) { vv.append(t) }
     model["vocab"] = vv
     return model
 }
@@ -3218,15 +2888,14 @@ def naive_bayes_predict(model, docs_tokens):
     # natural log via bisection on exp
     def _ln(val):
     {
-        if val <= 0.0: { return -50.0 }
+        if (val <= 0.0) { return -50.0 }
         lo = -50.0
         hi = 50.0
         it = 0
-        while it < 40:
-        {
+        while (it < 40) {
             mid = (lo + hi) / 2.0
             ev = pow(e, mid)
-            if ev < val: { lo = mid } else: { hi = mid }
+            if (ev < val) { lo = mid } else { hi = mid }
             it = it + 1
         }
         return (lo + hi) / 2.0
@@ -3234,32 +2903,27 @@ def naive_bayes_predict(model, docs_tokens):
     n = len(docs_tokens)
     preds = []
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         doc = docs_tokens[i]
         # compute log score per class
         best_c = 0
-        if len(classes) > 0:
-        {
+        if (len(classes) > 0) {
             best_c = classes[0]
         }
         best_s = -1000000.0
         k = 0
-        while k < len(classes):
-        {
+        while (k < len(classes)) {
             c = classes[k]
             s = _ln(prior.get(c, 1.0 / len(classes)))
             j = 0
-            while j < len(doc):
-            {
+            while (j < len(doc)) {
                 t = doc[j]
                 p = unk.get(c, 1.0)
-                if t in likelihoods.get(c, {}): { p = likelihoods[c][t] }
+                if (t in likelihoods.get(c, {})) { p = likelihoods[c][t] }
                 s = s + _ln(p)
                 j = j + 1
             }
-            if s > best_s:
-            {
+            if (s > best_s) {
                 best_s = s
                 best_c = c
             }
@@ -3284,8 +2948,7 @@ def توقع_بايز_متعدد(نموذج, وثائق): { return naive_bayes_p
 def _dot_vec(a, b):
 {
     s = 0.0
-    for i in range(len(a)):
-    {
+    for i in (range(len(a))) {
         s = s + a[i] * b[i]
     }
     return s
@@ -3296,11 +2959,10 @@ def _matvec(A, v):
 {
     n = len(A)
     out = []
-    for i in range(n): { out.append(0.0) }
-    for i in range(n):
-    {
+    for i in (range(n)) { out.append(0.0) }
+    for i in (range(n)) {
         s = 0.0
-        for j in range(n): { s = s + A[i][j] * v[j] }
+        for j in (range(n)) { s = s + A[i][j] * v[j] }
         out[i] = s
     }
     return out
@@ -3310,8 +2972,7 @@ def _matvec(A, v):
 def _norm_vec(v):
 {
     s = 0.0
-    for i in range(len(v)):
-    {
+    for i in (range(len(v))) {
         s = s + v[i] * v[i]
     }
     return pow(s, 0.5)
@@ -3322,19 +2983,18 @@ def _power_iteration(A, iters=40):
 {
     n = len(A)
     v = []
-    for i in range(n): { v.append(1.0) }
+    for i in (range(n)) { v.append(1.0) }
     # normalize
     nv = _norm_vec(v)
-    if nv == 0.0: { nv = 1.0 }
-    for i in range(n): { v[i] = v[i] / nv }
+    if (nv == 0.0) { nv = 1.0 }
+    for i in (range(n)) { v[i] = v[i] / nv }
     lam = 0.0
-    for t in range(iters):
-    {
+    for t in (range(iters)) {
         w = _matvec(A, v)
         lam = _dot_vec(v, w)
         nw = _norm_vec(w)
-        if nw == 0.0: { break }
-        for i in range(n): { v[i] = w[i] / nw }
+        if (nw == 0.0) { break }
+        for i in (range(n)) { v[i] = w[i] / nw }
     }
     # final Rayleigh
     w2 = _matvec(A, v)
@@ -3347,15 +3007,14 @@ def _mean_vector(X):
 {
     n = len(X)
     d = 0
-    if n > 0: { d = len(X[0]) }
+    if (n > 0) { d = len(X[0]) }
     m = []
-    for j in range(d): { m.append(0.0) }
-    if n == 0: { return m }
-    for i in range(n):
-    {
-        for j in range(d): { m[j] = m[j] + X[i][j] }
+    for j in (range(d)) { m.append(0.0) }
+    if (n == 0) { return m }
+    for i in (range(n)) {
+        for j in (range(d)) { m[j] = m[j] + X[i][j] }
     }
-    for j in range(d): { m[j] = m[j] / (1.0 * n) }
+    for j in (range(d)) { m[j] = m[j] / (1.0 * n) }
     return m
 }
 
@@ -3364,30 +3023,25 @@ def _cov_matrix(X, mean_vec):
 {
     n = len(X)
     d = 0
-    if n > 0: { d = len(X[0]) }
+    if (n > 0) { d = len(X[0]) }
     C = []
-    for j in range(d):
-    {
+    for j in (range(d)) {
         row = []
-        for k in range(d): { row.append(0.0) }
+        for k in (range(d)) { row.append(0.0) }
         C.append(row)
     }
-    if n == 0 or d == 0: { return C }
-    for i in range(n):
-    {
-        for j in range(d):
-        {
+    if (n == 0 or d == 0) { return C }
+    for i in (range(n)) {
+        for j in (range(d)) {
             xj = X[i][j] - mean_vec[j]
-            for k in range(d):
-            {
+            for k in (range(d)) {
                 xk = X[i][k] - mean_vec[k]
                 C[j][k] = C[j][k] + xj * xk
             }
         }
     }
-    for j in range(d):
-    {
-        for k in range(d): { C[j][k] = C[j][k] / (1.0 * n) }
+    for j in (range(d)) {
+        for k in (range(d)) { C[j][k] = C[j][k] / (1.0 * n) }
     }
     return C
 }
@@ -3398,37 +3052,33 @@ def pca_fit(X, n_components):
 {
     n = len(X)
     d = 0
-    if n > 0: { d = len(X[0]) }
+    if (n > 0) { d = len(X[0]) }
     k = n_components
-    if k < 0: { k = 0 }
-    if k > d: { k = d }
+    if (k < 0) { k = 0 }
+    if (k > d) { k = d }
     mean_vec = _mean_vector(X)
     A = _cov_matrix(X, mean_vec)
     comps = []
     # deflation loop
-    for t in range(k):
-    {
+    for t in (range(k)) {
         # power iteration on current matrix A
         pi = _power_iteration(A, 50)
         v = pi[0]
         lam = pi[1]
         # guard
-        if lam <= 0.000000000001:
-        {
+        if (lam <= 0.000000000001) {
             break
         }
         # store component (normalized)
         comp = []
         # ensure normalization (defensive)
         nv = _norm_vec(v)
-        if nv == 0.0: { nv = 1.0 }
-        for j in range(d): { comp.append(v[j] / nv) }
+        if (nv == 0.0) { nv = 1.0 }
+        for j in (range(d)) { comp.append(v[j] / nv) }
         comps.append(comp)
         # deflate A = A - lam * v v^T
-        for i in range(d):
-        {
-            for j in range(d):
-            {
+        for i in (range(d)) {
+            for j in (range(d)) {
                 A[i][j] = A[i][j] - lam * v[i] * v[j]
             }
         }
@@ -3442,19 +3092,17 @@ def pca_transform(X, components, mean_vec):
     n = len(X)
     k = len(components)
     d = 0
-    if k > 0: { d = len(components[0]) }
+    if (k > 0) { d = len(components[0]) }
     out = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         row = []
         # build centered x
         xc = []
-        for j in range(d): { xc.append(X[i][j] - mean_vec[j]) }
-        for c in range(k):
-        {
+        for j in (range(d)) { xc.append(X[i][j] - mean_vec[j]) }
+        for c in (range(k)) {
             comp = components[c]
             s = 0.0
-            for j in range(d): { s = s + xc[j] * comp[j] }
+            for j in (range(d)) { s = s + xc[j] * comp[j] }
             row.append(s)
         }
         out.append(row)
@@ -3467,52 +3115,44 @@ def variance_threshold_fit(X, thr):
 {
     n = len(X)
     d = 0
-    if n > 0: { d = len(X[0]) }
-    if thr < 0.0: { thr = 0.0 }
+    if (n > 0) { d = len(X[0]) }
+    if (thr < 0.0) { thr = 0.0 }
     # means
     means = []
-    for j in range(d): { means.append(0.0) }
-    for i in range(n):
-    {
-        for j in range(d): { means[j] = means[j] + X[i][j] }
+    for j in (range(d)) { means.append(0.0) }
+    for i in (range(n)) {
+        for j in (range(d)) { means[j] = means[j] + X[i][j] }
     }
-    for j in range(d):
-    {
-        if n > 0:
-        {
+    for j in (range(d)) {
+        if (n > 0) {
             means[j] = means[j] / (1.0 * n)
         }
-        else:
-        {
+        else {
+        
             means[j] = 0.0
         }
     }
     # variances
     vars = []
-    for j in range(d): { vars.append(0.0) }
-    for i in range(n):
-    {
-        for j in range(d):
-        {
+    for j in (range(d)) { vars.append(0.0) }
+    for i in (range(n)) {
+        for j in (range(d)) {
             diff = X[i][j] - means[j]
             vars[j] = vars[j] + diff * diff
         }
     }
-    for j in range(d):
-    {
-        if n > 0:
-        {
+    for j in (range(d)) {
+        if (n > 0) {
             vars[j] = vars[j] / (1.0 * n)
         }
-        else:
-        {
+        else {
+        
             vars[j] = 0.0
         }
     }
     mask = []
-    for j in range(d):
-    {
-        if vars[j] > thr: { mask.append(1) } else: { mask.append(0) }
+    for j in (range(d)) {
+        if (vars[j] > thr) { mask.append(1) } else { mask.append(0) }
     }
     return mask
 }
@@ -3522,14 +3162,12 @@ def variance_threshold_transform(X, mask):
 {
     n = len(X)
     d = 0
-    if n > 0: { d = len(X[0]) }
+    if (n > 0) { d = len(X[0]) }
     out = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         row = []
-        for j in range(d):
-        {
-            if mask[j] == 1: { row.append(X[i][j]) }
+        for j in (range(d)) {
+            if (mask[j] == 1) { row.append(X[i][j]) }
         }
         out.append(row)
     }
@@ -3541,10 +3179,10 @@ def variance_threshold_transform(X, mask):
 def pca_fit_params(X, params):
 {
     d = 0
-    if len(X) > 0: { d = len(X[0]) }
+    if (len(X) > 0) { d = len(X[0]) }
     nc = params.get("n_components", d)
-    if nc < 1: { nc = d }
-    if nc > d: { nc = d }
+    if (nc < 1) { nc = d }
+    if (nc > d) { nc = d }
     return pca_fit(X, nc)
 }
 
@@ -3592,19 +3230,16 @@ def تحويل_عتبة_تباين(س, قناع): { return variance_threshold_tr
 def softmax_train(X, y, lr=0.1, epochs=200, l2=0.0):
 {
     n = len(X)
-    if n == 0:
-    {
+    if (n == 0) {
         return {"labels": [], "W": [], "b": []}
     }
     d = len(X[0])
     # collect labels in order of appearance
     labs = []
     seen = {}
-    for i in range(len(y)):
-    {
+    for i in (range(len(y))) {
         L = y[i]
-        if seen.get(L, 0) == 0:
-        {
+        if (seen.get(L, 0) == 0) {
             labs.append(L)
             seen[L] = 1
         }
@@ -3612,63 +3247,54 @@ def softmax_train(X, y, lr=0.1, epochs=200, l2=0.0):
     K = len(labs)
     # map label to index
     lab_to_idx = {}
-    for k in range(K): { lab_to_idx[labs[k]] = k }
+    for k in (range(K)) { lab_to_idx[labs[k]] = k }
     # init parameters
     W = []
-    for k in range(K):
-    {
+    for k in (range(K)) {
         row = []
-        for j in range(d): { row.append(0.0) }
+        for j in (range(d)) { row.append(0.0) }
         W.append(row)
     }
     b = []
-    for k in range(K): { b.append(0.0) }
+    for k in (range(K)) { b.append(0.0) }
     e = 2.718281828
     # SGD over epochs
-    for ep in range(epochs):
-    {
-        for i in range(n):
-        {
+    for ep in (range(epochs)) {
+        for i in (range(n)) {
             # scores = W x + b
             scores = []
-            for k in range(K):
-            {
+            for k in (range(K)) {
                 s = b[k]
-                for j in range(d): { s = s + W[k][j] * X[i][j] }
+                for j in (range(d)) { s = s + W[k][j] * X[i][j] }
                 scores.append(s)
             }
             # softmax
             mmax = scores[0]
-            for k in range(1, K):
-            {
-                if scores[k] > mmax: { mmax = scores[k] }
+            for k in (range(1, K)) {
+                if (scores[k] > mmax) { mmax = scores[k] }
             }
             exps = []
             sumexp = 0.0
-            for k in range(K):
-            {
+            for k in (range(K)) {
                 val = pow(e, scores[k] - mmax)
                 exps.append(val)
                 sumexp = sumexp + val
             }
             probs = []
-            if sumexp == 0.0:
-            {
-                for k in range(K): { probs.append(1.0 / (1.0 * K)) }
+            if (sumexp == 0.0) {
+                for k in (range(K)) { probs.append(1.0 / (1.0 * K)) }
             }
-            else:
-            {
-                for k in range(K): { probs.append(exps[k] / sumexp) }
+            else {
+            
+                for k in (range(K)) { probs.append(exps[k] / sumexp) }
             }
             yi = lab_to_idx[y[i]]
             # gradient update per class
-            for k in range(K):
-            {
+            for k in (range(K)) {
                 err = probs[k]
-                if k == yi: { err = err - 1.0 }
+                if (k == yi) { err = err - 1.0 }
                 # update weights and bias
-                for j in range(d):
-                {
+                for j in (range(d)) {
                     W[k][j] = W[k][j] - lr * (err * X[i][j] + l2 * W[k][j])
                 }
                 b[k] = b[k] - lr * err
@@ -3688,36 +3314,31 @@ def softmax_predict_proba(X, model):
     K = len(labs)
     e = 2.718281828
     out = []
-    for i in range(len(X)):
-    {
+    for i in (range(len(X))) {
         scores = []
-        for k in range(K):
-        {
+        for k in (range(K)) {
             s = b[k]
-            for j in range(len(X[i])): { s = s + W[k][j] * X[i][j] }
+            for j in (range(len(X[i]))) { s = s + W[k][j] * X[i][j] }
             scores.append(s)
         }
         mmax = scores[0]
-        for k in range(1, K):
-        {
-            if scores[k] > mmax: { mmax = scores[k] }
+        for k in (range(1, K)) {
+            if (scores[k] > mmax) { mmax = scores[k] }
         }
         exps = []
         sumexp = 0.0
-        for k in range(K):
-        {
+        for k in (range(K)) {
             val = pow(e, scores[k] - mmax)
             exps.append(val)
             sumexp = sumexp + val
         }
         probs = []
-        if sumexp == 0.0:
-        {
-            for k in range(K): { probs.append(1.0 / (1.0 * K)) }
+        if (sumexp == 0.0) {
+            for k in (range(K)) { probs.append(1.0 / (1.0 * K)) }
         }
-        else:
-        {
-            for k in range(K): { probs.append(exps[k] / sumexp) }
+        else {
+        
+            for k in (range(K)) { probs.append(exps[k] / sumexp) }
         }
         out.append(probs)
     }
@@ -3731,15 +3352,12 @@ def softmax_predict(X, model):
     labs = model["labels"]
     probs_list = softmax_predict_proba(X, model)
     preds = []
-    for i in range(len(probs_list)):
-    {
+    for i in (range(len(probs_list))) {
         p = probs_list[i]
         best_k = 0
         best_v = p[0]
-        for k in range(1, len(p)):
-        {
-            if p[k] > best_v:
-            {
+        for k in (range(1, len(p))) {
+            if (p[k] > best_v) {
                 best_v = p[k]
                 best_k = k
             }
@@ -3766,7 +3384,7 @@ def _lab_to_idx(labels):
 {
     m = len(labels)
     mp = {}
-    for i in range(m): { mp[labels[i]] = i }
+    for i in (range(m)) { mp[labels[i]] = i }
     return mp
 }
 
@@ -3779,35 +3397,31 @@ def _estimator_proba(estimators_i, X, labels):
     lab2 = _lab_to_idx(labels)
     n = len(X)
     out = []
-    if kind == "softmax":
-    {
+    if (kind == "softmax") {
         model = estimators_i["model"]
         probs = softmax_predict_proba(X, model)
-        for i in range(n): { out.append(probs[i]) }
+        for i in (range(n)) { out.append(probs[i]) }
         return out
     }
-    if kind == "logistic":
-    {
+    if (kind == "logistic") {
         # binary: labels[0]=neg, labels[1]=pos
         wb = estimators_i["model"]
         w = wb[0]
         b = wb[1]
         pp = logistic_regression_predict_proba(X, w, b)
         kpos = 1
-        if K >= 2: { kpos = 1 }
+        if (K >= 2) { kpos = 1 }
         kneg = 0
-        for i in range(n):
-        {
+        for i in (range(n)) {
             p1 = pp[i]
             row = []
-            for j in range(K): { row.append(0.0) }
-            if K >= 2:
-            {
+            for j in (range(K)) { row.append(0.0) }
+            if (K >= 2) {
                 row[kpos] = p1
                 row[kneg] = 1.0 - p1
             }
-            else:
-            {
+            else {
+            
                 row[0] = p1
             }
             out.append(row)
@@ -3816,13 +3430,11 @@ def _estimator_proba(estimators_i, X, labels):
     }
     # Fallback: hard predictions -> one-hot
     preds = _estimator_predict(estimators_i, X)
-    for i in range(n):
-    {
+    for i in (range(n)) {
         row = []
-        for j in range(K): { row.append(0.0) }
+        for j in (range(K)) { row.append(0.0) }
         L = preds[i]
-        if lab2.get(L, -1) != -1:
-        {
+        if (lab2.get(L, -1) != -1) {
             idx = lab2[L]
             row[idx] = 1.0
         }
@@ -3836,35 +3448,31 @@ def _estimator_proba(estimators_i, X, labels):
 def _estimator_predict(est, X):
 {
     kind = est.get("kind", "")
-    if kind == "softmax": { return softmax_predict(X, est["model"]) }
-    if kind == "logistic":
-    {
+    if (kind == "softmax") { return softmax_predict(X, est["model"]) }
+    if (kind == "logistic") {
         wb = est["model"]
         w = wb[0]
         b = wb[1]
         thr = est.get("threshold", 0.5)
         return logistic_regression_predict(X, w, b, thr)
     }
-    if kind == "tree": { return decision_tree_predict(est["model"], X) }
-    if kind == "forest": { return random_forest_predict(est["model"], X) }
-    if kind == "perceptron":
-    {
+    if (kind == "tree") { return decision_tree_predict(est["model"], X) }
+    if (kind == "forest") { return random_forest_predict(est["model"], X) }
+    if (kind == "perceptron") {
         wb = est["model"]
         return perceptron_predict(X, wb[0], wb[1])
     }
-    if kind == "svm":
-    {
+    if (kind == "svm") {
         wb = est["model"]
         return linear_svm_predict(X, wb[0], wb[1])
     }
-    if kind == "knn":
-    {
+    if (kind == "knn") {
         k = est.get("k", 3)
         return k_nearest_neighbors_predict(est["train_X"], est["train_y"], X, k)
     }
     # default empty
     preds = []
-    for i in range(len(X)): { preds.append(0) }
+    for i in (range(len(X))) { preds.append(0) }
     return preds
 }
 
@@ -3874,36 +3482,29 @@ def voting_classifier_predict(X, estimators, labels, voting="hard"):
 {
     n = len(X)
     K = len(labels)
-    if voting == "soft":
-    {
+    if (voting == "soft") {
         # average probabilities
         sums = []
-        for i in range(n):
-        {
+        for i in (range(n)) {
             row = []
-            for j in range(K): { row.append(0.0) }
+            for j in (range(K)) { row.append(0.0) }
             sums.append(row)
         }
         m = len(estimators)
-        for ei in range(m):
-        {
+        for ei in (range(m)) {
             probs = _estimator_proba(estimators[ei], X, labels)
-            for i in range(n):
-            {
+            for i in (range(n)) {
                 pr = probs[i]
-                for j in range(K): { sums[i][j] = sums[i][j] + pr[j] }
+                for j in (range(K)) { sums[i][j] = sums[i][j] + pr[j] }
             }
         }
         preds = []
-        for i in range(n):
-        {
+        for i in (range(n)) {
             best_j = 0
             best_v = sums[i][0]
-            for j in range(1, K):
-            {
+            for j in (range(1, K)) {
                 v = sums[i][j]
-                if v > best_v:
-                {
+                if (v > best_v) {
                     best_v = v
                     best_j = j
                 }
@@ -3915,33 +3516,27 @@ def voting_classifier_predict(X, estimators, labels, voting="hard"):
     # hard voting
     lab2 = _lab_to_idx(labels)
     counts = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         row = []
-        for j in range(K): { row.append(0) }
+        for j in (range(K)) { row.append(0) }
         counts.append(row)
     }
     m = len(estimators)
-    for ei in range(m):
-    {
+    for ei in (range(m)) {
         yhat = _estimator_predict(estimators[ei], X)
-        for i in range(n):
-        {
+        for i in (range(n)) {
             L = yhat[i]
             idx = lab2.get(L, -1)
-            if idx != -1: { counts[i][idx] = counts[i][idx] + 1 }
+            if (idx != -1) { counts[i][idx] = counts[i][idx] + 1 }
         }
     }
     preds = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         best_j = 0
         best_v = counts[i][0]
-        for j in range(1, K):
-        {
+        for j in (range(1, K)) {
             v = counts[i][j]
-            if v > best_v:
-            {
+            if (v > best_v) {
                 best_v = v
                 best_j = j
             }
@@ -3960,12 +3555,10 @@ def stacking_train(X, y, base_specs, labels):
 {
     # train base models
     bases = []
-    for bi in range(len(base_specs)):
-    {
+    for bi in (range(len(base_specs))) {
         sp = base_specs[bi]
         k = sp.get("kind", "")
-        if k == "softmax":
-        {
+        if (k == "softmax") {
             p = sp.get("params", {})
             lr = p.get("lr", 0.1)
             ep = p.get("epochs", 200)
@@ -3973,10 +3566,9 @@ def stacking_train(X, y, base_specs, labels):
             model = softmax_train(X, y, lr, ep, l2)
             bases.append({"kind": "softmax", "model": model})
         }
-        else:
-        {
-            if k == "logistic":
-            {
+        else {
+        
+            if (k == "logistic") {
                 p = sp.get("params", {})
                 lr = p.get("lr", 0.1)
                 ep = p.get("epochs", 200)
@@ -3989,16 +3581,13 @@ def stacking_train(X, y, base_specs, labels):
     K = len(labels)
     n = len(X)
     Z = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         Z.append([])
     }
-    for bi in range(len(bases)):
-    {
+    for bi in (range(len(bases))) {
         probs = _estimator_proba(bases[bi], X, labels)
-        for i in range(n):
-        {
-            for j in range(K): { Z[i].append(probs[i][j]) }
+        for i in (range(n)) {
+            for j in (range(K)) { Z[i].append(probs[i][j]) }
         }
     }
     meta = softmax_train(Z, y, 0.1, 200, 0.0)
@@ -4014,13 +3603,11 @@ def stacking_predict(model, X):
     n = len(X)
     # build Z for new X
     Z = []
-    for i in range(n): { Z.append([]) }
-    for bi in range(len(bases)):
-    {
+    for i in (range(n)) { Z.append([]) }
+    for bi in (range(len(bases))) {
         probs = _estimator_proba(bases[bi], X, labels)
-        for i in range(n):
-        {
-            for j in range(K): { Z[i].append(probs[i][j]) }
+        for i in (range(n)) {
+            for j in (range(K)) { Z[i].append(probs[i][j]) }
         }
     }
     return softmax_predict(Z, model["meta"])
@@ -4033,11 +3620,9 @@ def grid_search_cv_softmax(X, y, param_list, k_folds=3):
     # build labels order from y
     labels = []
     seen = {}
-    for i in range(len(y)):
-    {
+    for i in (range(len(y))) {
         L = y[i]
-        if seen.get(L, 0) == 0:
-        {
+        if (seen.get(L, 0) == 0) {
             seen[L] = 1
             labels.append(L)
         }
@@ -4046,16 +3631,14 @@ def grid_search_cv_softmax(X, y, param_list, k_folds=3):
     folds = stratified_k_fold_indices(y, k_folds, True, 42)
     best_score = -1.0
     best_params = {}
-    for pi in range(len(param_list)):
-    {
+    for pi in (range(len(param_list))) {
         p = param_list[pi]
         lr = p.get("lr", 0.1)
         ep = p.get("epochs", 200)
         l2 = p.get("l2", 0.0)
         acc_sum = 0.0
         m = 0
-        for fi in range(len(folds)):
-        {
+        for fi in (range(len(folds))) {
             idxs = folds[fi]
             tr_idx = idxs[0]
             va_idx = idxs[1]
@@ -4064,14 +3647,12 @@ def grid_search_cv_softmax(X, y, param_list, k_folds=3):
             Xva = []
             yva = []
             # build train/val splits from indices
-            for ii in range(len(tr_idx)):
-            {
+            for ii in (range(len(tr_idx))) {
                 k = tr_idx[ii]
                 Xtr.append(X[k])
                 ytr.append(y[k])
             }
-            for ii in range(len(va_idx)):
-            {
+            for ii in (range(len(va_idx))) {
                 k = va_idx[ii]
                 Xva.append(X[k])
                 yva.append(y[k])
@@ -4082,21 +3663,17 @@ def grid_search_cv_softmax(X, y, param_list, k_folds=3):
             acc_sum = acc_sum + a
             m = m + 1
         }
-        if m > 0:
-        {
+        if (m > 0) {
             avg = acc_sum / (1.0 * m)
-            if avg > best_score:
-            {
+            if (avg > best_score) {
                 best_score = avg
                 best_params = p
             }
-            else:
-            {
-                if avg == best_score:
-                {
+            else {
+            
+                if (avg == best_score) {
                     cur_ep = best_params.get("epochs", 0)
-                    if ep > cur_ep:
-                    {
+                    if (ep > cur_ep) {
                         best_score = avg
                         best_params = p
                     }

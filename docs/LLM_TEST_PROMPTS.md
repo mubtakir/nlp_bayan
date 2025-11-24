@@ -62,7 +62,7 @@ hybrid {
 **الإجابة المتوقعة:**
 ```bayan
 hybrid {
-    for i in range(1, 11): {
+    for i in (range(1, 11)) {
         print(str(i))
     }
 }
@@ -160,7 +160,7 @@ hybrid {
     results = query parent("أحمد", ?Child)?
     
     print("Children of أحمد:")
-    for result in results: {
+    for result in (results) {
         print(result["?Child"])
     }
 }
@@ -196,7 +196,7 @@ hybrid {
     # استعلام
     results = query grandparent(?GP, "محمد")?
     
-    for result in results: {
+    for result in (results) {
         print("Grandparent: " + result["?GP"])
     }
 }
@@ -224,7 +224,7 @@ hybrid {
 hybrid {
     def sum_all(*numbers): {
         total = 0
-        for num in numbers: {
+        for num in (numbers) {
             total = total + num
         }
         return total
@@ -255,7 +255,7 @@ hybrid {
 ```bayan
 hybrid {
     def print_info(**info): {
-        for key in info: {
+        for key in (info) {
             print(key + ": " + str(info[key]))
         }
     }
@@ -305,7 +305,7 @@ hybrid {
     results = query student(?N, ?G), ?G >= 90?
     
     print("Excellent students:")
-    for result in results: {
+    for result in (results) {
         print(result["?N"])
     }
 }
@@ -349,7 +349,7 @@ hybrid {
     def diagnose_patient(patient_id): {
         results = query diagnosis(patient_id, ?Disease)?
         
-        if len(results) > 0: {
+        if (len(results) > 0) {
             disease = results[0]["?Disease"]
             return disease
         }

@@ -24,9 +24,9 @@ hybrid {
     print("Merged entities count: " + str(len(merged["entities"])))
     
     # Check sources in meta
-    if "sources" in merged["meta"]: {
+    if ("sources" in merged["meta"]) {
         print("Merged meta sources: " + str(merged["meta"]["sources"]))
-    } else: {
+    } else {
         print("Merged meta sources: None")
     }
 

@@ -40,7 +40,7 @@ print("")
 # Test root extraction
 print("--- Root Extraction ---")
 test_words = ["كاتب", "مكتوب", "استكتاب", "يكتبون", "الكاتبة", "دارس", "معلوم"]
-for word in test_words: {
+for word in (test_words) {
     extracted = extract_root(word)
     print(word + " → " + extracted)
 }
@@ -51,7 +51,7 @@ print("--- Word Family Generation ---")
 root_ktb = "كتب"
 print("Root: " + root_ktb)
 patterns = ["فاعل", "مفعول", "فعال", "أفعل", "تفعيل", "مفاعل", "استفعال", "مستفعل"]
-for pat in patterns: {
+for pat in (patterns) {
     word = apply_pattern(root_ktb, pat)
     print("  " + pat + ": " + word)
 }

@@ -44,7 +44,7 @@ In this example, we build a Python-style list and loop over it, and also declare
 hybrid {
     # Imperative
     names = ["Ali", "Sara", "Omar"]
-    for n in names: { print(n) }
+    for n in (names) { print(n) }
 
     # Logic
     fact parent("Ali", "Sara").

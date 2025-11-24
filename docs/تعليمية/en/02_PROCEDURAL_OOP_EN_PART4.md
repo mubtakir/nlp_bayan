@@ -28,9 +28,9 @@ Generators are functions that yield a sequence of values over time instead of re
 hybrid {
     def count_up_to(n): {
         i = 1
-        while i <= n: { yield i; i = i + 1 }
+        while (i <= n) { yield i; i = i + 1 }
     }
-    for v in count_up_to(3): { print(v) }
+    for v in (count_up_to(3)) { print(v) }
 }
 ```
 
@@ -68,7 +68,7 @@ The example below shows a simple `sum_all` that adds any number of arguments and
 hybrid {
     def sum_all(*args): {
         s = 0
-        for v in args: { s = s + v }
+        for v in (args) { s = s + v }
         return s
     }
     def print_info(**kwargs): { print(str(kwargs)) }

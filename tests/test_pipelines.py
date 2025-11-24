@@ -161,8 +161,7 @@ def test_pipeline_with_list_operations():
 def sum_list(lst):
 {
     total = 0
-    for item in lst:
-    {
+    for item in (lst) {
         total = total + item
     }
     return total

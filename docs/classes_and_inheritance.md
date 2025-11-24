@@ -345,8 +345,7 @@ class Range:
 }
 
 r = Range(3)
-for i in r:
-{
+for i in (r) {
     print(i)
 }
 ```
@@ -457,8 +456,7 @@ class Database:
     
     def __init__():
     {
-        if Database._instance == None:
-        {
+        if (Database._instance == None) {
             Database._instance = self
         }
     }
@@ -471,12 +469,10 @@ class AnimalFactory:
 {
     def create_animal(type):
     {
-        if type == "dog":
-        {
+        if (type == "dog") {
             return Dog("ماكس")
         }
-        elif type == "cat":
-        {
+        elif (type == "cat") {
             return Cat("ميشا")
         }
     }

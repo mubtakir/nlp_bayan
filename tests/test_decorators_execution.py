@@ -18,7 +18,7 @@ def test_simple_decorator():
 def uppercase_decorator(func): {
     def wrapper(): {
         result = func()
-        if isinstance(result, str): {
+        if (isinstance(result, str)) {
             return result.upper()
         }
         return result
@@ -54,7 +54,7 @@ def repeat(times): {
     def decorator(func): {
         def wrapper(): {
             result = ""
-            for i in range(times): {
+            for i in (range(times)) {
                 result = result + func()
             }
             return result

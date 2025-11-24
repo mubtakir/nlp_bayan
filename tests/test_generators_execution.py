@@ -27,7 +27,7 @@ def test_simple_generator_to_list():
     code = """
     def count(n): {
         i = 0
-        while i < n: {
+        while (i < n) {
             yield i
             i = i + 1
         }
@@ -44,14 +44,14 @@ def test_generator_in_for_loop_sum():
     code = """
     def count(n): {
         i = 0
-        while i < n: {
+        while (i < n) {
             yield i
             i = i + 1
         }
     }
 
     total = 0
-    for x in count(5): {
+    for x in (count(5)) {
         total = total + x
     }
     """
@@ -65,7 +65,7 @@ def test_fibonacci_generator_prefix():
         a = 0
         b = 1
         i = 0
-        while i < k: {
+        while (i < k) {
             yield a
             temp = a + b
             a = b

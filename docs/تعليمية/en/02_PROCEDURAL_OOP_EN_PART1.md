@@ -73,7 +73,7 @@ The example below prints each element, the length, and the first element.
 ```bayan
 hybrid {
     numbers = [1, 2, 3]
-    for n in numbers: { print(n) }
+    for n in (numbers) { print(n) }
     print(len(numbers))
     print(numbers[0])
 }

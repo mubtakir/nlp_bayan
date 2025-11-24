@@ -205,8 +205,7 @@ result = 10 |> transform  # result = 21
 
 # Process multiple values
 values = [1, 2, 3, 4, 5]
-for v in values:
-{
+for v in (values) {
     transformed = v |> transform
     print(str(v) + " -> " + str(transformed))
 }
@@ -228,10 +227,8 @@ for v in values:
 def filter_positive(lst):
 {
     result = []
-    for item in lst:
-    {
-        if item > 0:
-        {
+    for item in (lst) {
+        if (item > 0) {
             result = result + [item]
         }
     }
@@ -241,8 +238,7 @@ def filter_positive(lst):
 def sum_list(lst):
 {
     total = 0
-    for item in lst:
-    {
+    for item in (lst) {
         total = total + item
     }
     return total

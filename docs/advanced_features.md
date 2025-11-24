@@ -80,8 +80,7 @@ class ValidationError(Exception):
 # رفع استثناء
 def validate_age(age):
 {
-    if age < 0:
-    {
+    if (age < 0) {
         raise ValidationError("العمر لا يمكن أن يكون سالباً")
     }
     return age
@@ -179,15 +178,13 @@ slow_function()
 def count_up_to(n):
 {
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         yield i
         i = i + 1
     }
 }
 
-for num in count_up_to(5):
-{
+for num in (count_up_to(5)) {
     print(num)
 }
 ```
@@ -221,8 +218,7 @@ class FileManager:
     
     def __exit__():
     {
-        if self.file:
-        {
+        if (self.file) {
             self.file.close()
         }
     }

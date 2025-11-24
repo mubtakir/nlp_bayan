@@ -103,7 +103,7 @@ include("ai/morphology.bayan")
 
 root = "كتب"
 patterns = ["فاعل", "مفعول", "فعال", "أفعل"]
-for pat in patterns: {
+for pat in (patterns) {
     word = apply_pattern(root, pat)
     print(pat + ": " + word)
 }
@@ -124,7 +124,7 @@ include("ai/morphology.bayan")
 
 verb = "درس"
 persons = ["3ms", "3fs", "3md", "3mp"]
-for p in persons: {
+for p in (persons) {
     conjugated = conjugate_arabic_verb(verb, "present", p)
     print(p + ": " + conjugated)
 }
@@ -144,7 +144,7 @@ for p in persons: {
 include("ai/morphology.bayan")
 
 words = ["كاتب", "مكتوب", "الكاتبة", "يكتبون"]
-for w in words: {
+for w in (words) {
     r = extract_root(w)
     print(w + " → " + r)
 }

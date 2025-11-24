@@ -35,12 +35,10 @@ print(x + y)   # 42
 ## 3) شرط if/elif/else
 ```bayan
 n = 7
-if n % 2 == 0:
-{
+if (n % 2 == 0) {
     print("even")
 }
-elif n % 3 == 0:
-{
+elif (n % 3 == 0) {
     print("div by 3")
 }
 else:
@@ -52,8 +50,7 @@ else:
 ## 4) القوائم والحلقات
 ```bayan
 nums = [1, 2, 3, 4]
-for a in nums:
-{
+for a in (nums) {
     print(a)
 }
 ```
@@ -62,8 +59,7 @@ for a in nums:
 ```bayan
 m = { "a": 1, "b": 2 }
 print(m["a"])   # 1
-for k in ["a", "b"]:
-{
+for k in (["a", "b"]) {
     print(k)
 }
 ```
@@ -195,8 +191,7 @@ class Counter:
 }
 
 c = Counter()
-for _ in [1, 2, 3]:
-{
+for _ in ([1, 2, 3]) {
     c.inc()
 }
 print(repr(c))

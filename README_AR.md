@@ -482,7 +482,7 @@ hybrid {
     # استعلام
     results = query diagnosis("patient1", ?D)?
 
-    for result in results: {
+    for result in (results) {
         print(result["?D"])  # flu
     }
 }
@@ -526,7 +526,7 @@ hybrid {
     # استعلام منطقي
     results = query student(?N, ?G), ?G >= 90?
 
-    for result in results: {
+    for result in (results) {
         print(result["?N"])  # فاطمة
     }
 }

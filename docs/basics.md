@@ -107,12 +107,10 @@ obj.count = obj.count + 1
 
 شرطية if/elif/else:
 ```bayan
-if x > 10:
-{
+if (x > 10) {
     print("كبير")
 }
-elif x == 10:
-{
+elif (x == 10) {
     print("عشرة")
 }
 else:
@@ -123,16 +121,14 @@ else:
 
 تكرار for (يدعم أي قابل للتكرار):
 ```bayan
-for i in xs:
-{
+for i in (xs) {
     print(i)
 }
 ```
 
 تكرار while:
 ```bayan
-while x > 0:
-{
+while (x > 0) {
     x = x - 1
 }
 ```

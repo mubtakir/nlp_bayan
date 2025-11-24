@@ -13,8 +13,7 @@ def parse_is_sentence(sentence): {
     # البحث عن "هو"
     parts = sentence.split(" هو ")
     
-    if len(parts) == 2:
-    {
+    if (len(parts) == 2) {
         subject = parts[0].strip()
         predicate = parts[1].strip()
         
@@ -43,8 +42,7 @@ def parse_tell_sentence(sentence): {
 }
 {
     # إزالة "أخبرك أن" من البداية
-    if sentence.startswith("أخبرك أن "):
-    {
+    if (sentence.startswith("أخبرك أن ")) {
         # استخرج الباقي
         rest = sentence.replace("أخبرك أن ", "")
         
@@ -68,8 +66,7 @@ def parse_what_question(question): {
     # إزالة ؟
     question = question.replace("؟", "")
     
-    if question.startswith("ما هو "):
-    {
+    if (question.startswith("ما هو ")) {
         subject = question.replace("ما هو ", "")
         subject = subject.strip()
         
@@ -101,15 +98,14 @@ def test_parser(): {
     sentence1 = "أخبرك أن Python هو لغة برمجة"
     result1 = parse_tell_sentence(sentence1)
     
-    if result1["success"]:
-    {
+    if (result1["success"]) {
         print("✓ نجح التحليل!")
         print("  الموضوع:", result1["subject"])
         print("  الفعل:", result1["predicate"])
         print("  القيمة:", result1["value"])
     }
-    else:
-    {
+    else {
+    
         print("✗ فشل التحليل")
     }
     print("")
@@ -119,14 +115,13 @@ def test_parser(): {
     question1 = "ما هو Python؟"
     result2 = parse_what_question(question1)
     
-    if result2["success"]:
-    {
+    if (result2["success"]) {
         print("✓ نجح التحليل!")
         print("  نوع السؤال:", result2["type"])
         print("  الموضوع:", result2["subject"])
     }
-    else:
-    {
+    else {
+    
         print("✗ فشل التحليل")
     }
     print("")

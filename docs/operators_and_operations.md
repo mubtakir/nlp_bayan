@@ -320,16 +320,16 @@ print(bool("text"))     # True
 
 ```bayan
 # قيم صادقة (Truthy)
-if 1:           { print("صادق") }
-if "text":      { print("صادق") }
-if [1, 2]:      { print("صادق") }
+if (1) { print("صادق") }
+if ("text") { print("صادق") }
+if ([1, 2]) { print("صادق") }
 
 # قيم كاذبة (Falsy)
-if 0:           { print("كاذب") }
-if "":          { print("كاذب") }
-if []:          { print("كاذب") }
-if None:        { print("كاذب") }
-if False:       { print("كاذب") }
+if (0) { print("كاذب") }
+if ("") { print("كاذب") }
+if ([]) { print("كاذب") }
+if (None) { print("كاذب") }
+if (False) { print("كاذب") }
 ```
 
 ---

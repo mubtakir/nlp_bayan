@@ -5,36 +5,30 @@
 def plan_action_sentence(sent, lang="abstract"):
 {
     # Decide canonical order based on a very coarse language hint
-    if lang == "english":
-    {
+    if (lang == "english") {
         # Simple SVO: Subject → Predicate → Object
         order = ["Subject", "Predicate", "Object"]
     }
-    elif lang == "arabic":
-    {
+    elif (lang == "arabic") {
         # Simple VSO: Predicate → Subject → Object
         order = ["Predicate", "Subject", "Object"]
     }
-    else:
-    {
+    else {
+    
         # Default to SVO-like ordering
         order = ["Subject", "Predicate", "Object"]
     }
 
     seq = []
-    for i in range(len(order)):
-    {
+    for i in (range(len(order))) {
         slot = order[i]
-        if slot == "Subject":
-        {
+        if (slot == "Subject") {
             seq.append({"slot": "Subject", "value": sent["subject"]})
         }
-        elif slot == "Predicate":
-        {
+        elif (slot == "Predicate") {
             seq.append({"slot": "Predicate", "value": sent["predicate"]})
         }
-        elif slot == "Object":
-        {
+        elif (slot == "Object") {
             seq.append({"slot": "Object", "value": sent["object"]})
         }
     }
@@ -106,22 +100,20 @@ def plan_causal_sentence(sent, lang="abstract"):
     # Represent cause–effect order with an abstract connector token
     seq = []
 
-    if lang == "english":
-    {
+    if (lang == "english") {
         # CAUSE → CONNECTIVE → EFFECT
         seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
         seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
         seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
     }
-    elif lang == "arabic":
-    {
+    elif (lang == "arabic") {
         # (Illustrative) EFFECT ← CONNECTIVE ← CAUSE
         seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
         seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
         seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
     }
-    else:
-    {
+    else {
+    
         seq.append({"slot": "CauseEvent", "value": sent["cause_event"]})
         seq.append({"slot": "CausalConnector", "value": "CAUSE_EFFECT_LINK"})
         seq.append({"slot": "EffectEvent", "value": sent["effect_event"]})
@@ -184,32 +176,26 @@ def plan_intensity_sentence(sent, lang="abstract"):
 def plan_surface(sentence_roles, lang="abstract"):
 {
     stype = sentence_roles["type"]
-    if stype == "ActionSentence":
-    {
+    if (stype == "ActionSentence") {
         return plan_action_sentence(sentence_roles, lang)
     }
-    elif stype == "StateChangeSentence":
-    {
+    elif (stype == "StateChangeSentence") {
         return plan_state_change_sentence(sentence_roles, lang)
     }
-    elif stype == "UncertaintySentence":
-    {
+    elif (stype == "UncertaintySentence") {
         return plan_uncertainty_sentence(sentence_roles, lang)
     }
-    elif stype == "CausalSentence":
-    {
+    elif (stype == "CausalSentence") {
         return plan_causal_sentence(sentence_roles, lang)
     }
-    elif stype == "DescriptionSentence":
-    {
+    elif (stype == "DescriptionSentence") {
         return plan_description_sentence(sentence_roles, lang)
     }
-    elif stype == "IntensitySentence":
-    {
+    elif (stype == "IntensitySentence") {
         return plan_intensity_sentence(sentence_roles, lang)
     }
-    else:
-    {
+    else {
+    
         # Unknown type: keep it as a passthrough symbolic container
         return {
             "plan_type": "SurfacePlan",

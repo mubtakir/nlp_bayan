@@ -20,13 +20,11 @@ def infer(kb_module, subject): {
     results = []
 
     # لكل قاعدة
-    for r in inference_rules:
-    {
+    for r in (inference_rules) {
         # تحقق من الشرط
         fact_value = kb_module.find_fact(r["condition_subject"], r["condition_predicate"])
 
-        if fact_value == r["condition_value"]:
-        {
+        if (fact_value == r["condition_value"]) {
             # طبق النتيجة
             new_fact = r["result_subject"] + " " + r["result_predicate"] + " " + r["result_value"]
             results.append(new_fact)
@@ -67,32 +65,26 @@ def _inferred_distribution(kb_module, subject): {
     kb = kb_module.show_all()
     inferred = {}
     key1 = subject + "_" + "هو"
-    if not (key1 in kb):
-    {
+    if (not (key1 in kb)) {
         return {}
     }
     direct_y = kb[key1]
-    for y in direct_y:
-    {
+    for y in (direct_y) {
         c1 = direct_y[y]
         key2 = y + "_" + "هو"
-        if key2 in kb:
-        {
+        if (key2 in kb) {
             yz = kb[key2]
-            for z in yz:
-            {
+            for z in (yz) {
                 c2 = yz[z]
                 w = c1
-                if c2 < w:
-                {
+                if (c2 < w) {
                     w = c2
                 }
-                if z in inferred:
-                {
+                if (z in inferred) {
                     inferred[z] = inferred[z] + w
                 }
-                else:
-                {
+                else {
+                
                     inferred[z] = w
                 }
             }
@@ -112,32 +104,26 @@ def _inferred_is_a_distribution(kb_module, subject): {
     kb = kb_module.show_all()
     inferred = {}
     key1 = subject + "_" + "نوع من"
-    if not (key1 in kb):
-    {
+    if (not (key1 in kb)) {
         return {}
     }
     direct_y = kb[key1]
-    for y in direct_y:
-    {
+    for y in (direct_y) {
         c1 = direct_y[y]
         key2 = y + "_" + "نوع من"
-        if key2 in kb:
-        {
+        if (key2 in kb) {
             yz = kb[key2]
-            for z in yz:
-            {
+            for z in (yz) {
                 c2 = yz[z]
                 w = c1
-                if c2 < w:
-                {
+                if (c2 < w) {
                     w = c2
                 }
-                if z in inferred:
-                {
+                if (z in inferred) {
                     inferred[z] = inferred[z] + w
                 }
-                else:
-                {
+                else {
+                
                     inferred[z] = w
                 }
             }
@@ -153,32 +139,26 @@ def _inferred_has_distribution(kb_module, subject): {
     kb = kb_module.show_all()
     inferred = {}
     key_isa = subject + "_" + "نوع من"
-    if not (key_isa in kb):
-    {
+    if (not (key_isa in kb)) {
         return {}
     }
     isa_map = kb[key_isa]
-    for y in isa_map:
-    {
+    for y in (isa_map) {
         c1 = isa_map[y]
         key_prop = y + "_" + "له"
-        if key_prop in kb:
-        {
+        if (key_prop in kb) {
             yz = kb[key_prop]
-            for z in yz:
-            {
+            for z in (yz) {
                 c2 = yz[z]
                 w = c1
-                if c2 < w:
-                {
+                if (c2 < w) {
                     w = c2
                 }
-                if z in inferred:
-                {
+                if (z in inferred) {
                     inferred[z] = inferred[z] + w
                 }
-                else:
-                {
+                else {
+                
                     inferred[z] = w
                 }
             }
@@ -191,16 +171,13 @@ def _inferred_has_distribution(kb_module, subject): {
 def _inferred_for_predicate(kb_module, subject, predicate): {
 }
 {
-    if predicate == "هو":
-    {
+    if (predicate == "هو") {
         return _inferred_distribution(kb_module, subject)
     }
-    if predicate == "نوع من":
-    {
+    if (predicate == "نوع من") {
         return _inferred_is_a_distribution(kb_module, subject)
     }
-    if predicate == "له":
-    {
+    if (predicate == "له") {
         return _inferred_has_distribution(kb_module, subject)
     }
     return {}
@@ -214,72 +191,60 @@ def find_top_n_with_inference(kb_module, subject, predicate, n): {
     inferred = _inferred_for_predicate(kb_module, subject, predicate)
 
     all_vals = {}
-    for v in direct:
-    {
+    for v in (direct) {
         all_vals[v] = direct[v]
     }
-    for v in inferred:
-    {
-        if v in all_vals:
-        {
+    for v in (inferred) {
+        if (v in all_vals) {
             all_vals[v] = all_vals[v] + inferred[v]
         }
-        else:
-        {
+        else {
+        
             all_vals[v] = inferred[v]
         }
     }
 
     total = 0
-    for v in all_vals:
-    {
+    for v in (all_vals) {
         total = total + all_vals[v]
     }
 
     used = []
     top = []
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         best_v = ""
         best_c = -1
-        for v in all_vals:
-        {
-            if not (v in used):
-            {
+        for v in (all_vals) {
+            if (not (v in used)) {
                 c = all_vals[v]
-                if c > best_c:
-                {
+                if (c > best_c) {
                     best_c = c
                     best_v = v
                 }
             }
         }
-        if best_c == -1:
-        {
+        if (best_c == -1) {
             break
         }
         src = "inferred"
         has_d = (best_v in direct)
         has_i = (best_v in inferred)
-        if has_d and has_i:
-        {
+        if (has_d and has_i) {
             src = "mixed"
         }
-        else:
-        {
-            if has_d:
-            {
+        else {
+        
+            if (has_d) {
                 src = "direct"
             }
-            else:
-            {
+            else {
+            
                 src = "inferred"
             }
         }
         prob = 0
-        if total > 0:
-        {
+        if (total > 0) {
             prob = best_c / total
         }
         percent = prob * 100
@@ -299,38 +264,31 @@ def explain_chain(kb_module, subject, target): {
 {
     kb = kb_module.show_all()
     key1 = subject + "_" + "هو"
-    if not (key1 in kb):
-    {
+    if (not (key1 in kb)) {
         return { "ok": False }
     }
     best_via = ""
     best_w = -1
     direct_y = kb[key1]
-    for y in direct_y:
-    {
+    for y in (direct_y) {
         c1 = direct_y[y]
         key2 = y + "_" + "هو"
-        if key2 in kb:
-        {
+        if (key2 in kb) {
             yz = kb[key2]
-            if target in yz:
-            {
+            if (target in yz) {
                 c2 = yz[target]
                 w = c1
-                if c2 < w:
-                {
+                if (c2 < w) {
                     w = c2
                 }
-                if w > best_w:
-                {
+                if (w > best_w) {
                     best_w = w
                     best_via = y
                 }
             }
         }
     }
-    if best_w >= 0:
-    {
+    if (best_w >= 0) {
         return { "ok": True, "via": best_via, "weight": best_w }
     }
     return { "ok": False }
@@ -344,38 +302,31 @@ def explain_has_chain(kb_module, subject, target): {
 {
     kb = kb_module.show_all()
     key_isa = subject + "_" + "نوع من"
-    if not (key_isa in kb):
-    {
+    if (not (key_isa in kb)) {
         return { "ok": False }
     }
     best_via = ""
     best_w = -1
     isa_map = kb[key_isa]
-    for y in isa_map:
-    {
+    for y in (isa_map) {
         c1 = isa_map[y]
         key_prop = y + "_" + "له"
-        if key_prop in kb:
-        {
+        if (key_prop in kb) {
             yz = kb[key_prop]
-            if target in yz:
-            {
+            if (target in yz) {
                 c2 = yz[target]
                 w = c1
-                if c2 < w:
-                {
+                if (c2 < w) {
                     w = c2
                 }
-                if w > best_w:
-                {
+                if (w > best_w) {
                     best_w = w
                     best_via = y
                 }
             }
         }
     }
-    if best_w >= 0:
-    {
+    if (best_w >= 0) {
         return { "ok": True, "via": best_via, "weight": best_w }
     }
     return { "ok": False }

@@ -130,8 +130,7 @@ Unlike Python, Bayan does NOT require indentation. Blocks are defined by a colon
 Formatted (readable):
 
 ```bayan
-if x > 0:
-{
+if (x > 0) {
   print("positive")
 }
 ```
@@ -139,8 +138,7 @@ if x > 0:
 Unformatted (still valid):
 
 ```bayan
-if x > 0:
-{
+if (x > 0) {
 print("positive")
 }
 ```
@@ -162,12 +160,12 @@ hybrid {
     print("Sum: " + str(sum))
 
     # Control flow
-    if sum > 25: {
+    if (sum > 25) {
         print("Large sum")
     }
 
     # Loops
-    for i in range(5): {
+    for i in (range(5)) {
         print("Number: " + str(i))
     }
 }
@@ -208,7 +206,7 @@ hybrid {
     # Query
     results = query sibling("محمد", ?S)?
 
-    for result in results: {
+    for result in (results) {
         print("Sibling: " + result["?S"])
     }
 }
@@ -241,7 +239,7 @@ hybrid {
 
     # Imperative: Print results
     print("Excellent students:")
-    for result in results: {
+    for result in (results) {
         print("  - " + result["?N"] + ": " + str(result["?G"]))
     }
 }

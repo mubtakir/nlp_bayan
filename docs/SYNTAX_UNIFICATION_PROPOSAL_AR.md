@@ -49,8 +49,8 @@ grandparent(?X, ?Z) :- parent(?X, ?Y), parent(?Y, ?Z).
 ### 5. الكتل (Control Flow Blocks)
 **الصيغة الحالية**: نقطتين `:`
 ```bayan
-if x > 0: { ... }
-for i in range(10): { ... }
+if (x > 0) { ... }
+for i in (range(10)) { ... }
 def add(a, b): { ... }
 ```
 

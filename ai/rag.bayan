@@ -24,12 +24,12 @@ def index_documents(docs): {
     # 1. Compute embeddings using the transformer model
     # 2. Add to vector store
     
-    if rag_state["embedding_model"] == "": {
+    if (rag_state["embedding_model"] == "") {
         return False
     }
     
     embeddings = []
-    for doc in docs: {
+    for doc in (docs) {
         # Feature extraction pipeline returns a list of lists (one per token) or pooled
         # We assume we need to handle the output. 
         # For simplicity in this demo, we'll assume the pipeline returns a usable vector or we take the mean.
@@ -51,9 +51,9 @@ def index_documents(docs): {
         # Hack for MVP: assume raw_output is list of lists, take mean of first element (CLS token approx)
         # In reality, we need proper pooling.
         # Let's assume raw_output[0] is the embedding for the first token (CLS)
-        if len(raw_output) > 0: {
+        if (len(raw_output) > 0) {
              embeddings.append(raw_output[0][0]) 
-        } else: {
+        } else {
              embeddings.append([])
         }
     }
@@ -65,14 +65,14 @@ def index_documents(docs): {
 def retrieve(query, k=3): {
     # Retrieves relevant documents for a query
     
-    if rag_state["embedding_model"] == "": {
+    if (rag_state["embedding_model"] == "") {
         return []
     }
     
     # Embed query
     raw_output = tr.run_pipeline(rag_state["embedding_model"], query)
     query_embedding = []
-    if len(raw_output) > 0: {
+    if (len(raw_output) > 0) {
         query_embedding = raw_output[0][0]
     }
     

@@ -298,8 +298,8 @@
 hybrid {
   # حلقة مع شرط
   s = 0
-  for i in range(5): {
-    if i > 2: {
+  for i in (range(5)) {
+    if (i > 2) {
       s = s + i
     }
   }
@@ -372,8 +372,8 @@ hybrid {
 ```bayan
 hybrid {
   c = 0
-  for i in range(3): {
-    if i == 1: {
+  for i in (range(3)) {
+    if (i == 1) {
       c = c + 1
     }
   }

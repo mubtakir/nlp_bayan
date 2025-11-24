@@ -29,13 +29,12 @@ print("")
 
 # البحث المباشر
 answer1 = simple_kb.find_fact("AI", "هو")
-if answer1 != None:
-{
+if (answer1 != None) {
     print("🤖 النظام:", answer1)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -46,13 +45,12 @@ print("👤 المستخدم: ما هو ML؟")
 print("")
 
 answer2 = simple_kb.find_fact("ML", "هو")
-if answer2 != None:
-{
+if (answer2 != None) {
     print("🤖 النظام:", answer2)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -63,13 +61,12 @@ print("👤 المستخدم: ما هو بيان؟")
 print("")
 
 answer3 = simple_kb.find_fact("بيان", "هو")
-if answer3 != None:
-{
+if (answer3 != None) {
     print("🤖 النظام:", answer3)
     print("📊 المصدر: قاعدة المعرفة")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")
@@ -94,13 +91,12 @@ print("👤 المستخدم: ما هو Python؟")
 print("")
 
 answer4 = simple_kb.find_fact("Python", "هو")
-if answer4 != None:
-{
+if (answer4 != None) {
     print("🤖 النظام:", answer4)
     print("📊 المصدر: المعرفة المضافة حديثاً")
 }
-else:
-{
+else {
+
     print("🤖 النظام: لا أعرف")
 }
 print("")

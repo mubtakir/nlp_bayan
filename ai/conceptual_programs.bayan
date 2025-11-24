@@ -9,8 +9,7 @@ import ai.conceptual_circuits as circuits
 # Handles None inputs, concatenates lists, and merges meta data.
 def merge_traces(traces):
 {
-    if traces == None or len(traces) == 0:
-    {
+    if (traces == None or len(traces) == 0) {
         return {}
     }
 
@@ -25,41 +24,33 @@ def merge_traces(traces):
     list_keys = ["entities", "events", "transforms", "causal_links"]
     sources = []
 
-    for i in range(len(traces)):
-    {
+    for i in (range(len(traces))) {
         trace = traces[i]
-        if trace == None: { continue }
+        if (trace == None) { continue }
 
         # Merge list-like fields
-        for k in range(len(list_keys)):
-        {
+        for k in (range(len(list_keys))) {
             key = list_keys[k]
-            if key in trace:
-            {
+            if (key in trace) {
                 local_list = trace[key]
                 # In a real system, we would deduplicate by ID here.
                 # For now, we just append.
-                for j in range(len(local_list)):
-                {
+                for j in (range(len(local_list))) {
                     merged[key].append(local_list[j])
                 }
             }
         }
 
         # Merge meta
-        if "meta" in trace:
-        {
+        if ("meta" in trace) {
             local_meta = trace["meta"]
             # Collect sources
-            if "source" in local_meta:
-            {
+            if ("source" in local_meta) {
                 sources.append(local_meta["source"])
             }
             # Copy other meta fields (last one wins for scalars)
-            for m_key in local_meta:
-            {
-                if m_key != "source":
-                {
+            for m_key in (local_meta) {
+                if (m_key != "source") {
                     merged["meta"][m_key] = local_meta[m_key]
                 }
             }
@@ -67,8 +58,7 @@ def merge_traces(traces):
     }
 
     # Finalize meta
-    if len(sources) > 0:
-    {
+    if (len(sources) > 0) {
         merged["meta"]["sources"] = sources
     }
 
@@ -79,12 +69,10 @@ def merge_traces(traces):
 # Helper: extract a setting with a default (works even if settings is None).
 def _get_setting(settings, key, default_value):
 {
-    if settings == None:
-    {
+    if (settings == None) {
         return default_value
     }
-    if key in settings:
-    {
+    if (key in settings) {
         return settings[key]
     }
     return default_value
@@ -99,26 +87,22 @@ def _get_setting(settings, key, default_value):
 def _adjust_scalar_for_scenario(value, scenario_variant):
 {
     step = 0.1
-    if scenario_variant == "positive":
-    {
+    if (scenario_variant == "positive") {
         new_val = value + step
-        if new_val > 1.0:
-        {
+        if (new_val > 1.0) {
             new_val = 1.0
         }
         return new_val
     }
-    elif scenario_variant == "negative":
-    {
+    elif (scenario_variant == "negative") {
         new_val = value - step
-        if new_val < 0.0:
-        {
+        if (new_val < 0.0) {
             new_val = 0.0
         }
         return new_val
     }
-    else:
-    {
+    else {
+    
         return value
     }
 }
@@ -130,26 +114,21 @@ def _adjust_scalar_for_scenario(value, scenario_variant):
 def _apply_time_horizon(value, time_horizon):
 {
     factor = 1.0
-    if time_horizon == "short_term":
-    {
+    if (time_horizon == "short_term") {
         factor = 1.0
     }
-    elif time_horizon == "medium_term":
-    {
+    elif (time_horizon == "medium_term") {
         factor = 0.95
     }
-    elif time_horizon == "long_term":
-    {
+    elif (time_horizon == "long_term") {
         factor = 0.9
     }
 
     result = value * factor
-    if result < 0.0:
-    {
+    if (result < 0.0) {
         result = 0.0
     }
-    if result > 1.0:
-    {
+    if (result > 1.0) {
         result = 1.0
     }
     return result
@@ -173,13 +152,11 @@ def build_student_study_narrative_program(settings=None):
     adjusted_probability = _adjust_scalar_for_scenario(0.9, scenario_variant)
 
     # Apply focus adjustments
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         adjusted_intensity = adjusted_intensity * 1.1
-        if adjusted_intensity > 1.0: { adjusted_intensity = 1.0 }
+        if (adjusted_intensity > 1.0) { adjusted_intensity = 1.0 }
     }
-    elif focus == "uncertainty":
-    {
+    elif (focus == "uncertainty") {
         adjusted_probability = adjusted_probability * 0.9
     }
 
@@ -206,10 +183,9 @@ def build_student_study_narrative_program(settings=None):
     )
 
     # Apply focus to causal links
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         causal_strength = causal_strength * 1.15
-        if causal_strength > 1.0: { causal_strength = 1.0 }
+        if (causal_strength > 1.0) { causal_strength = 1.0 }
     }
 
     causal = circuits.build_causal_link_circuit(
@@ -232,8 +208,7 @@ def build_student_study_narrative_program(settings=None):
     }
 
     # Medium and high detail: add temporal sequence
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         temporal_seq = circuits.build_temporal_sequence_circuit(
             "حدث_الاستيقاظ",
             "حدث_الذهاب_إلى_المدرسة",
@@ -244,8 +219,7 @@ def build_student_study_narrative_program(settings=None):
         components["temporal_sequence"] = temporal_seq
 
         # Apply focus to temporal if needed
-        if focus == "temporal":
-        {
+        if (focus == "temporal") {
             # Add extra temporal circuit for high focus
             temporal_seq2 = circuits.build_temporal_sequence_circuit(
                 "حدث_الذهاب_إلى_المدرسة",
@@ -259,8 +233,7 @@ def build_student_study_narrative_program(settings=None):
     }
 
     # Medium and high detail: add contextual event
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         contextual = circuits.build_contextualized_event_circuit(
             "حدث_القراءة",
             "الطالب",
@@ -273,8 +246,7 @@ def build_student_study_narrative_program(settings=None):
     }
 
     # High detail or uncertainty focus: add uncertain circuit
-    if detail_level == "high" or focus == "uncertainty":
-    {
+    if (detail_level == "high" or focus == "uncertainty") {
         uncertain_strength = _apply_time_horizon(
             _adjust_scalar_for_scenario(0.6, scenario_variant),
             time_horizon
@@ -285,8 +257,7 @@ def build_student_study_narrative_program(settings=None):
         )
 
         # Boost uncertainty if focused
-        if focus == "uncertainty":
-        {
+        if (focus == "uncertainty") {
             uncertain_prob = uncertain_prob * 0.85
         }
 
@@ -330,13 +301,11 @@ def build_medical_treatment_uncertainty_program(settings):
     treatment_prob = _adjust_scalar_for_scenario(0.9, scenario_variant)
 
     # Apply focus adjustments
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         treatment_intensity = treatment_intensity * 1.1
-        if treatment_intensity > 1.0: { treatment_intensity = 1.0 }
+        if (treatment_intensity > 1.0) { treatment_intensity = 1.0 }
     }
-    elif focus == "uncertainty":
-    {
+    elif (focus == "uncertainty") {
         treatment_prob = treatment_prob * 0.9
     }
 
@@ -364,10 +333,9 @@ def build_medical_treatment_uncertainty_program(settings):
     )
 
     # Apply focus to causal links
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         treatment_causal_strength = treatment_causal_strength * 1.15
-        if treatment_causal_strength > 1.0: { treatment_causal_strength = 1.0 }
+        if (treatment_causal_strength > 1.0) { treatment_causal_strength = 1.0 }
     }
 
     treatment_causal = circuits.build_causal_link_circuit(
@@ -390,8 +358,7 @@ def build_medical_treatment_uncertainty_program(settings):
     }
 
     # Medium and high detail: add temporal sequence
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         temporal_med = circuits.build_temporal_sequence_circuit(
             "حدث_ظهور_الأعراض",
             "حدث_زيارة_الطبيب",
@@ -401,8 +368,7 @@ def build_medical_treatment_uncertainty_program(settings):
         traces.append(temporal_med["trace"])
         components["temporal_sequence"] = temporal_med
 
-        if focus == "temporal":
-        {
+        if (focus == "temporal") {
             temporal_med2 = circuits.build_temporal_sequence_circuit(
                 "حدث_زيارة_الطبيب",
                 "حدث_تناول_الدواء",
@@ -415,8 +381,7 @@ def build_medical_treatment_uncertainty_program(settings):
     }
 
     # Medium and high detail: add contextual event
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         contextual_followup = circuits.build_contextualized_event_circuit(
             "حدث_مراقبة_الحالة",
             "المريض",
@@ -429,8 +394,7 @@ def build_medical_treatment_uncertainty_program(settings):
     }
 
     # High detail or uncertainty focus: add uncertain side effect
-    if detail_level == "high" or focus == "uncertainty":
-    {
+    if (detail_level == "high" or focus == "uncertainty") {
         uncertain_side_strength = _apply_time_horizon(
             _adjust_scalar_for_scenario(0.5, scenario_variant),
             time_horizon
@@ -441,8 +405,7 @@ def build_medical_treatment_uncertainty_program(settings):
         )
 
         # Boost uncertainty if focused
-        if focus == "uncertainty":
-        {
+        if (focus == "uncertainty") {
             uncertain_side_prob = uncertain_side_prob * 0.85
         }
 
@@ -485,13 +448,11 @@ def build_economic_investment_risk_program(settings=None):
     investment_prob = _adjust_scalar_for_scenario(0.8, scenario_variant)
 
     # Apply focus adjustments
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         investment_intensity = investment_intensity * 1.1
-        if investment_intensity > 1.0: { investment_intensity = 1.0 }
+        if (investment_intensity > 1.0) { investment_intensity = 1.0 }
     }
-    elif focus == "uncertainty":
-    {
+    elif (focus == "uncertainty") {
         investment_prob = investment_prob * 0.9
     }
 
@@ -519,10 +480,9 @@ def build_economic_investment_risk_program(settings=None):
     )
 
     # Apply focus to causal links
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         investment_causal_strength = investment_causal_strength * 1.15
-        if investment_causal_strength > 1.0: { investment_causal_strength = 1.0 }
+        if (investment_causal_strength > 1.0) { investment_causal_strength = 1.0 }
     }
 
     investment_causal = circuits.build_causal_link_circuit(
@@ -545,8 +505,7 @@ def build_economic_investment_risk_program(settings=None):
     }
 
     # Medium and high detail: add temporal sequence
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         temporal_econ = circuits.build_temporal_sequence_circuit(
             "حدث_دراسة_السوق",
             "حدث_الاستثمار",
@@ -556,8 +515,7 @@ def build_economic_investment_risk_program(settings=None):
         traces.append(temporal_econ["trace"])
         components["temporal_sequence"] = temporal_econ
 
-        if focus == "temporal":
-        {
+        if (focus == "temporal") {
             temporal_econ2 = circuits.build_temporal_sequence_circuit(
                 "حدث_الاستثمار",
                 "حدث_زيادة_الثروة",
@@ -570,8 +528,7 @@ def build_economic_investment_risk_program(settings=None):
     }
 
     # Medium and high detail: add contextual event
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         contextual_research = circuits.build_contextualized_event_circuit(
             "حدث_متابعة_الأخبار",
             "المستثمر",
@@ -584,8 +541,7 @@ def build_economic_investment_risk_program(settings=None):
     }
 
     # High detail or uncertainty focus: add uncertain risk
-    if detail_level == "high" or focus == "uncertainty":
-    {
+    if (detail_level == "high" or focus == "uncertainty") {
         uncertain_risk_strength = _apply_time_horizon(
             _adjust_scalar_for_scenario(0.4, scenario_variant),
             time_horizon
@@ -596,8 +552,7 @@ def build_economic_investment_risk_program(settings=None):
         )
 
         # Boost uncertainty if focused
-        if focus == "uncertainty":
-        {
+        if (focus == "uncertainty") {
             uncertain_risk_prob = uncertain_risk_prob * 0.85
         }
 
@@ -644,13 +599,11 @@ def build_social_relationship_program(settings=None):
     adjusted_probability = _adjust_scalar_for_scenario(0.85, scenario_variant)
 
     # Apply focus adjustments
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         adjusted_intensity = adjusted_intensity * 1.1
-        if adjusted_intensity > 1.0: { adjusted_intensity = 1.0 }
+        if (adjusted_intensity > 1.0) { adjusted_intensity = 1.0 }
     }
-    elif focus == "uncertainty":
-    {
+    elif (focus == "uncertainty") {
         adjusted_probability = adjusted_probability * 0.9
     }
 
@@ -679,10 +632,9 @@ def build_social_relationship_program(settings=None):
     )
 
     # Apply focus to causal links
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         causal_strength = causal_strength * 1.15
-        if causal_strength > 1.0: { causal_strength = 1.0 }
+        if (causal_strength > 1.0) { causal_strength = 1.0 }
     }
 
     causal_trust = circuits.build_causal_link_circuit(
@@ -705,8 +657,7 @@ def build_social_relationship_program(settings=None):
     }
 
     # Medium and high detail: add temporal sequence
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         temporal_social = circuits.build_temporal_sequence_circuit(
             "حدث_اللقاء_الأول",
             "حدث_تطور_الصداقة",
@@ -716,8 +667,7 @@ def build_social_relationship_program(settings=None):
         traces.append(temporal_social["trace"])
         components["temporal_sequence"] = temporal_social
 
-        if focus == "temporal":
-        {
+        if (focus == "temporal") {
             temporal_social2 = circuits.build_temporal_sequence_circuit(
                 "حدث_تطور_الصداقة",
                 "حدث_صداقة_دائمة",
@@ -730,8 +680,7 @@ def build_social_relationship_program(settings=None):
     }
 
     # Medium and high detail: add contextual event
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         contextual_activity = circuits.build_contextualized_event_circuit(
             "حدث_نشاط_مشترك",
             "الشخص_أ",
@@ -744,8 +693,7 @@ def build_social_relationship_program(settings=None):
     }
 
     # High detail or uncertainty focus: add uncertain friendship
-    if detail_level == "high" or focus == "uncertainty":
-    {
+    if (detail_level == "high" or focus == "uncertainty") {
         uncertain_friendship_strength = _apply_time_horizon(
             _adjust_scalar_for_scenario(0.7, scenario_variant),
             time_horizon
@@ -756,8 +704,7 @@ def build_social_relationship_program(settings=None):
         )
 
         # Boost uncertainty if focused
-        if focus == "uncertainty":
-        {
+        if (focus == "uncertainty") {
             uncertain_friendship_prob = uncertain_friendship_prob * 0.85
         }
 
@@ -804,13 +751,11 @@ def build_daily_decision_program(settings=None):
     adjusted_probability = _adjust_scalar_for_scenario(0.9, scenario_variant)
 
     # Apply focus adjustments
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         adjusted_intensity = adjusted_intensity * 1.1
-        if adjusted_intensity > 1.0: { adjusted_intensity = 1.0 }
+        if (adjusted_intensity > 1.0) { adjusted_intensity = 1.0 }
     }
-    elif focus == "uncertainty":
-    {
+    elif (focus == "uncertainty") {
         adjusted_probability = adjusted_probability * 0.9
     }
 
@@ -839,10 +784,9 @@ def build_daily_decision_program(settings=None):
     )
 
     # Apply focus to causal links
-    if focus == "causal":
-    {
+    if (focus == "causal") {
         causal_strength = causal_strength * 1.15
-        if causal_strength > 1.0: { causal_strength = 1.0 }
+        if (causal_strength > 1.0) { causal_strength = 1.0 }
     }
 
     causal_decision = circuits.build_causal_link_circuit(
@@ -882,8 +826,7 @@ def build_daily_decision_program(settings=None):
     components["option_comparison"] = option_comparison
 
     # Medium and high detail: add temporal sequence
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         temporal_decision = circuits.build_temporal_sequence_circuit(
             "حدث_التفكير",
             "حدث_اتخاذ_القرار",
@@ -893,8 +836,7 @@ def build_daily_decision_program(settings=None):
         traces.append(temporal_decision["trace"])
         components["temporal_sequence"] = temporal_decision
 
-        if focus == "temporal":
-        {
+        if (focus == "temporal") {
             temporal_decision2 = circuits.build_temporal_sequence_circuit(
                 "حدث_اتخاذ_القرار",
                 "حدث_نتيجة_إيجابية",
@@ -907,8 +849,7 @@ def build_daily_decision_program(settings=None):
     }
 
     # Medium and high detail: add contextual event
-    if detail_level == "medium" or detail_level == "high":
-    {
+    if (detail_level == "medium" or detail_level == "high") {
         contextual_decision = circuits.build_contextualized_event_circuit(
             "حدث_اتخاذ_القرار",
             "الشخص",
@@ -921,8 +862,7 @@ def build_daily_decision_program(settings=None):
     }
 
     # High detail or uncertainty focus: add uncertain outcome
-    if detail_level == "high" or focus == "uncertainty":
-    {
+    if (detail_level == "high" or focus == "uncertainty") {
         uncertain_outcome_strength = _apply_time_horizon(
             _adjust_scalar_for_scenario(0.6, scenario_variant),
             time_horizon
@@ -933,8 +873,7 @@ def build_daily_decision_program(settings=None):
         )
 
         # Boost uncertainty if focused
-        if focus == "uncertainty":
-        {
+        if (focus == "uncertainty") {
             uncertain_outcome_prob = uncertain_outcome_prob * 0.85
         }
 

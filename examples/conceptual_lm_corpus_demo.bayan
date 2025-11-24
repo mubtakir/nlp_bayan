@@ -46,8 +46,7 @@ hybrid {
         "neutral"
     )
     action_examples = action_result["examples"]
-    for i in range(len(action_examples)):
-    {
+    for i in (range(len(action_examples))) {
         examples.append(action_examples[i])
     }
 
@@ -72,8 +71,7 @@ hybrid {
         "neutral"
     )
     state_examples = state_result["examples"]
-    for i in range(len(state_examples)):
-    {
+    for i in (range(len(state_examples))) {
         examples.append(state_examples[i])
     }
 
@@ -97,8 +95,7 @@ hybrid {
         "neutral"
     )
     causal_examples = causal_result["examples"]
-    for i in range(len(causal_examples)):
-    {
+    for i in (range(len(causal_examples))) {
         examples.append(causal_examples[i])
     }
 
@@ -121,8 +118,7 @@ hybrid {
         "neutral"
     )
     desc_examples = desc_result["examples"]
-    for i in range(len(desc_examples)):
-    {
+    for i in (range(len(desc_examples))) {
         examples.append(desc_examples[i])
     }
 
@@ -144,8 +140,7 @@ hybrid {
         "neutral"
     )
     intensity_examples = intensity_result["examples"]
-    for i in range(len(intensity_examples)):
-    {
+    for i in (range(len(intensity_examples))) {
         examples.append(intensity_examples[i])
     }
 
@@ -163,8 +158,7 @@ hybrid {
     trigram_scores = lm_bridge.score_examples_with_trigram(examples, trigram_model)
 
     print("==== Bigram vs Trigram LM scores for corpus examples ====")
-    for i in range(len(examples)):
-    {
+    for i in (range(len(examples))) {
         ex = examples[i]
         sc_bg = bigram_scores[i]
         sc_tri = trigram_scores[i]

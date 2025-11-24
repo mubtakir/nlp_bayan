@@ -36,8 +36,7 @@ def test_iter_for_loop():
         def __iter__(): { return [1, 2, 3] }
     }
     s = 0
-    for x in Seq():
-    {
+    for x in (Seq()) {
         s = s + x
     }
     """
@@ -76,8 +75,7 @@ def test_bool_dunder_in_condition_and_not():
     {
         def __bool__(): { return False }
     }
-    if Z():
-    {
+    if (Z()) {
         a = 1
     }
     else:

@@ -107,92 +107,74 @@ def _score_program(entry, control_message):
     score = 0
 
     # Check domain match
-    if "domain" in control_message:
-    {
+    if ("domain" in control_message) {
         requested_domain = control_message["domain"]
-        if "domains" in entry:
-        {
+        if ("domains" in entry) {
             doms = entry["domains"]
             matched = False
-            for j in range(len(doms)):
-            {
-                if doms[j] == requested_domain:
-                {
+            for j in (range(len(doms))) {
+                if (doms[j] == requested_domain) {
                     matched = True
                     break
                 }
             }
-            if matched:
-            {
+            if (matched) {
                 score = score + 10
             }
-            else:
-            {
+            else {
+            
                 return -1
             }
         }
     }
 
     # Check intent match
-    if "intent" in control_message:
-    {
+    if ("intent" in control_message) {
         intent = control_message["intent"]
-        if "intents" in entry:
-        {
+        if ("intents" in entry) {
             intents = entry["intents"]
             matched = False
-            for j in range(len(intents)):
-            {
-                if intents[j] == intent:
-                {
+            for j in (range(len(intents))) {
+                if (intents[j] == intent) {
                     matched = True
                     break
                 }
             }
-            if matched:
-            {
+            if (matched) {
                 score = score + 10
             }
-            else:
-            {
+            else {
+            
                 return -1
             }
         }
     }
 
     # Bonus: preferred_settings alignment
-    if "preferred_settings" in control_message:
-    {
+    if ("preferred_settings" in control_message) {
         prefs = control_message["preferred_settings"]
 
         # Check if program has metadata about preferred settings
-        if "preferred_for" in entry:
-        {
+        if ("preferred_for" in entry) {
             pref_for = entry["preferred_for"]
 
             # Check scenario_variant preference
-            if "scenario_variant" in prefs and "scenario_variant" in pref_for:
-            {
-                if prefs["scenario_variant"] == pref_for["scenario_variant"]:
-                {
+            if ("scenario_variant" in prefs and "scenario_variant" in pref_for) {
+                if (prefs["scenario_variant"] == pref_for["scenario_variant"]) {
                     score = score + 5
                 }
             }
 
             # Check time_horizon preference
-            if "time_horizon" in prefs and "time_horizon" in pref_for:
-            {
-                if prefs["time_horizon"] == pref_for["time_horizon"]:
-                {
+            if ("time_horizon" in prefs and "time_horizon" in pref_for) {
+                if (prefs["time_horizon"] == pref_for["time_horizon"]) {
                     score = score + 5
                 }
             }
 
             # Check focus preference
-            if "focus" in prefs and "focus" in pref_for:
-            {
-                if prefs["focus"] == pref_for["focus"]:
-                {
+            if ("focus" in prefs and "focus" in pref_for) {
+                if (prefs["focus"] == pref_for["focus"]) {
                     score = score + 3
                 }
             }
@@ -214,14 +196,11 @@ def select_program(control_message):
     registry = get_program_registry()
 
     # 1) Explicit program_id has highest priority
-    if "program_id" in control_message:
-    {
+    if ("program_id" in control_message) {
         requested_id = control_message["program_id"]
-        for i in range(len(registry)):
-        {
+        for i in (range(len(registry))) {
             entry = registry[i]
-            if entry["id"] == requested_id:
-            {
+            if (entry["id"] == requested_id) {
                 return entry
             }
         }
@@ -232,13 +211,11 @@ def select_program(control_message):
     best_entry = None
     best_score = -1
 
-    for i in range(len(registry)):
-    {
+    for i in (range(len(registry))) {
         entry = registry[i]
         score = _score_program(entry, control_message)
 
-        if score > best_score:
-        {
+        if (score > best_score) {
             best_score = score
             best_entry = entry
         }
@@ -256,54 +233,45 @@ def normalize_settings(control_message):
     # Detail level controls how many components will be realized.
     # Allowed values (by convention): "low", "medium", "high".
     detail = "high"
-    if "detail_level" in control_message:
-    {
+    if ("detail_level" in control_message) {
         detail = control_message["detail_level"]
     }
 
     # Languages control which symbolic sentences are generated.
     # "arabic"/"ar", "english"/"en", or "both" (default both).
     langs = ["english", "arabic"]
-    if "languages" in control_message:
-    {
+    if ("languages" in control_message) {
         lang_spec = control_message["languages"]
-        if lang_spec == "arabic" or lang_spec == "ar":
-        {
+        if (lang_spec == "arabic" or lang_spec == "ar") {
             langs = ["arabic"]
         }
-        elif lang_spec == "english" or lang_spec == "en":
-        {
+        elif (lang_spec == "english" or lang_spec == "en") {
             langs = ["english"]
         }
-        elif lang_spec == "both":
-        {
+        elif (lang_spec == "both") {
             langs = ["english", "arabic"]
         }
     }
 
     # Perspective can be used by the LM layer (e.g. to choose register).
     perspective = "neutral"
-    if "perspective" in control_message:
-    {
+    if ("perspective" in control_message) {
         perspective = control_message["perspective"]
     }
 
     # Focus indicates which conceptual aspect to emphasize in realization.
     # Examples: "causal", "temporal", "uncertainty", "context".
     focus = None
-    if "focus" in control_message:
-    {
+    if ("focus" in control_message) {
         focus = control_message["focus"]
     }
 
     # Scenario variant is a coarse hint about positivity/negativity.
     # Allowed values: "positive", "negative", "neutral".
     scenario_variant = "neutral"
-    if "scenario_variant" in control_message:
-    {
+    if ("scenario_variant" in control_message) {
         variant = control_message["scenario_variant"]
-        if variant == "positive" or variant == "negative" or variant == "neutral":
-        {
+        if (variant == "positive" or variant == "negative" or variant == "neutral") {
             scenario_variant = variant
         }
     }
@@ -311,11 +279,9 @@ def normalize_settings(control_message):
     # Time horizon is a rough indication of short/medium/long term.
     # Allowed values: "short_term", "medium_term", "long_term".
     time_horizon = "medium_term"
-    if "time_horizon" in control_message:
-    {
+    if ("time_horizon" in control_message) {
         th = control_message["time_horizon"]
-        if th == "short_term" or th == "medium_term" or th == "long_term":
-        {
+        if (th == "short_term" or th == "medium_term" or th == "long_term") {
             time_horizon = th
         }
     }
@@ -337,8 +303,7 @@ def normalize_settings(control_message):
 def dispatch_request(control_message):
 {
     entry = select_program(control_message)
-    if entry == None:
-    {
+    if (entry == None) {
         return {
             "ok": False,
             "error": "no_program_match",

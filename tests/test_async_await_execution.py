@@ -60,7 +60,7 @@ def test_async_function_with_computation():
 async def compute(n): {
     total = 0
     i = 1
-    while i <= n: {
+    while (i <= n) {
         total = total + i
         i = i + 1
     }
@@ -142,7 +142,7 @@ def test_async_with_if_statement():
     """Test async function with if statement"""
     code = """
 async def check_value(x): {
-    if x > 10: {
+    if (x > 10) {
         return "large"
     } else: {
         return "small"
@@ -172,7 +172,7 @@ def test_async_with_for_loop():
     code = """
 async def sum_list(items): {
     total = 0
-    for item in items: {
+    for item in (items) {
         total = total + item
     }
     return total

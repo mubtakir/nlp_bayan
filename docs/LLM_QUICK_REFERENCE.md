@@ -40,11 +40,11 @@ hybrid {
     }
     
     # Control flow
-    if condition: {
+    if (condition) {
         statement
     }
     
-    for item in items: {
+    for item in (items) {
         statement
     }
     
@@ -170,10 +170,10 @@ hybrid {
 ```bayan
 hybrid {
     # If-elif-else
-    if x > 0: {
+    if (x > 0) {
         print("positive")
     }
-    elif x < 0: {
+    elif (x < 0) {
         print("negative")
     }
     else: {
@@ -181,12 +181,12 @@ hybrid {
     }
     
     # For loop
-    for i in range(5): {
+    for i in (range(5)) {
         print(i)
     }
     
     # While loop
-    while x < 10: {
+    while (x < 10) {
         x = x + 1
     }
 }
@@ -209,7 +209,7 @@ hybrid {
     # *args
     def sum_all(*nums): {
         total = 0
-        for n in nums: {
+        for n in (nums) {
             total = total + n
         }
         return total
@@ -217,7 +217,7 @@ hybrid {
     
     # **kwargs
     def print_info(**info): {
-        for key in info: {
+        for key in (info) {
             print(key + ": " + str(info[key]))
         }
     }
@@ -258,7 +258,7 @@ hybrid {
     # Query (use ?)
     results = query grandparent(?GP, "علي")?
     
-    for result in results: {
+    for result in (results) {
         print(result["?GP"])
     }
     
@@ -309,7 +309,7 @@ hybrid {
     s2 = Student("فاطمة", 95)
     
     results = query student(?N, ?G), ?G >= 90?
-    for r in results: {
+    for r in (results) {
         print(r["?N"])
     }
 }
@@ -418,7 +418,7 @@ hybrid {
         return x
     }
 
-    if x > 0: {
+    if (x > 0) {
         print(x)
     }
 

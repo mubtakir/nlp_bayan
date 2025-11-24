@@ -178,7 +178,7 @@ def test_parse_with_for_loop():
     """Test parsing with statement containing for loop"""
     code = """
 with open("file.txt") as f: {
-    for line in f: {
+    for line in (f) {
         print(line)
     }
 }
@@ -196,7 +196,7 @@ def test_parse_with_conditional():
     """Test parsing with statement with conditional"""
     code = """
 with get_resource() as resource: {
-    if resource.is_valid(): {
+    if (resource.is_valid()) {
         resource.use()
     } else: {
         print("Invalid resource")

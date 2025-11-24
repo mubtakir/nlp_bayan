@@ -130,8 +130,7 @@ hybrid {
 
     def divide(a, b):
     {
-        if b == 0:
-        {
+        if (b == 0) {
             print("Error: Division by zero")
             return None
         }
@@ -165,8 +164,7 @@ hybrid {
     print("Original list: " + str(numbers))
 
     # Iterate through list
-    for num in numbers:
-    {
+    for num in (numbers) {
         print("Number: " + str(num))
     }
 
@@ -194,8 +192,7 @@ hybrid {
 hybrid {
     x = 10
 
-    if x > 5:
-    {
+    if (x > 5) {
         print("x is greater than 5")
     }
     else:
@@ -204,15 +201,13 @@ hybrid {
     }
 
     # For loop
-    for i in range(5):
-    {
+    for i in (range(5)) {
         print("i = " + str(i))
     }
 
     # While loop
     count = 0
-    while count < 3:
-    {
+    while (count < 3) {
         print("count = " + str(count))
         count = count + 1
     }
@@ -235,8 +230,7 @@ hybrid {
     print("Students in Math class:")
 
     # Use logical query in traditional code
-    if student("Ahmed", ?Subject):
-    {
+    if (student("Ahmed", ?Subject)) {
         print("Ahmed studies: " + ?Subject)
     }
 }

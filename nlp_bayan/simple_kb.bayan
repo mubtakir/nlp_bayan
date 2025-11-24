@@ -12,17 +12,15 @@ def add_fact(subject, predicate, value): {
 {
     key = subject + "_" + predicate
     # استبدال 'not in' بـ 'not (.. in ..)' لتوافق النحو
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         knowledge_base[key] = {}
     }
     counts = knowledge_base[key]
-    if value in counts:
-    {
+    if (value in counts) {
         counts[value] = counts[value] + 1
     }
-    else:
-    {
+    else {
+    
         counts[value] = 1
     }
     return True
@@ -37,8 +35,7 @@ def find_best_with_prob(subject, predicate): {
 {
     key = subject + "_" + predicate
     # استبدال 'not in' بـ 'not (.. in ..)'
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         return { "found": False }
     }
     counts = knowledge_base[key]
@@ -46,20 +43,17 @@ def find_best_with_prob(subject, predicate): {
     best_value = ""
     best_count = -1
     total = 0
-    for v in counts:
-    {
+    for v in (counts) {
         c = counts[v]
         total = total + c
-        if c > best_count:
-        {
+        if (c > best_count) {
             best_count = c
             best_value = v
         }
     }
     # حساب الاحتمال (كنسبة مبسطة)
     prob = 0
-    if total > 0:
-    {
+    if (total > 0) {
         prob = best_count / total
     }
     percent = prob * 100
@@ -72,8 +66,7 @@ def find_fact(subject, predicate): {
 }
 {
     res = find_best_with_prob(subject, predicate)
-    if res["found"]:
-    {
+    if (res["found"]) {
         return res["value"]
     }
     return None
@@ -84,8 +77,7 @@ def find_distribution(subject, predicate): {
 }
 {
     key = subject + "_" + predicate
-    if key in knowledge_base:
-    {
+    if (key in knowledge_base) {
         return knowledge_base[key]
     }
     return {}
@@ -97,10 +89,8 @@ def find_by_subject(subject): {
 {
     results = []
     prefix = subject + "_"
-    for key in knowledge_base:
-    {
-        if key.startswith(prefix):
-        {
+    for key in (knowledge_base) {
+        if (key.startswith(prefix)) {
             # استخرج أفضل قيمة لهذا المفتاح
             # المفتاح بصيغة subject_predicate -> افصل العلاقة لأغراض العرض
             parts = key.split("_")
@@ -118,42 +108,34 @@ def find_top_n(subject, predicate, n): {
 }
 {
     key = subject + "_" + predicate
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         return []
     }
     counts = knowledge_base[key]
     total = 0
-    for v in counts:
-    {
+    for v in (counts) {
         total = total + counts[v]
     }
     used = []
     top = []
     i = 0
-    while i < n:
-    {
+    while (i < n) {
         best_v = ""
         best_c = -1
-        for v in counts:
-        {
-            if not (v in used):
-            {
+        for v in (counts) {
+            if (not (v in used)) {
                 c = counts[v]
-                if c > best_c:
-                {
+                if (c > best_c) {
                     best_c = c
                     best_v = v
                 }
             }
         }
-        if best_c == -1:
-        {
+        if (best_c == -1) {
             break
         }
         prob = 0
-        if total > 0:
-        {
+        if (total > 0) {
             prob = best_c / total
         }
         percent = prob * 100
@@ -210,17 +192,15 @@ def add_fact_in_ctx(subject, predicate, value, ctx): {
 }
 {
     key = subject + "_" + predicate + "_@_" + ctx
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         knowledge_base[key] = {}
     }
     counts = knowledge_base[key]
-    if value in counts:
-    {
+    if (value in counts) {
         counts[value] = counts[value] + 1
     }
-    else:
-    {
+    else {
+    
         counts[value] = 1
     }
     return True
@@ -232,8 +212,7 @@ def find_distribution_in_ctx(subject, predicate, ctx): {
 }
 {
     key = subject + "_" + predicate + "_@_" + ctx
-    if key in knowledge_base:
-    {
+    if (key in knowledge_base) {
         return knowledge_base[key]
     }
     return {}
@@ -245,27 +224,23 @@ def find_best_with_prob_in_ctx(subject, predicate, ctx): {
 }
 {
     key = subject + "_" + predicate + "_@_" + ctx
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         return { "found": False }
     }
     counts = knowledge_base[key]
     best_value = ""
     best_count = -1
     total = 0
-    for v in counts:
-    {
+    for v in (counts) {
         c = counts[v]
         total = total + c
-        if c > best_count:
-        {
+        if (c > best_count) {
             best_count = c
             best_value = v
         }
     }
     prob = 0
-    if total > 0:
-    {
+    if (total > 0) {
         prob = best_count / total
     }
     percent = prob * 100
@@ -279,12 +254,10 @@ def find_contradictions(subject, predicate): {
 {
     dist = find_distribution(subject, predicate)
     unique = 0
-    for v in dist:
-    {
+    for v in (dist) {
         unique = unique + 1
     }
-    if unique > 1:
-    {
+    if (unique > 1) {
         return { "conflict": True, "distribution": dist, "unique": unique }
     }
     return { "conflict": False, "distribution": dist, "unique": unique }
@@ -302,17 +275,15 @@ def add_fact_at_t(subject, predicate, value, tlabel): {
 }
 {
     key = subject + "_" + predicate + "_#_" + tlabel
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         knowledge_base[key] = {}
     }
     counts = knowledge_base[key]
-    if value in counts:
-    {
+    if (value in counts) {
         counts[value] = counts[value] + 1
     }
-    else:
-    {
+    else {
+    
         counts[value] = 1
     }
     return True
@@ -324,27 +295,23 @@ def find_best_with_prob_at_t(subject, predicate, tlabel): {
 }
 {
     key = subject + "_" + predicate + "_#_" + tlabel
-    if not (key in knowledge_base):
-    {
+    if (not (key in knowledge_base)) {
         return { "found": False }
     }
     counts = knowledge_base[key]
     best_value = ""
     best_count = -1
     total = 0
-    for v in counts:
-    {
+    for v in (counts) {
         c = counts[v]
         total = total + c
-        if c > best_count:
-        {
+        if (c > best_count) {
             best_count = c
             best_value = v
         }
     }
     prob = 0
-    if total > 0:
-    {
+    if (total > 0) {
         prob = best_count / total
     }
     percent = prob * 100
@@ -365,27 +332,23 @@ def add_fact_meta(subject, predicate, value, ts, conf): {
 {
     add_fact(subject, predicate, value)
     key = subject + "_" + predicate
-    if not (key in meta_store):
-    {
+    if (not (key in meta_store)) {
         meta_store[key] = {}
     }
     vals = meta_store[key]
-    if value in vals:
-    {
+    if (value in vals) {
         m = vals[value]
         # تحديث أحدث زمن وأقصى ثقة
-        if ts > m["last"]:
-        {
+        if (ts > m["last"]) {
             m["last"] = ts
         }
-        if conf > m["max_conf"]:
-        {
+        if (conf > m["max_conf"]) {
             m["max_conf"] = conf
         }
         m["count_meta"] = m["count_meta"] + 1
     }
-    else:
-    {
+    else {
+    
         vals[value] = { "last": ts, "max_conf": conf, "count_meta": 1 }
     }
     return True
@@ -415,49 +378,41 @@ def find_best_with_policy(subject, predicate): {
 }
 {
     pol = resolution_policy["current"]
-    if pol == "most_frequent":
-    {
+    if (pol == "most_frequent") {
         return find_best_with_prob(subject, predicate)
     }
     key = subject + "_" + predicate
     dist = find_distribution(subject, predicate)
     # إن لم توجد ميتاداتا كافية نعود للطريقة التقليدية
-    if not (key in meta_store):
-    {
+    if (not (key in meta_store)) {
         return find_best_with_prob(subject, predicate)
     }
     mvals = meta_store[key]
     best_value = ""
     has_best = False
-    if pol == "most_recent":
-    {
+    if (pol == "most_recent") {
         best_score = ""
     }
-    else:
-    {
+    else {
+    
         best_score = -1
     }
-    for v in dist:
-    {
-        if v in mvals:
-        {
+    for v in (dist) {
+        if (v in mvals) {
             m = mvals[v]
-            if pol == "most_recent":
-            {
+            if (pol == "most_recent") {
                 score = m["last"]
-                if (not has_best) or (score > best_score):
-                {
+                if ((not has_best) or (score > best_score)) {
                     best_score = score
                     best_value = v
                     has_best = True
                 }
             }
-            else:
-            {
+            else {
+            
                 # highest_confidence
                 score = m["max_conf"]
-                if (not has_best) or (score > best_score):
-                {
+                if ((not has_best) or (score > best_score)) {
                     best_score = score
                     best_value = v
                     has_best = True
@@ -465,20 +420,17 @@ def find_best_with_policy(subject, predicate): {
             }
         }
     }
-    if best_value == "":
-    {
+    if (best_value == "") {
         return find_best_with_prob(subject, predicate)
     }
     # حساب النسبة على التوزيع العام
     total = 0
-    for v2 in dist:
-    {
+    for v2 in (dist) {
         total = total + dist[v2]
     }
     cnt = dist[best_value]
     prob = 0
-    if total > 0:
-    {
+    if (total > 0) {
         prob = cnt / total
     }
     percent = prob * 100

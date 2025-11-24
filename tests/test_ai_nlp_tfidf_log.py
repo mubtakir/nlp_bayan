@@ -19,16 +19,14 @@ def test_nlp_tfidf_log_rarity_vs_common():
       vecs = nlp.compute_tfidf_log(docs)
       v1 = vecs[0]
       v3 = vecs[2]
-      if "rare" in v3:
-      {
+      if ("rare" in v3) {
         rare_w = v3["rare"]
       }
       else:
       {
         rare_w = 0.0
       }
-      if "this" in v1:
-      {
+      if ("this" in v1) {
         this_w = v1["this"]
       }
       else:

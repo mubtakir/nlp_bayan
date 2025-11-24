@@ -96,8 +96,7 @@ hybrid {
     x = 3.14159
     y = 3.14160
 
-    if x ~= y:
-    {
+    if (x ~= y) {
         result = "approximately equal"
     }
     else:

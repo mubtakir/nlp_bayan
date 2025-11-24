@@ -43,7 +43,7 @@ hybrid {
 
 ```bayan
 # Correct ✓
-if condition: {
+if (condition) {
     statement
 }
 
@@ -130,13 +130,13 @@ hybrid {
 hybrid {
     score = 85
     
-    if score >= 90: {
+    if (score >= 90) {
         print("Excellent")
     }
-    elif score >= 80: {
+    elif (score >= 80) {
         print("Very Good")
     }
-    elif score >= 70: {
+    elif (score >= 70) {
         print("Good")
     }
     else: {
@@ -150,17 +150,17 @@ hybrid {
 hybrid {
     # Iterate over list
     fruits = ["apple", "banana", "orange"]
-    for fruit in fruits: {
+    for fruit in (fruits) {
         print(fruit)
     }
     
     # Range
-    for i in range(5): {
+    for i in (range(5)) {
         print(i)  # 0, 1, 2, 3, 4
     }
     
     # Enumerate
-    for item in enumerate(fruits): {
+    for item in (enumerate(fruits)) {
         index = item[0]
         value = item[1]
         print(index)
@@ -173,7 +173,7 @@ hybrid {
 ```bayan
 hybrid {
     count = 0
-    while count < 5: {
+    while (count < 5) {
         print(count)
         count = count + 1
     }
@@ -214,7 +214,7 @@ hybrid {
     # Variable positional arguments
     def sum_all(*numbers): {
         total = 0
-        for num in numbers: {
+        for num in (numbers) {
             total = total + num
         }
         return total
@@ -224,7 +224,7 @@ hybrid {
     
     # Variable keyword arguments
     def print_info(**info): {
-        for key in info: {
+        for key in (info) {
             print(key)
             print(info[key])
         }
@@ -342,7 +342,7 @@ hybrid {
     # Query: Who are the children of أحمد?
     results = query parent("أحمد", ?Child)?
     
-    for result in results: {
+    for result in (results) {
         child = result["?Child"]
         print(child)  # محمد, فاطمة
     }
@@ -360,7 +360,7 @@ hybrid {
     # findall: collect all solutions
     results = query findall(?Score, score(?Name, ?Score), ?AllScores)?
     
-    for result in results: {
+    for result in (results) {
         all_scores = result["?AllScores"]
         print(all_scores)  # [85, 92, 78]
     }
@@ -395,13 +395,13 @@ hybrid {
 hybrid {
     def count_up_to(n): {
         i = 1
-        while i <= n: {
+        while (i <= n) {
             yield i
             i = i + 1
         }
     }
     
-    for num in count_up_to(5): {
+    for num in (count_up_to(5)) {
         print(num)  # 1, 2, 3, 4, 5
     }
 }
@@ -525,7 +525,7 @@ hybrid {
     # Query using logic
     results = query student(?N, ?G), ?G >= 90?
     
-    for result in results: {
+    for result in (results) {
         print(result["?N"])  # فاطمة
     }
 }
@@ -546,7 +546,7 @@ hybrid {
     # Query
     results = query diagnosis("patient1", ?Disease)?
     
-    for result in results: {
+    for result in (results) {
         print(result["?Disease"])  # flu
     }
 }
@@ -616,13 +616,13 @@ hybrid {
     }
     
     # Create objects and add to logic KB
-    for data in students_data: {
+    for data in (students_data) {
         student = Student(data["name"], data["score"])
         
         # Add to logic knowledge base
         assertz(student_record(data["name"], data["score"]))
         
-        if student.is_excellent(): {
+        if (student.is_excellent()) {
             print(student.name + " is excellent!")
         }
     }
@@ -631,7 +631,7 @@ hybrid {
     results = query student_record(?Name, ?Score), ?Score >= 85?
     
     print("High performers:")
-    for result in results: {
+    for result in (results) {
         print(result["?Name"])
     }
 }
@@ -710,7 +710,7 @@ hybrid {
 
     print("Result: " + str(r2))
 
-    for entry in calc.get_history(): {
+    for entry in (calc.get_history()) {
         print(entry)
     }
 }
@@ -727,7 +727,7 @@ hybrid {
         }
 
         def get_average(self): {
-            if len(self.grades) == 0: {
+            if (len(self.grades) == 0) {
                 return 0
             }
             return sum(self.grades) / len(self.grades)
@@ -739,16 +739,16 @@ hybrid {
 
         def get_status(self): {
             avg = self.get_average()
-            if avg >= 90: {
+            if (avg >= 90) {
                 return "Excellent"
             }
-            elif avg >= 80: {
+            elif (avg >= 80) {
                 return "Very Good"
             }
-            elif avg >= 70: {
+            elif (avg >= 70) {
                 return "Good"
             }
-            elif avg >= 60: {
+            elif (avg >= 60) {
                 return "Pass"
             }
             else: {
@@ -763,7 +763,7 @@ hybrid {
         Student("علي", "S003", [70, 75, 72])
     ]
 
-    for student in students: {
+    for student in (students) {
         avg = student.get_average()
         status = student.get_status()
         print(student.name + ": " + str(avg) + " - " + status)
@@ -800,19 +800,19 @@ hybrid {
     # Queries
     print("=== Fathers ===")
     fathers = query father(?F, ?C)?
-    for result in fathers: {
+    for result in (fathers) {
         print(result["?F"] + " is father of " + result["?C"])
     }
 
     print("=== Grandparents ===")
     grandparents = query grandparent(?GP, ?GC)?
-    for result in grandparents: {
+    for result in (grandparents) {
         print(result["?GP"] + " is grandparent of " + result["?GC"])
     }
 
     print("=== Siblings ===")
     siblings = query sibling(?X, ?Y)?
-    for result in siblings: {
+    for result in (siblings) {
         print(result["?X"] + " and " + result["?Y"] + " are siblings")
     }
 }
@@ -862,19 +862,19 @@ hybrid {
         # Get diagnosis
         diag_results = query diagnosis(patient_id, ?Disease)?
 
-        if len(diag_results) == 0: {
+        if (len(diag_results) == 0) {
             print("No diagnosis found")
             return
         }
 
-        for diag in diag_results: {
+        for diag in (diag_results) {
             disease = diag["?Disease"]
             print("Diagnosed with: " + disease)
 
             # Get treatments
             treat_results = query treatment(disease, ?Treatment)?
             print("Recommended treatments:")
-            for treat in treat_results: {
+            for treat in (treat_results) {
                 print("  - " + treat["?Treatment"])
             }
         }
@@ -920,16 +920,16 @@ hybrid {
         # Find similar users
         similar = query similar_users(user, ?SimilarUser)?
 
-        if len(similar) == 0: {
+        if (len(similar) == 0) {
             print("No similar users found")
             return
         }
 
         # Get unique similar users
         similar_users_list = []
-        for result in similar: {
+        for result in (similar) {
             similar_user = result["?SimilarUser"]
-            if similar_user not in similar_users_list: {
+            if (similar_user not in similar_users_list) {
                 similar_users_list.append(similar_user)
             }
         }
@@ -939,16 +939,16 @@ hybrid {
         # Get interests of similar users that current user doesn't have
         user_interests_results = query likes(user, ?Interest)?
         user_interests = []
-        for result in user_interests_results: {
+        for result in (user_interests_results) {
             user_interests.append(result["?Interest"])
         }
 
         recommendations = []
-        for similar_user in similar_users_list: {
+        for similar_user in (similar_users_list) {
             interests = query likes(similar_user, ?Interest)?
-            for result in interests: {
+            for result in (interests) {
                 interest = result["?Interest"]
-                if interest not in user_interests and interest not in recommendations: {
+                if (interest not in user_interests and interest not in recommendations) {
                     recommendations.append(interest)
                 }
             }
@@ -998,33 +998,33 @@ hybrid {
 
     # Find top performers (average >= 90)
     print("=== Top Performers ===")
-    for student in data: {
+    for student in (data) {
         avg = (student["math"] + student["science"] + student["english"]) / 3
-        if avg >= 90: {
+        if (avg >= 90) {
             print(student["name"] + ": " + str(avg))
         }
     }
 
     # Find students who need help (any score < 75)
     print("=== Students Needing Help ===")
-    for student in data: {
+    for student in (data) {
         needs_help = False
         subjects = []
 
-        if student["math"] < 75: {
+        if (student["math"] < 75) {
             needs_help = True
             subjects.append("Math")
         }
-        if student["science"] < 75: {
+        if (student["science"] < 75) {
             needs_help = True
             subjects.append("Science")
         }
-        if student["english"] < 75: {
+        if (student["english"] < 75) {
             needs_help = True
             subjects.append("English")
         }
 
-        if needs_help: {
+        if (needs_help) {
             print(student["name"] + " needs help in: " + str(subjects))
         }
     }
@@ -1072,7 +1072,7 @@ hybrid {
         b = 1
         count = 0
 
-        while count < n: {
+        while (count < n) {
             yield a
             temp = a
             a = b
@@ -1082,15 +1082,15 @@ hybrid {
     }
 
     print("First 10 Fibonacci numbers:")
-    for num in fibonacci(10): {
+    for num in (fibonacci(10)) {
         print(str(num))
     }
 
     # Generator with filter
     def even_numbers(max_num): {
         num = 0
-        while num <= max_num: {
-            if num % 2 == 0: {
+        while (num <= max_num) {
+            if (num % 2 == 0) {
                 yield num
             }
             num = num + 1
@@ -1098,7 +1098,7 @@ hybrid {
     }
 
     print("Even numbers up to 20:")
-    for num in even_numbers(20): {
+    for num in (even_numbers(20)) {
         print(str(num))
     }
 }
@@ -1120,7 +1120,7 @@ hybrid {
     @timer_decorator
     def calculate_sum(numbers): {
         total = 0
-        for num in numbers: {
+        for num in (numbers) {
             total = total + num
         }
         return total
@@ -1169,7 +1169,7 @@ hybrid {
         # Get product price
         price_results = query product(product_name, ?Price, ?Category)?
 
-        if len(price_results) == 0: {
+        if (len(price_results) == 0) {
             return 0
         }
 
@@ -1178,7 +1178,7 @@ hybrid {
         # Get discount
         discount_results = query discount(product_name, ?Discount)?
 
-        if len(discount_results) > 0: {
+        if (len(discount_results) > 0) {
             discount = discount_results[0]["?Discount"]
             final_price = price * (1 - discount)
             return final_price
@@ -1189,13 +1189,13 @@ hybrid {
 
     # Display products with prices
     print("=== Product Catalog ===")
-    for product in products: {
+    for product in (products) {
         original_price = product.price
         final_price = get_final_price(product.name)
 
         print(product.get_info())
 
-        if final_price < original_price: {
+        if (final_price < original_price) {
             discount_percent = ((original_price - final_price) / original_price) * 100
             print("  Discount: " + str(discount_percent) + "%")
             print("  Final Price: $" + str(final_price))
@@ -1230,7 +1230,7 @@ hybrid {
     # Check if flu is likely
     print("Is flu likely?")
     flu_likely = query محتمل("has_flu", "patient1")?
-    if len(flu_likely) > 0: {
+    if (len(flu_likely) > 0) {
         print("  Yes, flu is likely (80% > 70%)")
     }
     else: {
@@ -1240,7 +1240,7 @@ hybrid {
     # Check if COVID is unlikely
     print("Is COVID unlikely?")
     covid_unlikely = query غير_محتمل("has_covid", "patient1")?
-    if len(covid_unlikely) > 0: {
+    if (len(covid_unlikely) > 0) {
         print("  Yes, COVID is unlikely (30% < 30%)")
     }
 
@@ -1252,7 +1252,7 @@ hybrid {
 
     print("Probability of fever AND cough:")
     result = query fever_and_cough(?p)?
-    if len(result) > 0: {
+    if (len(result) > 0) {
         prob_value = result[0]["?p"]
         print("  " + str(prob_value) + " (90% × 70% = 63%)")
     }
@@ -1267,7 +1267,7 @@ hybrid {
 
     print("Should we recommend antiviral treatment?")
     treatment = query recommend_antiviral("patient1", ?conf)?
-    if len(treatment) > 0: {
+    if (len(treatment) > 0) {
         confidence = treatment[0]["?conf"]
         print("  Yes, with " + str(confidence * 100) + "% confidence")
     }
@@ -1361,7 +1361,7 @@ hybrid {
     print("=== كيف أتخلص من القلق؟ ===")
     results = query causal_relation(?From, "قلق", "weakens", ?Strength)?
 
-    for result in results: {
+    for result in (results) {
         solution = result["?From"]
         strength = result["?Strength"]
         print("الحل: " + solution + " (قوة: " + strength + ")")
@@ -1402,7 +1402,7 @@ hybrid {
         causes = find_all_causes("social", goal, "4")
 
         print("الخطوات المقترحة:")
-        for cause in causes: {
+        for cause in (causes) {
             print("  - " + cause)
         }
 

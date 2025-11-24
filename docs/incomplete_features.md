@@ -115,7 +115,7 @@ def fibonacci(n): {
 ```bayan
 def count_up_to(n): {
     i = 0
-    while i < n: {
+    while (i < n) {
         yield i
         i = i + 1
     }

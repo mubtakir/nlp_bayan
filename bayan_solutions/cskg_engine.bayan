@@ -31,8 +31,7 @@ hybrid {
         # 2. حساب النقاط لكل مرشح
         scores = {}
         
-        for candidate in candidates:
-        {
+        for candidate in (candidates) {
             print("⚖️ تقييم المرشح:", candidate)
             
             # أ. القوة المباشرة
@@ -78,25 +77,20 @@ hybrid {
         # استخراج الكلمات
         words = sentence.split(" ")
         
-        for word in words:
-        {
+        for word in (words) {
             # البحث عن المفهوم
             query مفهوم(word, ?نوع, ?مجال).
             
-            if query_has_results:
-            {
+            if (query_has_results) {
                 context["all_concepts"].append(word)
                 
-                if ?نوع == "كائن" or ?نوع == "شخص":
-                {
+                if (?نوع == "كائن" or ?نوع == "شخص") {
                     context["entities"].append(word)
                 }
-                elif ?نوع == "نشاط":
-                {
+                elif (?نوع == "نشاط") {
                     context["activities"].append(word)
                 }
-                elif ?نوع == "مكان":
-                {
+                elif (?نوع == "مكان") {
                     context["places"].append(word)
                 }
             }
@@ -114,14 +108,11 @@ hybrid {
         max_strength = 0.0
         
         # البحث عن علاقات مباشرة
-        for concept in context["all_concepts"]:
-        {
+        for concept in (context["all_concepts"]) {
             query علاقة(concept, ?نوع, candidate, ?قوة).
             
-            if query_has_results:
-            {
-                if ?قوة > max_strength:
-                {
+            if (query_has_results) {
+                if (?قوة > max_strength) {
                     max_strength = ?قوة
                 }
             }
@@ -138,28 +129,24 @@ hybrid {
     {
         min_distance = 999
         
-        for concept in context["all_concepts"]:
-        {
+        for concept in (context["all_concepts"]) {
             # البحث عن مسار
             path = find_path_bfs(concept, candidate, 5)
             
-            if path != None:
-            {
+            if (path != None) {
                 distance = len(path) - 1
-                if distance < min_distance:
-                {
+                if (distance < min_distance) {
                     min_distance = distance
                 }
             }
         }
         
         # تحويل المسافة إلى نقاط (كلما قل المسافة، زادت النقاط)
-        if min_distance == 999:
-        {
+        if (min_distance == 999) {
             return 0.0
         }
-        else:
-        {
+        else {
+        
             return 1.0 / (min_distance + 1)
         }
     }
@@ -175,41 +162,33 @@ hybrid {
         # الحصول على نوع المرشح
         query مفهوم(candidate, ?نوع_مرشح, ?مجال_مرشح).
 
-        if not query_has_results:
-        {
+        if (not query_has_results) {
             return 0.0
         }
 
         # إذا كان السياق يحتوي على أنشطة والمرشح مكان → نقاط عالية
-        if len(context["activities"]) > 0 and ?نوع_مرشح == "مكان":
-        {
+        if (len(context["activities"]) > 0 and ?نوع_مرشح == "مكان") {
             score = score + 0.5
         }
 
         # إذا كان السياق يحتوي على أماكن بعيدة (سياحة، دول) والمرشح مكان طبيعي
-        for place in context["places"]:
-        {
+        for place in (context["places"]) {
             query مفهوم(place, "مكان", ?مجال_مكان).
 
-            if ?مجال_مكان == "دول" or ?مجال_مكان == "أماكن_طبيعية":
-            {
-                if ?مجال_مرشح == "أماكن_طبيعية":
-                {
+            if (?مجال_مكان == "دول" or ?مجال_مكان == "أماكن_طبيعية") {
+                if (?مجال_مرشح == "أماكن_طبيعية") {
                     score = score + 0.3
                 }
             }
-            elif ?مجال_مكان == "أماكن_منزلية":
-            {
-                if ?مجال_مرشح == "أماكن_منزلية":
-                {
+            elif (?مجال_مكان == "أماكن_منزلية") {
+                if (?مجال_مرشح == "أماكن_منزلية") {
                     score = score + 0.3
                 }
             }
         }
 
         # إذا كان السياق يحتوي على كيانات (إنسان) والمرشح مكان منزلي
-        if len(context["entities"]) > 0 and ?مجال_مرشح == "أماكن_منزلية":
-        {
+        if (len(context["entities"]) > 0 and ?مجال_مرشح == "أماكن_منزلية") {
             score = score + 0.2
         }
 
@@ -222,39 +201,33 @@ hybrid {
 
     def find_path_bfs(start, goal, max_depth):
     {
-        if start == goal:
-        {
+        if (start == goal) {
             return [start]
         }
 
         visited = []
         queue = [[start]]
 
-        while len(queue) > 0:
-        {
+        while (len(queue) > 0) {
             path = queue.pop(0)
             node = path[-1]
 
             # تحقق من العمق
-            if len(path) > max_depth:
-            {
+            if (len(path) > max_depth) {
                 continue
             }
 
-            if node == goal:
-            {
+            if (node == goal) {
                 return path
             }
 
-            if not (node in visited):
-            {
+            if (not (node in visited)) {
                 visited.append(node)
 
                 # الحصول على الجيران
                 neighbors = get_neighbors(node)
 
-                for neighbor in neighbors:
-                {
+                for neighbor in (neighbors) {
                     new_path = path + [neighbor]
                     queue.append(new_path)
                 }
@@ -274,15 +247,13 @@ hybrid {
 
         # علاقات صادرة
         query علاقة(node, ?نوع, ?إلى, ?قوة).
-        for result in query_results:
-        {
+        for result in (query_results) {
             neighbors.append(result["إلى"])
         }
 
         # علاقات واردة
         query علاقة(?من, ?نوع, node, ?قوة).
-        for result in query_results:
-        {
+        for result in (query_results) {
             neighbors.append(result["من"])
         }
 

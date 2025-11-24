@@ -63,8 +63,7 @@ def test_if_statement():
     """Test if statement"""
     code = """
 x = 10
-if x > 5:
-{
+if (x > 5) {
     y = 1
 }
 """
@@ -75,8 +74,7 @@ def test_for_loop():
     """Test for loop"""
     code = """
 sum = 0
-for i in [1, 2, 3, 4, 5]:
-{
+for i in ([1, 2, 3, 4, 5]) {
     sum = sum + i
 }
 """
@@ -87,8 +85,7 @@ def test_while_loop():
     """Test while loop"""
     code = """
 x = 0
-while x < 5:
-{
+while (x < 5) {
     x = x + 1
 }
 """

@@ -127,8 +127,7 @@ hybrid {
     parent("john", "mary").
     parent("john", "tom").
 
-    for person in people:
-    {
+    for person in (people) {
         print(person)
     }
 }
@@ -170,8 +169,7 @@ def test_if_with_logical_condition():
 hybrid {
     parent("john", "mary").
 
-    if parent("john", ?X):
-    {
+    if (parent("john", ?X)) {
         print("John has a child")
     }
 }

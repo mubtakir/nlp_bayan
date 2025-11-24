@@ -4,20 +4,17 @@
 def parse_csv_rows(rows, delimiter=","):
 {
     out = []
-    for r in rows:
-    {
+    for r in (rows) {
         fields = []
         cur = ""
-        for i in range(len(r)):
-        {
+        for i in (range(len(r))) {
             ch = r[i]
-            if ch == delimiter:
-            {
+            if (ch == delimiter) {
                 fields.append(cur)
                 cur = ""
             }
-            else:
-            {
+            else {
+            
                 cur = cur + ch
             }
         }
@@ -31,18 +28,15 @@ def parse_csv_rows(rows, delimiter=","):
 def to_csv_rows(rows, delimiter=","):
 {
     out = []
-    for i in range(len(rows)):
-    {
+    for i in (range(len(rows))) {
         row = rows[i]
-        if len(row) == 0:
-        {
+        if (len(row) == 0) {
             out.append("")
         }
-        else:
-        {
+        else {
+        
             s = row[0]
-            for j in range(1, len(row)):
-            {
+            for j in (range(1, len(row))) {
                 s = s + delimiter + row[j]
             }
             out.append(s)
@@ -57,18 +51,16 @@ def read_csv_string(text, delimiter=","):
 {
     lines = []
     cur = ""
-    for i in range(len(text)):
-    {
+    for i in (range(len(text))) {
         ch = text[i]
-        if ch == "\n":
-        {
+        if (ch == "\n") {
             lines.append(cur)
             cur = ""
         }
-        else:
-        {
-            if ch == "\r": { }
-            else: { cur = cur + ch }
+        else {
+        
+            if (ch == "\r") { }
+            else { cur = cur + ch }
         }
     }
     lines.append(cur)
@@ -88,10 +80,10 @@ def write_csv_string(rows, delimiter=","):
 
 def _is_space(ch):
 {
-    if ch == " ": { return True }
-    if ch == "\n": { return True }
-    if ch == "\r": { return True }
-    if ch == "\t": { return True }
+    if (ch == " ") { return True }
+    if (ch == "\n") { return True }
+    if (ch == "\r") { return True }
+    if (ch == "\t") { return True }
     return False
 }
 
@@ -99,10 +91,9 @@ def _skip_ws(text, i):
 {
     n = len(text)
     j = i
-    while j < n:
-    {
-        if _is_space(text[j]): { j = j + 1 }
-        else: { break }
+    while (j < n) {
+        if (_is_space(text[j])) { j = j + 1 }
+        else { break }
     }
     return j
 }
@@ -112,39 +103,37 @@ def _parse_string_json(text, i):
     j = i + 1
     s = ""
     n = len(text)
-    while j < n:
-    {
+    while (j < n) {
         ch = text[j]
-        if ch == '"': { return [s, j + 1] }
-        else:
-        {
-            if ch == "\\":
-            {
+        if (ch == '"') { return [s, j + 1] }
+        else {
+        
+            if (ch == "\\") {
                 j = j + 1
-                if j >= n: { return [s, j] }
+                if (j >= n) { return [s, j] }
                 esc = text[j]
-                if esc == "n": { s = s + "\n" }
-                else:
-                {
-                    if esc == "t": { s = s + "\t" }
-                    else:
-                    {
-                        if esc == "r": { s = s + "\r" }
-                        else:
-                        {
-                            if esc == '"': { s = s + '"' }
-                            else:
-                            {
-                                if esc == "\\": { s = s + "\\" }
-                                else: { s = s + esc }
+                if (esc == "n") { s = s + "\n" }
+                else {
+                
+                    if (esc == "t") { s = s + "\t" }
+                    else {
+                    
+                        if (esc == "r") { s = s + "\r" }
+                        else {
+                        
+                            if (esc == '"') { s = s + '"' }
+                            else {
+                            
+                                if (esc == "\\") { s = s + "\\" }
+                                else { s = s + esc }
                             }
                         }
                     }
                 }
                 j = j + 1
             }
-            else:
-            {
+            else {
+            
                 s = s + ch
                 j = j + 1
             }
@@ -158,23 +147,21 @@ def _parse_array_json(text, i):
     j = i + 1
     arr = []
     j = _skip_ws(text, j)
-    if j < len(text) and text[j] == "]": { return [arr, j + 1] }
-    while j < len(text):
-    {
+    if (j < len(text) and text[j] == "]") { return [arr, j + 1] }
+    while (j < len(text)) {
         tmp = _parse_value_json(text, j)
         val = tmp[0]
         j = tmp[1]
         arr.append(val)
         j = _skip_ws(text, j)
-        if j < len(text) and text[j] == ",":
-        {
+        if (j < len(text) and text[j] == ",") {
             j = j + 1
             j = _skip_ws(text, j)
         }
-        else:
-        {
-            if j < len(text) and text[j] == "]": { return [arr, j + 1] }
-            else: { return [arr, j] }
+        else {
+        
+            if (j < len(text) and text[j] == "]") { return [arr, j + 1] }
+            else { return [arr, j] }
         }
     }
     return [arr, j]
@@ -185,32 +172,30 @@ def _parse_object_json(text, i):
     j = i + 1
     obj = {}
     j = _skip_ws(text, j)
-    if j < len(text) and text[j] == "}": { return [obj, j + 1] }
-    while j < len(text):
-    {
+    if (j < len(text) and text[j] == "}") { return [obj, j + 1] }
+    while (j < len(text)) {
         j = _skip_ws(text, j)
-        if j >= len(text): { return [obj, j] }
-        if text[j] != '"': { return [obj, j] }
+        if (j >= len(text)) { return [obj, j] }
+        if (text[j] != '"') { return [obj, j] }
         tk = _parse_string_json(text, j)
         key = tk[0]
         j = tk[1]
         j = _skip_ws(text, j)
-        if j < len(text) and text[j] == ":": { j = j + 1 }
+        if (j < len(text) and text[j] == ":") { j = j + 1 }
         j = _skip_ws(text, j)
         tv = _parse_value_json(text, j)
         val = tv[0]
         j = tv[1]
         obj[key] = val
         j = _skip_ws(text, j)
-        if j < len(text) and text[j] == ",":
-        {
+        if (j < len(text) and text[j] == ",") {
             j = j + 1
             j = _skip_ws(text, j)
         }
-        else:
-        {
-            if j < len(text) and text[j] == "}": { return [obj, j + 1] }
-            else: { return [obj, j] }
+        else {
+        
+            if (j < len(text) and text[j] == "}") { return [obj, j + 1] }
+            else { return [obj, j] }
         }
     }
     return [obj, j]
@@ -219,19 +204,18 @@ def _parse_object_json(text, i):
 def _parse_value_json(text, i):
 {
     j = _skip_ws(text, i)
-    if j >= len(text): { return ["", j] }
+    if (j >= len(text)) { return ["", j] }
     ch = text[j]
-    if ch == '"': { return _parse_string_json(text, j) }
-    if ch == "[": { return _parse_array_json(text, j) }
-    if ch == "{": { return _parse_object_json(text, j) }
+    if (ch == '"') { return _parse_string_json(text, j) }
+    if (ch == "[") { return _parse_array_json(text, j) }
+    if (ch == "{") { return _parse_object_json(text, j) }
     # bare token until delimiter => return as string
     s = ""
-    while j < len(text):
-    {
+    while (j < len(text)) {
         c = text[j]
-        if c == "," or c == "]" or c == "}" or _is_space(c): { break }
-        else:
-        {
+        if (c == "," or c == "]" or c == "}" or _is_space(c)) { break }
+        else {
+        
             s = s + c
             j = j + 1
         }
@@ -248,23 +232,22 @@ def read_json_string(text):
 def _json_escape(s):
 {
     out = ""
-    for i in range(len(s)):
-    {
+    for i in (range(len(s))) {
         ch = s[i]
-        if ch == '"': { out = out + "\\" + '"' }
-        else:
-        {
-            if ch == "\\": { out = out + "\\" + "\\" }
-            else:
-            {
-                if ch == "\n": { out = out + "\\n" }
-                else:
-                {
-                    if ch == "\t": { out = out + "\\t" }
-                    else:
-                    {
-                        if ch == "\r": { out = out + "\\r" }
-                        else: { out = out + ch }
+        if (ch == '"') { out = out + "\\" + '"' }
+        else {
+        
+            if (ch == "\\") { out = out + "\\" + "\\" }
+            else {
+            
+                if (ch == "\n") { out = out + "\\n" }
+                else {
+                
+                    if (ch == "\t") { out = out + "\\t" }
+                    else {
+                    
+                        if (ch == "\r") { out = out + "\\r" }
+                        else { out = out + ch }
                     }
                 }
             }
@@ -277,9 +260,8 @@ def write_json_array_string(lst):
 {
     n = len(lst)
     s = "["
-    for i in range(n):
-    {
-        if i > 0: { s = s + "," }
+    for i in (range(n)) {
+        if (i > 0) { s = s + "," }
         s = s + '"' + _json_escape(lst[i]) + '"'
     }
     s = s + "]"
@@ -290,13 +272,11 @@ def _sort_strings(xs):
 {
     n = len(xs)
     ys = []
-    for i in range(n): { ys.append(xs[i]) }
-    for i in range(n):
-    {
+    for i in (range(n)) { ys.append(xs[i]) }
+    for i in (range(n)) {
         min_idx = i
-        for j in range(i + 1, n):
-        {
-            if ys[j] < ys[min_idx]: { min_idx = j }
+        for j in (range(i + 1, n)) {
+            if (ys[j] < ys[min_idx]) { min_idx = j }
         }
         tmp = ys[i]
         ys[i] = ys[min_idx]
@@ -308,12 +288,11 @@ def _sort_strings(xs):
 def write_json_object_string(obj):
 {
     keys = []
-    for k in obj: { keys.append(k) }
+    for k in (obj) { keys.append(k) }
     ks = _sort_strings(keys)
     s = "{"
-    for i in range(len(ks)):
-    {
-        if i > 0: { s = s + "," }
+    for i in (range(len(ks))) {
+        if (i > 0) { s = s + "," }
         k = ks[i]
         v = obj[k]
         s = s + '"' + _json_escape(k) + '":' + '"' + _json_escape(v) + '"'
@@ -337,16 +316,14 @@ def _copy_and_sort(xs):
 {
     n = len(xs)
     ys = []
-    for i in range(n): { ys.append(xs[i]) }
+    for i in (range(n)) { ys.append(xs[i]) }
 
 
     # selection sort
-    for i in range(n):
-    {
+    for i in (range(n)) {
         min_idx = i
-        for j in range(i + 1, n):
-        {
-            if ys[j] < ys[min_idx]: { min_idx = j }
+        for j in (range(i + 1, n)) {
+            if (ys[j] < ys[min_idx]) { min_idx = j }
         }
         tmp = ys[i]
         ys[i] = ys[min_idx]
@@ -358,37 +335,36 @@ def _copy_and_sort(xs):
 def median(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     a = _copy_and_sort(xs)
     # q = floor(n/2) via repeated subtraction by 2
     q = 0
     r = n
-    while r >= 2:
-    {
+    while (r >= 2) {
         r = r - 2
         q = q + 1
     }
     # r == 0 (even) or 1 (odd)
-    if r == 1: { return a[q] }
+    if (r == 1) { return a[q] }
     # even: average of a[q-1], a[q]
     i1 = q - 1
-    if i1 < 0: { i1 = 0 }
+    if (i1 < 0) { i1 = 0 }
     return (a[i1] + a[q]) / 2.0
 }
 
 def percentile(xs, p):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
-    if p < 0.0: { p = 0.0 }
-    if p > 100.0: { p = 100.0 }
+    if (n == 0) { return 0.0 }
+    if (p < 0.0) { p = 0.0 }
+    if (p > 100.0) { p = 100.0 }
     a = _copy_and_sort(xs)
     # pos = (p/100) * (n-1)
     pos = (p / 100.0) * (n - 1)
     i = 0
-    while (i + 1) <= pos: { i = i + 1 }
+    while ((i + 1) <= pos) { i = i + 1 }
     j = i + 1
-    if j >= n: { j = i }
+    if (j >= n) { j = i }
     w = pos - i
     return a[i] * (1.0 - w) + a[j] * w
 }
@@ -398,11 +374,10 @@ def percentile(xs, p):
 def quantiles(xs, qs):
 {
     out = []
-    for i in range(len(qs)):
-    {
+    for i in (range(len(qs))) {
         q = qs[i]
-        if q < 0.0: { q = 0.0 }
-        if q > 1.0: { q = 1.0 }
+        if (q < 0.0) { q = 0.0 }
+        if (q > 1.0) { q = 1.0 }
         p = q * 100.0
         out.append(percentile(xs, p))
     }
@@ -413,27 +388,25 @@ def quantiles(xs, qs):
 def iqr(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     a = _copy_and_sort(xs)
     # Tukey's hinges: median of lower/upper halves (exclude median when odd)
     q = 0
     r = n
-    while r >= 2:
-    {
+    while (r >= 2) {
         r = r - 2
         q = q + 1
     }
     lower = []
     upper = []
-    if r == 1:
-    {
-        for i in range(q): { lower.append(a[i]) }
-        for i in range(q + 1, n): { upper.append(a[i]) }
+    if (r == 1) {
+        for i in (range(q)) { lower.append(a[i]) }
+        for i in (range(q + 1, n)) { upper.append(a[i]) }
     }
-    else:
-    {
-        for i in range(q): { lower.append(a[i]) }
-        for i in range(q, n): { upper.append(a[i]) }
+    else {
+    
+        for i in (range(q)) { lower.append(a[i]) }
+        for i in (range(q, n)) { upper.append(a[i]) }
     }
     q1 = median(lower)
     q3 = median(upper)
@@ -444,11 +417,10 @@ def iqr(xs):
 def pearson_r(xs, ys):
 {
     n = len(xs)
-    if n == 0 or len(ys) != n: { return 0.0 }
+    if (n == 0 or len(ys) != n) { return 0.0 }
     sx = 0.0
     sy = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         sx = sx + xs[i]
         sy = sy + ys[i]
     }
@@ -457,8 +429,7 @@ def pearson_r(xs, ys):
     sum_xy = 0.0
     sum_x2 = 0.0
     sum_y2 = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         dx = xs[i] - mx
         dy = ys[i] - my
         sum_xy = sum_xy + dx * dy
@@ -466,7 +437,7 @@ def pearson_r(xs, ys):
         sum_y2 = sum_y2 + dy * dy
     }
     denom = pow(sum_x2, 0.5) * pow(sum_y2, 0.5)
-    if denom == 0.0: { return 0.0 }
+    if (denom == 0.0) { return 0.0 }
     return sum_xy / denom
 }
 
@@ -477,18 +448,17 @@ def pearson_r(xs, ys):
 def mean(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     return sum(xs) / n
 }
 
 def variance(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     m = mean(xs)
     acc = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         diff = xs[i] - m
         acc = acc + diff * diff
     }
@@ -506,11 +476,10 @@ def stddev(xs):
 def min_value(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     m = xs[0]
-    for i in range(1, n):
-    {
-        if xs[i] < m: { m = xs[i] }
+    for i in (range(1, n)) {
+        if (xs[i] < m) { m = xs[i] }
     }
     return m
 }
@@ -519,11 +488,10 @@ def min_value(xs):
 def max_value(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     m = xs[0]
-    for i in range(1, n):
-    {
-        if xs[i] > m: { m = xs[i] }
+    for i in (range(1, n)) {
+        if (xs[i] > m) { m = xs[i] }
     }
     return m
 }
@@ -543,7 +511,7 @@ def تطبيع_Z(قائمة): { return zscore_normalize(قائمة) }
 def data_range(xs):
 {
     n = len(xs)
-    if n == 0: { return 0.0 }
+    if (n == 0) { return 0.0 }
     lo = min_value(xs)
     hi = max_value(xs)
     return hi - lo
@@ -554,28 +522,25 @@ def zscore_normalize(xs):
 {
 
     n = len(xs)
-    if n == 0: { return [] }
+    if (n == 0) { return [] }
     # compute mean inline to avoid cross-module deps at import site
     ssum = 0.0
-    for i in range(n): { ssum = ssum + xs[i] }
+    for i in (range(n)) { ssum = ssum + xs[i] }
     m = ssum / (1.0 * n)
     # compute stddev inline
     vsum = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         d = xs[i] - m
         vsum = vsum + d * d
     }
     v = vsum / (1.0 * n)
     s = pow(v, 0.5)
     out = []
-    if s == 0.0:
-    {
-        for i in range(n): { out.append(0.0) }
+    if (s == 0.0) {
+        for i in (range(n)) { out.append(0.0) }
         return out
     }
-    for i in range(n):
-    {
+    for i in (range(n)) {
         out.append((xs[i] - m) / s)
     }
     return out
@@ -586,18 +551,16 @@ def zscore_normalize(xs):
 def minmax_normalize(xs):
 {
     n = len(xs)
-    if n == 0: { return [] }
+    if (n == 0) { return [] }
     lo = min_value(xs)
     hi = max_value(xs)
     rng = hi - lo
     out = []
-    if rng == 0.0:
-    {
-        for i in range(n): { out.append(0.0) }
+    if (rng == 0.0) {
+        for i in (range(n)) { out.append(0.0) }
         return out
     }
-    for i in range(n):
-    {
+    for i in (range(n)) {
         out.append((xs[i] - lo) / rng)
     }
     return out
@@ -610,19 +573,18 @@ def minmax_normalize(xs):
 def standard_scaler_fit(xs):
 {
     n = len(xs)
-    if n == 0: { return [0.0, 1.0] }
+    if (n == 0) { return [0.0, 1.0] }
     ssum = 0.0
-    for i in range(n): { ssum = ssum + xs[i] }
+    for i in (range(n)) { ssum = ssum + xs[i] }
     m = ssum / (1.0 * n)
     vsum = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         d = xs[i] - m
         vsum = vsum + d * d
     }
     v = vsum / (1.0 * n)
     s = pow(v, 0.5)
-    if s == 0.0: { s = 1.0 }
+    if (s == 0.0) { s = 1.0 }
     return [m, s]
 }
 
@@ -631,11 +593,10 @@ def standard_scaler_transform(xs, mean_val, std_val):
 {
     n = len(xs)
     out = []
-    if n == 0: { return out }
+    if (n == 0) { return out }
     s = std_val
-    if s == 0.0: { s = 1.0 }
-    for i in range(n):
-    {
+    if (s == 0.0) { s = 1.0 }
+    for i in (range(n)) {
         out.append((xs[i] - mean_val) / s)
     }
     return out
@@ -647,16 +608,14 @@ def standard_scaler_transform(xs, mean_val, std_val):
 def robust_scaler_fit(xs):
 {
     n = len(xs)
-    if n == 0: { return [0.0, 1.0] }
+    if (n == 0) { return [0.0, 1.0] }
     # compute median inline: copy and selection sort
     a = []
-    for i in range(n): { a.append(xs[i]) }
-    for i in range(n):
-    {
+    for i in (range(n)) { a.append(xs[i]) }
+    for i in (range(n)) {
         min_idx = i
-        for j in range(i + 1, n):
-        {
-            if a[j] < a[min_idx]: { min_idx = j }
+        for j in (range(i + 1, n)) {
+            if (a[j] < a[min_idx]) { min_idx = j }
         }
         tmp = a[i]
         a[i] = a[min_idx]
@@ -664,86 +623,80 @@ def robust_scaler_fit(xs):
     }
     q = 0
     r = n
-    while r >= 2:
-    {
+    while (r >= 2) {
         r = r - 2
         q = q + 1
     }
     med = 0.0
-    if r == 1:
-    {
+    if (r == 1) {
         med = a[q]
     }
-    else:
-    {
+    else {
+    
         i1 = q - 1
-        if i1 < 0: { i1 = 0 }
+        if (i1 < 0) { i1 = 0 }
         med = (a[i1] + a[q]) / 2.0
     }
     # compute IQR inline (Tukey's hinges)
     qh = 0
     rh = n
-    while rh >= 2:
-    {
+    while (rh >= 2) {
         rh = rh - 2
         qh = qh + 1
     }
     lower = []
     upper = []
-    if rh == 1:
-    {
-        for i in range(qh): { lower.append(a[i]) }
-        for i in range(qh + 1, n): { upper.append(a[i]) }
+    if (rh == 1) {
+        for i in (range(qh)) { lower.append(a[i]) }
+        for i in (range(qh + 1, n)) { upper.append(a[i]) }
     }
-    else:
-    {
-        for i in range(qh): { lower.append(a[i]) }
-        for i in range(qh, n): { upper.append(a[i]) }
+    else {
+    
+        for i in (range(qh)) { lower.append(a[i]) }
+        for i in (range(qh, n)) { upper.append(a[i]) }
     }
     # median of lower
     nl = len(lower)
     ml = 0.0
-    if nl == 0: { ml = 0.0 }
-    else:
-    {
+    if (nl == 0) { ml = 0.0 }
+    else {
+    
         ql = 0
         rl = nl
-        while rl >= 2:
-        {
+        while (rl >= 2) {
             rl = rl - 2
             ql = ql + 1
         }
-        if rl == 1: { ml = lower[ql] }
-        else:
-        {
+        if (rl == 1) { ml = lower[ql] }
+        else {
+        
             i1 = ql - 1
-            if i1 < 0: { i1 = 0 }
+            if (i1 < 0) { i1 = 0 }
             ml = (lower[i1] + lower[ql]) / 2.0
         }
     }
     # median of upper
     nu = len(upper)
     mu = 0.0
-    if nu == 0: { mu = 0.0 }
-    else:
-    {
+    if (nu == 0) { mu = 0.0 }
+    else {
+    
         qu = 0
         ru = nu
-        while ru >= 2:
-        {
+        while (ru >= 2) {
             ru = ru - 2
             qu = qu + 1
         }
-        if ru == 1: { mu = upper[qu] }
-        else:
-        {
+        if (ru == 1) { mu = upper[qu] }
+        else {
+        
             i1 = qu - 1
-            if i1 < 0: { i1 = 0 }
+            if (i1 < 0) { i1 = 0 }
             mu = (upper[i1] + upper[qu]) / 2.0
         }
     }
     rq = mu - ml
-    if rq == 0.0: { rq = 1.0 }
+    if (rq == 0.0) { rq = 1.0 }
     return [med, rq]
 }
 
@@ -752,11 +705,10 @@ def robust_scaler_transform(xs, median_val, iqr_val):
 {
     n = len(xs)
     out = []
-    if n == 0: { return out }
+    if (n == 0) { return out }
     r = iqr_val
-    if r == 0.0: { r = 1.0 }
-    for i in range(n):
-    {
+    if (r == 0.0) { r = 1.0 }
+    for i in (range(n)) {
         out.append((xs[i] - median_val) / r)
     }
     return out
@@ -768,16 +720,15 @@ def robust_scaler_transform(xs, median_val, iqr_val):
 def minmax_scaler_fit(xs):
 {
     n = len(xs)
-    if n == 0: { return [0.0, 1.0] }
+    if (n == 0) { return [0.0, 1.0] }
     lo = xs[0]
     hi = xs[0]
-    for i in range(1, n):
-    {
+    for i in (range(1, n)) {
         v = xs[i]
-        if v < lo: { lo = v }
-        if v > hi: { hi = v }
+        if (v < lo) { lo = v }
+        if (v > hi) { hi = v }
     }
-    if hi <= lo: { return [lo, lo] }
+    if (hi <= lo) { return [lo, lo] }
     return [lo, hi]
 }
 
@@ -786,15 +737,13 @@ def minmax_scaler_transform(xs, lo, hi):
 {
     n = len(xs)
     out = []
-    if n == 0: { return out }
+    if (n == 0) { return out }
     rng = hi - lo
-    if rng == 0.0:
-    {
-        for i in range(n): { out.append(0.0) }
+    if (rng == 0.0) {
+        for i in (range(n)) { out.append(0.0) }
         return out
     }
-    for i in range(n):
-    {
+    for i in (range(n)) {
         out.append((xs[i] - lo) / rng)
     }
     return out
@@ -807,29 +756,26 @@ def bin_equal_width(xs, bins):
 {
     n = len(xs)
     out = []
-    if n == 0: { return out }
-    if bins < 1: { bins = 1 }
+    if (n == 0) { return out }
+    if (bins < 1) { bins = 1 }
     lo = xs[0]
     hi = xs[0]
-    for i in range(1, n):
-    {
+    for i in (range(1, n)) {
         v = xs[i]
-        if v < lo: { lo = v }
-        if v > hi: { hi = v }
+        if (v < lo) { lo = v }
+        if (v > hi) { hi = v }
     }
-    if hi == lo:
-    {
-        for i in range(n): { out.append(0) }
+    if (hi == lo) {
+        for i in (range(n)) { out.append(0) }
         return out
     }
     width = (hi - lo) / (1.0 * bins)
-    for i in range(n):
-    {
+    for i in (range(n)) {
         t = (xs[i] - lo) / width
         j = 0
-        while (j + 1) <= t: { j = j + 1 }
-        if j < 0: { j = 0 }
-        if j >= bins: { j = bins - 1 }
+        while ((j + 1) <= t) { j = j + 1 }
+        if (j < 0) { j = 0 }
+        if (j >= bins) { j = bins - 1 }
         out.append(j)
     }
     return out
@@ -841,14 +787,13 @@ def one_hot_encode(indices, num_classes):
     n = len(indices)
     k = num_classes
     out = []
-    if k < 1: { k = 1 }
-    for i in range(n):
-    {
+    if (k < 1) { k = 1 }
+    for i in (range(n)) {
         row = []
-        for j in range(k): { row.append(0) }
+        for j in (range(k)) { row.append(0) }
         idx = indices[i]
-        if idx < 0: { idx = 0 }
-        if idx >= k: { idx = k - 1 }
+        if (idx < 0) { idx = 0 }
+        if (idx >= k) { idx = k - 1 }
         row[idx] = 1
         out.append(row)
     }
@@ -870,13 +815,11 @@ def label_encoder_fit(xs):
 {
     vocab = []
     seen = {}
-    for i in range(len(xs)):
-    {
+    for i in (range(len(xs))) {
         v = xs[i]
-        if v in seen:
-        { }
-        else:
-        {
+        if (v in seen) { }
+        else {
+        
             seen[v] = 1
             vocab.append(v)
         }
@@ -888,18 +831,15 @@ def label_encoder_fit(xs):
 def label_encoder_transform(xs, vocab):
 {
     idx_map = {}
-    for i in range(len(vocab)):
-    {
+    for i in (range(len(vocab))) {
         idx_map[vocab[i]] = i
     }
     out = []
-    for i in range(len(xs)):
-    {
+    for i in (range(len(xs))) {
         v = xs[i]
-        if v in idx_map:
-        { out.append(idx_map[v]) }
-        else:
-        { out.append(-1) }
+        if (v in idx_map) { out.append(idx_map[v]) }
+        else {
+         out.append(-1) }
     }
     return out
 }
@@ -911,19 +851,15 @@ def frequency_encoder_fit(xs):
 {
     n = len(xs)
     counts = {}
-    for i in range(n):
-    {
+    for i in (range(n)) {
         v = xs[i]
-        if v in counts:
-        { counts[v] = counts[v] + 1 }
-        else:
-        { counts[v] = 1 }
+        if (v in counts) { counts[v] = counts[v] + 1 }
+        else {
+         counts[v] = 1 }
     }
     freqs = {}
-    if n == 0:
-    { return freqs }
-    for k in counts:
-    {
+    if (n == 0) { return freqs }
+    for k in (counts) {
         freqs[k] = counts[k] / (1.0 * n)
     }
     return freqs
@@ -933,13 +869,11 @@ def frequency_encoder_fit(xs):
 def frequency_encoder_transform(xs, freqs):
 {
     out = []
-    for i in range(len(xs)):
-    {
+    for i in (range(len(xs))) {
         v = xs[i]
-        if v in freqs:
-        { out.append(freqs[v]) }
-        else:
-        { out.append(0.0) }
+        if (v in freqs) { out.append(freqs[v]) }
+        else {
+         out.append(0.0) }
     }
     return out
 }
@@ -950,36 +884,32 @@ def frequency_encoder_transform(xs, freqs):
 def target_encoder_fit(xs, ys):
 {
     n = len(xs)
-    if len(ys) != n: { return {"means": {}, "global": 0.0} }
+    if (len(ys) != n) { return {"means": {}, "global": 0.0} }
     sums = {}
     counts = {}
     total = 0.0
-    for i in range(n):
-    {
+    for i in (range(n)) {
         v = xs[i]
         y = ys[i]
         total = total + y
-        if v in sums:
-        {
+        if (v in sums) {
             sums[v] = sums[v] + y
             counts[v] = counts[v] + 1
         }
-        else:
-        {
+        else {
+        
             sums[v] = y
             counts[v] = 1
         }
     }
     g = 0.0
-    if n > 0: { g = total / (1.0 * n) }
+    if (n > 0) { g = total / (1.0 * n) }
     means = {}
-    for k in sums:
-    {
+    for k in (sums) {
         c = counts[k]
-        if c == 0:
-        { means[k] = g }
-        else:
-        { means[k] = sums[k] / (1.0 * c) }
+        if (c == 0) { means[k] = g }
+        else {
+         means[k] = sums[k] / (1.0 * c) }
     }
     return {"means": means, "global": g}
 }
@@ -990,13 +920,11 @@ def target_encoder_transform(xs, enc):
     means = enc["means"]
     g = enc["global"]
     out = []
-    for i in range(len(xs)):
-    {
+    for i in (range(len(xs))) {
         v = xs[i]
-        if v in means:
-        { out.append(means[v]) }
-        else:
-        { out.append(g) }
+        if (v in means) { out.append(means[v]) }
+        else {
+         out.append(g) }
     }
     return out
 }
@@ -1093,10 +1021,9 @@ def lcg_next(state):
 def random_permutation(n, seed=42):
 {
     perm = []
-    for i in range(n): { perm.append(0) }
+    for i in (range(n)) { perm.append(0) }
     state = seed
-    for i in range(n):
-    {
+    for i in (range(n)) {
         perm[i] = i
         a = 1103515245
         c = 12345
@@ -1105,8 +1032,7 @@ def random_permutation(n, seed=42):
         u = state / m
         t = u * (i + 1)
         j = 0
-        while (j + 1) <= t:
-        {
+        while ((j + 1) <= t) {
             j = j + 1
         }
         # swap perm[i], perm[j]
@@ -1143,8 +1069,7 @@ def rand():
 
 def randint(a, b):
 {
-    if b < a:
-    {
+    if (b < a) {
         t = a
         a = b
         b = t
@@ -1153,8 +1078,7 @@ def randint(a, b):
     span = (b - a) + 1
     t = u * span
     j = 0
-    while (j + 1) <= t:
-    {
+    while ((j + 1) <= t) {
         j = j + 1
     }
     return a + j
@@ -1166,15 +1090,14 @@ def shuffle_list(lst):
 {
     n = len(lst)
     out = []
-    for i in range(n): { out.append(lst[i]) }
-    for i in range(n - 1, -1, -1):
-    {
+    for i in (range(n)) { out.append(lst[i]) }
+    for i in (range(n - 1, -1, -1)) {
         st = lcg_next(PRNG_BOX["state"])
         PRNG_BOX["state"] = st[0]
         u = st[1]
         t = u * (i + 1)
         j = 0
-        while (j + 1) <= t: { j = j + 1 }
+        while ((j + 1) <= t) { j = j + 1 }
         tmp = out[i]
         out[i] = out[j]
         out[j] = tmp
@@ -1188,10 +1111,10 @@ def sample_list(lst, k):
 {
     out = shuffle_list(lst)
     n = len(out)
-    if k < 0: { k = 0 }
-    if k > n: { k = n }
+    if (k < 0) { k = 0 }
+    if (k > n) { k = n }
     res = []
-    for i in range(k): { res.append(out[i]) }
+    for i in (range(k)) { res.append(out[i]) }
     return res
 }
 
@@ -1213,13 +1136,12 @@ def train_test_split_shuffle(X, y, test_ratio=0.25, seed=42):
 {
     n = len(X)
     test_n = round(n * test_ratio)
-    if test_n < 0: { test_n = 0 }
-    if test_n > n: { test_n = n }
+    if (test_n < 0) { test_n = 0 }
+    if (test_n > n) { test_n = n }
     perm = random_permutation(n, seed)
     X_shuf = []
     y_shuf = []
-    for i in range(n):
-    {
+    for i in (range(n)) {
         idx = perm[i]
         X_shuf.append(X[idx])
         y_shuf.append(y[idx])
@@ -1229,15 +1151,13 @@ def train_test_split_shuffle(X, y, test_ratio=0.25, seed=42):
     X_test = []
     y_train = []
     y_test = []
-    for i in range(n):
-    {
-        if i < split_idx:
-        {
+    for i in (range(n)) {
+        if (i < split_idx) {
             X_train.append(X_shuf[i])
             y_train.append(y_shuf[i])
         }
-        else:
-        {
+        else {
+        
             X_test.append(X_shuf[i])
             y_test.append(y_shuf[i])
         }
@@ -1262,8 +1182,7 @@ def pipeline_fit_transform(steps, X):
 {
     X_cur = X
     models = []
-    for si in range(len(steps)):
-    {
+    for si in (range(len(steps))) {
         step = steps[si]
         name = step[0]
         fit_fn = step[1]
@@ -1280,8 +1199,7 @@ def pipeline_fit_transform(steps, X):
 def pipeline_transform(steps, X, models):
 {
     X_cur = X
-    for si in range(len(steps)):
-    {
+    for si in (range(len(steps))) {
         step = steps[si]
         trans_fn = step[2]
         model = models[si]
