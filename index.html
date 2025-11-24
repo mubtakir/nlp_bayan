@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="لغة البيان - أول لغة برمجة هجينة حقيقية تجمع بين البرمجة الإجرائية والكائنية والمنطقية مع دعم كامل للعربية">
+    <meta name="keywords" content="برمجة, عربي, لغة برمجة, بيان, Bayan, هجينة, منطق, OOP">
+    <meta name="author" content="Bayan Development Team">
+
+    <title>لغة البيان | Bayan - أول لغة برمجة هجينة حقيقية</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 6rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s 0.2s backwards;
+        }
+
+        .hero .description {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            opacity: 0.85;
+            animation: fadeInUp 1s 0.4s backwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s 0.6s backwards;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Features Section */
+        .features {
+            background: white;
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Code Example Section */
+        .code-example {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 5rem 0;
+            color: white;
+        }
+
+        .code-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        pre {
+            background: #1e1e1e;
+            padding: 2rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+
+        code {
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: white;
+            padding: 4rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-card {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .footer-section a {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            color: #888;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">🌟 لغة البيان</div>
+                <ul class="nav-links">
+                    <li><a href="#features">الميزات</a></li>
+                    <li><a href="#examples">أمثلة</a></li>
+                    <li><a href="https://github.com/mubtakir/nlp_bayan">GitHub</a></li>
+                    <li><a href="https://github.com/mubtakir/nlp_bayan/blob/main/docs/DEVELOPER_GUIDE.md">الوثائق</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>لغة البيان</h1>
+            <p class="subtitle">أول لغة برمجة هجينة حقيقية في العالم</p>
+            <p class="description">
+                اجمع بين البرمجة الإجرائية والكائنية والمنطقية في لغة واحدة مع دعم كامل للغة العربية
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/mubtakir/nlp_bayan" class="btn btn-primary">ابدأ الآن</a>
+                <a href="https://github.com/mubtakir/nlp_bayan/blob/main/docs/DEVELOPER_GUIDE.md"
+                    class="btn btn-secondary">دليل المطور</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">لماذا لغة البيان؟</h2>
+            <p class="section-subtitle">ميزات فريدة لم تجتمع من قبل</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>ثلاثة أنماط في واحد</h3>
+                    <p>الجمع الفريد بين البرمجة الإجرائية والكائنية والمنطقية (Prolog-style) في صيغة موحدة</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>دعم عربي كامل</h3>
+                    <p>كلمات مفتاحية عربية وإنجليزية، معالجة مثالية للنصوص العربية بدون مكتبات خارجية</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>ذكاء اصطناعي مدمج</h3>
+                    <p>مكتبات AI/ML جاهزة، نظام مورفولوجيا عربية، شبكات سببية-دلالية</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>رسوم بيانية تفاعلية</h3>
+                    <p>تصور المنطق والاستدلال بشكل تفاعلي مع D3.js، اكتشاف التناقضات تلقائياً</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>جودة عالية</h3>
+                    <p>379 اختبار ناجح (100%)، 5,594+ سطر وثائق، معمارية نظيفة ومنظمة</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>محرر ويب مدمج</h3>
+                    <p>IDE كامل في المتصفح، تنفيذ مباشر، تصور رسومي، أمثلة جاهزة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Example Section -->
+    <section class="code-example" id="examples">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">مثال بسيط</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">
+                اكتب برامج تجمع بين الأنماط الثلاثة بسلاسة
+            </p>
+
+            <div class="code-container">
+                <pre><code><span class="keyword">hybrid</span> {
+    <span class="comment"># البرمجة الكائنية</span>
+    <span class="keyword">class</span> <span class="function">Student</span>: {
+        <span class="keyword">def</span> <span class="function">__init__</span>(self, name, grade): {
+            self.name = name
+            self.grade = grade
+            
+            <span class="comment"># دمج مع المنطق</span>
+            <span class="function">assertz</span>(student(name, grade))
+        }
+    }
+    
+    <span class="comment"># البرمجة الإجرائية</span>
+    students = [
+        <span class="function">Student</span>(<span class="string">"أحمد"</span>, 85),
+        <span class="function">Student</span>(<span class="string">"فاطمة"</span>, 95)
+    ]
+    
+    <span class="comment"># البرمجة المنطقية</span>
+    results = <span class="keyword">query</span> student(?N, ?G), ?G >= 90?
+    
+    <span class="comment"># طباعة النتائج</span>
+    <span class="keyword">for</span> result <span class="keyword">in</span> results: {
+        <span class="function">print</span>(result[<span class="string">"?N"</span>])  <span class="comment"># فاطمة</span>
+    }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <h2 class="section-title">بالأرقام</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">379</div>
+                    <div class="stat-label">اختبار ناجح</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5,594+</div>
+                    <div class="stat-label">سطر وثائق</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">139+</div>
+                    <div class="stat-label">مثال تطبيقي</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">أنماط برمجية</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>البداية</h3>
+                    <a href="https://github.com/mubtakir/nlp_bayan">التحميل</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/docs/DEVELOPER_GUIDE.md">دليل المطور</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/README.md">الوثائق</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>الموارد</h3>
+                    <a href="https://github.com/mubtakir/nlp_bayan/tree/main/examples">الأمثلة</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/tree/main/docs">الدروس</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/DEVELOPER_FEEDBACK_SUMMARY.md">خارطة
+                        الطريق</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>المجتمع</h3>
+                    <a href="https://github.com/mubtakir/nlp_bayan/issues">GitHub Issues</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/discussions">المناقشات</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan">المساهمة</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>روابط مهمة</h3>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/LOGIC_GRAPH_COMPLETE_GUIDE.md">دليل الرسم
+                        البياني</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/docs/ARABIC_MORPHOLOGY.md">نظام
+                        المورفولوجيا</a>
+                    <a href="https://github.com/mubtakir/nlp_bayan/blob/main/LICENSE">الترخيص</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 لغة البيان | Bayan Programming Language - مشروع مفتوح المصدر</p>
+                <p style="margin-top: 0.5rem;">أول لغة برمجة هجينة حقيقية في العالم 🌟</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 1s forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-card').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>
