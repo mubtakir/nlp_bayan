@@ -258,7 +258,7 @@
 
 ```bash
 # 1. استنساخ المشروع
-git clone https://github.com/your-repo/bayan_python.git
+git clone https://github.com/mubtakir/nlp_bayan.git
 cd bayan_python
 
 # 2. إنشاء بيئة افتراضية (اختياري لكن مُوصى به)
@@ -276,7 +276,7 @@ python -m pytest tests/ -v
 
 ```cmd
 REM 1. استنساخ المشروع
-git clone https://github.com/your-repo/bayan_python.git
+git clone https://github.com/mubtakir/nlp_bayan.git
 cd bayan_python
 
 REM 2. إنشاء بيئة افتراضية

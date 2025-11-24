@@ -345,7 +345,7 @@ python3 bayan/main.py nlp_bayan/final_real_dialogue.bayan
 
 ```bash
 # استنساخ المشروع
-git clone https://github.com/your-repo/bayan_python.git
+git clone https://github.com/mubtakir/nlp_bayan.git
 cd bayan_python
 
 # إنشاء بيئة افتراضية (اختياري)
