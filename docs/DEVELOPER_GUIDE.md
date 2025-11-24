@@ -878,4 +878,4 @@ We welcome contributions! Here's how to get involved:
 
 ---
 
-*Happy coding! محمد عز العرب والبرمجة! 🚀*
+*Happy coding!    البرمجة العربية! 🚀*
