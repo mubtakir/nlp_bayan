@@ -1,0 +1,61 @@
+include("ai/morphology.bayan")
+
+# Demo: Arabic Morphology + Logic Integration
+# التكامل بين المورفولوجيا العربية والمنطق
+
+print("=== Arabic Morphology + Logic Demo ===")
+print("تكامل المورفولوجيا العربية مع المحرك المنطقي")
+print("")
+
+# Define morphological rules using facts
+hybrid {
+    fact root_of("كتب", "ك", "ت", "ب").
+    fact root_of("درس", "د", "ر", "س").
+    fact root_of("علم", "ع", "ل", "م").
+    fact pattern_meaning("فاعل", "active_participle").
+    fact pattern_meaning("مفعول", "passive_participle").
+    fact pattern_meaning("مستفعل", "Form_X_active_participle").
+}
+
+# Test morphology functions
+print("--- Pattern Application ---")
+root = "كتب"
+print("Root: " + root)
+print("فاعل (active): " + apply_pattern(root, "فاعل"))
+print("مفعول (passive): " + apply_pattern(root, "مفعول"))
+print("")
+
+# Test verb conjugation
+print("--- Verb Conjugation ---")
+verb = "درس"
+print("Verb root: " + verb)
+print("Past (هو): " + conjugate_arabic_verb(verb, "past", "3ms"))
+print("Present (هو): " + conjugate_arabic_verb(verb, "present", "3ms"))
+print("Past (هما): " + conjugate_arabic_verb(verb, "past", "3md"))
+print("Present (هما): " + conjugate_arabic_verb(verb, "present", "3md"))
+print("Imperative (أنتَ): " + conjugate_arabic_verb(verb, "imperative", "2ms"))
+print("Imperative (أنتم): " + conjugate_arabic_verb(verb, "imperative", "2mp"))
+print("")
+
+# Test root extraction
+print("--- Root Extraction ---")
+test_words = ["كاتب", "مكتوب", "استكتاب", "يكتبون", "الكاتبة", "دارس", "معلوم"]
+for word in test_words: {
+    extracted = extract_root(word)
+    print(word + " → " + extracted)
+}
+print("")
+
+# Advanced: Generate word family from root
+print("--- Word Family Generation ---")
+root_ktb = "كتب"
+print("Root: " + root_ktb)
+patterns = ["فاعل", "مفعول", "فعال", "أفعل", "تفعيل", "مفاعل", "استفعال", "مستفعل"]
+for pat in patterns: {
+    word = apply_pattern(root_ktb, pat)
+    print("  " + pat + ": " + word)
+}
+print("")
+
+print("=== Demo Complete ===")
+print("✓ Arabic morphology successfully integrated with Bayan logic engine")

@@ -15,8 +15,17 @@ def conjugate_arabic_verb(lemma, tense, person_gender_number):
     {
         if person_gender_number == "3ms": { suffix = "" }
         elif person_gender_number == "3fs": { suffix = "ت" }
+        elif person_gender_number == "3md": { suffix = "ا" } # Dual Masc
+        elif person_gender_number == "3fd": { suffix = "تا" } # Dual Fem
         elif person_gender_number == "3mp": { suffix = "وا" }
+        elif person_gender_number == "3fp": { suffix = "ن" } # Plural Fem
+        elif person_gender_number == "2ms": { suffix = "تَ" }
+        elif person_gender_number == "2fs": { suffix = "تِ" }
+        elif person_gender_number == "2md": { suffix = "تما" }
+        elif person_gender_number == "2mp": { suffix = "تم" }
+        elif person_gender_number == "2fp": { suffix = "تن" }
         elif person_gender_number == "1s": { suffix = "ت" }
+        elif person_gender_number == "1p": { suffix = "نا" }
     }
     elif tense == "present":
     {
@@ -28,12 +37,48 @@ def conjugate_arabic_verb(lemma, tense, person_gender_number):
             prefix = "ت"
             suffix = "" 
         }
+        elif person_gender_number == "3md": { 
+            prefix = "ي"
+            suffix = "ان" 
+        }
+        elif person_gender_number == "3fd": { 
+            prefix = "ت"
+            suffix = "ان" 
+        }
         elif person_gender_number == "3mp": { 
             prefix = "ي"
             suffix = "ون" 
         }
+        elif person_gender_number == "3fp": { 
+            prefix = "ي"
+            suffix = "ن" 
+        }
+        elif person_gender_number == "2ms": { 
+            prefix = "ت"
+            suffix = "" 
+        }
+        elif person_gender_number == "2fs": { 
+            prefix = "ت"
+            suffix = "ين" 
+        }
+        elif person_gender_number == "2md": { 
+            prefix = "ت"
+            suffix = "ان" 
+        }
+        elif person_gender_number == "2mp": { 
+            prefix = "ت"
+            suffix = "ون" 
+        }
+        elif person_gender_number == "2fp": { 
+            prefix = "ت"
+            suffix = "ن" 
+        }
         elif person_gender_number == "1s": { 
             prefix = "أ"
+            suffix = "" 
+        }
+        elif person_gender_number == "1p": { 
+            prefix = "ن"
             suffix = "" 
         }
     }
@@ -43,6 +88,31 @@ def conjugate_arabic_verb(lemma, tense, person_gender_number):
         prefix = "س"
         present_res = conjugate_arabic_verb(lemma, "present", person_gender_number)
         return prefix + present_res
+    }
+    elif tense == "imperative":
+    {
+        # Simplified Imperative
+        if person_gender_number == "2ms": { 
+            prefix = "ا"
+            suffix = "" 
+        }
+        elif person_gender_number == "2fs": { 
+            prefix = "ا"
+            suffix = "ي" 
+        }
+        elif person_gender_number == "2md": { 
+            prefix = "ا"
+            suffix = "ا" 
+        }
+        elif person_gender_number == "2mp": { 
+            prefix = "ا"
+            suffix = "وا" 
+        }
+        elif person_gender_number == "2fp": { 
+            prefix = "ا"
+            suffix = "ن" 
+        }
+        else: { return "N/A" } # Imperative only for 2nd person
     }
 
     return prefix + lemma + suffix
@@ -61,6 +131,65 @@ def decline_arabic_noun(lemma, definiteness, gender="m"):
     }
     
     return lemma
+}
+
+def apply_pattern(root_str, pattern):
+{
+    # Generates a word from a trilateral root and a pattern
+    # root_str: string of 3 letters (e.g. "كتب")
+    # pattern: string representing the pattern (e.g. "فاعل", "مفعول")
+    
+    if len(root_str) != 3: { return root_str } # Only trilateral roots supported for now
+    
+    r1 = root_str[0]
+    r2 = root_str[1]
+    r3 = root_str[2]
+    
+    if pattern == "فاعل": { return r1 + "ا" + r2 + r3 }
+    if pattern == "مفعول": { return "م" + r1 + r2 + "و" + r3 }
+    if pattern == "فعال": { return r1 + r2 + "ا" + r3 } # Simplified shadda handling
+    if pattern == "فعل": { return r1 + r2 + r3 }
+    if pattern == "أفعل": { return "أ" + r1 + r2 + r3 }
+    if pattern == "تفعيل": { return "ت" + r1 + r2 + "ي" + r3 }
+    if pattern == "مفاعل": { return "م" + r1 + "ا" + r2 + r3 }
+    if pattern == "افتعال": { return "ا" + r1 + "ت" + r2 + "ا" + r3 }
+    if pattern == "استفعال": { return "است" + r1 + r2 + "ا" + r3 }
+    if pattern == "مستفعل": { return "مست" + r1 + r2 + r3 }
+    
+    return root_str # Unknown pattern
+}
+
+def extract_root(word):
+{
+    # A very simplified root extractor (stemmer)
+    # This is a heuristic approach, not a full morphological analyzer
+    
+    w = word
+    
+    # Remove definite article
+    if w.startswith("ال"): { w = w[2:] }
+    
+    # Remove common suffixes
+    if w.endswith("ون"): { w = w[0:len(w)-2] }
+    elif w.endswith("ين"): { w = w[0:len(w)-2] }
+    elif w.endswith("ات"): { w = w[0:len(w)-2] }
+    elif w.endswith("ة"): { w = w[0:len(w)-1] }
+    
+    # Remove common prefixes
+    if w.startswith("است"): { w = w[3:] }
+    elif w.startswith("مست"): { w = w[3:] }
+    elif w.startswith("يت"): { w = w[2:] }
+    
+    # If length is 3, assume it's the root
+    if len(w) == 3: { return w }
+    
+    # Handle "فاعل" -> "فعل"
+    if len(w) == 4 and w[1] == "ا": { return w[0] + w[2] + w[3] }
+    
+    # Handle "مفعول" -> "فعل"
+    if len(w) == 5 and w[0] == "م" and w[3] == "و": { return w[1] + w[2] + w[4] }
+    
+    return w
 }
 
 

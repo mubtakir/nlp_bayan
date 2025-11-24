@@ -10,7 +10,7 @@ import os
 # Add the bayan package to the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from bayan import run_code, HybridLexer, HybridParser, HybridInterpreter
+from bayan.bayan import run_code, HybridLexer, HybridParser, HybridInterpreter
 
 def main():
     """Main entry point"""

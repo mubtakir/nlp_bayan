@@ -38,6 +38,7 @@ class HybridInterpreter:
             os.path.join(cwd, 'tests', 'bayan_modules'),
             os.path.join(cwd, 'nlp_bayan'),  # Add nlp_bayan directory
             os.path.join(cwd, 'bayan', 'libraries'),  # Add libraries directory
+            os.path.join(cwd, 'ai'),  # Add ai directory for morphology
         ]
 
         # Action-centric helper API (no grammar changes needed)
@@ -617,8 +618,25 @@ class HybridInterpreter:
         if loaded:
             _, proxy = loaded
             name = node.alias if node.alias else node.module_name
+            # If module name contains slashes or dots, use the last part as default alias
+            if not node.alias and ('/' in name or '.' in name):
+                name = name.replace('/', '.').split('.')[-1]
+            
             env = self.traditional.local_env if self.traditional.local_env is not None else self.traditional.global_env
             env[name] = proxy
+            
+            # Also register functions directly if it's a simple import (optional, but helpful for 'include' style)
+            # Actually, 'include' is different. 'import' should namespace.
+            # But wait, the test uses `apply_pattern` directly without namespace.
+            # The test uses `include "ai/morphology.bayan"`.
+            # `include` is handled by TraditionalInterpreter._include which executes in current scope.
+            # So why did it fail?
+            # Ah, `include` in TraditionalInterpreter uses `self.interpret(ast)`.
+            # `self` is TraditionalInterpreter.
+            # But `ast` contains `FunctionDef`.
+            # `TraditionalInterpreter.visit_function_def` registers function in `self.functions`.
+            # So it should work.
+            
             return None
         # Fallback to Python import via traditional interpreter
         return self.traditional.visit_import_statement(node)
@@ -668,7 +686,9 @@ class HybridInterpreter:
     def visit_logical_fact(self, node):
         """Visit a logical fact (supports optional probability via fact[prob])"""
         # Convert AST LogicalPredicate to logical_engine Predicate
+        print(f"DEBUG: Visiting LogicalFact: {node.predicate} (Type: {type(node.predicate)})")
         predicate = self.traditional._convert_to_predicate(node.predicate)
+        print(f"DEBUG: Converted predicate: {predicate}")
         if not predicate:
             return None
             

@@ -456,9 +456,15 @@ class ExistentialVisualizer:
                             'relationship': 'condition'
                         })
 
+        # Check for contradictions
+        contradictions = []
+        if hasattr(logical_engine, 'check_contradictions'):
+            contradictions = logical_engine.check_contradictions()
+
         return {
             'nodes': list(nodes.values()),
-            'links': links
+            'links': links,
+            'contradictions': contradictions
         }
 
     def export_procedural_graph(self) -> Dict[str, Any]:
@@ -653,7 +659,9 @@ class ExistentialVisualizer:
                 'logic_nodes': len(layers['logic']),
                 'procedural_nodes': len(layers['procedural']),
                 'oop_nodes': len(layers['oop']),
+                'oop_nodes': len(layers['oop']),
                 'entity_nodes': len(layers['entity'])
-            }
+            },
+            'contradictions': logic_graph.get('contradictions', [])
         }
 

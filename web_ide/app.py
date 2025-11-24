@@ -119,10 +119,18 @@ def index():
 def ide():
     return render_template('ide.html')
 
+@app.route('/ide_graph')
+def ide_graph():
+    return render_template('ide_graph.html')
+
 
 @app.route('/healthz')
 def healthz():
     return jsonify({'ok': True})
+
+@app.route('/test')
+def test_editor():
+    return render_template('test_simple.html')
 
 
 @app.route('/ai_playground')
@@ -513,6 +521,8 @@ def api_ide_run():
     payload = request.get_json(silent=True) or {}
     code = payload.get('code', '')
     filename = payload.get('filename') or '<editor>'
+    include_graph = payload.get('include_graph', False)
+    graph_type = payload.get('graph_type', 'unified')  # logic, procedural, oop, entity, unified
 
     # Optional include-expansion for convenience
     expanded = _expand_includes(code)
@@ -555,12 +565,50 @@ def api_ide_run():
             result_json = None
             result_repr = repr(result)
 
-        return jsonify({
+        # Generate graph data if requested
+        graph_data = None
+        trace = []
+        contradictions = []
+        
+        if include_graph:
+            try:
+                from bayan.visualization import ExistentialVisualizer
+                visualizer = ExistentialVisualizer(intr)
+                
+                if graph_type == 'logic':
+                    graph_data = visualizer.export_d3_graph()
+                elif graph_type == 'procedural':
+                    graph_data = visualizer.export_procedural_graph()
+                elif graph_type == 'oop':
+                    graph_data = visualizer.export_oop_graph()
+                elif graph_type == 'entity':
+                    graph_data = visualizer.export_entity_graph()
+                else:  # unified
+                    graph_data = visualizer.export_unified_graph()
+                
+                # Get trace and contradictions from logical engine
+                if hasattr(intr, 'logical') and intr.logical:
+                    trace = getattr(intr.logical, 'trace', [])
+                    contradictions = intr.logical.check_contradictions()
+                    
+            except Exception as graph_error:
+                # If graph generation fails, continue without it
+                graph_data = {'nodes': [], 'links': [], 'error': str(graph_error)}
+
+        response_data = {
             'success': True,
             'stdout': stdout_text,
             'result': result_json,
             'result_repr': result_repr,
-        })
+        }
+        
+        if include_graph:
+            response_data['graph'] = graph_data
+            response_data['trace'] = trace
+            response_data['contradictions'] = contradictions
+        
+        return jsonify(response_data)
+        
     except Exception as e:
         tb = traceback.format_exc(limit=5)
         return jsonify({
@@ -569,6 +617,78 @@ def api_ide_run():
             'error': str(e),
             'traceback': tb,
         }), 400
+
+
+@app.post('/api/ide/export_graph')
+def api_ide_export_graph():
+    """
+    Export graph visualization data
+    Accepts: code, graph_type, export_format
+    Returns: graph data in requested format
+    """
+    payload = request.get_json(silent=True) or {}
+    code = payload.get('code', '')
+    graph_type = payload.get('graph_type', 'unified')
+    export_format = payload.get('export_format', 'json')  # json, svg_data
+    
+    try:
+        # Parse and interpret code
+        expanded = _expand_includes(code)
+        lexer = HybridLexer(expanded)
+        tokens = lexer.tokenize()
+        parser = HybridParser(tokens)
+        ast = parser.parse()
+        
+        intr = HybridInterpreter()
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            intr.interpret(ast)
+        
+        # Generate graph
+        from bayan.visualization import ExistentialVisualizer
+        visualizer = ExistentialVisualizer(intr)
+        
+        if graph_type == 'logic':
+            graph_data = visualizer.export_d3_graph()
+        elif graph_type == 'procedural':
+            graph_data = visualizer.export_procedural_graph()
+        elif graph_type == 'oop':
+            graph_data = visualizer.export_oop_graph()
+        elif graph_type == 'entity':
+            graph_data = visualizer.export_entity_graph()
+        else:  # unified
+            graph_data = visualizer.export_unified_graph()
+        
+        if export_format == 'json':
+            return jsonify({
+                'success': True,
+                'data': graph_data,
+                'format': 'json'
+            })
+        elif export_format == 'svg_data':
+            # Return metadata for SVG generation on client side
+            return jsonify({
+                'success': True,
+                'data': graph_data,
+                'format': 'svg_data',
+                'metadata': {
+                    'node_count': len(graph_data.get('nodes', [])),
+                    'link_count': len(graph_data.get('links', [])),
+                    'graph_type': graph_type
+                }
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Unsupported export format: {export_format}'
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc(limit=5)
+        }), 500
 
 
 if __name__ == '__main__':

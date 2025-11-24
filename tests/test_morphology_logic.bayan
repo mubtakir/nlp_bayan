@@ -1,0 +1,31 @@
+include("ai/morphology.bayan")
+
+# Test morphology functions integrated with logic
+print("=== Testing Morphology with Logic ===")
+
+# Test 1: Apply pattern using conjugate_arabic_verb
+verb = "كتب"
+past_3ms = conjugate_arabic_verb(verb, "past", "3ms")
+print("Past 3ms: " + past_3ms)
+
+present_3ms = conjugate_arabic_verb(verb, "present", "3ms")
+print("Present 3ms: " + present_3ms)
+
+# Test 2: Complex pattern generation
+root1 = "درس"
+root2 = "علم"
+
+word1 = apply_pattern(root1, "فاعل")
+word2 = apply_pattern(root2, "مفعول")
+
+print("Pattern فاعل for درس: " + word1)
+print("Pattern مفعول for علم: " + word2)
+
+# Test 3: Root extraction
+words = ["كاتب", "مكتوب", "الدارس"]
+for w in words: {
+    r = extract_root(w)
+    print("Root of " + w + ": " + r)
+}
+
+print("\n=== Morphology Tests Complete ===")

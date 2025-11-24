@@ -110,6 +110,7 @@ class LogicalEngine:
         self.call_stack = []
         self.max_depth = 1000
         self.trace = []  # List of strings describing inference steps
+        self.function_evaluator = None  # Callback for evaluating external functions
 
     def check_contradictions(self):
         """Check for logical contradictions in the knowledge base.
@@ -143,14 +144,23 @@ class LogicalEngine:
                 key = tuple(str(arg) for arg in fact.predicate.args[:-1])
                 val = str(fact.predicate.args[-1])
                 
+                print(f"DEBUG: Checking fact {fact.predicate} Key={key} Val={val}")
+
                 if key in seen_args:
                     existing_val, existing_fact = seen_args[key]
+                    print(f"DEBUG: Found existing {existing_fact.predicate} Val={existing_val}")
                     if existing_val != val:
                         # Potential contradiction found!
                         # We need to be careful. color(car, red) and color(car, blue) might be valid if it's multi-colored.
                         # But for strict logic, we flag it.
                         msg = f"Contradiction found: {fact.predicate} conflicts with {existing_fact.predicate}"
-                        contradictions.append(msg)
+                        contradictions.append({
+                            'message': msg,
+                            'fact1': str(fact.predicate),
+                            'fact2': str(existing_fact.predicate),
+                            'source': str(fact.predicate.args[0]),
+                            'conflict_type': 'value_mismatch'
+                        })
                 else:
                     seen_args[key] = (val, fact)
                     
@@ -784,6 +794,20 @@ class LogicalEngine:
                     return float(expr.value) if '.' in str(expr.value) else int(expr.value)
                 except:
                     return None
+
+        # Handle FunctionCall
+        from .ast_nodes import FunctionCall
+        if isinstance(expr, FunctionCall):
+            if self.function_evaluator:
+                # Evaluate arguments first
+                args = []
+                for arg in expr.arguments:
+                    val = self._evaluate_arithmetic(arg, substitution)
+                    if val is None:
+                        return None
+                    args.append(val)
+                return self.function_evaluator(expr.name, args)
+            return None
 
         # Handle binary operations
         if isinstance(expr, BinaryOp):

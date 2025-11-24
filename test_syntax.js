@@ -1,0 +1,947 @@
+  // Minimal Bayan mode (keywords + comments)
+  ace.define('ace/mode/bayan', function (require, exports, module) {
+    var oop = require("ace/lib/oop");
+    var TextMode = require("ace/mode/text").Mode;
+    var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
+
+    var BayanHighlightRules = function () {
+      var keywords = (
+        'and|as|assert|async|await|break|class|continue|def|del|elif|else|except|'
+        + 'False|finally|for|from|global|if|import|include|in|is|lambda|None|nonlocal|'
+        + 'not|or|pass|raise|return|True|try|while|with|yield|hybrid|fact|rule|query|assertz|retract|entity|apply|'
+        + 'إذا|وإلا|لكل|بينما|حقيقة|قاعدة|استعلام|كيان|طبق|إدراج|استيراد'
+      );
+      this.$rules = {
+        start: [
+          { token: 'comment.line.number-sign.bayan', regex: '#.*$' },
+          { token: 'string.quoted.single.bayan', regex: "'(?:[^'\\\\]|\\\\.)*'" },
+          { token: 'string.quoted.double.bayan', regex: '"(?:[^"\\\\]|\\\\.)*"' },
+          { token: 'constant.numeric.bayan', regex: /\b[0-9]+(?:\.[0-9]+)?\b/ },
+          { token: 'keyword.control.bayan', regex: new RegExp('\\b(' + keywords + ')\\b') }
+        ]
+      };
+    };
+    oop.inherits(BayanHighlightRules, TextHighlightRules);
+
+    var Mode = function () { this.HighlightRules = BayanHighlightRules; };
+    oop.inherits(Mode, TextMode);
+    (function () { this.$id = 'ace/mode/bayan'; }).call(Mode.prototype);
+    exports.Mode = Mode;
+  });
+
+  var editor = ace.edit('editor');
+  editor.session.setMode('ace/mode/bayan');
+  editor.setTheme('ace/theme/monokai');
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+    enableSnippets: true,
+    fontSize: '14px',
+    tabSize: 2,
+    useSoftTabs: true,
+    wrap: true,
+    rtl: true
+  });
+
+  // Autocomplete: AI stdlib (English + Arabic) — curated popular entries
+  const langTools = ace.require('ace/ext/language_tools');
+  const aiCompletions = [
+    // ML (supervised/unsupervised)
+    { caption: 'softmax_train', value: 'softmax_train', meta: 'ai.ml', score: 90, docText: 'Train softmax (multi-class logistic) classifier.' },
+    { caption: 'softmax_predict', value: 'softmax_predict', meta: 'ai.ml', score: 90, docText: 'Predict class labels using softmax model.' },
+    { caption: 'logistic_regression_train', value: 'logistic_regression_train', meta: 'ai.ml', docText: 'Train binary logistic regression; returns [w,b].' },
+    { caption: 'logistic_regression_predict', value: 'logistic_regression_predict', meta: 'ai.ml', docText: 'Predict 0/1 labels with threshold (default 0.5).' },
+    { caption: 'logistic_regression_predict_proba', value: 'logistic_regression_predict_proba', meta: 'ai.ml', docText: 'Return probabilities for logistic regression.' },
+    { caption: 'k_nearest_neighbors_predict', value: 'k_nearest_neighbors_predict', meta: 'ai.ml', docText: 'KNN classification for batch of samples.' },
+    { caption: 'k_means', value: 'k_means', meta: 'ai.ml', docText: 'K-means clustering (deterministic init).' },
+    { caption: 'k_means_pp', value: 'k_means_pp', meta: 'ai.ml', docText: 'K-means with k-means++ init (deterministic).' },
+    { caption: 'random_forest_train', value: 'random_forest_train', meta: 'ai.ml', docText: 'Train simple random forest (educational).' },
+    { caption: 'random_forest_predict', value: 'random_forest_predict', meta: 'ai.ml', docText: 'Predict with random forest model.' },
+    { caption: 'decision_tree_train', value: 'decision_tree_train', meta: 'ai.ml', docText: 'Train decision tree classifier.' },
+    { caption: 'decision_tree_predict', value: 'decision_tree_predict', meta: 'ai.ml', docText: 'Predict using decision tree.' },
+    { caption: 'accuracy_score', value: 'accuracy_score', meta: 'ai.ml', docText: 'Classification accuracy.' },
+    { caption: 'precision_score', value: 'precision_score', meta: 'ai.ml', docText: 'Precision for positive class.' },
+    { caption: 'recall_score', value: 'recall_score', meta: 'ai.ml', docText: 'Recall for positive class.' },
+    { caption: 'f1_score', value: 'f1_score', meta: 'ai.ml', docText: 'F1 = 2PR/(P+R).' },
+    { caption: 'confusion_matrix', value: 'confusion_matrix', meta: 'ai.ml', docText: 'Binary confusion matrix [[tn,fp],[fn,tp]].' },
+    { caption: 'classification_report', value: 'classification_report', meta: 'ai.ml', docText: 'Per-class precision/recall/F1 + averages.' },
+    { caption: 'pca_fit', value: 'pca_fit', meta: 'ai.ml', docText: 'Compute PCA components.' },
+    { caption: 'pca_transform', value: 'pca_transform', meta: 'ai.ml', docText: 'Project onto PCA components.' },
+    { caption: 'variance_threshold_fit', value: 'variance_threshold_fit', meta: 'ai.ml', docText: 'Select features above variance threshold.' },
+    { caption: 'variance_threshold_transform', value: 'variance_threshold_transform', meta: 'ai.ml', docText: 'Apply feature mask from fit.' },
+    { caption: 'train_test_split', value: 'train_test_split', meta: 'ai.ml', docText: 'Deterministic split without shuffle.' },
+    { caption: 'train_test_split_stratified', value: 'train_test_split_stratified', meta: 'ai.ml', docText: 'Label-stratified split; optional shuffle.' },
+    { caption: 'k_fold_indices', value: 'k_fold_indices', meta: 'ai.ml', docText: 'K-fold indices generator.' },
+    { caption: 'stratified_k_fold_indices', value: 'stratified_k_fold_indices', meta: 'ai.ml', docText: 'Stratified k-fold indices by labels.' },
+    { caption: 'grid_search_cv_softmax', value: 'grid_search_cv_softmax', meta: 'ai.ml', docText: 'Grid search for softmax hyperparameters.' },
+    { caption: 'stacking_train', value: 'stacking_train', meta: 'ai.ml', docText: 'Train simple stacking ensemble.' },
+    { caption: 'stacking_predict', value: 'stacking_predict', meta: 'ai.ml', docText: 'Predict with stacking ensemble.' },
+    { caption: 'voting_classifier_predict', value: 'voting_classifier_predict', meta: 'ai.ml', docText: 'Hard/soft voting across estimators.' },
+
+    // NLP
+    { caption: 'preprocess_text', value: 'preprocess_text', meta: 'ai.nlp', docText: 'Lowercase, remove punctuation, normalize spaces.' },
+    { caption: 'tokenize_text', value: 'tokenize_text', meta: 'ai.nlp', docText: 'Naive whitespace tokenizer.' },
+    { caption: 'compute_tfidf', value: 'compute_tfidf', meta: 'ai.nlp', docText: 'TF-IDF without logs (portable).' },
+    { caption: 'compute_tfidf_log', value: 'compute_tfidf_log', meta: 'ai.nlp', docText: 'Log TF and smoothed IDF via binary-search ln.' },
+    { caption: 'compute_tfidf_log_norm', value: 'compute_tfidf_log_norm', meta: 'ai.nlp', docText: 'TF-IDF (log) with L2 normalization.' },
+    { caption: 'compute_tfidf_options', value: 'compute_tfidf_options', meta: 'ai.nlp', docText: 'TF-IDF with options: sublinear_tf, smooth_idf.' },
+    { caption: 'compute_tfidf_vocab_limit', value: 'compute_tfidf_vocab_limit', meta: 'ai.nlp', docText: 'TF-IDF limited to top-k vocabulary.' },
+    { caption: 'soft_tfidf_build', value: 'soft_tfidf_build', meta: 'ai.nlp', docText: 'Build Soft TF-IDF model with Jaro–Winkler.' },
+    { caption: 'soft_tfidf_vector', value: 'soft_tfidf_vector', meta: 'ai.nlp', docText: 'Compute soft TF-IDF vector for text.' },
+    { caption: 'soft_tfidf_cosine_similarity', value: 'soft_tfidf_cosine_similarity', meta: 'ai.nlp', docText: 'Cosine similarity using soft TF-IDF.' },
+    { caption: 'bm25_build', value: 'bm25_build', meta: 'ai.nlp', docText: 'Build BM25 data from docs.' },
+    { caption: 'bm25_score', value: 'bm25_score', meta: 'ai.nlp', docText: 'BM25 scores for a query over docs.' },
+    { caption: 'bm25_top_k', value: 'bm25_top_k', meta: 'ai.nlp', docText: 'Top-k docs by BM25 score.' },
+    { caption: 'bm25_score_with_term_weights', value: 'bm25_score_with_term_weights', meta: 'ai.nlp', docText: 'BM25 with query-term weights.' },
+    { caption: 'tfidf_cosine_similarity', value: 'tfidf_cosine_similarity', meta: 'ai.nlp', docText: 'Cosine similarity between two texts via TF-IDF.' },
+    { caption: 'cosine_similarity', value: 'cosine_similarity', meta: 'ai.nlp', docText: 'Cosine over token lists (bag-of-words).' },
+    { caption: 'cosine_similarity_dicts', value: 'cosine_similarity_dicts', meta: 'ai.nlp', docText: 'Cosine for term->weight dictionaries.' },
+    { caption: 'jaro_winkler_similarity', value: 'jaro_winkler_similarity', meta: 'ai.nlp', docText: 'Jaro–Winkler string similarity.' },
+    { caption: 'jaro_similarity', value: 'jaro_similarity', meta: 'ai.nlp', docText: 'Jaro string similarity.' },
+    { caption: 'levenshtein_distance', value: 'levenshtein_distance', meta: 'ai.nlp', docText: 'Edit distance (Levenshtein).' },
+    { caption: 'damerau_levenshtein_distance', value: 'damerau_levenshtein_distance', meta: 'ai.nlp', docText: 'Edit distance with transposition.' },
+    { caption: 'lcs_length', value: 'lcs_length', meta: 'ai.nlp', docText: 'Longest Common Subsequence length.' },
+    { caption: 'jaccard_char_ngrams', value: 'jaccard_char_ngrams', meta: 'ai.nlp', docText: 'Jaccard over character n-grams.' },
+    { caption: 'dice_char_ngrams', value: 'dice_char_ngrams', meta: 'ai.nlp', docText: 'Sørensen–Dice over character n-grams.' },
+    { caption: 'normalize_arabic', value: 'normalize_arabic', meta: 'ai.nlp', docText: 'Normalize Arabic forms and diacritics.' },
+    { caption: 'arabic_light_stem_tokens', value: 'arabic_light_stem_tokens', meta: 'ai.nlp', docText: 'Light stemming for Arabic tokens.' },
+    { caption: 'remove_stopwords', value: 'remove_stopwords', meta: 'ai.nlp', docText: 'Remove stopwords (auto language).' },
+    { caption: 'remove_stopwords_extended', value: 'remove_stopwords_extended', meta: 'ai.nlp', docText: 'Remove stopwords with extended lists.' },
+
+    // DATA
+    { caption: 'parse_csv_rows', value: 'parse_csv_rows', meta: 'ai.data', docText: 'Parse CSV into list of fields per row.' },
+    { caption: 'read_csv_string', value: 'read_csv_string', meta: 'ai.data', docText: 'Parse CSV from a single string.' },
+    { caption: 'write_csv_string', value: 'write_csv_string', meta: 'ai.data', docText: 'Serialize rows to CSV string.' },
+    { caption: 'read_json_string', value: 'read_json_string', meta: 'ai.data', docText: 'Parse simple JSON (educational).' },
+    { caption: 'write_json_array_string', value: 'write_json_array_string', meta: 'ai.data', docText: 'Serialize string list to JSON array.' },
+    { caption: 'write_json_object_string', value: 'write_json_object_string', meta: 'ai.data', docText: 'Serialize dict(str->str) to JSON object.' },
+    { caption: 'mean', value: 'mean', meta: 'ai.data', docText: 'Arithmetic mean.' },
+    { caption: 'variance', value: 'variance', meta: 'ai.data', docText: 'Population variance.' },
+    { caption: 'stddev', value: 'stddev', meta: 'ai.data', docText: 'Standard deviation.' },
+    { caption: 'median', value: 'median', meta: 'ai.data', docText: 'Median (selection sort based).' },
+    { caption: 'percentile', value: 'percentile', meta: 'ai.data', docText: 'Linear interpolation percentile.' },
+    { caption: 'quantiles', value: 'quantiles', meta: 'ai.data', docText: 'Multiple percentiles from [0,1] list.' },
+    { caption: 'iqr', value: 'iqr', meta: 'ai.data', docText: 'Interquartile range (Tukey).' },
+    { caption: 'pearson_r', value: 'pearson_r', meta: 'ai.data', docText: 'Pearson correlation coefficient.' },
+    { caption: 'minmax_normalize', value: 'minmax_normalize', meta: 'ai.data', docText: 'Scale to [0,1].' },
+    { caption: 'zscore_normalize', value: 'zscore_normalize', meta: 'ai.data', docText: 'Standardize array using mean/std.' },
+    { caption: 'standard_scaler_fit', value: 'standard_scaler_fit', meta: 'ai.data', docText: 'Compute mean/std.' },
+    { caption: 'standard_scaler_transform', value: 'standard_scaler_transform', meta: 'ai.data', docText: 'Apply standard scaling.' },
+    { caption: 'robust_scaler_fit', value: 'robust_scaler_fit', meta: 'ai.data', docText: 'Compute median/IQR.' },
+    { caption: 'robust_scaler_transform', value: 'robust_scaler_transform', meta: 'ai.data', docText: 'Apply robust scaling.' },
+    { caption: 'minmax_scaler_fit', value: 'minmax_scaler_fit', meta: 'ai.data', docText: 'Compute min/max.' },
+    { caption: 'minmax_scaler_transform', value: 'minmax_scaler_transform', meta: 'ai.data', docText: 'Apply min-max scaling.' },
+    { caption: 'bin_equal_width', value: 'bin_equal_width', meta: 'ai.data', docText: 'Equal-width discretization to bin indices.' },
+    { caption: 'one_hot_encode', value: 'one_hot_encode', meta: 'ai.data', docText: 'One-hot encode integer indices.' },
+    { caption: 'label_encoder_fit', value: 'label_encoder_fit', meta: 'ai.data', docText: 'Build label vocabulary.' },
+    { caption: 'label_encoder_transform', value: 'label_encoder_transform', meta: 'ai.data', docText: 'Map labels to indices.' },
+    { caption: 'frequency_encoder_fit', value: 'frequency_encoder_fit', meta: 'ai.data', docText: 'Compute label frequencies.' },
+    { caption: 'frequency_encoder_transform', value: 'frequency_encoder_transform', meta: 'ai.data', docText: 'Map labels to frequency.' },
+    { caption: 'target_encoder_fit', value: 'target_encoder_fit', meta: 'ai.data', docText: 'Mean encoding per category.' },
+    { caption: 'target_encoder_transform', value: 'target_encoder_transform', meta: 'ai.data', docText: 'Map by learned means (fallback global).' },
+    { caption: 'random_permutation', value: 'random_permutation', meta: 'ai.data', docText: 'Deterministic Fisher–Yates perm.' },
+    { caption: 'set_seed', value: 'set_seed', meta: 'ai.data', docText: 'Set global PRNG seed.' },
+    { caption: 'rand', value: 'rand', meta: 'ai.data', docText: 'Uniform random in [0,1).' },
+    { caption: 'randint', value: 'randint', meta: 'ai.data', docText: 'Random integer in [a,b].' },
+    { caption: 'shuffle_list', value: 'shuffle_list', meta: 'ai.data', docText: 'Shuffle copy using PRNG.' },
+    { caption: 'sample_list', value: 'sample_list', meta: 'ai.data', docText: 'Sample k unique elements.' },
+    { caption: 'train_test_split_shuffle', value: 'train_test_split_shuffle', meta: 'ai.data', docText: 'Shuffle split using PRNG.' },
+    { caption: 'pipeline_fit_transform', value: 'pipeline_fit_transform', meta: 'ai.data', docText: 'Fit sequential steps; returns [X_out, models].' },
+    { caption: 'pipeline_transform', value: 'pipeline_transform', meta: 'ai.data', docText: 'Transform using fitted models.' },
+
+    // Arabic wrappers (selected)
+    { caption: 'تدريب_انحدار_لوجستي', value: 'تدريب_انحدار_لوجستي', meta: 'ai.ar', docText: 'Arabic alias: logistic_regression_train.' },
+    { caption: 'توقع_انحدار_لوجستي', value: 'توقع_انحدار_لوجستي', meta: 'ai.ar', docText: 'Arabic alias: logistic_regression_predict.' },
+    { caption: 'انحدار_خطي', value: 'انحدار_خطي', meta: 'ai.ar', docText: 'Arabic alias: linear_regression.' },
+    { caption: 'تجميع_كي_مينز', value: 'تجميع_كي_مينز', meta: 'ai.ar', docText: 'Arabic alias: k_means.' },
+    { caption: 'مصفوفة_الالتباس', value: 'مصفوفة_الالتباس', meta: 'ai.ar', docText: 'Arabic alias: confusion_matrix.' },
+    { caption: 'تشابه_جيبي', value: 'تشابه_جيبي', meta: 'ai.ar', docText: 'Arabic alias: cosine_similarity (lists).' },
+    { caption: 'حساب_tfidf', value: 'حساب_tfidf', meta: 'ai.ar', docText: 'Arabic alias: compute_tfidf.' },
+    { caption: 'حساب_tfidf_لوغ', value: 'حساب_tfidf_لوغ', meta: 'ai.ar', docText: 'Arabic alias: compute_tfidf_log.' },
+    { caption: 'حساب_tfidf_لوغ_مطبع', value: 'حساب_tfidf_لوغ_مطبع', meta: 'ai.ar', docText: 'Arabic alias: compute_tfidf_log_norm.' },
+    { caption: 'ملاءمة_تحويل_أنبوب', value: 'ملاءمة_تحويل_أنبوب', meta: 'ai.ar', docText: 'Arabic alias: pipeline_fit_transform.' },
+    { caption: 'تحويل_أنبوب', value: 'تحويل_أنبوب', meta: 'ai.ar', docText: 'Arabic alias: pipeline_transform.' },
+    { caption: 'قراءة_CSV_نص', value: 'قراءة_CSV_نص', meta: 'ai.ar', docText: 'Arabic alias: read_csv_string.' },
+    { caption: 'كتابة_CSV_نص', value: 'كتابة_CSV_نص', meta: 'ai.ar', docText: 'Arabic alias: write_csv_string.' },
+    { caption: 'تطبيع_أدنى_أقصى', value: 'تطبيع_أدنى_أقصى', meta: 'ai.ar', docText: 'Arabic alias: minmax_normalize.' },
+    { caption: 'تطبيع_Z', value: 'تطبيع_Z', meta: 'ai.ar', docText: 'Arabic alias: zscore_normalize.' },
+    { caption: 'ترتيب_عشوائي', value: 'ترتيب_عشوائي', meta: 'ai.ar', docText: 'Arabic alias: random_permutation.' },
+
+    // LOGIC (language/hybrid helpers)
+    { caption: 'fact', value: 'fact ', meta: 'logic', score: 70, docText: 'Define a logic fact (ends with a dot).' },
+    { caption: 'rule', value: 'rule ', meta: 'logic', score: 70, docText: 'Define a logic rule: head :- body.' },
+    { caption: 'query', value: 'query ', meta: 'logic', score: 70, docText: 'Run a logic query; results shown in output.' },
+    { caption: 'assertz', value: 'assertz(', meta: 'logic', score: 65, docText: 'Dynamically add a fact at runtime.' },
+    { caption: 'retract', value: 'retract(', meta: 'logic', score: 65, docText: 'Dynamically remove a fact at runtime.' },
+    { caption: 'entity', value: 'entity ', meta: 'logic', score: 60, docText: 'Define an entity (states/properties/actions).' },
+    { caption: 'apply', value: 'apply ', meta: 'logic', score: 60, docText: 'Apply an action to a target entity.' },
+
+    // Arabic aliases (logic)
+    { caption: 'حقيقة', value: 'حقيقة ', meta: 'logic', score: 70, docText: 'تعريف حقيقة منطقية تنتهي بنقطة.', ar: true },
+    { caption: 'قاعدة', value: 'قاعدة ', meta: 'logic', score: 70, docText: 'تعريف قاعدة: الرأس :- الجسم.', ar: true },
+    { caption: 'استعلام', value: 'استعلام ', meta: 'logic', score: 70, docText: 'تنفيذ استعلام منطقي وعرض النتائج.', ar: true },
+    { caption: 'كيان', value: 'كيان ', meta: 'logic', score: 60, docText: 'تعريف كيان بخصائص/حالات/أفعال.', ar: true },
+    { caption: 'طبق', value: 'طبق ', meta: 'logic', score: 60, docText: 'تطبيق فعل على كيان مستهدف.', ar: true },
+
+
+    // GFX (SVG + waves + pen)
+    { caption: 'svg_wrap', value: 'svg_wrap(', meta: 'gfx', score: 85, docText: 'Wrap inner SVG content with width/height.' },
+    { caption: 'svg_rect', value: 'svg_rect(', meta: 'gfx', score: 85, docText: 'Rectangle element.' },
+    { caption: 'svg_circle', value: 'svg_circle(', meta: 'gfx', score: 85, docText: 'Circle element.' },
+    { caption: 'svg_line', value: 'svg_line(', meta: 'gfx', score: 85, docText: 'Line element.' },
+    { caption: 'svg_text', value: 'svg_text(', meta: 'gfx', score: 85, docText: 'Text element.' },
+    { caption: 'svg_triangle', value: 'svg_triangle(', meta: 'gfx', score: 85, docText: 'Triangle polygon (x1,y1,x2,y2,x3,y3).' },
+    { caption: 'svg_ellipse', value: 'svg_ellipse(', meta: 'gfx', score: 85, docText: 'Ellipse element.' },
+    { caption: 'svg_cylinder', value: 'svg_cylinder(', meta: 'gfx', score: 85, docText: '2D cylinder (top ellipse + body + bottom ellipse).' },
+    { caption: 'svg_sphere', value: 'svg_sphere(', meta: 'gfx', score: 85, docText: '2D sphere (circle with highlight).' },
+
+    // GFX SVG animation (SMIL)
+    { caption: 'svg_animate', value: 'svg_animate(', meta: 'gfx', score: 84, docText: '<animate> attr+values; e.g. svg_animate("opacity","0;1","2s","indefinite")' },
+    { caption: 'svg_animate_transform', value: 'svg_animate_transform(', meta: 'gfx', score: 84, docText: '<animateTransform> e.g. rotate: svg_animate_transform("rotate","0 100 100","360 100 100","4s","indefinite")' },
+    { caption: 'svg_animate_motion', value: 'svg_animate_motion(', meta: 'gfx', score: 84, docText: '<animateMotion> path_d + dur + repeat + rotate; e.g. "M 20,100 C 80,20 140,180 200,100"' },
+    { caption: 'svg_rotating_group', value: 'svg_rotating_group(', meta: 'gfx', score: 83, docText: 'Wrap inner in rotating <g>(inner,cx,cy,from,to,dur,repeat) → simple spin' },
+
+    { caption: 'pen_new', value: 'pen_new(', meta: 'gfx', score: 82, docText: 'New free-draw pen (path builder).' },
+    { caption: 'pen_move', value: 'pen_move(', meta: 'gfx', score: 82, docText: 'Move pen to (x,y).' },
+    { caption: 'pen_line', value: 'pen_line(', meta: 'gfx', score: 82, docText: 'Line to (x,y).' },
+    { caption: 'pen_curve', value: 'pen_curve(', meta: 'gfx', score: 82, docText: 'Cubic Bezier curve.' },
+    { caption: 'pen_close', value: 'pen_close(', meta: 'gfx', score: 82, docText: 'Close path.' },
+    { caption: 'pen_to_path', value: 'pen_to_path(', meta: 'gfx', score: 82, docText: 'Convert pen to <path> element.' },
+    { caption: 'wave_sine', value: 'wave_sine(', meta: 'gfx', score: 80, docText: 'Generate sine wave points.' },
+    { caption: 'wave_square', value: 'wave_square(', meta: 'gfx', score: 80, docText: 'Generate square wave points.' },
+    { caption: 'wave_triangle', value: 'wave_triangle(', meta: 'gfx', score: 80, docText: 'Generate triangle wave points.' },
+    { caption: 'wave_plot_svg', value: 'wave_plot_svg(', meta: 'gfx', score: 80, docText: 'Render wave points to SVG path.' },
+
+    { caption: 'wave_sawtooth', value: 'wave_sawtooth(', meta: 'gfx', score: 80, docText: 'Generate sawtooth wave points.' },
+    { caption: 'wave_noise', value: 'wave_noise(', meta: 'gfx', score: 80, docText: 'Generate uniform noise points.' },
+    { caption: 'envelope_adsr', value: 'envelope_adsr(', meta: 'gfx', score: 78, docText: 'ADSR envelope over n samples (a,d,s,r).' },
+    { caption: 'apply_envelope', value: 'apply_envelope(', meta: 'gfx', score: 78, docText: 'Apply envelope array to points.' },
+    { caption: 'wave_am', value: 'wave_am(', meta: 'gfx', score: 80, docText: 'Amplitude modulation (AM).' },
+    { caption: 'wave_fm', value: 'wave_fm(', meta: 'gfx', score: 80, docText: 'Frequency modulation (FM).' },
+
+    // Arabic aliases (gfx)
+    { caption: 'لف_SVG', value: 'لف_SVG(', meta: 'gfx', score: 85, docText: 'لف محتوى SVG بعرض/ارتفاع.', ar: true },
+    { caption: 'مستطيل', value: 'مستطيل(', meta: 'gfx', score: 85, docText: 'عنصر مستطيل.', ar: true },
+    { caption: 'دائرة', value: 'دائرة(', meta: 'gfx', score: 85, docText: 'عنصر دائرة.', ar: true },
+    { caption: 'خط', value: 'خط(', meta: 'gfx', score: 85, docText: 'عنصر خط.', ar: true },
+    { caption: 'نص', value: 'نص(', meta: 'gfx', score: 85, docText: 'عنصر نص.', ar: true },
+    { caption: 'مثلث', value: 'مثلث(', meta: 'gfx', score: 85, docText: 'عنصر مثلث (ثلاث نقاط).', ar: true },
+    { caption: 'بيضوي', value: 'بيضوي(', meta: 'gfx', score: 85, docText: 'عنصر بيضوي (إهليلجي).', ar: true },
+    { caption: 'اسطوانة', value: 'اسطوانة(', meta: 'gfx', score: 85, docText: 'أسطوانة ثنائية الأبعاد (إهليلج علوي + جسم + إهليلج سفلي).', ar: true },
+    { caption: 'كرة', value: 'كرة(', meta: 'gfx', score: 85, docText: 'كرة ثنائية الأبعاد (دائرة مع إضاءة).', ar: true },
+
+    // تحريك SVG (SMIL) — Arabic wrappers
+    { caption: 'حرك_SVG', value: 'حرك_SVG(', meta: 'gfx', score: 84, docText: '<animate> خاصية + قيم؛ مثال: حرك_SVG("opacity","0;1","2s","indefinite")', ar: true },
+    { caption: 'تحويل_متحرك', value: 'تحويل_متحرك(', meta: 'gfx', score: 84, docText: '<animateTransform> مثال دوران: تحويل_متحرك("rotate","0 100 100","360 100 100","4s","indefinite")', ar: true },
+    { caption: 'تحريك_مسار', value: 'تحريك_مسار(', meta: 'gfx', score: 84, docText: '<animateMotion> مسار + مدة + تكرار + تدوير؛ مثال مسار Bezier.', ar: true },
+    { caption: 'مجموعة_دوران', value: 'مجموعة_دوران(', meta: 'gfx', score: 83, docText: 'مجموعة <g> تدور: (داخل، مركز_س، مركز_ص، من، إلى، مدة، تكرار).', ar: true },
+
+    // GFX raster (Pillow)
+    { caption: 'img_canvas', value: 'img_canvas(', meta: 'gfx', score: 84, docText: 'Create a new RGBA canvas (requires Pillow).' },
+    { caption: 'img_rect', value: 'img_rect(', meta: 'gfx', score: 84, docText: 'Draw rectangle on image.' },
+    { caption: 'img_circle', value: 'img_circle(', meta: 'gfx', score: 84, docText: 'Draw circle on image.' },
+    { caption: 'img_line', value: 'img_line(', meta: 'gfx', score: 84, docText: 'Draw line on image.' },
+    { caption: 'img_text', value: 'img_text(', meta: 'gfx', score: 84, docText: 'Draw text on image.' },
+    { caption: 'img_to_data_uri', value: 'img_to_data_uri(', meta: 'gfx', score: 84, docText: 'Export image as data URI (PNG/JPEG).' },
+
+    // Arabic aliases (raster)
+    { caption: 'لوحة', value: 'لوحة(', meta: 'gfx', score: 84, docText: 'إنشاء لوحة RGBA (تتطلب Pillow).', ar: true },
+    { caption: 'مستطيل_صورة', value: 'مستطيل_صورة(', meta: 'gfx', score: 84, docText: 'رسم مستطيل على الصورة.', ar: true },
+    { caption: 'دائرة_صورة', value: 'دائرة_صورة(', meta: 'gfx', score: 84, docText: 'رسم دائرة على الصورة.', ar: true },
+    { caption: 'خط_صورة', value: 'خط_صورة(', meta: 'gfx', score: 84, docText: 'رسم خط على الصورة.', ar: true },
+    { caption: 'نص_صورة', value: 'نص_صورة(', meta: 'gfx', score: 84, docText: 'رسم نص على الصورة.', ar: true },
+    { caption: 'صورة_إلى_URI', value: 'صورة_إلى_URI(', meta: 'gfx', score: 84, docText: 'تصدير الصورة كسلسلة data URI.', ar: true },
+    // Raster GIF export
+    { caption: 'img_gif_from_frames', value: 'img_gif_from_frames(', meta: 'gfx', score: 83, docText: 'Animated GIF (data URI) from frames[list of PIL Images]; duration_ms per frame.' },
+    { caption: 'صورة_متحركة_من_إطارات', value: 'صورة_متحركة_من_إطارات(', meta: 'gfx', score: 83, docText: 'GIF متحرك (data URI) من قائمة صور؛ المدة بالمللي ثانية لكل إطار.', ar: true },
+
+    { caption: 'قلم_جديد', value: 'قلم_جديد(', meta: 'gfx', score: 82, docText: 'قلم رسم حر (مسار).', ar: true },
+    { caption: 'قلم_تحرك', value: 'قلم_تحرك(', meta: 'gfx', score: 82, docText: 'تحريك القلم إلى (x,y).', ar: true },
+    { caption: 'قلم_خط', value: 'قلم_خط(', meta: 'gfx', score: 82, docText: 'خط إلى (x,y).', ar: true },
+    { caption: 'موجة_سن_منشار', value: 'موجة_سن_منشار(', meta: 'gfx', score: 80, docText: 'توليد موجة سن منشار.', ar: true },
+    { caption: 'موجة_ضوضاء', value: 'موجة_ضوضاء(', meta: 'gfx', score: 80, docText: 'توليد ضوضاء موحدة.', ar: true },
+    { caption: 'مغلف_ADSR', value: 'مغلف_ADSR(', meta: 'gfx', score: 78, docText: 'مغلف هجوم/اضمحلال/ثبات/تحرير.', ar: true },
+    { caption: 'تطبيق_مغلف', value: 'تطبيق_مغلف(', meta: 'gfx', score: 78, docText: 'تطبيق المغلف على النقاط.', ar: true },
+    { caption: 'موجة_AM', value: 'موجة_AM(', meta: 'gfx', score: 80, docText: 'تعديل السعة (AM).', ar: true },
+    { caption: 'موجة_FM', value: 'موجة_FM(', meta: 'gfx', score: 80, docText: 'تعديل التردد (FM).', ar: true },
+
+    { caption: 'قلم_منحنى', value: 'قلم_منحنى(', meta: 'gfx', score: 82, docText: 'منحنى بيزيه مكعب.', ar: true },
+    { caption: 'قلم_إغلاق', value: 'قلم_إغلاق(', meta: 'gfx', score: 82, docText: 'إغلاق المسار.', ar: true },
+    { caption: 'قلم_إلى_مسار', value: 'قلم_إلى_مسار(', meta: 'gfx', score: 82, docText: 'تحويل القلم إلى عنصر <path>.', ar: true },
+    { caption: 'موجة_جيب', value: 'موجة_جيب(', meta: 'gfx', score: 80, docText: 'توليد نقاط موجة جيبية.', ar: true },
+    { caption: 'موجة_مربعة', value: 'موجة_مربعة(', meta: 'gfx', score: 80, docText: 'توليد نقاط موجة مربعة.', ar: true },
+    { caption: 'موجة_مثلثية', value: 'موجة_مثلثية(', meta: 'gfx', score: 80, docText: 'توليد نقاط موجة مثلثية.', ar: true },
+    { caption: 'رسم_موجة_SVG', value: 'رسم_موجة_SVG(', meta: 'gfx', score: 80, docText: 'رسم نقاط الموجة إلى SVG.', ar: true },
+
+    { caption: 'تقسيم_عشوائي_تدريب_اختبار', value: 'تقسيم_عشوائي_تدريب_اختبار', meta: 'ai.ar', docText: 'Arabic alias: train_test_split_shuffle.' }
+  ];
+  const isArabicName = (s) => /[^\x00-\x7F]/.test(s || '');
+  let completionLangMode = 'all';
+  let completionDomainMode = 'all';
+  const aiCompleter = {
+    getCompletions: function (editor, session, pos, prefix, callback) {
+      const compsRaw = aiCompletions.map(it => ({
+        caption: it.caption,
+        value: it.value,
+        meta: it.meta,
+        score: it.score || 80,
+        docText: it.docText,
+        ar: (typeof it.ar === 'boolean' ? it.ar : isArabicName(it.caption))
+      }));
+      let comps = compsRaw;
+      if (completionLangMode === 'ar') comps = comps.filter(c => c.ar);
+      else if (completionLangMode === 'en') comps = comps.filter(c => !c.ar);
+      if (completionDomainMode !== 'all') comps = comps.filter(c => (c.meta || '') === completionDomainMode);
+      callback(null, comps);
+    }
+  };
+  langTools.addCompleter(aiCompleter);
+
+
+  // Dynamic: load all AI functions (English + Arabic) from backend and merge
+  try {
+    fetch('/api/ide/ai_functions').then(r => r.json()).then(items => {
+      const seen = new Set(aiCompletions.map(c => c.caption));
+      items.forEach(fn => {
+        if (!seen.has(fn.name)) {
+          aiCompletions.push({
+            caption: fn.name,
+            value: fn.name,
+            meta: fn.meta || 'ai',
+            score: fn.ar ? 92 : 85,
+            docText: fn.doc || '',
+            ar: !!fn.ar
+          });
+          seen.add(fn.name);
+        } else {
+          const i = aiCompletions.findIndex(c => c.caption === fn.name);
+          if (i >= 0) {
+            if (fn.meta) aiCompletions[i].meta = fn.meta;
+            if (!aiCompletions[i].docText && fn.doc) aiCompletions[i].docText = fn.doc;
+            if (typeof aiCompletions[i].ar !== 'boolean') aiCompletions[i].ar = !!fn.ar;
+          }
+
+        }
+      });
+    }).catch(() => { });
+  } catch (e) { }
+
+  editor.setValue(`# مثال سريع\n\nprint("Hello Bayan!\n")\n\nclass A:{\n  def who():{ print("A") }\n}\n\nb = A()\nb.who()\n\n# منطق\nhybrid{\n  fact edge(a,b).\n  fact edge(b,c).\n  rule reachable(X,Y) :- edge(X,Y).\n  rule reachable(X,Y) :- edge(X,Z), reachable(Z,Y).\n  print("reachable(a, ?Y):")\n  query reachable(a, ?Y).\n}\n`, 1);
+
+  const outputPre = document.getElementById('output');
+  const previewDiv = document.getElementById('preview');
+  const currentFileBadge = document.getElementById('current-file');
+  let currentFile = null;
+
+  editor.session.getUndoManager().markClean();
+  const updateDirty = () => {
+    const clean = editor.session.getUndoManager().isClean();
+    window.onbeforeunload = clean ? null : function (e) { e.preventDefault(); e.returnValue = ''; };
+  };
+  updateDirty();
+
+  const previewToolbar = document.getElementById('preview-toolbar');
+  const previewStatus = document.getElementById('preview-status');
+  const btnPrevOutput = document.getElementById('btn-prev-output');
+  const btnNextOutput = document.getElementById('btn-next-output');
+  const btnCopyOutput = document.getElementById('btn-copy-output');
+  const btnDownloadOutput = document.getElementById('btn-download-output');
+  const btnTogglePlay = document.getElementById('btn-toggle-play');
+  const selPlayFps = document.getElementById('sel-play-fps');
+  let previewItems = [];
+  let previewIndex = 0;
+  let playTimer = null;
+  let playFps = 6;
+  if (btnPrevOutput) btnPrevOutput.addEventListener('click', () => { if (previewIndex > 0) { previewIndex--; renderPreview(); } });
+  if (btnNextOutput) btnNextOutput.addEventListener('click', () => { if (previewIndex < (previewItems.length - 1)) { previewIndex++; renderPreview(); } });
+  if (btnCopyOutput) btnCopyOutput.addEventListener('click', () => copyCurrentOutput());
+  if (btnDownloadOutput) btnDownloadOutput.addEventListener('click', () => downloadCurrentOutput());
+  if (btnTogglePlay) btnTogglePlay.addEventListener('click', () => togglePlayback());
+  if (selPlayFps) selPlayFps.addEventListener('change', () => { try { playFps = Math.max(1, parseInt(selPlayFps.value, 10) || 6); if (playTimer) { stopPlayback(); startPlayback(); } } catch (_) { } });
+
+
+  // Static keyword completer
+  const keywords = [
+    'class', 'def', 'return', 'if', 'elif', 'else', 'while', 'for', 'break', 'continue', 'try', 'except', 'finally', 'raise', 'assert', 'with', 'yield', 'async', 'await', 'import', 'from', 'as', 'pass', 'True', 'False', 'None', 'hybrid', 'fact', 'rule', 'query', 'print', 'super'
+  ];
+  const staticCompleter = {
+    getCompletions: function (editor, session, pos, prefix, callback) {
+      const completions = keywords.map(k => ({
+        caption: k, value: k, meta: 'kw', score: 50
+      }));
+      callback(null, completions);
+    }
+  };
+  langTools.addCompleter(staticCompleter);
+
+  async function refreshFiles() {
+    const res = await fetch('/api/ide/files');
+    const files = await res.json();
+    const list = document.getElementById('file-list');
+    list.innerHTML = '';
+    files.forEach(f => {
+      const a = document.createElement('a');
+      a.href = '#';
+      a.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+      a.textContent = f.name;
+      a.onclick = async (e) => {
+        e.preventDefault();
+
+        const r = await fetch(`/api/ide/file?name=${encodeURIComponent(f.name)}`);
+        if (r.ok) {
+          const data = await r.json();
+          editor.setValue(data.content, 1);
+          currentFile = data.name;
+          currentFileBadge.textContent = currentFile;
+          editor.session.getUndoManager().markClean();
+          updateDirty();
+
+        }
+      };
+      list.appendChild(a);
+    });
+  }
+
+  async function saveFile(asNew = false) {
+    let name = currentFile;
+    if (!name || asNew) {
+      name = prompt('اسم الملف (ينتهي بـ .bayan أو .by):', name || 'program.bayan');
+      if (!name) return;
+    }
+    const res = await fetch('/api/ide/file', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, content: editor.getValue() })
+    });
+    if (res.ok) {
+      currentFile = name; currentFileBadge.textContent = name; refreshFiles();
+      editor.session.getUndoManager().markClean();
+      updateDirty();
+    } else {
+      alert('فشل الحفظ');
+    }
+  }
+
+  function extractSvg(s) {
+    try {
+      if (!s) return '';
+      const m = s.match(/<svg[\s\S]*?<\/svg>/i);
+      return m ? m[0] : '';
+    } catch (_) { return ''; }
+  }
+  function extractDataUri(s) {
+    try {
+      if (!s) return '';
+      const m = s.match(/data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+/i);
+      return m ? m[0] : '';
+    } catch (_) { return ''; }
+  }
+  function setToolbarVisible(v) {
+    try {
+      if (previewToolbar) previewToolbar.style.display = v ? '' : 'none';
+      if (!v) { if (typeof stopPlayback === 'function') stopPlayback(); }
+      if (typeof updatePlayButton === 'function') updatePlayButton();
+    } catch (_) { }
+  }
+  function collectOutputs(s) {
+    const items = [];
+    try {
+      if (!s) return items;
+      const svgRe = /<svg[\s\S]*?<\/svg>/ig;
+      let m;
+      while ((m = svgRe.exec(s))) { items.push({ type: 'svg', content: m[0], pos: m.index }); }
+      const dataRe = /data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/ig;
+      while ((m = dataRe.exec(s))) { items.push({ type: 'data', content: m[0], pos: m.index }); }
+      items.sort((a, b) => a.pos - b.pos);
+    } catch (_) { }
+    return items;
+  }
+  function renderPreview() {
+    if (!previewDiv) { setToolbarVisible(false); return; }
+    previewDiv.innerHTML = '';
+    if (!previewItems || previewItems.length === 0) { setToolbarVisible(false); return; }
+    if (previewIndex < 0) previewIndex = 0;
+    if (previewIndex >= previewItems.length) previewIndex = previewItems.length - 1;
+    const it = previewItems[previewIndex];
+    try {
+      if (previewStatus) previewStatus.textContent = `${previewIndex + 1}/${previewItems.length}`;
+      if (btnPrevOutput) btnPrevOutput.disabled = (previewIndex <= 0);
+      if (btnNextOutput) btnNextOutput.disabled = (previewIndex >= previewItems.length - 1);
+      if (typeof updatePlayButton === 'function') updatePlayButton();
+    } catch (_) { }
+    setToolbarVisible(true);
+    if (it.type === 'svg') {
+      previewDiv.innerHTML = it.content;
+    } else {
+      const img = document.createElement('img');
+      img.src = it.content;
+      img.style.maxWidth = '100%'; img.style.height = 'auto'; img.style.border = '0';
+      previewDiv.appendChild(img);
+    }
+  }
+  function dataUriToBlob(uri) {
+    try {
+      const m = uri.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)/i);
+      if (!m) return null;
+      const mime = m[1]; const b64 = m[2];
+      const bin = atob(b64); const len = bin.length; const arr = new Uint8Array(len);
+      for (let i = 0; i < len; i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], { type: mime });
+    } catch (_) { return null; }
+  }
+  function svgTextToBlob(txt) { try { return new Blob([txt], { type: 'image/svg+xml' }); } catch (_) { return null; } }
+  function suggestFilename(it, idx) {
+    try {
+      let ext = (it.type === 'svg') ? 'svg' : (it.content.match(/^data:image\/([a-zA-Z0-9.+-]+)/i)?.[1] || 'img');
+      ext = ext.replace('svg+xml', 'svg');
+      return `output_${idx + 1}.${ext}`;
+    } catch (_) { return `output_${idx + 1}.img`; }
+  }
+  function copyCurrentOutput() {
+    try {
+      const it = previewItems && previewItems[previewIndex]; if (!it) return;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(it.content).catch(() => { });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = it.content; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (_) { }
+        document.body.removeChild(ta);
+      }
+    } catch (_) { }
+  }
+  function updatePlayButton() {
+    try {
+      if (!btnTogglePlay) return;
+      const canPlay = (previewItems && previewItems.length > 1);
+      btnTogglePlay.disabled = !canPlay;
+      btnTogglePlay.textContent = playTimer ? 'إيقاف' : 'تشغيل';
+    } catch (_) { }
+  }
+  function startPlayback() {
+    try {
+      if (playTimer) return;
+      if (!previewItems || previewItems.length < 2) return;
+      const interval = Math.max(16, Math.floor(1000 / (playFps || 6)));
+      playTimer = setInterval(() => {
+        try {
+          previewIndex = (previewIndex + 1) % previewItems.length;
+          renderPreview();
+        } catch (_) { }
+      }, interval);
+      updatePlayButton();
+    } catch (_) { }
+  }
+  function stopPlayback() {
+    try {
+      if (playTimer) { clearInterval(playTimer); playTimer = null; }
+      updatePlayButton();
+    } catch (_) { }
+  }
+  function togglePlayback() { try { if (playTimer) stopPlayback(); else startPlayback(); } catch (_) { } }
+  function downloadCurrentOutput() {
+    try {
+      const it = previewItems && previewItems[previewIndex]; if (!it) return;
+      const blob = (it.type === 'svg') ? svgTextToBlob(it.content) : dataUriToBlob(it.content);
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = suggestFilename(it, previewIndex);
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    } catch (_) { }
+  }
+
+
+
+  async function run(code) {
+    outputPre.textContent = '...';
+    if (previewDiv) { previewDiv.innerHTML = ''; }
+    if (typeof stopPlayback === 'function') stopPlayback();
+    previewItems = [];
+    previewIndex = 0;
+    setToolbarVisible(false);
+    const res = await fetch('/api/ide/run', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+    if (data.success) {
+      editor.session.clearAnnotations();
+      let out = '';
+      if (data.stdout) out += data.stdout;
+      if (data.result !== null && data.result !== undefined) {
+        out += `\n[Result(JSON)]: ${JSON.stringify(data.result)}`;
+      } else if (data.result_repr) {
+        out += `\n[Result]: ${data.result_repr}`;
+      }
+      outputPre.textContent = out;
+      // Build multi-output preview items (SVG and data:image/*) and render
+      if (previewDiv) {
+        previewItems = collectOutputs(out);
+        previewIndex = 0;
+        renderPreview();
+      }
+    } else {
+      annotateError(data.error, data.traceback);
+      outputPre.textContent = `Error: ${data.error_type}: ${data.error}\n${data.traceback || ''}`;
+      if (previewDiv) { previewDiv.innerHTML = ''; }
+      previewItems = [];
+      previewIndex = 0;
+      setToolbarVisible(false);
+    }
+  }
+
+  function annotateError(errorText, traceback) {
+    try {
+      const text = (traceback || '') + '\n' + (errorText || '');
+      const m = text.match(/line\s+(\d+)/i);
+      if (m) {
+        const row = Math.max(0, parseInt(m[1], 10) - 1);
+        editor.session.setAnnotations([{ row, column: 0, text: errorText || 'Error', type: 'error' }]);
+        editor.scrollToLine(row, true, true, function () { });
+        editor.gotoLine(row + 1, 0, true);
+      }
+    } catch (e) { }
+  }
+
+  let examplesMaster = [];
+  async function refreshExamples() {
+    try {
+      const res = await fetch('/api/ide/examples');
+      examplesMaster = await res.json();
+      applyExamplesFilter();
+    } catch (e) { }
+  }
+  function domainEmoji(d) {
+    switch (d) {
+      case 'ai.ml': return '🟩';
+      case 'ai.nlp': return '🟦';
+      case 'ai.data': return '🟨';
+      case 'logic': return '🟪';
+      case 'gfx': return '🟥';
+      case 'mixed': return '🟧';
+      default: return '⚪';
+    }
+  }
+
+
+  function renderExamples(list) {
+    const sel = document.getElementById('sel-examples');
+    sel.innerHTML = '';
+    list.forEach(it => {
+      const opt = document.createElement('option');
+      opt.value = it.name;
+      const domLabel = (it.domain || 'unknown');
+      const badge = domainEmoji(domLabel);
+      opt.textContent = `${badge} [${domLabel}] ${it.name}`;
+      if (it.desc) opt.title = it.desc;
+      else opt.title = it.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function applyExamplesFilter() {
+    const q = (document.getElementById('inp-example-filter').value || '').toLowerCase();
+    const dom = (document.getElementById('sel-examples-domain').value || 'all');
+    let list = examplesMaster || [];
+    if (dom !== 'all') list = list.filter(it => (it.domain || 'unknown') === dom);
+    if (q) list = list.filter(it => (it.name || '').toLowerCase().includes(q));
+    renderExamples(list);
+    updateExampleInfo();
+  }
+
+  function updateExampleInfo() {
+    try {
+      const el = document.getElementById('example-info');
+      const sel = document.getElementById('sel-examples');
+      if (!el || !sel) return;
+      const name = sel.value;
+      const it = (examplesMaster || []).find(x => x.name === name);
+      if (it) {
+        const domLabel = (it.domain || 'unknown');
+        const badge = domainEmoji(domLabel);
+        el.textContent = `مثال: ${badge} [${domLabel}] ${it.name} — ${it.desc || ''}`;
+      } else el.textContent = '';
+    } catch (e) { }
+  }
+
+  function setAcInfo(t) {
+    const el = document.getElementById('ac-info');
+    if (el) el.textContent = t ? ('وصف الإكمال: ' + t) : '';
+  }
+
+  function setupAutocompleteInfo() {
+    try {
+      editor.commands.on('afterExec', function (e) {
+        if (e && e.command && e.command.name === 'startAutocomplete') {
+          const compl = editor.completer;
+          const popup = compl && compl.popup;
+          if (popup && !popup._descHook) {
+            popup._descHook = true;
+            popup.on('changeSelection', function () {
+              try {
+                const row = popup.getRow();
+                const data = popup.data;
+                const it = data && data[row];
+                const t = (it && (it.docText || it.caption || '')) || '';
+                setAcInfo(t);
+              } catch (_) { }
+            });
+          }
+        }
+      });
+    } catch (e) { }
+  }
+
+  function setupShortcuts() {
+    editor.commands.addCommand({
+      name: 'save', bindKey: { win: 'Ctrl-S', mac: 'Command-S' },
+      exec: () => saveFile(false)
+    });
+    editor.commands.addCommand({
+      name: 'run', bindKey: { win: 'Ctrl-Enter', mac: 'Command-Enter' },
+      exec: () => run(editor.getValue())
+    });
+    editor.commands.addCommand({
+      name: 'runSelection', bindKey: { win: 'Shift-Ctrl-Enter', mac: 'Shift-Command-Enter' },
+      exec: () => {
+        const sel = editor.session.getTextRange(editor.getSelectionRange());
+
+        run(sel || editor.getValue());
+      }
+    });
+    editor.session.on('change', updateDirty);
+  }
+
+
+  // Buttons
+  document.getElementById('btn-refresh').onclick = refreshFiles;
+  document.getElementById('btn-new').onclick = () => { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('', 1); updateDirty(); };
+  document.getElementById('btn-save').onclick = () => saveFile(false);
+  document.getElementById('btn-save-as').onclick = () => saveFile(true);
+  document.getElementById('btn-rename').onclick = async () => {
+    if (!currentFile) return alert('لا يوجد ملف مفتوح');
+    const name = prompt('اسم جديد:', currentFile);
+    if (!name || name === currentFile) return;
+    const res = await fetch('/api/ide/rename', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ old_name: currentFile, new_name: name })
+    });
+    if (res.ok) { currentFile = name; currentFileBadge.textContent = name; refreshFiles(); }
+  };
+  document.getElementById('btn-delete').onclick = async () => {
+    if (!currentFile) return alert('لا يوجد ملف مفتوح');
+    if (!confirm('حذف الملف؟')) return;
+    const res = await fetch(`/api/ide/file?name=${encodeURIComponent(currentFile)}`, { method: 'DELETE' });
+    if (res.ok) { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('', 1); refreshFiles(); }
+  };
+  document.getElementById('btn-run').onclick = () => run(editor.getValue());
+  document.getElementById('btn-run-selection').onclick = () => {
+    const sel = editor.session.getTextRange(editor.getSelectionRange());
+    run(sel || editor.getValue());
+  };
+
+  // Toolbar handlers
+  document.getElementById('btn-load-example').onclick = async () => {
+    const sel = document.getElementById('sel-examples');
+    const name = sel.value;
+    if (!name) return;
+    const r = await fetch(`/api/ide/example?name=${encodeURIComponent(name)}`);
+    if (r.ok) {
+
+      const data = await r.json();
+      editor.setValue(data.code, 1);
+      currentFile = null;
+      currentFileBadge.textContent = 'غير محفوظ';
+      editor.session.getUndoManager().markClean();
+      updateDirty();
+    }
+  };
+  document.getElementById('sel-theme').onchange = (e) => editor.setTheme(e.target.value);
+  document.getElementById('sel-fontsize').onchange = (e) => editor.setFontSize(parseInt(e.target.value, 10) || 14);
+
+  document.getElementById('sel-ac-domain').onchange = (e) => { completionDomainMode = e.target.value; };
+  document.getElementById('sel-ac-lang').onchange = (e) => { completionLangMode = e.target.value; };
+  document.getElementById('sel-examples-domain').onchange = applyExamplesFilter;
+  document.getElementById('inp-example-filter').oninput = applyExamplesFilter;
+  document.getElementById('sel-examples').onchange = updateExampleInfo;
+  setupAutocompleteInfo();
+
+
+  // init
+  refreshFiles();
+  refreshExamples();
+  setupShortcuts();
+
+  // ... (Existing scripts) ...
+
+  // Graph Visualization Logic
+  let graphPanelVisible = false;
+  let currentGraphData = null;
+  let activeLayers = new Set(['logic', 'procedural', 'oop', 'entity']);
+
+  // Toggle Graph Panel
+  function toggleGraphPanel() {
+    graphPanelVisible = !graphPanelVisible;
+    const panel = document.getElementById('graph-panel');
+    const editorCol = document.getElementById('editor-column');
+
+    if (graphPanelVisible) {
+      panel.style.display = 'block';
+      editorCol.classList.remove('col-lg-9');
+      editorCol.classList.add('col-lg-7');
+      if (!currentGraphData) runWithGraph();
+    } else {
+      panel.style.display = 'none';
+      editorCol.classList.remove('col-lg-7');
+      editorCol.classList.add('col-lg-9');
+    }
+    editor.resize();
+  }
+
+  // Run with Graph
+  async function runWithGraph() {
+    const code = editor.getValue();
+    const type = document.getElementById('sel-graph-type').value;
+
+    // Update UI to show loading
+    document.getElementById('output').textContent = 'Running with graph...';
+
+    try {
+      const res = await fetch('/api/ide/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          include_graph: true,
+          graph_type: type
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Update Output
+        let out = data.stdout || '';
+        if (data.result) out += '\nResult: ' + JSON.stringify(data.result);
+        document.getElementById('output').textContent = out;
+
+        // Update Graph
+        if (data.graph) {
+          currentGraphData = data.graph;
+          renderGraph(data.graph);
+          updateStats(data.graph);
+        }
+      } else {
+        document.getElementById('output').textContent = 'Error: ' + data.error;
+      }
+    } catch (e) {
+      document.getElementById('output').textContent = 'Network Error: ' + e.message;
+    }
+  }
+
+  // Render Graph (D3.js)
+  function renderGraph(data) {
+    const svg = d3.select("#graph-svg");
+    svg.selectAll("*").remove();
+
+    const width = svg.node().clientWidth;
+    const height = svg.node().clientHeight;
+
+    // Filter nodes based on active layers
+    let nodes = data.nodes;
+    let links = data.links;
+
+    if (document.getElementById('sel-graph-type').value === 'unified') {
+      // Filter logic here...
+    }
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+    // Draw links
+    const link = svg.append("g")
+      .selectAll("line")
+      .data(links)
+      .join("line")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.6);
+
+    // Draw nodes
+    const node = svg.append("g")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("r", 10)
+      .attr("fill", d => getNodeColor(d))
+      .call(drag(simulation));
+
+    // Add labels
+    const label = svg.append("g")
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+      .text(d => d.label)
+      .attr("font-size", 10)
+      .attr("dx", 12)
+      .attr("dy", 4);
+
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+      label
+        .attr("x", d => d.x)
+        .attr("y", d => d.y);
+    });
+  }
+
+  // Drag behavior
+  function drag(simulation) {
+    function dragstarted(event) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      event.subject.fx = event.subject.x;
+      event.subject.fy = event.subject.y;
+    }
+
+    function dragged(event) {
+      event.subject.fx = event.x;
+      event.subject.fy = event.y;
+    }
+
+    function dragended(event) {
+      if (!event.active) simulation.alphaTarget(0);
+      event.subject.fx = null;
+      event.subject.fy = null;
+    }
+
+    return d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+  }
+
+  function getNodeColor(d) {
+    // Simple color mapping
+    return "#69b3a2";
+  }
+
+  function updateStats(data) {
+    document.getElementById('stat-nodes').textContent = data.nodes.length;
+    document.getElementById('stat-links').textContent = data.links.length;
+  }
+
+  // Bind Events
+  document.getElementById('btn-toggle-graph').onclick = toggleGraphPanel;
+  document.getElementById('sel-graph-type').onchange = () => {
+    if (graphPanelVisible) runWithGraph();
+  };
+
+console.log("Syntax OK");

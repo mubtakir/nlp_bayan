@@ -110,7 +110,9 @@ class TraditionalInterpreter:
         self.classes = {}
         self.class_system = ClassSystem(self)
         self.import_system = ImportSystem()
-        self.logical_engine = None
+        from .logical_engine import LogicalEngine
+        self.logical_engine = LogicalEngine()
+        self.logical_engine.function_evaluator = self._evaluate_function_for_logic
         # Track current owner class for super() resolution in MRO
         self._owner_stack = []
         # Bayan runtime call stack of (node_type, line, column, filename)
@@ -179,6 +181,58 @@ class TraditionalInterpreter:
         self.global_env['uniform'] = lambda a, b: self._rng.uniform(float(a), float(b))
         self.global_env['normal'] = lambda mu, sigma: self._rng.gauss(float(mu), float(sigma))
         self.global_env['bernoulli'] = lambda p: 1 if self._rng.random() < float(p) else 0
+
+        # Include function for importing files
+        def _include(filename):
+            """Include a file"""
+            if not isinstance(filename, str):
+                raise TypeError("Filename must be a string")
+            
+            # Find file in module paths
+            import os
+            found_path = None
+            if os.path.isfile(filename):
+                found_path = filename
+            else:
+                # Check in module paths
+                # We need access to module paths, but they are in HybridInterpreter
+                # For now, let's check current directory and standard paths
+                cwd = os.getcwd()
+                paths = [
+                    cwd,
+                    os.path.join(cwd, 'tests'),
+                    os.path.join(cwd, 'nlp_bayan'),
+                    os.path.join(cwd, 'bayan', 'libraries'),
+                    os.path.join(cwd, 'ai'),
+                ]
+                for p in paths:
+                    candidate = os.path.join(p, filename)
+                    if os.path.isfile(candidate):
+                        found_path = candidate
+                        break
+            
+            if not found_path:
+                raise FileNotFoundError(f"File '{filename}' not found")
+                
+            # Read and execute
+            with open(found_path, 'r', encoding='utf-8') as f:
+                code = f.read()
+            
+            # We need to parse and interpret this code
+            # Since we are in TraditionalInterpreter, we don't have direct access to HybridParser
+            # But we can import it dynamically
+            from .lexer import HybridLexer
+            from .parser import HybridParser
+            
+            lexer = HybridLexer(code)
+            tokens = lexer.tokenize()
+            parser = HybridParser(tokens)
+            ast = parser.parse()
+            
+            # Execute in current environment
+            self.interpret(ast)
+            
+        self.global_env['include'] = _include
 
         # --- Bayan Proposals (Quick Start Package) ---
         
@@ -1227,6 +1281,8 @@ class TraditionalInterpreter:
                 return self.interpret(node.arguments[0])
             else:
                 raise RuntimeError(f"based_on() requires 1 argument")
+
+
 
         # Check for built-in functions
         if node.name == 'len':
@@ -3191,6 +3247,57 @@ class TraditionalInterpreter:
         # Store event definition
         self._cognitive_events[node.name] = config
 
+        return None
+
+    def _evaluate_function_for_logic(self, func_name, args):
+        """Evaluate a function call from the logical engine"""
+        # Check if function exists in global or local environment
+        func = None
+        if self.local_env is not None and func_name in self.local_env:
+            func = self.local_env[func_name]
+        elif func_name in self.global_env:
+            func = self.global_env[func_name]
+        elif func_name in self.functions:
+            func = self.functions[func_name]
+        
+        if func:
+            # Handle Python callables
+            if callable(func) and not isinstance(func, FunctionDef):
+                return func(*args)
+            
+            # Handle Bayan functions
+            if isinstance(func, FunctionDef):
+                # Create new local environment
+                old_local_env = self.local_env
+                self.local_env = {}
+                
+                try:
+                    # Bind parameters
+                    param_names = []
+                    for param in func.parameters:
+                        if isinstance(param, Parameter):
+                            param_names.append(param.name)
+                        else:
+                            param_names.append(param)
+                    
+                    for i, arg in enumerate(args):
+                        if i < len(param_names):
+                            self.local_env[param_names[i]] = arg
+                    
+                    # Bind defaults
+                    for param in func.parameters:
+                        if isinstance(param, Parameter):
+                            if param.name not in self.local_env and param.has_default():
+                                self.local_env[param.name] = self.interpret(param.default_value)
+                    
+                    # Execute body
+                    try:
+                        return self.interpret(func.body)
+                    except ReturnValue as ret:
+                        return ret.value
+                finally:
+                    self.local_env = old_local_env
+        
         return None
 
     # --- Helpers for Explain/What_If ---

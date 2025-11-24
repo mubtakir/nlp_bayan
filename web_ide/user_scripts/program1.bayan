@@ -1,0 +1,2 @@
+fact color(car, red).
+fact color(car, blue).
