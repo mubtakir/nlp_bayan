@@ -47,7 +47,7 @@ Click the "Fork" button on GitHub to create your own copy.
 ### 2. Clone Your Fork
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nlp_bayan.git
+git clone https://github.com/mubtakir/nlp_bayan.git
 cd nlp_bayan
 ```
 
