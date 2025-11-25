@@ -21,6 +21,16 @@ try:
 except ImportError:
     GSE_FITTING_AVAILABLE = False
 
+try:
+    from .gse_visualization import (
+        plot_gse_model, visualize_components, plot_parametric,
+        compare_models, get_stats as get_viz_stats, reset_stats as reset_viz_stats,
+        show_plot, close_all
+    )
+    GSE_VISUALIZATION_AVAILABLE = True
+except ImportError:
+    GSE_VISUALIZATION_AVAILABLE = False
+
 class BuiltinFunctions:
     """Collection of built-in functions"""
     
@@ -687,6 +697,149 @@ class BuiltinFunctions:
             return result[0] if len(result) == 1 else result
         
         return model.evaluate(x_value)
+    
+    # ═══════════════════════════════════════════════════════════════
+    # GSE Visualization Functions
+    # دوال التصور البصري لـ GSE
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def visualize_components(model, x_range=(-10, 10), resolution=500, title="GSE Components", save_path=None):
+        """
+        رسم كل مكون من مكونات GSE بلون منفصل.
+        Visualize each GSE component with a different color.
+        
+        Args:
+            model: GSEModel instance
+            x_range: tuple of (min, max) for x values
+            resolution: number of points
+            title: plot title
+            save_path: path to save image (optional)
+        
+        Returns:
+            matplotlib Figure object
+        
+        Example:
+            model = GSEModel(0.5, 1.0)
+            model.add_sigmoid(2.0, 3, 10.0, 0.0)
+            model.add_sigmoid(1.5, 2, 5.0, 2.0)
+            fig = visualize_components(model, save_path="components.png")
+        
+        Note:
+            Requires matplotlib to be installed.
+        """
+        if not GSE_VISUALIZATION_AVAILABLE:
+            raise ImportError(
+                "matplotlib is required for visualization. "
+                "Install it with: pip install matplotlib"
+            )
+        
+        return visualize_components(model, x_range, resolution, title, save_path=save_path)
+    
+    @staticmethod
+    def plot_gse(model, x_range=(-10, 10), resolution=500, title="GSE Model", save_path=None):
+        """
+        رسم نموذج GSE.
+        Plot a GSE model.
+        
+        Args:
+            model: GSEModel instance
+            x_range: tuple of (min, max)
+            resolution: number of points
+            title: plot title
+            save_path: path to save image (optional)
+        
+        Returns:
+            matplotlib Figure
+        """
+        if not GSE_VISUALIZATION_AVAILABLE:
+            raise ImportError("matplotlib is required for visualization.")
+        
+        return plot_gse_model(model, x_range, resolution, title, save_path=save_path)
+    
+    @staticmethod
+    def plot_parametric(x_model, y_model, t_range=(0, 6.28), resolution=500, title="Parametric Curve", save_path=None):
+        """
+        رسم منحنى بارامتري باستخدام نموذجي GSE.
+        Plot parametric curve using two GSE models.
+        
+        x = x_model(t)
+        y = y_model(t)
+        
+        Args:
+            x_model: GSEModel for x coordinate
+            y_model: GSEModel for y coordinate
+            t_range: tuple of (t_min, t_max)
+            resolution: number of points
+            title: plot title
+            save_path: path to save image
+        
+        Returns:
+            matplotlib Figure
+        
+        Example:
+            # Circle-like shape
+            x_model = GSEModel(0, 0)
+            x_model.add_sigmoid(1.0, 1, 1.0, 3.14)
+            
+            y_model = GSEModel(0, 0)
+            y_model.add_sigmoid(1.0, 1, 1.0, 0.0)
+            
+            fig = plot_parametric(x_model, y_model)
+        """
+        if not GSE_VISUALIZATION_AVAILABLE:
+            raise ImportError("matplotlib is required for visualization.")
+        
+        return plot_parametric(x_model, y_model, t_range, resolution, title, save_path=save_path)
+    
+    @staticmethod
+    def compare_gse_models(models_with_labels, x_range=(-10, 10), resolution=500, title="Models Comparison", save_path=None):
+        """
+        مقارنة عدة نماذج GSE.
+        Compare multiple GSE models.
+        
+        Args:
+            models_with_labels: list of (model, label) tuples
+            x_range: tuple of (min, max)
+            resolution: number of points
+            title: plot title
+            save_path: path to save image
+        
+        Returns:
+            matplotlib Figure
+        
+        Example:
+            model1 = learn("linear", [0,1,2], [0,1,2])
+            model2 = learn("square", [0,1,2], [0,1,4])
+            
+            fig = compare_gse_models([
+                (model1, "Linear"),
+                (model2, "Square")
+            ])
+        """
+        if not GSE_VISUALIZATION_AVAILABLE:
+            raise ImportError("matplotlib is required for visualization.")
+        
+        return compare_models(models_with_labels, x_range, resolution, title, save_path=save_path)
+    
+    @staticmethod
+    def show_plot():
+        """عرض الرسوم البيانية (Show plots)"""
+        if GSE_VISUALIZATION_AVAILABLE:
+            show_plot()
+    
+    @staticmethod
+    def get_viz_stats():
+        """الحصول على إحصائيات التصور البصري (Get visualization statistics)"""
+        if GSE_VISUALIZATION_AVAILABLE:
+            return get_viz_stats()
+        return {}
+    
+    @staticmethod
+    def reset_viz_stats():
+        """إعادة تعيين إحصائيات التصور (Reset visualization statistics)"""
+        if GSE_VISUALIZATION_AVAILABLE:
+            reset_viz_stats()
 
 class LogicalBuiltins:
     """Built-in logical predicates"""
