@@ -31,6 +31,25 @@ try:
 except ImportError:
     GSE_VISUALIZATION_AVAILABLE = False
 
+try:
+    from .compiler_interface import (
+        ErrorType, ErrorSeverity, CompilationError, CompilationResult,
+        BayanCompilerInterface
+    )
+    COMPILER_INTERFACE_AVAILABLE = True
+except ImportError:
+    COMPILER_INTERFACE_AVAILABLE = False
+
+try:
+    from .expert_explorer import (
+        ExpertSystem, ExplorerSystem, BrainSystem,
+        DecisionType, ConfidenceLevel,
+        ZeroDualityTheory, PerpendicularOppositesTheory, FilamentTheory
+    )
+    EXPERT_EXPLORER_AVAILABLE = True
+except ImportError:
+    EXPERT_EXPLORER_AVAILABLE = False
+
 class BuiltinFunctions:
     """Collection of built-in functions"""
     
@@ -840,6 +859,102 @@ class BuiltinFunctions:
         """إعادة تعيين إحصائيات التصور (Reset visualization statistics)"""
         if GSE_VISUALIZATION_AVAILABLE:
             reset_viz_stats()
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Compiler Interface Functions
+    # دوال واجهة المترجم
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def BayanCompiler():
+        """
+        إنشاء مثيل من واجهة المترجم.
+        Create a compiler interface instance.
+        
+        Returns:
+            BayanCompilerInterface instance
+        """
+        if not COMPILER_INTERFACE_AVAILABLE:
+            raise ImportError("compiler_interface module not available")
+        
+        return BayanCompilerInterface()
+    
+    @staticmethod
+    def ErrorType(name):
+        """الحصول على نوع خطأ (Get error type)"""
+        if COMPILER_INTERFACE_AVAILABLE:
+            return ErrorType[name]
+        return None
+    
+    @staticmethod
+    def ErrorSeverity(name):
+        """الحصول على شدة خطأ (Get error severity)"""
+        if COMPILER_INTERFACE_AVAILABLE:
+            return ErrorSeverity[name]
+        return None
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Expert-Explorer System Functions
+    # دوال نظام الخبير-المستكشف
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def ExpertSystem(confidence_threshold=0.7):
+        """
+        إنشاء نظام خبير.
+        Create an expert system.
+        
+        Args:
+            confidence_threshold: عتبة الثقة (0-1)
+        
+        Returns:
+            ExpertSystem instance
+        """
+        if not EXPERT_EXPLORER_AVAILABLE:
+            raise ImportError("expert_explorer module not available")
+        
+        return ExpertSystem(confidence_threshold)
+    
+    @staticmethod
+    def ExplorerSystem(exploration_rate=0.3):
+        """
+        إنشاء نظام مستكشف.
+        Create an explorer system.
+        
+        Args:
+            exploration_rate: معدل الاستكشاف (0-1)
+        
+        Returns:
+            ExplorerSystem instance
+        """
+        if not EXPERT_EXPLORER_AVAILABLE:
+            raise ImportError("expert_explorer module not available")
+        
+        return ExplorerSystem(exploration_rate)
+    
+    @staticmethod
+    def BrainSystem(expert_weight=0.7, explorer_weight=0.3):
+        """
+        إنشاء نظام دماغ (خبير + مستكشف).
+        Create a brain system (expert + explorer).
+        
+        Args:
+            expert_weight: وزن الخبير (0-1)
+            explorer_weight: وزن المستكشف (0-1)
+        
+        Returns:
+            BrainSystem instance
+        
+        Example:
+            brain = BrainSystem(0.8, 0.2)
+            brain.expert.add_knowledge("سؤال1", "جواب1", confidence=0.9)
+            decision = brain.decide("سؤال1")
+            print(decision.to_dict())
+        """
+        if not EXPERT_EXPLORER_AVAILABLE:
+            raise ImportError("expert_explorer module not available")
+        
+        return BrainSystem(expert_weight, explorer_weight)
 
 class LogicalBuiltins:
     """Built-in logical predicates"""
