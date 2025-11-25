@@ -176,6 +176,23 @@ class BytecodeVM:
             a = self.stack.pop()
             self.stack.append(a >= b)
         
+        # ===== Control Flow =====
+        elif opcode == Opcode.JUMP:
+            # Unconditional jump to target instruction
+            self.ip = arg
+        
+        elif opcode == Opcode.JUMP_IF_TRUE:
+            # Jump if TOS is truthy
+            condition = self.stack.pop()
+            if condition:
+                self.ip = arg
+        
+        elif opcode == Opcode.JUMP_IF_FALSE:
+            # Jump if TOS is falsy
+            condition = self.stack.pop()
+            if not condition:
+                self.ip = arg
+        
         # ===== Special =====
         elif opcode == Opcode.PRINT:
             # Print top of stack (for debugging)
