@@ -12,26 +12,15 @@ Supports:
 
 from .opcodes import Opcode
 from .instruction import Instruction, CodeObject
+from ..logical_engine import LogicalEngine
 
 
 class CallFrame:
-    """
-    Represents a function call frame.
-    
-    Contains:
-    - Code object being executed
-    - Local variables for this frame
-    - Return address (instruction pointer to return to)
-    """
-    
-    def __init__(self, code_object, return_ip=None, locals=None):
-        self.code = code_object
-        self.locals = locals or {}
+    def __init__(self, code, locals_map=None, return_ip=None):
+        self.code = code
+        self.locals = locals_map or {}
         self.return_ip = return_ip
-        self.ip = 0  # Instruction pointer within this frame
-    
-    def __repr__(self):
-        return f"CallFrame({self.code.name}, ip={self.ip})"
+        self.ip = 0
 
 
 class BytecodeVM:
@@ -53,6 +42,8 @@ class BytecodeVM:
         self.ip = 0                  # Instruction pointer (in current frame)
         self.code = None             # Current code object
         self.running = False         # Execution state
+        self.logical_engine = LogicalEngine()
+        self.reset()
         
     def reset(self):
         """Reset VM state"""
@@ -294,6 +285,18 @@ class BytecodeVM:
             if not self.call_stack:
                 # Top-level return, stop execution
                 self.running = False
+                
+        # ===== Logic Programming =====
+        elif opcode == Opcode.ASSERT_FACT:
+            # Assert fact or rule: TOS is a Fact or Rule object
+            item = self.stack.pop()
+            self.logical_engine.assertz(item)
+            
+        elif opcode == Opcode.QUERY:
+            # Query: TOS is a Predicate (goal)
+            goal = self.stack.pop()
+            solutions = self.logical_engine.query(goal)
+            self.stack.append(solutions)
         
         else:
             raise NotImplementedError(f"Opcode {opcode} not implemented yet")

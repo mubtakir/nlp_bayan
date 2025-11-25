@@ -174,21 +174,56 @@ def benchmark_function_python(iterations=5000):
     return end - start
 
 
-def print_results(name, bytecode_time, python_time):
-    """Print benchmark results"""
-    speedup = python_time / bytecode_time if bytecode_time > 0 else 0
+def benchmark_logic_bytecode(iterations=1000):
+    """Benchmark logic operations (fact assertion + query)"""
+    from bayan.bayan.logical_engine import Fact, Predicate, Term
     
+    # Code:
+    # assert parent(john, mary)
+    # query parent(john, ?X)
+    
+    fact = Fact(Predicate('parent', [Term('john'), Term('mary')]))
+    query = Predicate('parent', [Term('john'), Term('X', True)])
+    
+    code = CodeObject(
+        name='logic_bench',
+        instructions=[
+            Instruction(Opcode.LOAD_CONST, 0),
+            Instruction(Opcode.ASSERT_FACT),
+            Instruction(Opcode.LOAD_CONST, 1),
+            Instruction(Opcode.QUERY),
+            Instruction(Opcode.POP), # Pop results
+        ],
+        constants=[fact, query],
+        names=[]
+    )
+    
+    vm = BytecodeVM()
+    
+    start = time.perf_counter()
+    for _ in range(iterations):
+        vm.reset()
+        vm.execute(code)
+    end = time.perf_counter()
+    
+    return end - start
+
+
+def print_results(name, bytecode_time, python_time=None):
+    """Print benchmark results"""
     print(f"\n{name}")
     print(f"  Bytecode: {bytecode_time*1000:.2f}ms")
-    print(f"  Python:   {python_time*1000:.2f}ms")
-    print(f"  Speedup:  {speedup:.2f}x", end="")
-    
-    if speedup > 1.5:
-        print(" ✅ FASTER")
-    elif speedup > 0.8:
-        print(" ≈ SIMILAR")
-    else:
-        print(" ⚠️ SLOWER")
+    if python_time:
+        print(f"  Python:   {python_time*1000:.2f}ms")
+        speedup = python_time / bytecode_time if bytecode_time > 0 else 0
+        print(f"  Speedup:  {speedup:.2f}x", end="")
+        
+        if speedup > 1.5:
+            print(" ✅ FASTER")
+        elif speedup > 0.8:
+            print(" ≈ SIMILAR")
+        else:
+            print(" ⚠️ SLOWER")
 
 
 def main():
@@ -198,7 +233,6 @@ def main():
     
     print("\nWarming up...")
     benchmark_arithmetic_bytecode(100)
-    benchmark_arithmetic_python(100)
     
     results = []
     
@@ -207,25 +241,31 @@ def main():
     print("=" * 60)
     
     # Test 1: Arithmetic
-    print("\n[1/3] Arithmetic Operations (10K iterations)")
+    print("\n[1/4] Arithmetic Operations (10K iterations)")
     bc_time = benchmark_arithmetic_bytecode(10000)
     py_time = benchmark_arithmetic_python(10000)
     print_results("Arithmetic", bc_time, py_time)
     results.append(("Arithmetic", bc_time, py_time))
     
     # Test 2: Loops
-    print("\n[2/3] While Loops (1K iterations)")
+    print("\n[2/4] While Loops (1K iterations)")
     bc_time = benchmark_loop_bytecode(1000)
     py_time = benchmark_loop_python(1000)
     print_results("While Loop", bc_time, py_time)
     results.append(("While Loop", bc_time, py_time))
     
     # Test 3: Functions
-    print("\n[3/3] Function Calls (5K iterations)")
+    print("\n[3/4] Function Calls (5K iterations)")
     bc_time = benchmark_function_bytecode(5000)
     py_time = benchmark_function_python(5000)
     print_results("Functions", bc_time, py_time)
     results.append(("Functions", bc_time, py_time))
+    
+    # Test 4: Logic
+    print("\n[4/4] Logic Operations (1K iterations)")
+    bc_time = benchmark_logic_bytecode(1000)
+    print_results("Logic (VM + Engine)", bc_time)
+    # No direct Python equivalent for logic engine
     
     # Summary
     print("\n" + "=" * 60)

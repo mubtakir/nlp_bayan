@@ -10,6 +10,7 @@ This is a Proof of Concept focusing on simple expressions and arithmetic.
 from ..ast_nodes import *
 from .opcodes import Opcode
 from .instruction import Instruction, CodeObject
+from .optimizer import BytecodeOptimizer
 
 
 class CodeGenerator:
@@ -173,16 +174,67 @@ class CodeGenerator:
         # Pop result if not used
         self._emit(Opcode.POP)
 
+    # ===== Logic Programming Support =====
 
-def compile_to_bytecode(ast):
+    def _convert_logic_node(self, node):
+        """Convert AST logic node to runtime object"""
+        from ..logical_engine import Term, Predicate, Fact, Rule
+        from ..ast_nodes import LogicalConstant, LogicalVariable, LogicalPredicate, LogicalFact, LogicalRule
+        
+        if isinstance(node, LogicalConstant):
+            return Term(node.value, is_variable=False)
+            
+        elif isinstance(node, LogicalVariable):
+            return Term(node.name, is_variable=True)
+            
+        elif isinstance(node, LogicalPredicate):
+            args = [self._convert_logic_node(arg) for arg in node.arguments]
+            return Predicate(node.name, args)
+            
+        elif isinstance(node, LogicalFact):
+            predicate = self._convert_logic_node(node.predicate)
+            return Fact(predicate, node.probability)
+            
+        elif isinstance(node, LogicalRule):
+            head = self._convert_logic_node(node.head)
+            body = [self._convert_logic_node(goal) for goal in node.body]
+            return Rule(head, body)
+            
+        return None
+
+    def _visit_LogicalFact(self, node):
+        """Compile logical fact"""
+        fact_obj = self._convert_logic_node(node)
+        idx = self._add_constant(fact_obj)
+        self._emit(Opcode.LOAD_CONST, idx)
+        self._emit(Opcode.ASSERT_FACT)
+
+    def _visit_LogicalRule(self, node):
+        """Compile logical rule"""
+        rule_obj = self._convert_logic_node(node)
+        idx = self._add_constant(rule_obj)
+        self._emit(Opcode.LOAD_CONST, idx)
+        self._emit(Opcode.ASSERT_FACT)
+
+    def _visit_LogicalQuery(self, node):
+        """Compile logical query"""
+        # Node.goal is a LogicalPredicate
+        goal_obj = self._convert_logic_node(node.goal)
+        idx = self._add_constant(goal_obj)
+        self._emit(Opcode.LOAD_CONST, idx)
+        self._emit(Opcode.QUERY)
+
+
+def compile_to_bytecode(ast, optimize=True):
     """
     Convenience function to compile AST to bytecode.
     
     Args:
         ast: AST node or list
+        optimize: Whether to apply optimization
     
     Returns:
         CodeObject: Compiled bytecode
     """
     generator = CodeGenerator()
-    return generator.generate(ast)
+    return generator.generate(ast, optimize=optimize)
