@@ -1,0 +1,320 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Bayan",
+    "scopeName": "source.bayan",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#logical-variables"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#constants"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#function-definitions"
+        },
+        {
+            "include": "#class-definitions"
+        },
+        {
+            "include": "#operators"
+        }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.number-sign.bayan",
+                    "match": "#.*$"
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.triple.bayan",
+                    "begin": "(\"\"\")",
+                    "end": "(\"\"\")",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.bayan",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.triple.single.bayan",
+                    "begin": "(''')",
+                    "end": "(''')",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.bayan",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.double.bayan",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.bayan",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.bayan",
+                    "begin": "'",
+                    "end": "'",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.bayan",
+                            "match": "\\\\."
+                        }
+                    ]
+                }
+            ]
+        },
+        "logical-variables": {
+            "patterns": [
+                {
+                    "name": "variable.logical.bayan",
+                    "match": "\\?[a-zA-Z_\\u0600-\\u06FF][a-zA-Z0-9_\\u0600-\\u06FF]*"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.bayan",
+                    "match": "\\b(if|else|elif|for|while|break|continue|return|yield|pass|try|except|finally|raise|with|async|await|match|case|default|when)\\b"
+                },
+                {
+                    "name": "keyword.control.bayan",
+                    "match": "\\b(إذا|وإلا|لكل|بينما|أكمل|توقف|أرجع|مرر|جرب|باستثناء|أخيراً|أطلق|مع|طابق|حالة|افتراضي|افتراضية|عندما)\\b"
+                },
+                {
+                    "name": "keyword.logical.bayan",
+                    "match": "\\b(hybrid|query|fact|rule|logic)\\b"
+                },
+                {
+                    "name": "keyword.logical.bayan",
+                    "match": "\\b(هجين|استعلام|حقيقة|قاعدة|منطق)\\b"
+                },
+                {
+                    "name": "keyword.entity.bayan",
+                    "match": "\\b(entity|apply|concept|once|limit)\\b"
+                },
+                {
+                    "name": "keyword.entity.bayan",
+                    "match": "\\b(كيان|طبق|مفهوم|مرة|حد)\\b"
+                },
+                {
+                    "name": "keyword.temporal.bayan",
+                    "match": "\\b(temporal|within|schedule|delay|every|seconds|minutes|hours|first|then|lastly|before|after|during|now)\\b"
+                },
+                {
+                    "name": "keyword.temporal.bayan",
+                    "match": "\\b(زمني|زمنيا|خلال|جدول|جدولة|تأخير|أخر|كل|ثانية|ثواني|دقيقة|دقائق|ساعة|ساعات|أولا|أولاً|ثم|أخيرا|أخيراً|قبل|بعد|أثناء|الآن)\\b"
+                },
+                {
+                    "name": "keyword.reactive.bayan",
+                    "match": "\\b(reactive|watch|computed)\\b"
+                },
+                {
+                    "name": "keyword.reactive.bayan",
+                    "match": "\\b(تفاعلي|تفاعلية|راقب|مراقبة|محسوب|محسوبة)\\b"
+                },
+                {
+                    "name": "keyword.semantic.bayan",
+                    "match": "\\b(meaning|semantic_query|information|content|context|knowledge|memory|store|retrieve|similarity|narrative|ontology|taxonomy)\\b"
+                },
+                {
+                    "name": "keyword.semantic.bayan",
+                    "match": "\\b(معنى|استعلام|معلومة|محتوى|سياق|معرفة|ذاكرة|احفظ|استرجع|تشابه|سرد|أنطولوجيا|تصنيف)\\b"
+                },
+                {
+                    "name": "keyword.cognitive.bayan",
+                    "match": "\\b(cognitive_entity|cognitive_event|event|trigger|concurrent|pattern|conceptual_blueprint|idea|participants|strength|transform|reactions|structure|express|entities|result|state_changes|linguistic_forms|degree|role)\\b"
+                },
+                {
+                    "name": "keyword.cognitive.bayan",
+                    "match": "\\b(كيان_معرفي|حدث_معرفي|حدث|أطلق|متزامن|قالب|تصور_عام|فكرة|مشاركون|قوة|تحويل|ردود_فعل|ردود|بنية|تعبير|كيانات|نتيجة|تغييرات_الحالة|تغييرات|أشكال_لغوية|أشكال|درجة|دور)\\b"
+                },
+                {
+                    "name": "keyword.causal.bayan",
+                    "match": "\\b(cause_effect|relation|condition|effect_result|cause|inference_rule|infer_from|contradiction|between|resolve|evolving_knowledge|current_value|history|future_prediction)\\b"
+                },
+                {
+                    "name": "keyword.causal.bayan",
+                    "match": "\\b(سبب_نتيجة|علاقة|الشرط|النتيجة|السبب|فإن|قاعدة_استدلال|استنتج|استنتج_من|تناقض|بين|حل|قيمة_حالية|تاريخ|توقع_مستقبلي)\\b"
+                },
+                {
+                    "name": "keyword.existential.bayan",
+                    "match": "\\b(domain|basic_entity|environment|in_domain|of_type|existential_being|dimensions|spatial|domain_specific|intrinsic_properties|inherited_meanings|intrinsic_meanings|laws|domain_relation|domain_action|metaphorical_meaning|built_on|applies_to|domain_law|existential_query|about)\\b"
+                },
+                {
+                    "name": "keyword.existential.bayan",
+                    "match": "\\b(مجال|المجال|كائن_أساسي|بيئة|في_مجال|من_نوع|كائن_وجودي|أبعاد|مكاني|زماني|مجالي|خصائص_ذاتية|معانٍ_موروثة|معاني_موروثة|معانٍ_ذاتية|معاني_ذاتية|قوانين|علاقة_مجالية|فعل_مجالي|معنى_مجازي|يُبنى_على|يبنى_على|يُطبق_على|يطبق_على|قانون_مجالي|استعلام_وجودي|عن)\\b"
+                },
+                {
+                    "name": "keyword.spatial.bayan",
+                    "match": "\\b(above|below|right|left|front|back|north|south|east|west|on|in|to|from|at)\\b"
+                },
+                {
+                    "name": "keyword.spatial.bayan",
+                    "match": "\\b(فوق|تحت|يمين|يسار|أمام|خلف|شمال|جنوب|شرق|غرب|على|في|إلى|من|عند)\\b"
+                },
+                {
+                    "name": "keyword.life.bayan",
+                    "match": "\\b(emergence|life|growth|death|decay|living|eat|drink|food|satiety|hunger|work|pain|effect|affected|struggle|gain|loss|interior|face|shadow|love|affection|aversion|proximity|cooperation|interaction|product|laugh|cry|speak|think|inhabits|moves_to|affected_by)\\b"
+                },
+                {
+                    "name": "keyword.life.bayan",
+                    "match": "\\b(انبثاق|حياة|نمو|موت|اضمحلال|عيش|أكل|شرب|طعام|شبع|جوع|عمل|ألم|أثر|تأثر|صراع|كسب|فقدان|جوف|وجه|ظل|حب|ود|نفور|تقارب|تعاون|تفاعل|نتاج|ضحك|بكاء|تكلم|تفكر|يسكن_في|يتحرك_إلى|يتأثر_بـ|يتأثر_ب)\\b"
+                },
+                {
+                    "name": "keyword.constraint.bayan",
+                    "match": "\\b(where|requires|ensures|invariant)\\b"
+                },
+                {
+                    "name": "keyword.constraint.bayan",
+                    "match": "\\b(حيث|يتطلب|يشترط|يضمن|يكفل|ثابت|ثوابت)\\b"
+                },
+                {
+                    "name": "storage.type.function.bayan",
+                    "match": "\\b(def|class)\\b"
+                },
+                {
+                    "name": "storage.type.function.bayan",
+                    "match": "\\b(دالة|صنف)\\b"
+                },
+                {
+                    "name": "keyword.operator.logical.bayan",
+                    "match": "\\b(and|or|not|is|in)\\b"
+                },
+                {
+                    "name": "keyword.operator.logical.bayan",
+                    "match": "\\b(و|أو|ليس)\\b"
+                },
+                {
+                    "name": "keyword.other.bayan",
+                    "match": "\\b(import|from|as|self|super|print)\\b"
+                },
+                {
+                    "name": "keyword.other.bayan",
+                    "match": "\\b(استورد|كـ|هذا|الأب|اطبع)\\b"
+                }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                {
+                    "name": "constant.language.bayan",
+                    "match": "\\b(True|False|None)\\b"
+                },
+                {
+                    "name": "constant.language.bayan",
+                    "match": "\\b(صحيح|خطأ|عدم)\\b"
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.bayan",
+                    "match": "\\b\\d+(\\.\\d+)?\\b"
+                }
+            ]
+        },
+        "function-definitions": {
+            "patterns": [
+                {
+                    "match": "\\b(def)\\s+([a-zA-Z_\\u0600-\\u06FF][a-zA-Z0-9_\\u0600-\\u06FF]*)\\s*\\(",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.function.bayan"
+                        },
+                        "2": {
+                            "name": "entity.name.function.bayan"
+                        }
+                    }
+                },
+                {
+                    "match": "\\b(دالة)\\s+([a-zA-Z_\\u0600-\\u06FF][a-zA-Z0-9_\\u0600-\\u06FF]*)\\s*\\(",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.function.bayan"
+                        },
+                        "2": {
+                            "name": "entity.name.function.bayan"
+                        }
+                    }
+                }
+            ]
+        },
+        "class-definitions": {
+            "patterns": [
+                {
+                    "match": "\\b(class)\\s+([a-zA-Z_\\u0600-\\u06FF][a-zA-Z0-9_\\u0600-\\u06FF]*)",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.class.bayan"
+                        },
+                        "2": {
+                            "name": "entity.name.class.bayan"
+                        }
+                    }
+                },
+                {
+                    "match": "\\b(صنف)\\s+([a-zA-Z_\\u0600-\\u06FF][a-zA-Z0-9_\\u0600-\\u06FF]*)",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.class.bayan"
+                        },
+                        "2": {
+                            "name": "entity.name.class.bayan"
+                        }
+                    }
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.logical.bayan",
+                    "match": ":-|←|\\?-"
+                },
+                {
+                    "name": "keyword.operator.pipeline.bayan",
+                    "match": "\\|>|>>"
+                },
+                {
+                    "name": "keyword.operator.comparison.bayan",
+                    "match": "==|!=|<=|>=|<|>|~=|≈|∈"
+                },
+                {
+                    "name": "keyword.operator.arithmetic.bayan",
+                    "match": "\\+|\\-|\\*\\*|\\*|/|%"
+                },
+                {
+                    "name": "keyword.operator.assignment.bayan",
+                    "match": "="
+                }
+            ]
+        }
+    }
+}

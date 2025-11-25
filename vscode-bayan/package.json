@@ -1,0 +1,73 @@
+{
+    "name": "bayan",
+    "displayName": "Bayan Language Support",
+    "description": "Syntax highlighting and code snippets for the Bayan programming language (لغة البيان)",
+    "version": "0.1.0",
+    "publisher": "bayan-lang",
+    "icon": "icon.png",
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets"
+    ],
+    "keywords": [
+        "bayan",
+        "arabic",
+        "programming",
+        "hybrid",
+        "logic",
+        "البيان",
+        "عربي",
+        "برمجة"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mubtakir/nlp_bayan"
+    },
+    "bugs": {
+        "url": "https://github.com/mubtakir/nlp_bayan/issues"
+    },
+    "homepage": "https://github.com/mubtakir/nlp_bayan#readme",
+    "activationEvents": [
+        "onLanguage:bayan"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "bayan",
+                "aliases": [
+                    "Bayan",
+                    "bayan",
+                    "البيان"
+                ],
+                "extensions": [
+                    ".bayan",
+                    ".by"
+                ],
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "./icon.png",
+                    "dark": "./icon.png"
+                }
+            }
+        ],
+        "grammars": [
+            {
+                "language": "bayan",
+                "scopeName": "source.bayan",
+                "path": "./syntaxes/bayan.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "bayan",
+                "path": "./snippets/bayan.json"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@vscode/vsce": "^2.32.0"
+    }
+}

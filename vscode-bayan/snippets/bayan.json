@@ -1,0 +1,232 @@
+{
+    "Function Definition": {
+        "prefix": "def",
+        "body": [
+            "def ${1:function_name}(${2:params}) {",
+            "\t${3:# Function body}",
+            "\t$0",
+            "}"
+        ],
+        "description": "Function definition"
+    },
+    "Class Definition": {
+        "prefix": "class",
+        "body": [
+            "class ${1:ClassName}${2:(${3:ParentClass})}: {",
+            "}",
+            "{",
+            "\tdef __init__(self${4:, params}) {",
+            "\t\t${5:# Constructor}",
+            "\t\t$0",
+            "\t}",
+            "}"
+        ],
+        "description": "Class definition with constructor"
+    },
+    "If Statement": {
+        "prefix": "if",
+        "body": [
+            "if (${1:condition}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "If statement"
+    },
+    "If-Else Statement": {
+        "prefix": "ifelse",
+        "body": [
+            "if (${1:condition}) {",
+            "\t${2:# True branch}",
+            "} else {",
+            "\t${3:# False branch}",
+            "\t$0",
+            "}"
+        ],
+        "description": "If-else statement"
+    },
+    "For Loop": {
+        "prefix": "for",
+        "body": [
+            "for ${1:item} in (${2:iterable}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "For loop"
+    },
+    "While Loop": {
+        "prefix": "while",
+        "body": [
+            "while (${1:condition}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "While loop"
+    },
+    "Hybrid Logic Block": {
+        "prefix": "hybrid",
+        "body": [
+            "hybrid {",
+            "\t${1:# Logic programming block}",
+            "\t$0",
+            "}"
+        ],
+        "description": "Hybrid logic block"
+    },
+    "Entity Definition": {
+        "prefix": "entity",
+        "body": [
+            "entity ${1:EntityName} {",
+            "\tstates: {",
+            "\t\t\"${2:state_name}\": {type: \"${3:fuzzy}\", value: ${4:0.5}}",
+            "\t},",
+            "\tproperties: {",
+            "\t\t\"${5:prop_name}\": {type: \"${6:numeric}\", value: ${7:0.0}}",
+            "\t},",
+            "\tactions: {",
+            "\t\t\"${8:action_name}\": {",
+            "\t\t\teffects: [{on: \"${9:target}\", formula: \"${10:value + 1}\"}]",
+            "\t\t}",
+            "\t}",
+            "\t$0",
+            "}"
+        ],
+        "description": "Entity definition with states, properties, and actions"
+    },
+    "Fact Declaration": {
+        "prefix": "fact",
+        "body": [
+            "fact ${1:predicate}(${2:arguments})."
+        ],
+        "description": "Logical fact declaration"
+    },
+    "Rule Declaration": {
+        "prefix": "rule",
+        "body": [
+            "rule ${1:head}(${2:?args}) :- ${3:body}."
+        ],
+        "description": "Logical rule declaration"
+    },
+    "Query Statement": {
+        "prefix": "query",
+        "body": [
+            "query ${1:predicate}(${2:?variable})."
+        ],
+        "description": "Query statement"
+    },
+    "Print Statement": {
+        "prefix": "print",
+        "body": [
+            "print(${1:\"message\"})"
+        ],
+        "description": "Print statement"
+    },
+    "Import Module": {
+        "prefix": "import",
+        "body": [
+            "import ${1:module}"
+        ],
+        "description": "Import module"
+    },
+    "Try-Except Block": {
+        "prefix": "try",
+        "body": [
+            "try {",
+            "\t${1:# Try block}",
+            "} except (${2:Exception}) {",
+            "\t${3:# Exception handling}",
+            "\t$0",
+            "}"
+        ],
+        "description": "Try-except block"
+    },
+    "Match Case": {
+        "prefix": "match",
+        "body": [
+            "match (${1:value}) {",
+            "\tcase ${2:pattern1}: {",
+            "\t\t${3:# Case 1}",
+            "\t}",
+            "\tcase ${4:pattern2}: {",
+            "\t\t${5:# Case 2}",
+            "\t}",
+            "\tdefault: {",
+            "\t\t${6:# Default case}",
+            "\t\t$0",
+            "\t}",
+            "}"
+        ],
+        "description": "Match-case pattern matching"
+    },
+    "Medical Expert System Template": {
+        "prefix": "medical-expert",
+        "body": [
+            "hybrid {",
+            "\t# Knowledge Base",
+            "\tfact symptom(\"${1:symptom_name}\", \"${2:disease_name}\", ${3:0.8}).",
+            "\t",
+            "\t# Rules",
+            "\trule possible_disease(?disease) :-",
+            "\t\tsymptom(?s, ?disease, ?conf),",
+            "\t\thas_symptom(?s).",
+            "\t",
+            "\t# Diagnosis Function",
+            "\tdef diagnose(symptoms) {",
+            "\t\t# Clear previous facts",
+            "\t\tretractall(has_symptom(?)).",
+            "\t\t",
+            "\t\t# Add new symptoms",
+            "\t\tfor s in (symptoms) {",
+            "\t\t\tassertz(has_symptom(s))",
+            "\t\t}",
+            "\t\t",
+            "\t\t# Query diseases",
+            "\t\tresults = query possible_disease(?disease)",
+            "\t\treturn results",
+            "\t}",
+            "\t",
+            "\t$0",
+            "}"
+        ],
+        "description": "Medical expert system template"
+    },
+    "Comment Block": {
+        "prefix": "comment",
+        "body": [
+            "# ===== ${1:Section Title} =====",
+            "$0"
+        ],
+        "description": "Section comment block"
+    },
+    "Arabic Function Definition": {
+        "prefix": "دالة",
+        "body": [
+            "def ${1:اسم_الدالة}(${2:معاملات}) {",
+            "\t${3:# محتوى الدالة}",
+            "\t$0",
+            "}"
+        ],
+        "description": "تعريف دالة (عربي)"
+    },
+    "Arabic Entity Definition": {
+        "prefix": "كيان",
+        "body": [
+            "entity ${1:اسم_الكيان} {",
+            "\tstates: {",
+            "\t\t\"${2:اسم_الحالة}\": {type: \"fuzzy\", value: ${3:0.5}}",
+            "\t},",
+            "\tproperties: {",
+            "\t\t\"${4:اسم_الخاصية}\": {type: \"numeric\", value: ${5:0.0}}",
+            "\t}",
+            "\t$0",
+            "}"
+        ],
+        "description": "تعريف كيان (عربي)"
+    },
+    "Arabic Fact": {
+        "prefix": "حقيقة",
+        "body": [
+            "fact ${1:محمول}(${2:معاملات})."
+        ],
+        "description": "حقيقة منطقية (عربي)"
+    }
+}
