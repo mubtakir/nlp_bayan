@@ -1,0 +1,358 @@
+/**
+ * أمثلة أنظمة الاستدلال والمنطق
+ * Reasoning and Logic Systems Examples
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import {
+    ReasoningEngine,
+    ReasoningType,
+    InferenceMethod,
+    Fact,
+    Rule
+} from './reasoning-engine.bn';
+
+import {
+    SemanticNetwork,
+    NodeType,
+    RelationType,
+    TraversalMethod,
+    ActivationSpread
+} from './semantic-network.bn';
+
+import {
+    LogicalInferenceSystem,
+    LogicalOperator,
+    ProofMethod,
+    TruthValue,
+    LogicalStatement
+} from './logical-inference.bn';
+
+// ============================================
+// مثال 1: محرك الاستدلال الأساسي
+// ============================================
+
+function example1_BasicReasoningEngine(): void {
+    console.log("=== مثال 1: محرك الاستدلال الأساسي ===\n");
+    
+    let engine = new ReasoningEngine();
+    
+    // إضافة حقائق
+    engine.addFactFromData("is", "سقراط", "إنسان", 1.0);
+    engine.addFactFromData("is", "أفلاطون", "إنسان", 1.0);
+    engine.addFactFromData("is", "أرسطو", "إنسان", 1.0);
+    
+    // إضافة قاعدة: كل إنسان فانٍ
+    engine.createRule(
+        "All humans are mortal",
+        [{ predicate: "is", object: "إنسان" }],
+        [{ predicate: "is", object: "فانٍ" }]
+    );
+    
+    console.log("الحقائق الأولية:", engine.facts.length);
+    
+    // تطبيق التسلسل الأمامي
+    let newFacts = engine.forwardChaining();
+    
+    console.log("الحقائق الجديدة المستنتجة:", newFacts.length);
+    for (let fact of newFacts) {
+        console.log(`  - ${fact.toString()} (ثقة: ${fact.confidence})`);
+    }
+    
+    let stats = engine.getStatistics();
+    console.log("\nالإحصائيات:");
+    console.log(`  - إجمالي الحقائق: ${stats.factsCount}`);
+    console.log(`  - القواعد: ${stats.rulesCount}`);
+    console.log(`  - الاستنتاجات: ${stats.inferencesCount}`);
+    console.log(`  - متوسط الثقة: ${stats.averageConfidence.toFixed(2)}`);
+}
+
+// ============================================
+// مثال 2: الاستدلال الاستقرائي
+// ============================================
+
+function example2_InductiveReasoning(): void {
+    console.log("\n=== مثال 2: الاستدلال الاستقرائي ===\n");
+    
+    let engine = new ReasoningEngine();
+    
+    // ملاحظات: جميع الطيور المرصودة تطير
+    let observations = [
+        engine.addFactFromData("can", "عصفور", "يطير", 1.0),
+        engine.addFactFromData("can", "نسر", "يطير", 1.0),
+        engine.addFactFromData("can", "حمامة", "يطير", 1.0),
+        engine.addFactFromData("can", "صقر", "يطير", 1.0)
+    ];
+    
+    console.log("الملاحظات:");
+    for (let obs of observations) {
+        console.log(`  - ${obs.toString()}`);
+    }
+    
+    // الاستدلال الاستقرائي
+    let generalFact = engine.inductiveReasoning(observations);
+    
+    if (generalFact) {
+        console.log("\nالقاعدة العامة المستنتجة:");
+        console.log(`  ${generalFact.toString()} (ثقة: ${generalFact.confidence})`);
+        console.log(`  المصدر: ${generalFact.source}`);
+    }
+}
+
+// ============================================
+// مثال 3: الاستدلال التشبيهي
+// ============================================
+
+function example3_AnalogicalReasoning(): void {
+    console.log("\n=== مثال 3: الاستدلال التشبيهي ===\n");
+    
+    let engine = new ReasoningEngine();
+    
+    // حقيقة معروفة: القلب يضخ الدم
+    engine.addFactFromData("function", "القلب", "يضخ الدم", 1.0);
+    
+    console.log("الحقيقة المعروفة: القلب يضخ الدم");
+    
+    // الاستدلال بالتشبيه: المضخة تشبه القلب
+    let analogyFact = engine.analogicalReasoning(
+        { predicate: "function", subject: "القلب" },
+        { subject: "المضخة" }
+    );
+    
+    if (analogyFact) {
+        console.log("\nالاستنتاج بالتشبيه:");
+        console.log(`  ${analogyFact.toString()} (ثقة: ${analogyFact.confidence})`);
+        console.log(`  المصدر: ${analogyFact.source}`);
+    }
+}
+
+// ============================================
+// مثال 4: الشبكة الدلالية الأساسية
+// ============================================
+
+function example4_BasicSemanticNetwork(): void {
+    console.log("\n=== مثال 4: الشبكة الدلالية الأساسية ===\n");
+    
+    let network = new SemanticNetwork();
+    
+    // إنشاء عقد
+    let animal = network.createNode("حيوان", NodeType.CATEGORY);
+    let mammal = network.createNode("ثديي", NodeType.CATEGORY);
+    let dog = network.createNode("كلب", NodeType.ENTITY);
+    let cat = network.createNode("قطة", NodeType.ENTITY);
+    
+    // إنشاء علاقات
+    network.createEdge(mammal.nodeId, animal.nodeId, RelationType.IS_A, 1.0);
+    network.createEdge(dog.nodeId, mammal.nodeId, RelationType.IS_A, 1.0);
+    network.createEdge(cat.nodeId, mammal.nodeId, RelationType.IS_A, 1.0);
+    
+    console.log("الشبكة الدلالية:");
+    console.log(`  - العقد: ${Object.keys(network.nodes).length}`);
+    console.log(`  - الحواف: ${network.edges.length}`);
+    
+    // البحث عن مسار
+    let path = network.findPath(dog.nodeId, animal.nodeId, TraversalMethod.BREADTH_FIRST);
+    
+    console.log("\nالمسار من 'كلب' إلى 'حيوان':");
+    for (let nodeId of path) {
+        let node = network.getNode(nodeId);
+        console.log(`  → ${node.label}`);
+    }
+    
+    // الجيران
+    let neighbors = network.getNeighbors(mammal.nodeId, RelationType.IS_A);
+    console.log("\nجيران 'ثديي' بعلاقة IS_A:");
+    for (let neighbor of neighbors) {
+        console.log(`  - ${neighbor.label}`);
+    }
+}
+
+// ============================================
+// مثال 5: انتشار التنشيط
+// ============================================
+
+function example5_ActivationSpreading(): void {
+    console.log("\n=== مثال 5: انتشار التنشيط ===\n");
+    
+    let network = new SemanticNetwork();
+    
+    // بناء شبكة مفاهيم
+    let fruit = network.createNode("فاكهة", NodeType.CATEGORY);
+    let apple = network.createNode("تفاح", NodeType.ENTITY);
+    let red = network.createNode("أحمر", NodeType.PROPERTY);
+    let sweet = network.createNode("حلو", NodeType.PROPERTY);
+    
+    network.createEdge(apple.nodeId, fruit.nodeId, RelationType.IS_A, 0.9);
+    network.createEdge(apple.nodeId, red.nodeId, RelationType.HAS_PROPERTY, 0.8);
+    network.createEdge(apple.nodeId, sweet.nodeId, RelationType.HAS_PROPERTY, 0.7);
+    
+    console.log("قبل التنشيط:");
+    console.log(`  - تنشيط 'تفاح': ${apple.activation}`);
+    console.log(`  - تنشيط 'أحمر': ${red.activation}`);
+    console.log(`  - تنشيط 'حلو': ${sweet.activation}`);
+    
+    // تنشيط عقدة "تفاح"
+    network.activateNode(apple.nodeId, 1.0, ActivationSpread.LINEAR);
+    
+    console.log("\nبعد التنشيط:");
+    console.log(`  - تنشيط 'تفاح': ${apple.activation.toFixed(2)}`);
+    console.log(`  - تنشيط 'فاكهة': ${fruit.activation.toFixed(2)}`);
+    console.log(`  - تنشيط 'أحمر': ${red.activation.toFixed(2)}`);
+    console.log(`  - تنشيط 'حلو': ${sweet.activation.toFixed(2)}`);
+    
+    let stats = network.getStatistics();
+    console.log(`\nمتوسط التنشيط: ${stats.averageActivation.toFixed(2)}`);
+}
+
+// ============================================
+// مثال 6: الاستدلال المنطقي - Modus Ponens
+// ============================================
+
+function example6_ModusPonens(): void {
+    console.log("\n=== مثال 6: الاستدلال المنطقي - Modus Ponens ===\n");
+    
+    let system = new LogicalInferenceSystem();
+    
+    // إنشاء عبارات
+    let p = system.createStatement("تمطر السماء");
+    p.truthValue = TruthValue.TRUE;
+    
+    let q = system.createStatement("الأرض مبللة");
+    
+    let implication = system.createStatement("إذا تمطر السماء فالأرض مبللة", LogicalOperator.IMPLIES);
+    implication.operands = [p, q];
+    
+    console.log("المقدمات:");
+    console.log(`  1. ${p.expression} (${p.truthValue})`);
+    console.log(`  2. ${implication.expression}`);
+    
+    // تطبيق Modus Ponens
+    let result = system.applyModusPonens(p, implication);
+    
+    if (result) {
+        console.log("\nالاستنتاج:");
+        console.log(`  ${result.expression} (${result.truthValue})`);
+    }
+}
+
+// ============================================
+// مثال 7: البرهان بالتناقض
+// ============================================
+
+function example7_ProofByContradiction(): void {
+    console.log("\n=== مثال 7: البرهان بالتناقض ===\n");
+    
+    let system = new LogicalInferenceSystem();
+    
+    // نريد إثبات: √2 عدد غير نسبي
+    // نفترض العكس: √2 عدد نسبي
+    let assumption = system.createStatement("√2 عدد نسبي");
+    assumption.truthValue = TruthValue.TRUE;
+    
+    let contradiction = system.createStatement("تناقض: a و b زوجيان");
+    contradiction.truthValue = TruthValue.TRUE;
+    
+    console.log("البرهان بالتناقض:");
+    console.log(`  الافتراض: ${assumption.expression}`);
+    
+    let proof = system.proofByContradiction(assumption, contradiction);
+    
+    console.log("\nخطوات البرهان:");
+    for (let step of proof.steps) {
+        console.log(`  ${step.stepNumber}. ${step.description}`);
+    }
+    
+    console.log(`\nالاستنتاج: ${proof.conclusion.expression}`);
+    console.log(`البرهان صحيح: ${proof.isValid}`);
+}
+
+// ============================================
+// مثال 8: التكامل الشامل
+// ============================================
+
+function example8_ComprehensiveIntegration(): void {
+    console.log("\n=== مثال 8: التكامل الشامل ===\n");
+    
+    let system = new LogicalInferenceSystem();
+    
+    // إضافة حقائق إلى محرك الاستدلال
+    system.reasoningEngine.addFactFromData("is", "الإنسان", "عاقل", 1.0);
+    system.reasoningEngine.addFactFromData("is", "العاقل", "مفكر", 1.0);
+    
+    // إضافة قاعدة
+    system.reasoningEngine.createRule(
+        "Transitivity",
+        [
+            { predicate: "is", subject: "الإنسان", object: "عاقل" },
+            { predicate: "is", subject: "العاقل", object: "مفكر" }
+        ],
+        [
+            { predicate: "is", subject: "الإنسان", object: "مفكر" }
+        ]
+    );
+    
+    // تطبيق الاستدلال
+    let newFacts = system.reasoningEngine.forwardChaining();
+    
+    console.log("الحقائق المستنتجة:");
+    for (let fact of newFacts) {
+        console.log(`  - ${fact.toString()}`);
+    }
+    
+    // بناء شبكة دلالية
+    let human = system.semanticNetwork.createNode("إنسان", NodeType.CONCEPT);
+    let rational = system.semanticNetwork.createNode("عاقل", NodeType.PROPERTY);
+    let thinker = system.semanticNetwork.createNode("مفكر", NodeType.PROPERTY);
+    
+    system.semanticNetwork.createEdge(human.nodeId, rational.nodeId, RelationType.HAS_PROPERTY, 1.0);
+    system.semanticNetwork.createEdge(rational.nodeId, thinker.nodeId, RelationType.CAUSES, 0.9);
+    
+    // البحث عن مسار
+    let path = system.semanticNetwork.findPath(human.nodeId, thinker.nodeId);
+    
+    console.log("\nالمسار في الشبكة الدلالية:");
+    for (let nodeId of path) {
+        let node = system.semanticNetwork.getNode(nodeId);
+        console.log(`  → ${node.label}`);
+    }
+    
+    // الإحصائيات الشاملة
+    let stats = system.getStatistics();
+    console.log("\nالإحصائيات الشاملة:");
+    console.log(`  - الحقائق: ${stats.factsCount}`);
+    console.log(`  - القواعد: ${stats.rulesCount}`);
+    console.log(`  - العقد الدلالية: ${stats.semanticNodesCount}`);
+    console.log(`  - الحواف الدلالية: ${stats.semanticEdgesCount}`);
+    console.log(`  - البراهين: ${stats.proofsCount}`);
+}
+
+// ============================================
+// تشغيل جميع الأمثلة
+// ============================================
+
+function runAllExamples(): void {
+    console.log("╔════════════════════════════════════════════════════════╗");
+    console.log("║     أمثلة أنظمة الاستدلال والمنطق - بصيرة AI        ║");
+    console.log("║     Reasoning and Logic Systems Examples              ║");
+    console.log("╚════════════════════════════════════════════════════════╝\n");
+    
+    example1_BasicReasoningEngine();
+    example2_InductiveReasoning();
+    example3_AnalogicalReasoning();
+    example4_BasicSemanticNetwork();
+    example5_ActivationSpreading();
+    example6_ModusPonens();
+    example7_ProofByContradiction();
+    example8_ComprehensiveIntegration();
+    
+    console.log("\n╔════════════════════════════════════════════════════════╗");
+    console.log("║              تم تشغيل جميع الأمثلة بنجاح!            ║");
+    console.log("╚════════════════════════════════════════════════════════╝");
+}
+
+// تشغيل الأمثلة
+runAllExamples();
+
+export { runAllExamples };

@@ -1,0 +1,411 @@
+#!/usr/bin/env bayan
+/**
+ * نظام استخراج المعاني من القواميس الرقمية - Digital Dictionary Scraper
+ * نظام بصيرة الثوري
+ * 
+ * 🌐 استخراج المعاني من almaany.com وقواميس أخرى
+ * 🔍 البحث عن كلمات تشترك في حرف
+ * 🧠 إيجاد المعنى العام من الحرف المشترك
+ * 💾 حفظ البيانات في قاعدة البيانات
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { DictionaryDatabaseManager } from "./dictionary-database-manager.bn";
+
+// ==================== التعدادات ====================
+
+enum DictionarySource {
+    ALMAANY = "المعاني",
+    ALQAMOOS = "القاموس",
+    LISAAN_ALARAB = "لسان_العرب",
+    ARRAMOOZ = "الراموز",
+    CUSTOM = "مخصص",
+    OFFLINE = "غير_متصل"
+}
+
+enum ScrapingStatus {
+    IDLE = "خامل",
+    SCRAPING = "يستخرج",
+    SUCCESS = "نجح",
+    FAILED = "فشل",
+    RATE_LIMITED = "محدود",
+    TIMEOUT = "انتهت_المهلة"
+}
+
+enum WordType {
+    NOUN = "اسم",
+    VERB = "فعل",
+    ADJECTIVE = "صفة",
+    ADVERB = "ظرف",
+    MIXED = "مختلط",
+    UNKNOWN = "غير_معروف"
+}
+
+// ==================== الفئات ====================
+
+class WordMeaning extends MotherEquation {
+    public word: string;
+    public meaning: string;
+    public sharedLetter: string;
+    public generalMeaning: string;
+    public source: DictionarySource;
+    public wordType: WordType;
+    public timestamp: number;
+    public confidence: number;
+    
+    constructor(
+        word: string,
+        meaning: string,
+        source: DictionarySource = DictionarySource.OFFLINE
+    ) {
+        super(`word_meaning_${word}`);
+        
+        this.word = word;
+        this.meaning = meaning;
+        this.sharedLetter = "";
+        this.generalMeaning = "";
+        this.source = source;
+        this.wordType = WordType.UNKNOWN;
+        this.timestamp = Date.now();
+        this.confidence = 0.0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            word: word,
+            source: source
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            meaning: meaning,
+            confidence: 0.0,
+            timestamp: this.timestamp
+        };
+    }
+    
+    public setSharedLetter(letter: string, generalMeaning: string): void {
+        this.sharedLetter = letter;
+        this.generalMeaning = generalMeaning;
+    }
+    
+    public setWordType(wordType: WordType): void {
+        this.wordType = wordType;
+    }
+    
+    public setConfidence(confidence: number): void {
+        this.confidence = confidence;
+        this.dynamicStates.confidence = confidence;
+    }
+}
+
+class ScrapingResult extends MotherEquation {
+    public word: string;
+    public status: ScrapingStatus;
+    public meaning: string;
+    public source: DictionarySource;
+    public errorMessage: string;
+    public timestamp: number;
+    public responseTime: number;
+    
+    constructor(word: string, source: DictionarySource) {
+        super(`scraping_result_${word}_${Date.now()}`);
+        
+        this.word = word;
+        this.status = ScrapingStatus.IDLE;
+        this.meaning = "";
+        this.source = source;
+        this.errorMessage = "";
+        this.timestamp = Date.now();
+        this.responseTime = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            word: word,
+            source: source,
+            startTime: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            status: ScrapingStatus.IDLE,
+            responseTime: 0
+        };
+    }
+    
+    public setSuccess(meaning: string, responseTime: number): void {
+        this.status = ScrapingStatus.SUCCESS;
+        this.meaning = meaning;
+        this.responseTime = responseTime;
+        this.dynamicStates.status = ScrapingStatus.SUCCESS;
+        this.dynamicStates.responseTime = responseTime;
+    }
+    
+    public setFailed(errorMessage: string): void {
+        this.status = ScrapingStatus.FAILED;
+        this.errorMessage = errorMessage;
+        this.dynamicStates.status = ScrapingStatus.FAILED;
+    }
+}
+
+class DigitalDictionaryScraper extends MotherEquation {
+    public dbManager: DictionaryDatabaseManager;
+    public scrapingHistory: Array<ScrapingResult>;
+    public rateLimitDelay: number;
+    public maxRetries: number;
+    public timeout: number;
+    public userAgent: string;
+    public lastScrapeTime: number;
+    
+    constructor(dbPath: string = "databases/digital_dictionary.db") {
+        super("dict_scraper");
+        
+        this.dbManager = new DictionaryDatabaseManager(dbPath);
+        this.scrapingHistory = [];
+        this.rateLimitDelay = 1000; // 1 ثانية بين الطلبات
+        this.maxRetries = 3;
+        this.timeout = 10000; // 10 ثواني
+        this.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+        this.lastScrapeTime = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: Date.now(),
+            userAgent: this.userAgent
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalScraped: 0,
+            successCount: 0,
+            failedCount: 0,
+            lastScrapeTime: 0
+        };
+    }
+    
+    public async scrapeAlmaany(word: string): Promise<string | null> {
+        // محاكاة استخراج من المعاني (في الواقع يحتاج fetch API)
+        // هنا نستخدم قاعدة البيانات المحلية
+        
+        let startTime = Date.now();
+        let result = new ScrapingResult(word, DictionarySource.ALMAANY);
+        
+        try {
+            // التحقق من التأخير
+            let now = Date.now();
+            if (now - this.lastScrapeTime < this.rateLimitDelay) {
+                await this._sleep(this.rateLimitDelay - (now - this.lastScrapeTime));
+            }
+            
+            // البحث في قاعدة البيانات المحلية أولاً
+            let entry = this.dbManager.searchWord(word);
+            if (entry) {
+                let responseTime = Date.now() - startTime;
+                result.setSuccess(entry.meaning, responseTime);
+                this.scrapingHistory.push(result);
+                this.lastScrapeTime = Date.now();
+                this.dynamicStates.successCount++;
+                this.dynamicStates.totalScraped++;
+                this.dynamicStates.lastScrapeTime = this.lastScrapeTime;
+                return entry.meaning;
+            }
+            
+            // في حالة عدم وجود الكلمة
+            result.setFailed("الكلمة غير موجودة في قاعدة البيانات المحلية");
+            this.scrapingHistory.push(result);
+            this.dynamicStates.failedCount++;
+            this.dynamicStates.totalScraped++;
+            
+            return null;
+            
+        } catch (error) {
+            result.setFailed(error.toString());
+            this.scrapingHistory.push(result);
+            this.dynamicStates.failedCount++;
+            this.dynamicStates.totalScraped++;
+            return null;
+        }
+    }
+    
+    private async _sleep(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    public async scrapeMultipleWords(words: Array<string>): Promise<Map<string, string>> {
+        let results = new Map();
+        
+        for (let word of words) {
+            let meaning = await this.scrapeAlmaany(word);
+            if (meaning) {
+                results.set(word, meaning);
+            }
+        }
+        
+        return results;
+    }
+    
+    public findWordsWithSharedLetter(letter: string, minWords: number = 3): Array<string> {
+        let words = this.dbManager.searchByCharacter(letter);
+        let wordList = words.map(entry => entry.word);
+        
+        if (wordList.length >= minWords) {
+            return wordList;
+        }
+        
+        return [];
+    }
+    
+    public extractGeneralMeaning(letter: string, words: Array<string>): string {
+        // استخراج المعنى العام من الكلمات المشتركة
+        let meanings = [];
+        
+        for (let word of words) {
+            let entry = this.dbManager.searchWord(word);
+            if (entry) {
+                meanings.push(entry.meaning);
+            }
+        }
+        
+        if (meanings.length === 0) {
+            return "";
+        }
+        
+        // تحليل بسيط: البحث عن الكلمات المشتركة في المعاني
+        let allWords = meanings.join(' ').split(/\s+/);
+        let wordFreq = new Map();
+        
+        for (let word of allWords) {
+            if (word.length > 2) {
+                wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
+            }
+        }
+        
+        // الكلمات الأكثر تكراراً
+        let sorted = Array.from(wordFreq.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3);
+        
+        return sorted.map(([word, freq]) => word).join('، ');
+    }
+
+    public analyzeCharacterMeanings(letter: string): object {
+        let words = this.findWordsWithSharedLetter(letter, 3);
+
+        if (words.length === 0) {
+            return {
+                letter: letter,
+                totalWords: 0,
+                generalMeaning: "",
+                confidence: 0.0,
+                words: []
+            };
+        }
+
+        let generalMeaning = this.extractGeneralMeaning(letter, words);
+        let confidence = Math.min(words.length / 10, 1.0); // كلما زادت الكلمات زادت الثقة
+
+        return {
+            letter: letter,
+            totalWords: words.length,
+            generalMeaning: generalMeaning,
+            confidence: confidence,
+            words: words.slice(0, 10) // أول 10 كلمات
+        };
+    }
+
+    public saveCharacterMeaning(letter: string, generalMeaning: string, words: Array<string>): boolean {
+        // حفظ معنى الحرف في قاعدة البيانات
+        // يمكن توسيع هذا لحفظ في جدول منفصل
+
+        for (let word of words) {
+            let entry = this.dbManager.searchWord(word);
+            if (entry) {
+                entry.addSharedLetter(letter);
+                entry.addGeneralMeaning(letter, generalMeaning);
+            }
+        }
+
+        return true;
+    }
+
+    public batchAnalyzeCharacters(letters: Array<string>): Map<string, object> {
+        let results = new Map();
+
+        for (let letter of letters) {
+            let analysis = this.analyzeCharacterMeanings(letter);
+            results.set(letter, analysis);
+
+            // حفظ إذا كانت الثقة عالية
+            if (analysis.confidence >= 0.5) {
+                this.saveCharacterMeaning(letter, analysis.generalMeaning, analysis.words);
+            }
+        }
+
+        return results;
+    }
+
+    public getScrapingStatistics(): object {
+        let totalTime = 0;
+        let successCount = 0;
+        let failedCount = 0;
+
+        for (let result of this.scrapingHistory) {
+            totalTime += result.responseTime;
+            if (result.status === ScrapingStatus.SUCCESS) {
+                successCount++;
+            } else if (result.status === ScrapingStatus.FAILED) {
+                failedCount++;
+            }
+        }
+
+        let avgResponseTime = this.scrapingHistory.length > 0
+            ? totalTime / this.scrapingHistory.length
+            : 0;
+
+        return {
+            totalScraped: this.scrapingHistory.length,
+            successCount: successCount,
+            failedCount: failedCount,
+            successRate: this.scrapingHistory.length > 0
+                ? (successCount / this.scrapingHistory.length) * 100
+                : 0,
+            averageResponseTime: avgResponseTime,
+            lastScrapeTime: this.lastScrapeTime
+        };
+    }
+
+    public clearHistory(): void {
+        this.scrapingHistory = [];
+        this.dynamicStates.totalScraped = 0;
+        this.dynamicStates.successCount = 0;
+        this.dynamicStates.failedCount = 0;
+    }
+
+    public exportResults(): object {
+        let data = {
+            statistics: this.getScrapingStatistics(),
+            history: this.scrapingHistory.map(result => ({
+                word: result.word,
+                status: result.status,
+                meaning: result.meaning,
+                source: result.source,
+                responseTime: result.responseTime,
+                timestamp: result.timestamp
+            }))
+        };
+
+        return data;
+    }
+}
+
+export {
+    DictionarySource,
+    ScrapingStatus,
+    WordType,
+    WordMeaning,
+    ScrapingResult,
+    DigitalDictionaryScraper
+};
+

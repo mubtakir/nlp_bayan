@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الذكاء العاطفي - بصيرة AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .output {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .relationship-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .conflict-item {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 نظام الذكاء العاطفي</h1>
+            <p>Emotional Intelligence System - بصيرة AI</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('emotions')">المشاعر والتنظيم</button>
+            <button class="tab" onclick="switchTab('relationships')">إدارة العلاقات</button>
+            <button class="tab" onclick="switchTab('conflicts')">حل النزاعات</button>
+            <button class="tab" onclick="switchTab('social')">الوعي الاجتماعي</button>
+        </div>
+
+        <!-- تبويب المشاعر -->
+        <div id="emotions-tab" class="tab-content active">
+            <div class="main-grid">
+                <div class="card">
+                    <h2>📊 تسجيل حالة عاطفية</h2>
+                    <div class="input-group">
+                        <label>الشعور الأساسي:</label>
+                        <input type="text" id="emotion-primary" placeholder="مثال: فرح، حزن، غضب">
+                    </div>
+                    <div class="input-group">
+                        <label>الشدة:</label>
+                        <select id="emotion-intensity">
+                            <option value="VERY_LOW">منخفضة جداً</option>
+                            <option value="LOW">منخفضة</option>
+                            <option value="MODERATE" selected>متوسطة</option>
+                            <option value="HIGH">عالية</option>
+                            <option value="VERY_HIGH">عالية جداً</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>القطبية:</label>
+                        <select id="emotion-valence">
+                            <option value="POSITIVE">إيجابي</option>
+                            <option value="NEGATIVE">سلبي</option>
+                            <option value="NEUTRAL">محايد</option>
+                            <option value="MIXED">مختلط</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>المحفزات (مفصولة بفواصل):</label>
+                        <input type="text" id="emotion-triggers" placeholder="مثال: نجاح في العمل، مكافأة">
+                    </div>
+                    <button class="btn" onclick="recordEmotion()">تسجيل الحالة العاطفية</button>
+                    <div class="output" id="emotion-output">النتائج ستظهر هنا...</div>
+                </div>
+
+                <div class="card">
+                    <h2>🎯 تنظيم المشاعر</h2>
+                    <div class="input-group">
+                        <label>المشاعر المستهدفة:</label>
+                        <input type="text" id="regulate-emotion" placeholder="مثال: غضب">
+                    </div>
+                    <div class="input-group">
+                        <label>الشدة الحالية (0-100):</label>
+                        <input type="number" id="regulate-current" min="0" max="100" value="80">
+                    </div>
+                    <div class="input-group">
+                        <label>الشدة المرغوبة (0-100):</label>
+                        <input type="number" id="regulate-desired" min="0" max="100" value="30">
+                    </div>
+                    <div class="input-group">
+                        <label>الاستراتيجية:</label>
+                        <select id="regulate-strategy">
+                            <option value="">اختيار تلقائي</option>
+                            <option value="REAPPRAISAL">إعادة التقييم</option>
+                            <option value="SUPPRESSION">الكبت</option>
+                            <option value="DISTRACTION">التشتيت</option>
+                            <option value="ACCEPTANCE">القبول</option>
+                            <option value="EXPRESSION">التعبير</option>
+                            <option value="PROBLEM_SOLVING">حل المشكلة</option>
+                            <option value="SEEKING_SUPPORT">طلب الدعم</option>
+                            <option value="MINDFULNESS">اليقظة الذهنية</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="regulateEmotion()">إنشاء خطة تنظيم</button>
+                    <div class="output" id="regulate-output">النتائج ستظهر هنا...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 إحصائيات الذكاء العاطفي</h2>
+                <div class="stats-grid" id="emotion-stats">
+                    <div class="stat-box">
+                        <div class="value">0</div>
+                        <div class="label">حالات عاطفية</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value">0</div>
+                        <div class="label">خطط تنظيم</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value">0%</div>
+                        <div class="label">متوسط الفعالية</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value">0</div>
+                        <div class="label">أنماط مكتشفة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب العلاقات -->
+        <div id="relationships-tab" class="tab-content">
+            <div class="main-grid">
+                <div class="card">
+                    <h2>👥 إنشاء علاقة جديدة</h2>
+                    <div class="input-group">
+                        <label>اسم المستخدم:</label>
+                        <input type="text" id="rel-user" placeholder="مثال: أحمد">
+                    </div>
+                    <div class="input-group">
+                        <label>نوع العلاقة:</label>
+                        <select id="rel-type">
+                            <option value="PROFESSIONAL">مهنية</option>
+                            <option value="PERSONAL">شخصية</option>
+                            <option value="MENTOR_MENTEE">مرشد-متدرب</option>
+                            <option value="COLLABORATIVE">تعاونية</option>
+                            <option value="SUPPORTIVE">داعمة</option>
+                            <option value="CASUAL">عادية</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="createRelationship()">إنشاء علاقة</button>
+                    <button class="btn" onclick="recordInteraction()">تسجيل تفاعل</button>
+                    <div class="output" id="rel-output">النتائج ستظهر هنا...</div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 العلاقات الحالية</h2>
+                    <div id="relationships-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب النزاعات -->
+        <div id="conflicts-tab" class="tab-content">
+            <div class="main-grid">
+                <div class="card">
+                    <h2>⚠️ تسجيل نزاع</h2>
+                    <div class="input-group">
+                        <label>نوع النزاع:</label>
+                        <select id="conflict-type">
+                            <option value="INTERPERSONAL">بين الأشخاص</option>
+                            <option value="TASK_BASED">متعلق بالمهام</option>
+                            <option value="VALUE_BASED">متعلق بالقيم</option>
+                            <option value="RESOURCE_BASED">متعلق بالموارد</option>
+                            <option value="COMMUNICATION">سوء تواصل</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>الشدة:</label>
+                        <select id="conflict-severity">
+                            <option value="MINOR">بسيط</option>
+                            <option value="MODERATE">متوسط</option>
+                            <option value="SERIOUS">خطير</option>
+                            <option value="CRITICAL">حرج</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>الوصف:</label>
+                        <textarea id="conflict-desc" rows="3" placeholder="وصف النزاع..."></textarea>
+                    </div>
+                    <button class="btn" onclick="registerConflict()">تسجيل نزاع</button>
+                    <button class="btn" onclick="createResolutionPlan()">إنشاء خطة حل</button>
+                    <div class="output" id="conflict-output">النتائج ستظهر هنا...</div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 النزاعات النشطة</h2>
+                    <div id="conflicts-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب الوعي الاجتماعي -->
+        <div id="social-tab" class="tab-content">
+            <div class="card">
+                <h2>🌍 الوعي الاجتماعي والثقافي</h2>
+                <p>النظام مهيأ للثقافة العربية بشكل افتراضي</p>
+                <button class="btn" onclick="showSocialContext()">عرض السياق الاجتماعي</button>
+                <button class="btn" onclick="showCulturalNorms()">عرض الأعراف الثقافية</button>
+                <div class="output" id="social-output">النتائج ستظهر هنا...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // سيتم ربطه بملفات البيان لاحقاً
+        // هذا عرض توضيحي للواجهة
+        
+        window.switchTab = function(tabName) {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار التبويب المحدد
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        };
+
+        window.recordEmotion = function() {
+            const primary = document.getElementById('emotion-primary').value;
+            const intensity = document.getElementById('emotion-intensity').value;
+            const valence = document.getElementById('emotion-valence').value;
+            const triggers = document.getElementById('emotion-triggers').value.split(',').map(t => t.trim());
+            
+            const output = `✅ تم تسجيل حالة عاطفية جديدة
+
+الشعور الأساسي: ${primary}
+الشدة: ${intensity}
+القطبية: ${valence}
+المحفزات: ${triggers.join(', ')}
+درجة التعقيد: ${Math.floor(Math.random() * 40 + 40)}%
+
+تم حفظ الحالة في النظام`;
+            
+            document.getElementById('emotion-output').textContent = output;
+            updateEmotionStats();
+        };
+
+        window.regulateEmotion = function() {
+            const emotion = document.getElementById('regulate-emotion').value;
+            const current = parseInt(document.getElementById('regulate-current').value) / 100;
+            const desired = parseInt(document.getElementById('regulate-desired').value) / 100;
+            const strategy = document.getElementById('regulate-strategy').value || 'تلقائي';
+            
+            const output = `✅ تم إنشاء خطة تنظيم المشاعر
+
+المشاعر المستهدفة: ${emotion}
+الشدة الحالية: ${(current * 100).toFixed(0)}%
+الشدة المرغوبة: ${(desired * 100).toFixed(0)}%
+الاستراتيجية: ${strategy}
+الفعالية المتوقعة: ${Math.floor(Math.random() * 30 + 60)}%
+
+الخطوات:
+1. تحديد المحفزات الأساسية
+2. تطبيق تقنيات التنظيم
+3. مراقبة التقدم
+4. تعديل الاستراتيجية حسب الحاجة`;
+            
+            document.getElementById('regulate-output').textContent = output;
+            updateEmotionStats();
+        };
+
+        function updateEmotionStats() {
+            const stats = document.getElementById('emotion-stats').children;
+            stats[0].querySelector('.value').textContent = Math.floor(Math.random() * 20 + 5);
+            stats[1].querySelector('.value').textContent = Math.floor(Math.random() * 15 + 3);
+            stats[2].querySelector('.value').textContent = Math.floor(Math.random() * 30 + 60) + '%';
+            stats[3].querySelector('.value').textContent = Math.floor(Math.random() * 10 + 2);
+        }
+
+        window.createRelationship = function() {
+            const user = document.getElementById('rel-user').value;
+            const type = document.getElementById('rel-type').value;
+            
+            const output = `✅ تم إنشاء علاقة جديدة
+
+المستخدم: ${user}
+النوع: ${type}
+المرحلة: البداية
+القوة: 50%
+الثقة: 50%`;
+            
+            document.getElementById('rel-output').textContent = output;
+        };
+
+        window.recordInteraction = function() {
+            const output = `✅ تم تسجيل تفاعل جديد
+
+الجودة: جيد
+المشاعر: +60%
+المدة: 15 دقيقة
+
+تم تحديث العلاقة`;
+            
+            document.getElementById('rel-output').textContent = output;
+        };
+
+        window.registerConflict = function() {
+            const type = document.getElementById('conflict-type').value;
+            const severity = document.getElementById('conflict-severity').value;
+            const desc = document.getElementById('conflict-desc').value;
+            
+            const output = `⚠️ تم تسجيل نزاع جديد
+
+النوع: ${type}
+الشدة: ${severity}
+الوصف: ${desc}
+درجة التعقيد: ${Math.floor(Math.random() * 40 + 30)}%`;
+            
+            document.getElementById('conflict-output').textContent = output;
+        };
+
+        window.createResolutionPlan = function() {
+            const output = `✅ تم إنشاء خطة حل
+
+الاستراتيجية: التفاوض
+النتيجة المتوقعة: فوز-فوز
+احتمال النجاح: 75%
+الوقت المقدر: 2.0 ساعة
+
+الخطوات:
+1. تحديد المواقف والمصالح
+2. تبادل العروض
+3. الوصول إلى اتفاق`;
+            
+            document.getElementById('conflict-output').textContent = output;
+        };
+
+        window.showSocialContext = function() {
+            const output = `🌍 السياق الاجتماعي الحالي
+
+الثقافة: عربي
+اللغة: العربية
+أسلوب التواصل: عالي السياق
+مستوى الرسمية: 50%
+
+القيم الأساسية:
+- الكرم
+- احترام الكبار
+- الضيافة
+- الشرف
+- العائلة`;
+            
+            document.getElementById('social-output').textContent = output;
+        };
+
+        window.showCulturalNorms = function() {
+            const output = `📜 الأعراف الثقافية العربية
+
+1. التحية
+   - البدء بالسلام والمصافحة
+   - الأهمية: 90%
+
+2. الاحترام
+   - احترام الكبار ومخاطبتهم بأدب
+   - الأهمية: 100%
+
+3. الضيافة
+   - إكرام الضيف وتقديم الطعام والشراب
+   - الأهمية: 95%`;
+            
+            document.getElementById('social-output').textContent = output;
+        };
+    </script>
+</body>
+</html>

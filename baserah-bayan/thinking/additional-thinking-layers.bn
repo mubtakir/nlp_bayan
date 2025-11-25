@@ -1,0 +1,584 @@
+/*
+ * ==================== طبقات تفكير إضافية ====================
+ * Additional Thinking Layers - Baserah AI System
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ * 
+ * طبقات إضافية للتعامل مع الأحداث والحالات العاطفية وتغير الخصائص
+ */
+
+import { ThinkingLayerBase, ThinkingLayerType, LayerState } from "./thinking-layer-base.bn";
+
+// ==================== الأنواع الإضافية ====================
+
+enum AdditionalLayerType {
+    EVENT_ACTION = "event_action",
+    EMOTIONAL_STATE = "emotional_state",
+    PROPERTY_CHANGE = "property_change"
+}
+
+enum EmotionIntensity {
+    VERY_LOW = "very_low",
+    LOW = "low",
+    MODERATE = "moderate",
+    HIGH = "high",
+    VERY_HIGH = "very_high"
+}
+
+enum EmotionValence {
+    POSITIVE = "positive",
+    NEGATIVE = "negative",
+    NEUTRAL = "neutral",
+    MIXED = "mixed"
+}
+
+// ==================== الفئات المساعدة ====================
+
+class LinguisticEquation {
+    /*
+     * معادلة لغوية تحسب تأثير الحدث على الخصائص
+     */
+    
+    propertyName: string;
+    formula: string;
+    effectCoefficient: number;
+    intensityCoefficient: number;
+    propertyCoefficient: number;
+    
+    constructor(propertyName: string, formula: string = "linear") {
+        this.propertyName = propertyName;
+        this.formula = formula;
+        this.effectCoefficient = 1.0;
+        this.intensityCoefficient = 1.0;
+        this.propertyCoefficient = 1.0;
+    }
+    
+    function calculate(oldValue: number, effectStrength: number, intensity: number = 1.0): number {
+        /*
+         * حساب القيمة الجديدة باستخدام المعادلة اللغوية
+         * الصيغة: new_value = old_value + (effect_strength * intensity * property_coefficient)
+         */
+        let change = effectStrength * intensity * this.propertyCoefficient;
+        let newValue = oldValue + change;
+        return newValue;
+    }
+}
+
+class EventData {
+    /*
+     * بيانات الحدث
+     */
+    
+    eventName: string;
+    actor: string;
+    action: string;
+    objectTarget: string;
+    intensity: number;
+    timestamp: Date;
+    
+    constructor(eventName: string, actor: string, action: string, objectTarget: string = "") {
+        this.eventName = eventName;
+        this.actor = actor;
+        this.action = action;
+        this.objectTarget = objectTarget;
+        this.intensity = 1.0;
+        this.timestamp = new Date();
+    }
+}
+
+class EmotionalState {
+    /*
+     * حالة عاطفية
+     */
+    
+    stateId: string;
+    primaryEmotion: string;
+    secondaryEmotions: string[];
+    intensity: EmotionIntensity;
+    valence: EmotionValence;
+    triggers: string[];
+    duration: number;
+    context: string;
+    timestamp: Date;
+    
+    constructor(primaryEmotion: string) {
+        this.stateId = "emotion_" + Date.now();
+        this.primaryEmotion = primaryEmotion;
+        this.secondaryEmotions = [];
+        this.intensity = EmotionIntensity.MODERATE;
+        this.valence = EmotionValence.NEUTRAL;
+        this.triggers = [];
+        this.duration = 0.0;
+        this.context = "";
+        this.timestamp = new Date();
+    }
+    
+    function getComplexityScore(): number {
+        /*
+         * حساب درجة تعقيد الحالة العاطفية
+         */
+        let baseScore = 0.3;
+        
+        // المشاعر الثانوية تزيد التعقيد
+        let secondaryScore = this.secondaryEmotions.length * 0.15;
+        
+        // الشدة العالية تزيد التعقيد
+        let intensityScore = 0.3;
+        if (this.intensity === EmotionIntensity.VERY_HIGH) {
+            intensityScore = 0.5;
+        } else if (this.intensity === EmotionIntensity.HIGH) {
+            intensityScore = 0.4;
+        }
+        
+        // المشاعر المختلطة أكثر تعقيداً
+        let valenceScore = this.valence === EmotionValence.MIXED ? 0.3 : 0.1;
+        
+        return Math.min(1.0, baseScore + secondaryScore + intensityScore + valenceScore);
+    }
+}
+
+class PropertyChange {
+    /*
+     * تغيير في خاصية
+     */
+    
+    propertyName: string;
+    oldValue: any;
+    newValue: any;
+    changeReason: string;
+    changeAmount: number;
+    timestamp: Date;
+    
+    constructor(propertyName: string, oldValue: any, newValue: any, reason: string = "") {
+        this.propertyName = propertyName;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.changeReason = reason;
+        this.changeAmount = 0.0;
+        this.timestamp = new Date();
+        
+        // حساب مقدار التغيير
+        if (typeof oldValue === "number" && typeof newValue === "number") {
+            this.changeAmount = newValue - oldValue;
+        }
+    }
+}
+
+// ==================== 9. طبقة الأحداث والتأثيرات ====================
+
+class EventActionThinkingLayer extends ThinkingLayerBase {
+    /*
+     * طبقة الأحداث والتأثيرات
+     * تحلل الأحداث والأفعال وتأثيراتها على الحالات والخصائص
+     */
+    
+    eventHistory: EventData[];
+    linguisticEquations: Map<string, LinguisticEquation>;
+    
+    constructor(name: string = "EventActionLayer") {
+        super(ThinkingLayerType.INTERPRETIVE, name); // نستخدم INTERPRETIVE مؤقتاً
+        this.eventHistory = [];
+        this.linguisticEquations = new Map();
+        
+        // تهيئة المعادلات اللغوية الأساسية
+        this.initializeLinguisticEquations();
+    }
+    
+    function initializeLinguisticEquations(): void {
+        // معادلات للأفعال الشائعة
+        this.linguisticEquations.set("أكل", new LinguisticEquation("طاقة", "increase"));
+        this.linguisticEquations.set("شرب", new LinguisticEquation("رطوبة", "increase"));
+        this.linguisticEquations.set("تعلم", new LinguisticEquation("معرفة", "increase"));
+        this.linguisticEquations.set("تعدى", new LinguisticEquation("غضب", "increase"));
+        this.linguisticEquations.set("أهان", new LinguisticEquation("كرامة", "decrease"));
+        this.linguisticEquations.set("ساعد", new LinguisticEquation("امتنان", "increase"));
+        this.linguisticEquations.set("ضرب", new LinguisticEquation("ألم", "increase"));
+        this.linguisticEquations.set("مدح", new LinguisticEquation("سعادة", "increase"));
+    }
+    
+    function specializedProcessing(inputData: any): object {
+        try {
+            let events = this.extractEvents(inputData);
+            let effects = this.analyzeEffects(events);
+            let cascadingImpacts = this.predictCascadingImpacts(events);
+            
+            // حفظ في السجل
+            events.forEach(event => this.eventHistory.push(event));
+            
+            return {
+                type: "event_action_analysis",
+                events: events,
+                effects: effects,
+                cascadingImpacts: cascadingImpacts,
+                confidence: 0.8
+            };
+        } catch (e) {
+            return { type: "event_action_error", error: String(e), confidence: 0.1 };
+        }
+    }
+    
+    function extractEvents(data: any): EventData[] {
+        let events = [];
+        
+        if (typeof data !== "string") {
+            return events;
+        }
+        
+        // كشف الأفعال الشائعة
+        let actionPatterns = [
+            { pattern: /(\w+)\s+(أكل|تناول|أخذ)/, action: "أكل" },
+            { pattern: /(\w+)\s+(شرب)/, action: "شرب" },
+            { pattern: /(\w+)\s+(تعلم|درس)/, action: "تعلم" },
+            { pattern: /(\w+)\s+(تعدى|اعتدى)\s+على\s+(\w+)/, action: "تعدى" },
+            { pattern: /(\w+)\s+(أهان|سب)\s+(\w+)/, action: "أهان" },
+            { pattern: /(\w+)\s+(ساعد|عاون)\s+(\w+)/, action: "ساعد" },
+            { pattern: /(\w+)\s+(ضرب|آذى)\s+(\w+)/, action: "ضرب" },
+            { pattern: /(\w+)\s+(مدح|أثنى على)\s+(\w+)/, action: "مدح" }
+        ];
+        
+        for (let pattern of actionPatterns) {
+            // محاولة استخراج الحدث (مبسط)
+            if (data.includes(pattern.action)) {
+                let event = new EventData(
+                    pattern.action + "_event",
+                    "فاعل",
+                    pattern.action,
+                    "مفعول"
+                );
+                events.push(event);
+            }
+        }
+        
+        return events;
+    }
+    
+    function analyzeEffects(events: EventData[]): object[] {
+        let effects = [];
+        
+        for (let event of events) {
+            let equation = this.linguisticEquations.get(event.action);
+            
+            if (equation) {
+                effects.push({
+                    event: event.eventName,
+                    action: event.action,
+                    affectedProperty: equation.propertyName,
+                    effectType: equation.formula,
+                    estimatedChange: equation.effectCoefficient * event.intensity
+                });
+            }
+        }
+        
+        return effects;
+    }
+    
+    function predictCascadingImpacts(events: EventData[]): string[] {
+        let impacts = [];
+        
+        for (let event of events) {
+            // التأثيرات المتسلسلة
+            if (event.action === "تعدى") {
+                impacts.push("قد يؤدي إلى رد فعل غاضب");
+                impacts.push("قد يؤدي إلى قطع العلاقة");
+            } else if (event.action === "ساعد") {
+                impacts.push("قد يؤدي إلى تقوية العلاقة");
+                impacts.push("قد يؤدي إلى رد الجميل");
+            } else if (event.action === "أهان") {
+                impacts.push("قد يؤدي إلى فقدان الثقة");
+                impacts.push("قد يؤدي إلى الانتقام");
+            }
+        }
+        
+        return impacts;
+    }
+}
+
+// ==================== 10. طبقة الحالات العاطفية ====================
+
+class EmotionalStateThinkingLayer extends ThinkingLayerBase {
+    /*
+     * طبقة الحالات العاطفية
+     * تحلل وتتبع الحالات العاطفية وتغيراتها
+     */
+    
+    emotionalStates: EmotionalState[];
+    emotionTriggers: Map<string, string[]>;
+    
+    constructor(name: string = "EmotionalStateLayer") {
+        super(ThinkingLayerType.INTERPRETIVE, name);
+        this.emotionalStates = [];
+        this.emotionTriggers = new Map();
+        
+        // تهيئة مسببات المشاعر
+        this.initializeEmotionTriggers();
+    }
+    
+    function initializeEmotionTriggers(): void {
+        this.emotionTriggers.set("غضب", ["تعدى", "إهانة", "ظلم", "اعتداء"]);
+        this.emotionTriggers.set("سعادة", ["مدح", "نجاح", "هدية", "مساعدة"]);
+        this.emotionTriggers.set("حزن", ["فقدان", "فشل", "خيبة", "رفض"]);
+        this.emotionTriggers.set("خوف", ["تهديد", "خطر", "مجهول"]);
+        this.emotionTriggers.set("امتنان", ["مساعدة", "عطاء", "دعم"]);
+        this.emotionTriggers.set("فخر", ["إنجاز", "تميز", "نجاح"]);
+    }
+    
+    function specializedProcessing(inputData: any): object {
+        try {
+            let detectedEmotions = this.detectEmotions(inputData);
+            let emotionalIntensity = this.calculateEmotionalIntensity(detectedEmotions);
+            let emotionalValence = this.determineEmotionalValence(detectedEmotions);
+            let regulationStrategies = this.suggestRegulationStrategies(detectedEmotions);
+
+            return {
+                type: "emotional_state_analysis",
+                emotions: detectedEmotions,
+                intensity: emotionalIntensity,
+                valence: emotionalValence,
+                regulationStrategies: regulationStrategies,
+                confidence: 0.8
+            };
+        } catch (e) {
+            return { type: "emotional_state_error", error: String(e), confidence: 0.1 };
+        }
+    }
+
+    function detectEmotions(data: any): string[] {
+        let emotions = [];
+
+        if (typeof data !== "string") {
+            return emotions;
+        }
+
+        // كشف المشاعر من المسببات
+        for (let [emotion, triggers] of this.emotionTriggers.entries()) {
+            for (let trigger of triggers) {
+                if (data.includes(trigger)) {
+                    emotions.push(emotion);
+                    break;
+                }
+            }
+        }
+
+        // كشف كلمات المشاعر المباشرة
+        let emotionWords = ["غضب", "سعادة", "حزن", "خوف", "فرح", "قلق", "امتنان", "فخر"];
+        for (let word of emotionWords) {
+            if (data.includes(word) && !emotions.includes(word)) {
+                emotions.push(word);
+            }
+        }
+
+        return emotions;
+    }
+
+    function calculateEmotionalIntensity(emotions: string[]): EmotionIntensity {
+        if (emotions.length === 0) {
+            return EmotionIntensity.VERY_LOW;
+        } else if (emotions.length === 1) {
+            return EmotionIntensity.MODERATE;
+        } else if (emotions.length === 2) {
+            return EmotionIntensity.HIGH;
+        } else {
+            return EmotionIntensity.VERY_HIGH;
+        }
+    }
+
+    function determineEmotionalValence(emotions: string[]): EmotionValence {
+        let positiveEmotions = ["سعادة", "فرح", "امتنان", "فخر"];
+        let negativeEmotions = ["غضب", "حزن", "خوف", "قلق"];
+
+        let positiveCount = 0;
+        let negativeCount = 0;
+
+        for (let emotion of emotions) {
+            if (positiveEmotions.includes(emotion)) {
+                positiveCount++;
+            } else if (negativeEmotions.includes(emotion)) {
+                negativeCount++;
+            }
+        }
+
+        if (positiveCount > 0 && negativeCount > 0) {
+            return EmotionValence.MIXED;
+        } else if (positiveCount > 0) {
+            return EmotionValence.POSITIVE;
+        } else if (negativeCount > 0) {
+            return EmotionValence.NEGATIVE;
+        } else {
+            return EmotionValence.NEUTRAL;
+        }
+    }
+
+    function suggestRegulationStrategies(emotions: string[]): string[] {
+        let strategies = [];
+
+        for (let emotion of emotions) {
+            if (emotion === "غضب") {
+                strategies.push("التنفس العميق");
+                strategies.push("إعادة تقييم الموقف");
+                strategies.push("الابتعاد المؤقت");
+            } else if (emotion === "حزن") {
+                strategies.push("التعبير عن المشاعر");
+                strategies.push("طلب الدعم الاجتماعي");
+                strategies.push("ممارسة نشاط محبب");
+            } else if (emotion === "خوف") {
+                strategies.push("مواجهة المخاوف تدريجياً");
+                strategies.push("التفكير المنطقي");
+                strategies.push("طلب المساعدة");
+            }
+        }
+
+        return strategies;
+    }
+
+    function createEmotionalState(primaryEmotion: string, triggers: string[]): EmotionalState {
+        let state = new EmotionalState(primaryEmotion);
+        state.triggers = triggers;
+        this.emotionalStates.push(state);
+        return state;
+    }
+}
+
+// ==================== 11. طبقة تغير الخصائص ====================
+
+class PropertyChangeThinkingLayer extends ThinkingLayerBase {
+    /*
+     * طبقة تغير الخصائص
+     * تتبع وتحلل التغيرات في الخصائص نتيجة الأحداث والأفعال
+     */
+
+    propertyChanges: PropertyChange[];
+    changePatterns: Map<string, string[]>;
+
+    constructor(name: string = "PropertyChangeLayer") {
+        super(ThinkingLayerType.PHYSICAL, name);
+        this.propertyChanges = [];
+        this.changePatterns = new Map();
+
+        // تهيئة أنماط التغيير
+        this.initializeChangePatterns();
+    }
+
+    function initializeChangePatterns(): void {
+        // أنماط التغيير للخصائص المختلفة
+        this.changePatterns.set("طاقة", ["زيادة بالأكل", "نقصان بالجهد", "استقرار بالراحة"]);
+        this.changePatterns.set("معرفة", ["زيادة بالتعلم", "نقصان بالنسيان", "تطور بالممارسة"]);
+        this.changePatterns.set("صحة", ["تحسن بالعلاج", "تدهور بالإهمال", "استقرار بالعناية"]);
+        this.changePatterns.set("مزاج", ["تحسن بالأخبار الجيدة", "سوء بالأخبار السيئة"]);
+    }
+
+    function specializedProcessing(inputData: any): object {
+        try {
+            let detectedChanges = this.detectPropertyChanges(inputData);
+            let changeAnalysis = this.analyzeChanges(detectedChanges);
+            let predictions = this.predictFutureChanges(detectedChanges);
+
+            // حفظ التغييرات
+            detectedChanges.forEach(change => this.propertyChanges.push(change));
+
+            return {
+                type: "property_change_analysis",
+                changes: detectedChanges,
+                analysis: changeAnalysis,
+                predictions: predictions,
+                confidence: 0.8
+            };
+        } catch (e) {
+            return { type: "property_change_error", error: String(e), confidence: 0.1 };
+        }
+    }
+
+    function detectPropertyChanges(data: any): PropertyChange[] {
+        let changes = [];
+
+        if (typeof data !== "string") {
+            return changes;
+        }
+
+        // كشف التغييرات من الكلمات المفتاحية
+        let changeKeywords = [
+            { pattern: /زاد|ارتفع|تحسن/, property: "قيمة", direction: "increase" },
+            { pattern: /نقص|انخفض|تدهور/, property: "قيمة", direction: "decrease" },
+            { pattern: /تعلم|اكتسب/, property: "معرفة", direction: "increase" },
+            { pattern: /نسي|فقد/, property: "معرفة", direction: "decrease" },
+            { pattern: /أكل|تناول/, property: "طاقة", direction: "increase" },
+            { pattern: /تعب|أرهق/, property: "طاقة", direction: "decrease" }
+        ];
+
+        for (let keyword of changeKeywords) {
+            if (keyword.pattern.test(data)) {
+                let change = new PropertyChange(
+                    keyword.property,
+                    0.5,
+                    keyword.direction === "increase" ? 0.8 : 0.2,
+                    "detected from text"
+                );
+                changes.push(change);
+            }
+        }
+
+        return changes;
+    }
+
+    function analyzeChanges(changes: PropertyChange[]): object {
+        let totalChanges = changes.length;
+        let positiveChanges = changes.filter(c => c.changeAmount > 0).length;
+        let negativeChanges = changes.filter(c => c.changeAmount < 0).length;
+
+        let averageChange = 0;
+        if (totalChanges > 0) {
+            let sum = changes.reduce((acc, c) => acc + c.changeAmount, 0);
+            averageChange = sum / totalChanges;
+        }
+
+        return {
+            totalChanges: totalChanges,
+            positiveChanges: positiveChanges,
+            negativeChanges: negativeChanges,
+            averageChange: averageChange,
+            trend: averageChange > 0 ? "improving" : averageChange < 0 ? "declining" : "stable"
+        };
+    }
+
+    function predictFutureChanges(changes: PropertyChange[]): string[] {
+        let predictions = [];
+
+        for (let change of changes) {
+            if (change.changeAmount > 0.3) {
+                predictions.push(`من المتوقع استمرار زيادة ${change.propertyName}`);
+            } else if (change.changeAmount < -0.3) {
+                predictions.push(`من المتوقع استمرار نقصان ${change.propertyName}`);
+            } else {
+                predictions.push(`من المتوقع استقرار ${change.propertyName}`);
+            }
+        }
+
+        return predictions;
+    }
+
+    function trackPropertyChange(propertyName: string, oldValue: any, newValue: any, reason: string): PropertyChange {
+        let change = new PropertyChange(propertyName, oldValue, newValue, reason);
+        this.propertyChanges.push(change);
+        return change;
+    }
+
+    function getChangeHistory(propertyName: string): PropertyChange[] {
+        return this.propertyChanges.filter(c => c.propertyName === propertyName);
+    }
+}
+
+// ==================== التصدير ====================
+
+export {
+    AdditionalLayerType,
+    EmotionIntensity,
+    EmotionValence,
+    LinguisticEquation,
+    EventData,
+    EmotionalState,
+    PropertyChange,
+    EventActionThinkingLayer,
+    EmotionalStateThinkingLayer,
+    PropertyChangeThinkingLayer
+};
+

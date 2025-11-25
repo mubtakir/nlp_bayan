@@ -1,6 +1,6 @@
 # 🌟 Bayan - Hybrid Programming Language | لغة البيان
 
-**Last Updated**: 2025-11-24
+**Last Updated**: 2025-11-25
 
 <div align="center">
 
@@ -52,6 +52,9 @@
 - ✅ **Bilingual Keywords** - Full support for both Arabic and English keywords
 - ✅ **Arabic Text Support** - Perfect handling of Arabic text without external libraries
 - ✅ **Causal-Semantic System** ⭐ NEW - Express cause-effect relationships with physical/logical reasons
+- ✅ **Adaptive GSE Engine** 🧠 NEW - Generalized Shape Equation for adaptive learning and function approximation
+- ✅ **Mother Equation System** 🌟 NEW - Comprehensive object representation (properties, states, shapes)
+- ✅ **Linguistic Equations** 💬 NEW - Convert natural language concepts to mathematical equations
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
@@ -275,6 +278,107 @@ hybrid {
 - Explainable AI: Every relationship has a clear reason
 - Context-aware prediction based on semantic distance
 - Supports causal reasoning in physics, biology, social sciences, and more
+
+---
+
+### 6. Adaptive Learning with GSE 🧠 NEW
+
+```bayan
+hybrid {
+    # Learn a model from data
+    x_data = [0, 1, 2, 3, 4, 5]
+    y_data = [0, 1, 4, 9, 16, 25]
+    
+    model = learn("square_function", x_data, y_data, max_components=3, verbose=True)
+    
+    # Infer new values
+    prediction = infer("square_function", 2.5)
+    print("f(2.5) = " + str(prediction))  # ≈ 6.25
+}
+```
+
+**Benefits:**
+- **Adaptive Function Approximation**: Learns complex functions from data
+- **Explainable Structure**: Uses interpretable sigmoid components
+- **Two-Stage Fitting**: Greedy build-up + global optimization
+- **No Black Box**: Clear mathematical formula, not a neural network
+
+---
+
+### 7. Mother Equation System 🌟 NEW
+
+```bayan
+hybrid {
+    # Create an object with comprehensive representation
+    # Object = (id, Φ, Ψ(t), Γ)
+    #   Φ: Fixed properties
+    #   Ψ(t): Dynamic states (fuzzy 0..1)
+    #   Γ: Shape equation (GSE)
+    
+    person = MotherEquation("P001", "سارة")
+    
+    # Add fixed properties
+    person.add_property("العمر", 25, PropertyDomain("بيولوجي"), "سنة")
+    person.add_property("المهنة", "طبيبة", PropertyDomain("اجتماعي"))
+    
+    # Add dynamic states (fuzzy values 0..1)
+    person.add_state("السعادة", 0.7)
+    person.add_state("الطاقة", 0.8)
+    
+    # Update states
+    person.update_state("السعادة", 0.9)
+    
+    # Export/Import JSON
+    json_str = person.to_json()
+    restored = MotherEquation.from_json(json_str)
+}
+```
+
+**Benefits:**
+- **Comprehensive Modeling**: Combines fixed properties, dynamic states, and shapes
+- **10 Property Domains**: Physical, Chemical, Psychological, Social, Biological, etc.
+- **Fuzzy States**: All states are normalized (0..1) for consistency
+- **Shape Equations**: Attach GSE models to represent object geometry
+
+---
+
+### 8. Linguistic Equations 💬 NEW
+
+```bayan
+hybrid {
+    # Philosophy: Idea = (Objects + Event + Result)
+    # الفكرة = (أشياء + حدث + نتيجة)
+    
+    kb = KnowledgeBase()
+    
+    # Parse natural language sentence
+    eq = parse_sentence("محمد أكل تفاحة", kb)
+    
+    print(eq.to_natural_language())
+    # → "محمد أكل تفاحة"
+    
+    print(eq.to_formal_notation())
+    # → محمد(فاعل) + تفاحة(مفعول_به) + أكل = 
+    #   [محمد: جوع↓, طاقة↑] + [تفاحة: موجود=False]
+    
+    # Create custom equation
+    eq2 = create_simple_equation("أحمد", "ضرب", "الكرة", kb)
+    
+    # Add custom event to knowledge base
+    kb.add_custom_event(
+        event="درس",
+        subject_changes={"تعب": +0.3, "معرفة": +0.6},
+        object_changes={"مستوى_الفهم": +0.5}
+    )
+}
+```
+
+**Benefits:**
+- **Natural Language → Math**: Converts Arabic sentences to equations
+- **Causal Inference**: Automatically infers results from knowledge base
+- **8 Roles**: Subject, Object, Location, Time, Instrument, etc.
+- **9 Event Types**: Physical, Mental, Communication, Movement, etc.
+- **Extensible**: Add custom events with their expected outcomes
 
 ---
 

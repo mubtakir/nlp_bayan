@@ -1,0 +1,2122 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-10-26T00:02:17.596403",
+    "letters_count": 28
+  },
+  "letters": {
+    "ا": {
+      "letter": "ا",
+      "name": "الألف",
+      "position_in_alphabet": 1,
+      "articulation_point": "حلقي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "فاتحة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "خط مستقيم عمودي",
+      "shape_meaning": "الاستقامة والوضوح",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت مفتوح عميق",
+      "sound_meaning": "الانفتاح والتوسع",
+      "developer_meanings": [
+        {
+          "meaning": "الوحدة والبداية والأساس",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الأساسيات والبدايات",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941672",
+          "sample_words": [
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط",
+            "آبال"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941885",
+          "sample_words": [
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط",
+            "آبال"
+          ]
+        },
+        {
+          "meaning": "مرادفات",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941898",
+          "sample_words": [
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط",
+            "آبال"
+          ]
+        },
+        {
+          "meaning": "مصدر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941932",
+          "sample_words": [
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط",
+            "آبال"
+          ]
+        },
+        {
+          "meaning": "اسم",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941941",
+          "sample_words": [
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط",
+            "آبال"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "ع",
+        "ه",
+        "غ"
+      ],
+      "opposite_letter": "ي",
+      "example_words": [
+        "أب",
+        "أم",
+        "أرض"
+      ],
+      "philosophical_meaning": "الوحدة التي تنبثق من الصفر",
+      "geometric_shape": "الخط المستقيم العمودي",
+      "symbolic_meaning": "الخيط الأول الذي يربط كل شيء",
+      "last_updated": "2025-10-25T23:07:39.926444",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ب": {
+      "letter": "ب",
+      "name": "الباء",
+      "position_in_alphabet": 2,
+      "articulation_point": "شفوي",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "قاطعة",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "نقطة تحت خط",
+      "shape_meaning": "الدخول والاختراق",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت انفجاري",
+      "sound_meaning": "الانفجار والقوة",
+      "developer_meanings": [
+        {
+          "meaning": "الاتصال والربط والدخول",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الحركة والاتصال",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "ظهور",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.941975",
+          "sample_words": [
+            "آب",
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط"
+          ]
+        },
+        {
+          "meaning": "جمع",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942007",
+          "sample_words": [
+            "آب",
+            "آباء",
+            "آباد",
+            "آبار",
+            "آباط"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "م",
+        "ف",
+        "ن"
+      ],
+      "opposite_letter": "ف",
+      "example_words": [
+        "بيت",
+        "بحر",
+        "بدء"
+      ],
+      "philosophical_meaning": "الثنائية بين الخارج والداخل",
+      "geometric_shape": "الحد الفاصل",
+      "symbolic_meaning": "الخيط الذي يربط الأشياء",
+      "last_updated": "2025-10-25T23:07:39.926736",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ت": {
+      "letter": "ت",
+      "name": "التاء",
+      "position_in_alphabet": 3,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "قاطعة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "نقطتان فوق خط",
+      "shape_meaning": "الازدواجية والحركة",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت انفجاري",
+      "sound_meaning": "الحركة والتطور",
+      "developer_meanings": [
+        {
+          "meaning": "الحركة والتغيير والتطور",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الحركة والتطور",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "فتح",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942016",
+          "sample_words": [
+            "آتن",
+            "آتي",
+            "أبتة",
+            "أبتر",
+            "أبيات"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "د",
+        "ط",
+        "ن"
+      ],
+      "opposite_letter": "ث",
+      "example_words": [
+        "تاج",
+        "تمر",
+        "تعلم"
+      ],
+      "philosophical_meaning": "الثنائية في الحركة",
+      "geometric_shape": "الحد الفاصل بين الحالات",
+      "symbolic_meaning": "الخيط المتحرك",
+      "last_updated": "2025-10-25T23:07:39.926821",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ث": {
+      "letter": "ث",
+      "name": "الثاء",
+      "position_in_alphabet": 4,
+      "articulation_point": "أسناني",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "ثلاث نقاط فوق خط",
+      "shape_meaning": "الثلاثية والثبات",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت احتكاكي",
+      "sound_meaning": "الثبات والاستقرار",
+      "developer_meanings": [
+        {
+          "meaning": "الثبات والاستقرار والتراكم",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الثبات والاستقرار",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "قلة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942048",
+          "sample_words": [
+            "آثار",
+            "آثام",
+            "آثم",
+            "أبحاث",
+            "أثآر"
+          ]
+        },
+        {
+          "meaning": "كثرة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942055",
+          "sample_words": [
+            "آثار",
+            "آثام",
+            "آثم",
+            "أبحاث",
+            "أثآر"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "د",
+        "ذ"
+      ],
+      "opposite_letter": "ت",
+      "example_words": [
+        "ثمر",
+        "ثقل",
+        "ثوب"
+      ],
+      "philosophical_meaning": "الثلاثية المستقرة",
+      "geometric_shape": "الاستقرار الثابت",
+      "symbolic_meaning": "الخيط الثابت",
+      "last_updated": "2025-10-25T23:07:39.926880",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ج": {
+      "letter": "ج",
+      "name": "الجيم",
+      "position_in_alphabet": 5,
+      "articulation_point": "حنكي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.6,
+      "physical_strength": 0.6,
+      "meaning_type": "مختلط",
+      "shape_general": "شكل منحني",
+      "shape_meaning": "الجمع والتجميع",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت احتكاكي",
+      "sound_meaning": "الجمع والحركة",
+      "developer_meanings": [
+        {
+          "meaning": "الجمع والتجميع والحركة",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الجمع والحركة",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942063",
+          "sample_words": [
+            "آجال",
+            "آجام",
+            "آجر",
+            "آجرة",
+            "آجل"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942096",
+          "sample_words": [
+            "آجال",
+            "آجام",
+            "آجر",
+            "آجرة",
+            "آجل"
+          ]
+        },
+        {
+          "meaning": "مرادفات",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942103",
+          "sample_words": [
+            "آجال",
+            "آجام",
+            "آجر",
+            "آجرة",
+            "آجل"
+          ]
+        },
+        {
+          "meaning": "أجر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942135",
+          "sample_words": [
+            "آجال",
+            "آجام",
+            "آجر",
+            "آجرة",
+            "آجل"
+          ]
+        },
+        {
+          "meaning": "صفة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942142",
+          "sample_words": [
+            "آجال",
+            "آجام",
+            "آجر",
+            "آجرة",
+            "آجل"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "د",
+        "ش"
+      ],
+      "opposite_letter": "خ",
+      "example_words": [
+        "جمع",
+        "جسد",
+        "جنة"
+      ],
+      "philosophical_meaning": "الجمع من الأجزاء",
+      "geometric_shape": "الحركة المجمعة",
+      "symbolic_meaning": "الخيط الجامع",
+      "last_updated": "2025-10-25T23:07:39.926957",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ح": {
+      "letter": "ح",
+      "name": "الحاء",
+      "position_in_alphabet": 6,
+      "articulation_point": "حلقي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "فاتحة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "شكل مفتوح",
+      "shape_meaning": "الحياة والانفتاح",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت احتكاكي عميق",
+      "sound_meaning": "الدفء والحياة",
+      "developer_meanings": [
+        {
+          "meaning": "الحياة والحركة والدفء",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الحياة والحركة",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942175",
+          "sample_words": [
+            "آح",
+            "آحاد",
+            "أبحاث",
+            "أبحر",
+            "أتراح"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942183",
+          "sample_words": [
+            "آح",
+            "آحاد",
+            "أبحاث",
+            "أبحر",
+            "أتراح"
+          ]
+        },
+        {
+          "meaning": "مصدر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942215",
+          "sample_words": [
+            "آح",
+            "آحاد",
+            "أبحاث",
+            "أبحر",
+            "أتراح"
+          ]
+        },
+        {
+          "meaning": "اسم",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942222",
+          "sample_words": [
+            "آح",
+            "آحاد",
+            "أبحاث",
+            "أبحر",
+            "أتراح"
+          ]
+        },
+        {
+          "meaning": "تفضيل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942228",
+          "sample_words": [
+            "آح",
+            "آحاد",
+            "أبحاث",
+            "أبحر",
+            "أتراح"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "ع",
+        "غ",
+        "ه"
+      ],
+      "opposite_letter": "خ",
+      "example_words": [
+        "حياة",
+        "حب",
+        "حكمة"
+      ],
+      "philosophical_meaning": "الحياة التي تنبثق من الموت",
+      "geometric_shape": "الحركة الحرة",
+      "symbolic_meaning": "الخيط الحي الذي ينبض",
+      "last_updated": "2025-10-25T23:07:39.927008",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "خ": {
+      "letter": "خ",
+      "name": "الخاء",
+      "position_in_alphabet": 7,
+      "articulation_point": "حلقي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "شكل مفتوح مع نقطة",
+      "shape_meaning": "الخروج والتحرر",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت احتكاكي",
+      "sound_meaning": "الخروج والتحرر",
+      "developer_meanings": [
+        {
+          "meaning": "الخروج والإخراج والتحرر",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الخروج والتحرر",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "نقل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942259",
+          "sample_words": [
+            "آخر",
+            "آخرة",
+            "أبخرة",
+            "أجواخ",
+            "أخ"
+          ]
+        },
+        {
+          "meaning": "فتح",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942265",
+          "sample_words": [
+            "آخر",
+            "آخرة",
+            "أبخرة",
+            "أجواخ",
+            "أخ"
+          ]
+        },
+        {
+          "meaning": "ضعف",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942295",
+          "sample_words": [
+            "آخر",
+            "آخرة",
+            "أبخرة",
+            "أجواخ",
+            "أخ"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "ع",
+        "غ"
+      ],
+      "opposite_letter": "ح",
+      "example_words": [
+        "خروج",
+        "خير",
+        "خلق"
+      ],
+      "philosophical_meaning": "التحرر من القيود",
+      "geometric_shape": "الحركة المحررة",
+      "symbolic_meaning": "الخيط المحرر",
+      "last_updated": "2025-10-25T23:07:39.927082",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "د": {
+      "letter": "د",
+      "name": "الدال",
+      "position_in_alphabet": 8,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "قاطعة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "شكل مستدير",
+      "shape_meaning": "الدخول والقوة",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "صوت انفجاري",
+      "sound_meaning": "الدخول والقوة",
+      "developer_meanings": [
+        {
+          "meaning": "الدخول والدعم والقوة",
+          "opposite": null,
+          "examples": [],
+          "strength": 1.0,
+          "relations": {}
+        },
+        {
+          "meaning": "الدخول والقوة",
+          "opposite": null,
+          "examples": [],
+          "strength": 0.7,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942302",
+          "sample_words": [
+            "آباد",
+            "آبد",
+            "آبدين",
+            "آحاد",
+            "آداب"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942309",
+          "sample_words": [
+            "آباد",
+            "آبد",
+            "آبدين",
+            "آحاد",
+            "آداب"
+          ]
+        },
+        {
+          "meaning": "مرادفات",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942339",
+          "sample_words": [
+            "آباد",
+            "آبد",
+            "آبدين",
+            "آحاد",
+            "آداب"
+          ]
+        },
+        {
+          "meaning": "اسم",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942346",
+          "sample_words": [
+            "آباد",
+            "آبد",
+            "آبدين",
+            "آحاد",
+            "آداب"
+          ]
+        },
+        {
+          "meaning": "تفضيل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942377",
+          "sample_words": [
+            "آباد",
+            "آبد",
+            "آبدين",
+            "آحاد",
+            "آداب"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [
+        "ت",
+        "ط",
+        "ن"
+      ],
+      "opposite_letter": "ذ",
+      "example_words": [
+        "دار",
+        "دعم",
+        "دين"
+      ],
+      "philosophical_meaning": "الدعم من الأسفل",
+      "geometric_shape": "القوة الداعمة",
+      "symbolic_meaning": "الخيط الداعم",
+      "last_updated": "2025-10-25T23:07:39.927148",
+      "updated_by": "initial_creation",
+      "confidence": 0.8500000000000001
+    },
+    "ذ": {
+      "letter": "ذ",
+      "name": "الذال",
+      "position_in_alphabet": 9,
+      "articulation_point": "أسناني",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "نقل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942386",
+          "sample_words": [
+            "آذار",
+            "آذان",
+            "آذري",
+            "أجذاذ",
+            "أجذاع"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927183",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ر": {
+      "letter": "ر",
+      "name": "الراء",
+      "position_in_alphabet": 10,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "ظهور",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942418",
+          "sample_words": [
+            "آبار",
+            "آثار",
+            "آجر",
+            "آجرة",
+            "آخر"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927190",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ز": {
+      "letter": "ز",
+      "name": "الزاي",
+      "position_in_alphabet": 11,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "ظهور",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942425",
+          "sample_words": [
+            "آزفة",
+            "أبارز",
+            "أباز",
+            "أبازير",
+            "أبازيم"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927222",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "س": {
+      "letter": "س",
+      "name": "السين",
+      "position_in_alphabet": 12,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "ضعف",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942433",
+          "sample_words": [
+            "آبنوس",
+            "آس",
+            "آساس",
+            "آسف",
+            "آسن"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927229",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ش": {
+      "letter": "ش",
+      "name": "الشين",
+      "position_in_alphabet": 13,
+      "articulation_point": "حنكي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.6,
+      "physical_strength": 0.6,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "قلة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942465",
+          "sample_words": [
+            "أبرش",
+            "أجش",
+            "أحباش",
+            "أحرش",
+            "أحشاء"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927235",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ص": {
+      "letter": "ص",
+      "name": "الصاد",
+      "position_in_alphabet": 14,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "مفخمة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "انتقال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942472",
+          "sample_words": [
+            "آصال",
+            "آصرة",
+            "أبرص",
+            "أبصار",
+            "أحارص"
+          ]
+        },
+        {
+          "meaning": "علو",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942503",
+          "sample_words": [
+            "آصال",
+            "آصرة",
+            "أبرص",
+            "أبصار",
+            "أحارص"
+          ]
+        },
+        {
+          "meaning": "اتصال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942510",
+          "sample_words": [
+            "آصال",
+            "آصرة",
+            "أبرص",
+            "أبصار",
+            "أحارص"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927267",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ض": {
+      "letter": "ض",
+      "name": "الضاد",
+      "position_in_alphabet": 15,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "مفخمة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "علو",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942541",
+          "sample_words": [
+            "أبعاض",
+            "أبيض",
+            "أحضان",
+            "أحفاض",
+            "أحواض"
+          ]
+        },
+        {
+          "meaning": "اتصال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942548",
+          "sample_words": [
+            "أبعاض",
+            "أبيض",
+            "أحضان",
+            "أحفاض",
+            "أحواض"
+          ]
+        },
+        {
+          "meaning": "جمع",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942555",
+          "sample_words": [
+            "أبعاض",
+            "أبيض",
+            "أحضان",
+            "أحفاض",
+            "أحواض"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927273",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ط": {
+      "letter": "ط",
+      "name": "الطاء",
+      "position_in_alphabet": 16,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "مفخمة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "فتح",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942587",
+          "sample_words": [
+            "آباط",
+            "آطمة",
+            "أباسط",
+            "أباطئ",
+            "أباطرة"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927305",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ظ": {
+      "letter": "ظ",
+      "name": "الظاء",
+      "position_in_alphabet": 17,
+      "articulation_point": "أسناني",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "مفخمة",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "ظهور",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942596",
+          "sample_words": [
+            "أظارف",
+            "أظافر",
+            "أظاهر",
+            "أظرف",
+            "أظعان"
+          ]
+        },
+        {
+          "meaning": "جمع",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942628",
+          "sample_words": [
+            "أظارف",
+            "أظافر",
+            "أظاهر",
+            "أظرف",
+            "أظعان"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927312",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ع": {
+      "letter": "ع",
+      "name": "العين",
+      "position_in_alphabet": 18,
+      "articulation_point": "بلعومي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "فاتحة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "اتصال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942652",
+          "sample_words": [
+            "أباعد",
+            "أباعر",
+            "أبداع",
+            "أبعاد",
+            "أبعار"
+          ]
+        },
+        {
+          "meaning": "سرعة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942745",
+          "sample_words": [
+            "أباعد",
+            "أباعر",
+            "أبداع",
+            "أبعاد",
+            "أبعار"
+          ]
+        },
+        {
+          "meaning": "جمع",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942819",
+          "sample_words": [
+            "أباعد",
+            "أباعر",
+            "أبداع",
+            "أبعاد",
+            "أبعار"
+          ]
+        },
+        {
+          "meaning": "نقل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942868",
+          "sample_words": [
+            "أباعد",
+            "أباعر",
+            "أبداع",
+            "أبعاد",
+            "أبعار"
+          ]
+        },
+        {
+          "meaning": "قلة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.942915",
+          "sample_words": [
+            "أباعد",
+            "أباعر",
+            "أبداع",
+            "أبعاد",
+            "أبعار"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927318",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "غ": {
+      "letter": "غ",
+      "name": "الغين",
+      "position_in_alphabet": 19,
+      "articulation_point": "بلعومي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "كثرة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943004",
+          "sample_words": [
+            "أبغال",
+            "أدغال",
+            "أدمغة",
+            "أرساغ",
+            "أرسغ"
+          ]
+        },
+        {
+          "meaning": "إغلاق",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943016",
+          "sample_words": [
+            "أبغال",
+            "أدغال",
+            "أدمغة",
+            "أرساغ",
+            "أرسغ"
+          ]
+        },
+        {
+          "meaning": "خفاء",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943057",
+          "sample_words": [
+            "أبغال",
+            "أدغال",
+            "أدمغة",
+            "أرساغ",
+            "أرسغ"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927351",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ف": {
+      "letter": "ف",
+      "name": "الفاء",
+      "position_in_alphabet": 20,
+      "articulation_point": "شفوي",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "خفاء",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943101",
+          "sample_words": [
+            "آزفة",
+            "آسف",
+            "آفاق",
+            "آفة",
+            "آفكة"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927357",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ق": {
+      "letter": "ق",
+      "name": "القاف",
+      "position_in_alphabet": 21,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "قاطعة",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "قلة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943144",
+          "sample_words": [
+            "آفاق",
+            "أبلق",
+            "أبواق",
+            "أتقياء",
+            "أثاقل"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927387",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ك": {
+      "letter": "ك",
+      "name": "الكاف",
+      "position_in_alphabet": 22,
+      "articulation_point": "حنكي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "قاطعة",
+      "emotional_strength": 0.6,
+      "physical_strength": 0.6,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943199",
+          "sample_words": [
+            "آفكة",
+            "آكال",
+            "آكام",
+            "آكلة",
+            "أبكار"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943274",
+          "sample_words": [
+            "آفكة",
+            "آكال",
+            "آكام",
+            "آكلة",
+            "أبكار"
+          ]
+        },
+        {
+          "meaning": "اسم",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943323",
+          "sample_words": [
+            "آفكة",
+            "آكال",
+            "آكام",
+            "آكلة",
+            "أبكار"
+          ]
+        },
+        {
+          "meaning": "تفضيل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943399",
+          "sample_words": [
+            "آفكة",
+            "آكال",
+            "آكام",
+            "آكلة",
+            "أبكار"
+          ]
+        },
+        {
+          "meaning": "صفة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943447",
+          "sample_words": [
+            "آفكة",
+            "آكال",
+            "آكام",
+            "آكلة",
+            "أبكار"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927394",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ل": {
+      "letter": "ل",
+      "name": "اللام",
+      "position_in_alphabet": 23,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "قلة",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943528",
+          "sample_words": [
+            "آبال",
+            "آجال",
+            "آجل",
+            "آجلة",
+            "آصال"
+          ]
+        },
+        {
+          "meaning": "موت",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943581",
+          "sample_words": [
+            "آبال",
+            "آجال",
+            "آجل",
+            "آجلة",
+            "آصال"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927401",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "م": {
+      "letter": "م",
+      "name": "الميم",
+      "position_in_alphabet": 24,
+      "articulation_point": "شفوي",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "نقل",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943749",
+          "sample_words": [
+            "آثام",
+            "آثم",
+            "آجام",
+            "آدام",
+            "آدم"
+          ]
+        },
+        {
+          "meaning": "اتصال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943873",
+          "sample_words": [
+            "آثام",
+            "آثم",
+            "آجام",
+            "آدام",
+            "آدم"
+          ]
+        },
+        {
+          "meaning": "جمع",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.943966",
+          "sample_words": [
+            "آثام",
+            "آثم",
+            "آجام",
+            "آدام",
+            "آدم"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927432",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ن": {
+      "letter": "ن",
+      "name": "النون",
+      "position_in_alphabet": 25,
+      "articulation_point": "لثوي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.5,
+      "physical_strength": 0.7,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [
+        {
+          "meaning": "الظهور",
+          "opposite": "الخفاء",
+          "examples": [
+            "بائن، بيان، تبيين"
+          ],
+          "strength": 1,
+          "relations": {}
+        },
+        {
+          "meaning": "النشوء",
+          "opposite": "الاندثار",
+          "examples": [
+            "نشأ، النشئ، النشأة"
+          ],
+          "strength": 1,
+          "relations": {}
+        },
+        {
+          "meaning": "الانبثاق",
+          "opposite": "الضمور",
+          "examples": [
+            "نبغ، نبع"
+          ],
+          "strength": 1,
+          "relations": {}
+        }
+      ],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944025",
+          "sample_words": [
+            "آبدين",
+            "آبنوس",
+            "آتن",
+            "آذان",
+            "آسن"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944034",
+          "sample_words": [
+            "آبدين",
+            "آبنوس",
+            "آتن",
+            "آذان",
+            "آسن"
+          ]
+        },
+        {
+          "meaning": "مصدر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944066",
+          "sample_words": [
+            "آبدين",
+            "آبنوس",
+            "آتن",
+            "آذان",
+            "آسن"
+          ]
+        },
+        {
+          "meaning": "مرادفات",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944075",
+          "sample_words": [
+            "آبدين",
+            "آبنوس",
+            "آتن",
+            "آذان",
+            "آسن"
+          ]
+        },
+        {
+          "meaning": "اسم",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944108",
+          "sample_words": [
+            "آبدين",
+            "آبنوس",
+            "آتن",
+            "آذان",
+            "آسن"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-26T00:02:17.596198",
+      "updated_by": "developer",
+      "confidence": 0.8
+    },
+    "ه": {
+      "letter": "ه",
+      "name": "الهاء",
+      "position_in_alphabet": 26,
+      "articulation_point": "حلقي",
+      "articulation_depth": "جوفي",
+      "phonetic_type": "رقيقة",
+      "emotional_strength": 0.9,
+      "physical_strength": 0.3,
+      "meaning_type": "نفسي/انفعالي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "ظهور",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944149",
+          "sample_words": [
+            "آلهة",
+            "آهة",
+            "آهل",
+            "أباهي",
+            "أباهيم"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927502",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "و": {
+      "letter": "و",
+      "name": "الواو",
+      "position_in_alphabet": 27,
+      "articulation_point": "شفوي",
+      "articulation_depth": "خارجي",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.3,
+      "physical_strength": 0.9,
+      "meaning_type": "مادي/واقعي",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "انتقال",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944157",
+          "sample_words": [
+            "آبنوس",
+            "آسيوي",
+            "آنسون",
+            "آونة",
+            "أبواب"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927548",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    },
+    "ي": {
+      "letter": "ي",
+      "name": "الياء",
+      "position_in_alphabet": 28,
+      "articulation_point": "حنكي",
+      "articulation_depth": "متوسط",
+      "phonetic_type": "جارية",
+      "emotional_strength": 0.6,
+      "physical_strength": 0.6,
+      "meaning_type": "مختلط",
+      "shape_general": "",
+      "shape_meaning": "",
+      "shape_in_objects": [],
+      "shape_objects_names": [],
+      "sound_description": "",
+      "sound_meaning": "",
+      "developer_meanings": [],
+      "inferred_meanings": [
+        {
+          "meaning": "الجذر",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944184",
+          "sample_words": [
+            "آبدين",
+            "آتي",
+            "آدمي",
+            "آذري",
+            "آسيا"
+          ]
+        },
+        {
+          "meaning": "جامد",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944197",
+          "sample_words": [
+            "آبدين",
+            "آتي",
+            "آدمي",
+            "آذري",
+            "آسيا"
+          ]
+        },
+        {
+          "meaning": "فِي",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944238",
+          "sample_words": [
+            "آبدين",
+            "آتي",
+            "آدمي",
+            "آذري",
+            "آسيا"
+          ]
+        },
+        {
+          "meaning": "مِنْ",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944278",
+          "sample_words": [
+            "آبدين",
+            "آتي",
+            "آدمي",
+            "آذري",
+            "آسيا"
+          ]
+        },
+        {
+          "meaning": "منسوب",
+          "source": "dictionary_extraction",
+          "words_count": 100,
+          "confidence": 1.0,
+          "extraction_date": "2025-10-25T23:07:39.944318",
+          "sample_words": [
+            "آبدين",
+            "آتي",
+            "آدمي",
+            "آذري",
+            "آسيا"
+          ]
+        }
+      ],
+      "similar_shape_letters": [],
+      "similar_sound_letters": [],
+      "adjacent_articulation_letters": [],
+      "opposite_letter": null,
+      "example_words": [],
+      "philosophical_meaning": "",
+      "geometric_shape": "",
+      "symbolic_meaning": "",
+      "last_updated": "2025-10-25T23:07:39.927622",
+      "updated_by": "initial_creation",
+      "confidence": 0.0
+    }
+  }
+}

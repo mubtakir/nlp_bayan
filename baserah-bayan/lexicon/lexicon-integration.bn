@@ -1,0 +1,357 @@
+#!/usr/bin/env bayan
+/**
+ * نظام تكامل المعاجم - Lexicon Integration System
+ * نظام بصيرة الثوري
+ * 
+ * 🧠 التكامل مع الخبير/المستكشف
+ * 📚 التكامل مع نظام المعرفة
+ * 🔄 التكامل مع نظام التعلم
+ * ⚡ نظام موحد للمعاجم
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { DigitalLexiconLoader, LexiconSource } from "./digital-lexicon-loader.bn";
+import { CharacterMeaningExtractor, AnalysisQuality } from "./character-meaning-extractor.bn";
+import { DictionaryDatabaseManager } from "./dictionary-database-manager.bn";
+import { DigitalDictionaryScraper, DictionarySource } from "./digital-dictionary-scraper.bn";
+
+// ==================== التعدادات ====================
+
+enum IntegrationMode {
+    STANDALONE = "مستقل",
+    WITH_EXPERT = "مع_الخبير",
+    WITH_KNOWLEDGE = "مع_المعرفة",
+    WITH_LEARNING = "مع_التعلم",
+    FULL_INTEGRATION = "تكامل_كامل"
+}
+
+enum ProcessingPriority {
+    LOW = "منخفضة",
+    MEDIUM = "متوسطة",
+    HIGH = "عالية",
+    CRITICAL = "حرجة"
+}
+
+enum CacheStrategy {
+    NO_CACHE = "بدون_تخزين",
+    MEMORY_ONLY = "ذاكرة_فقط",
+    DATABASE_ONLY = "قاعدة_بيانات_فقط",
+    HYBRID = "هجين"
+}
+
+// ==================== الفئات ====================
+
+class ExpertGuidance extends MotherEquation {
+    public guidanceId: string;
+    public recommendation: string;
+    public confidence: number;
+    public priority: ProcessingPriority;
+    public metadata: object;
+    
+    constructor(guidanceId: string, recommendation: string, confidence: number) {
+        super(guidanceId);
+        
+        this.guidanceId = guidanceId;
+        this.recommendation = recommendation;
+        this.confidence = confidence;
+        this.priority = ProcessingPriority.MEDIUM;
+        this.metadata = {};
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            guidanceId: guidanceId,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            confidence: confidence,
+            priority: ProcessingPriority.MEDIUM
+        };
+    }
+    
+    public setPriority(priority: ProcessingPriority): void {
+        this.priority = priority;
+        this.dynamicStates.priority = priority;
+    }
+    
+    public addMetadata(key: string, value: any): void {
+        this.metadata[key] = value;
+    }
+}
+
+class LexiconCache extends MotherEquation {
+    public strategy: CacheStrategy;
+    public memoryCache: Map<string, any>;
+    public maxSize: number;
+    public hitCount: number;
+    public missCount: number;
+    
+    constructor(strategy: CacheStrategy = CacheStrategy.HYBRID, maxSize: number = 1000) {
+        super("lexicon_cache");
+        
+        this.strategy = strategy;
+        this.memoryCache = new Map();
+        this.maxSize = maxSize;
+        this.hitCount = 0;
+        this.missCount = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            strategy: strategy,
+            maxSize: maxSize
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            cacheSize: 0,
+            hitCount: 0,
+            missCount: 0,
+            hitRate: 0.0
+        };
+    }
+    
+    public get(key: string): any | null {
+        if (this.strategy === CacheStrategy.NO_CACHE) {
+            this.missCount++;
+            this.dynamicStates.missCount = this.missCount;
+            return null;
+        }
+        
+        if (this.memoryCache.has(key)) {
+            this.hitCount++;
+            this.dynamicStates.hitCount = this.hitCount;
+            this._updateHitRate();
+            return this.memoryCache.get(key);
+        }
+        
+        this.missCount++;
+        this.dynamicStates.missCount = this.missCount;
+        this._updateHitRate();
+        return null;
+    }
+    
+    public set(key: string, value: any): void {
+        if (this.strategy === CacheStrategy.NO_CACHE) {
+            return;
+        }
+        
+        // إذا وصلنا للحد الأقصى، نحذف الأقدم
+        if (this.memoryCache.size >= this.maxSize) {
+            let firstKey = this.memoryCache.keys().next().value;
+            this.memoryCache.delete(firstKey);
+        }
+        
+        this.memoryCache.set(key, value);
+        this.dynamicStates.cacheSize = this.memoryCache.size;
+    }
+    
+    private _updateHitRate(): void {
+        let total = this.hitCount + this.missCount;
+        this.dynamicStates.hitRate = total > 0 ? (this.hitCount / total) * 100 : 0;
+    }
+    
+    public clear(): void {
+        this.memoryCache.clear();
+        this.hitCount = 0;
+        this.missCount = 0;
+        this.dynamicStates.cacheSize = 0;
+        this.dynamicStates.hitCount = 0;
+        this.dynamicStates.missCount = 0;
+        this.dynamicStates.hitRate = 0;
+    }
+    
+    public getStatistics(): object {
+        return {
+            strategy: this.strategy,
+            cacheSize: this.memoryCache.size,
+            maxSize: this.maxSize,
+            hitCount: this.hitCount,
+            missCount: this.missCount,
+            hitRate: this.dynamicStates.hitRate
+        };
+    }
+}
+
+class IntegratedLexiconSystem extends MotherEquation {
+    public mode: IntegrationMode;
+    public loader: DigitalLexiconLoader;
+    public extractor: CharacterMeaningExtractor;
+    public dbManager: DictionaryDatabaseManager;
+    public scraper: DigitalDictionaryScraper;
+    public cache: LexiconCache;
+    public expertGuidances: Array<ExpertGuidance>;
+    public isInitialized: boolean;
+    
+    constructor(
+        systemId: string = "integrated_lexicon",
+        mode: IntegrationMode = IntegrationMode.FULL_INTEGRATION
+    ) {
+        super(systemId);
+        
+        this.mode = mode;
+        this.loader = new DigitalLexiconLoader("loader_1");
+        this.extractor = new CharacterMeaningExtractor("extractor_1");
+        this.dbManager = new DictionaryDatabaseManager("databases/digital_dictionary.db");
+        this.scraper = new DigitalDictionaryScraper("databases/digital_dictionary.db");
+        this.cache = new LexiconCache(CacheStrategy.HYBRID, 1000);
+        this.expertGuidances = [];
+        this.isInitialized = false;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            systemId: systemId,
+            mode: mode,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            isInitialized: false,
+            totalWords: 0,
+            totalCharacters: 0,
+            lastUpdate: Date.now()
+        };
+    }
+    
+    public initialize(): boolean {
+        try {
+            // تحميل البيانات من قاعدة البيانات
+            // في التطبيق الحقيقي، نحمل من SQLite
+            
+            this.isInitialized = true;
+            this.dynamicStates.isInitialized = true;
+            this.dynamicStates.lastUpdate = Date.now();
+            
+            return true;
+        } catch (error) {
+            console.error("خطأ في التهيئة:", error);
+            return false;
+        }
+    }
+    
+    public consultExpert(context: string, data: object): ExpertGuidance {
+        // استشارة الخبير/المستكشف
+        let guidanceId = `guidance_${Date.now()}`;
+        let recommendation = "";
+        let confidence = 0.8;
+        
+        if (context === "character_extraction") {
+            recommendation = "استخدم طريقة الحرفين المتتابعين للحصول على نتائج أفضل";
+            confidence = 0.9;
+        } else if (context === "word_search") {
+            recommendation = "ابحث في قاعدة البيانات المحلية أولاً قبل الإنترنت";
+            confidence = 0.95;
+        } else {
+            recommendation = "تابع العملية بشكل طبيعي";
+            confidence = 0.7;
+        }
+        
+        let guidance = new ExpertGuidance(guidanceId, recommendation, confidence);
+        guidance.addMetadata("context", context);
+        guidance.addMetadata("data", data);
+        
+        this.expertGuidances.push(guidance);
+        
+        return guidance;
+    }
+    
+    public searchWord(word: string, useCache: boolean = true): object | null {
+        // البحث في الكاش أولاً
+        if (useCache) {
+            let cached = this.cache.get(`word_${word}`);
+            if (cached) {
+                return cached;
+            }
+        }
+        
+        // البحث في قاعدة البيانات
+        let entry = this.dbManager.searchWord(word);
+        if (entry) {
+            let result = {
+                word: entry.word,
+                meaning: entry.meaning,
+                source: entry.source,
+                sharedLetters: entry.sharedLetters,
+                generalMeanings: entry.generalMeanings
+            };
+            
+            if (useCache) {
+                this.cache.set(`word_${word}`, result);
+            }
+            
+            return result;
+        }
+        
+        return null;
+    }
+    
+    public extractCharacterMeanings(minFrequency: number = 0.1): object {
+        // استشارة الخبير
+        let guidance = this.consultExpert("character_extraction", {
+            minFrequency: minFrequency
+        });
+        
+        // تحميل المعجم
+        this.extractor.loadLexicon(this.loader.lexicon);
+        
+        // استخراج المعاني
+        let analyses = this.extractor.extractCharacterMeanings(minFrequency);
+        
+        // تحديث الإحصائيات
+        this.dynamicStates.totalCharacters = analyses.size;
+        this.dynamicStates.lastUpdate = Date.now();
+        
+        return this.extractor.exportAnalyses();
+    }
+
+    public async analyzeCharacter(character: string): Promise<object> {
+        // البحث في الكاش
+        let cached = this.cache.get(`char_${character}`);
+        if (cached) {
+            return cached;
+        }
+
+        // تحليل الحرف
+        let analysis = this.scraper.analyzeCharacterMeanings(character);
+
+        // حفظ في الكاش
+        this.cache.set(`char_${character}`, analysis);
+
+        return analysis;
+    }
+
+    public getStatistics(): object {
+        return {
+            mode: this.mode,
+            isInitialized: this.isInitialized,
+            loader: this.loader.getStatistics(),
+            extractor: this.extractor.getStatistics(),
+            database: this.dbManager.getStatistics(),
+            scraper: this.scraper.getScrapingStatistics(),
+            cache: this.cache.getStatistics(),
+            expertGuidances: this.expertGuidances.length
+        };
+    }
+
+    public exportAll(): object {
+        return {
+            words: this.loader.exportToJSON(),
+            characterAnalyses: this.extractor.exportAnalyses(),
+            statistics: this.getStatistics()
+        };
+    }
+}
+
+export {
+    IntegrationMode,
+    ProcessingPriority,
+    CacheStrategy,
+    ExpertGuidance,
+    LexiconCache,
+    IntegratedLexiconSystem
+};
+

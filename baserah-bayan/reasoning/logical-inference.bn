@@ -1,0 +1,641 @@
+/**
+ * الاستدلال المنطقي - Logical Inference
+ * 
+ * نظام استدلال منطقي متقدم
+ * بدون شبكات عصبية - Pure Mathematical AI
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+import { ReasoningEngine, Fact, Rule } from './reasoning-engine.bn';
+import { SemanticNetwork, SemanticNode, RelationType } from './semantic-network.bn';
+
+// ============================================
+// التعدادات - Enumerations
+// ============================================
+
+enum LogicalOperator {
+    AND = "and",               // و
+    OR = "or",                 // أو
+    NOT = "not",               // ليس
+    IMPLIES = "implies",       // يستلزم
+    IFF = "iff",              // إذا وفقط إذا
+    XOR = "xor",              // أو الحصري
+    NAND = "nand",            // ليس و
+    NOR = "nor"               // ليس أو
+}
+
+enum QuantifierType {
+    UNIVERSAL = "universal",   // لكل (∀)
+    EXISTENTIAL = "existential" // يوجد (∃)
+}
+
+enum ProofMethod {
+    DIRECT = "direct",                 // مباشر
+    CONTRADICTION = "contradiction",   // بالتناقض
+    CONTRAPOSITIVE = "contrapositive", // بالعكس
+    INDUCTION = "induction",           // بالاستقراء
+    CASES = "cases",                   // بالحالات
+    CONSTRUCTION = "construction"      // بالبناء
+}
+
+enum TruthValue {
+    TRUE = "true",
+    FALSE = "false",
+    UNKNOWN = "unknown"
+}
+
+// ============================================
+// الفئات الأساسية - Core Classes
+// ============================================
+
+/**
+ * فئة العبارة المنطقية - Logical Statement
+ */
+class LogicalStatement extends MotherEquation {
+    public statementId: string;
+    public expression: string;
+    public operator: LogicalOperator;
+    public operands: array<any>;
+    public truthValue: TruthValue;
+    public variables: array<string>;
+    
+    constructor(statementId: string, expression: string) {
+        super(`statement_${statementId}`);
+        this.statementId = statementId;
+        this.expression = expression;
+        this.operator = null;
+        this.operands = [];
+        this.truthValue = TruthValue.UNKNOWN;
+        this.variables = [];
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            statementId: this.statementId,
+            expression: this.expression
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            truthValue: this.truthValue,
+            operator: this.operator
+        };
+    }
+    
+    public evaluate(assignments: object): boolean {
+        // تقييم العبارة المنطقية
+        if (this.operator === LogicalOperator.AND) {
+            return this.evaluateAnd(assignments);
+        } else if (this.operator === LogicalOperator.OR) {
+            return this.evaluateOr(assignments);
+        } else if (this.operator === LogicalOperator.NOT) {
+            return this.evaluateNot(assignments);
+        } else if (this.operator === LogicalOperator.IMPLIES) {
+            return this.evaluateImplies(assignments);
+        }
+        
+        // متغير بسيط
+        if (assignments[this.expression] !== undefined) {
+            return assignments[this.expression];
+        }
+        
+        return false;
+    }
+    
+    private evaluateAnd(assignments: object): boolean {
+        for (let operand of this.operands) {
+            if (typeof operand === 'object' && operand.evaluate) {
+                if (!operand.evaluate(assignments)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    private evaluateOr(assignments: object): boolean {
+        for (let operand of this.operands) {
+            if (typeof operand === 'object' && operand.evaluate) {
+                if (operand.evaluate(assignments)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private evaluateNot(assignments: object): boolean {
+        if (this.operands.length > 0) {
+            let operand = this.operands[0];
+            if (typeof operand === 'object' && operand.evaluate) {
+                return !operand.evaluate(assignments);
+            }
+        }
+        return false;
+    }
+    
+    private evaluateImplies(assignments: object): boolean {
+        if (this.operands.length >= 2) {
+            let p = this.operands[0];
+            let q = this.operands[1];
+            
+            let pValue = (typeof p === 'object' && p.evaluate) ? p.evaluate(assignments) : false;
+            let qValue = (typeof q === 'object' && q.evaluate) ? q.evaluate(assignments) : false;
+            
+            // p → q ≡ ¬p ∨ q
+            return !pValue || qValue;
+        }
+        return false;
+    }
+}
+
+/**
+ * فئة الكمية - Quantifier
+ */
+class Quantifier extends MotherEquation {
+    public quantifierId: string;
+    public type: QuantifierType;
+    public variable: string;
+    public domain: array<any>;
+    public predicate: LogicalStatement;
+    
+    constructor(quantifierId: string, type: QuantifierType, variable: string, domain: array<any>) {
+        super(`quantifier_${quantifierId}`);
+        this.quantifierId = quantifierId;
+        this.type = type;
+        this.variable = variable;
+        this.domain = domain;
+        this.predicate = null;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            quantifierId: this.quantifierId,
+            type: this.type,
+            variable: this.variable
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            domain: this.domain
+        };
+    }
+    
+    public evaluate(): boolean {
+        if (!this.predicate) {
+            return false;
+        }
+        
+        if (this.type === QuantifierType.UNIVERSAL) {
+            // لكل: يجب أن تكون صحيحة لجميع العناصر
+            for (let element of this.domain) {
+                let assignment = {};
+                assignment[this.variable] = element;
+                if (!this.predicate.evaluate(assignment)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (this.type === QuantifierType.EXISTENTIAL) {
+            // يوجد: يجب أن تكون صحيحة لعنصر واحد على الأقل
+            for (let element of this.domain) {
+                let assignment = {};
+                assignment[this.variable] = element;
+                if (this.predicate.evaluate(assignment)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        return false;
+    }
+}
+
+/**
+ * فئة البرهان - Proof
+ */
+class Proof extends MotherEquation {
+    public proofId: string;
+    public theorem: string;
+    public method: ProofMethod;
+    public steps: array<object>;
+    public assumptions: array<LogicalStatement>;
+    public conclusion: LogicalStatement;
+    public isValid: boolean;
+    
+    constructor(proofId: string, theorem: string, method: ProofMethod) {
+        super(`proof_${proofId}`);
+        this.proofId = proofId;
+        this.theorem = theorem;
+        this.method = method;
+        this.steps = [];
+        this.assumptions = [];
+        this.conclusion = null;
+        this.isValid = false;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            proofId: this.proofId,
+            theorem: this.theorem,
+            method: this.method
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            stepsCount: 0,
+            isValid: this.isValid
+        };
+    }
+    
+    public addStep(description: string, justification: string, statement: LogicalStatement): void {
+        this.steps.push({
+            stepNumber: this.steps.length + 1,
+            description: description,
+            justification: justification,
+            statement: statement,
+            timestamp: new Date()
+        });
+        this.dynamicStates.stepsCount = this.steps.length;
+    }
+    
+    public addAssumption(assumption: LogicalStatement): void {
+        this.assumptions.push(assumption);
+    }
+    
+    public setConclusion(conclusion: LogicalStatement): void {
+        this.conclusion = conclusion;
+        this.dynamicStates.conclusion = conclusion;
+    }
+    
+    public validate(): boolean {
+        // التحقق من صحة البرهان
+        if (!this.conclusion) {
+            return false;
+        }
+        
+        // التحقق من أن الخطوات تؤدي إلى الاستنتاج
+        if (this.steps.length === 0) {
+            return false;
+        }
+        
+        this.isValid = true;
+        this.dynamicStates.isValid = this.isValid;
+        return this.isValid;
+    }
+}
+
+/**
+ * فئة نظام الاستدلال المنطقي - Logical Inference System
+ * النظام الرئيسي
+ */
+class LogicalInferenceSystem extends MotherEquation {
+    public reasoningEngine: ReasoningEngine;
+    public semanticNetwork: SemanticNetwork;
+    public statements: array<LogicalStatement>;
+    public proofs: array<Proof>;
+    public knowledgeBase: object;
+    
+    constructor() {
+        super("logical_inference_system_main");
+        this.reasoningEngine = new ReasoningEngine();
+        this.semanticNetwork = new SemanticNetwork();
+        this.statements = [];
+        this.proofs = [];
+        this.knowledgeBase = {
+            axioms: [],
+            theorems: [],
+            rules: []
+        };
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            systemType: "logical_inference",
+            version: "1.0.0"
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            statementsCount: 0,
+            proofsCount: 0,
+            axiomsCount: 0
+        };
+
+        // تهيئة قواعد منطقية أساسية
+        this.initializeBasicLogicRules();
+    }
+
+    // ============================================
+    // التهيئة - Initialization
+    // ============================================
+
+    private initializeBasicLogicRules(): void {
+        // قاعدة Modus Ponens: إذا كان p صحيح و (p → q) صحيح، إذن q صحيح
+        this.reasoningEngine.createRule(
+            "Modus Ponens",
+            [
+                { predicate: "is_true", subject: "p" },
+                { predicate: "implies", subject: "p", object: "q" }
+            ],
+            [
+                { predicate: "is_true", subject: "q", object: true }
+            ]
+        );
+
+        // قاعدة Modus Tollens: إذا كان (p → q) صحيح و q خاطئ، إذن p خاطئ
+        this.reasoningEngine.createRule(
+            "Modus Tollens",
+            [
+                { predicate: "implies", subject: "p", object: "q" },
+                { predicate: "is_false", subject: "q" }
+            ],
+            [
+                { predicate: "is_false", subject: "p", object: true }
+            ]
+        );
+
+        // قاعدة القياس المنطقي: إذا كان (p → q) و (q → r)، إذن (p → r)
+        this.reasoningEngine.createRule(
+            "Hypothetical Syllogism",
+            [
+                { predicate: "implies", subject: "p", object: "q" },
+                { predicate: "implies", subject: "q", object: "r" }
+            ],
+            [
+                { predicate: "implies", subject: "p", object: "r" }
+            ]
+        );
+    }
+
+    // ============================================
+    // إدارة العبارات - Statements Management
+    // ============================================
+
+    public addStatement(statement: LogicalStatement): void {
+        this.statements.push(statement);
+        this.dynamicStates.statementsCount = this.statements.length;
+    }
+
+    public createStatement(expression: string, operator: LogicalOperator = null): LogicalStatement {
+        let statement = new LogicalStatement(`stmt_${Date.now()}_${this.statements.length}`, expression);
+        statement.operator = operator;
+        this.addStatement(statement);
+        return statement;
+    }
+
+    // ============================================
+    // الاستدلال المنطقي - Logical Inference
+    // ============================================
+
+    /**
+     * تطبيق Modus Ponens
+     * إذا كان p صحيح و (p → q) صحيح، إذن q صحيح
+     */
+    public applyModusPonens(p: LogicalStatement, implication: LogicalStatement): LogicalStatement {
+        if (p.truthValue === TruthValue.TRUE && implication.operator === LogicalOperator.IMPLIES) {
+            // استخراج q من (p → q)
+            if (implication.operands.length >= 2) {
+                let q = implication.operands[1];
+                if (typeof q === 'object') {
+                    q.truthValue = TruthValue.TRUE;
+                    return q;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * تطبيق Modus Tollens
+     * إذا كان (p → q) صحيح و q خاطئ، إذن p خاطئ
+     */
+    public applyModusTollens(implication: LogicalStatement, q: LogicalStatement): LogicalStatement {
+        if (implication.operator === LogicalOperator.IMPLIES && q.truthValue === TruthValue.FALSE) {
+            // استخراج p من (p → q)
+            if (implication.operands.length >= 2) {
+                let p = implication.operands[0];
+                if (typeof p === 'object') {
+                    p.truthValue = TruthValue.FALSE;
+                    return p;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * البرهان بالتناقض
+     */
+    public proofByContradiction(assumption: LogicalStatement, expectedContradiction: LogicalStatement): Proof {
+        let proof = new Proof(`proof_${Date.now()}_${this.proofs.length}`, "Proof by Contradiction", ProofMethod.CONTRADICTION);
+
+        // الخطوة 1: افترض عكس ما نريد إثباته
+        proof.addAssumption(assumption);
+        proof.addStep("Assume the negation", "Assumption", assumption);
+
+        // الخطوة 2: استنتج تناقض
+        proof.addStep("Derive contradiction", "Logical inference", expectedContradiction);
+
+        // الخطوة 3: الاستنتاج
+        let conclusion = this.createStatement(`NOT(${assumption.expression})`, LogicalOperator.NOT);
+        conclusion.truthValue = TruthValue.TRUE;
+        proof.setConclusion(conclusion);
+        proof.addStep("Conclude the opposite", "Contradiction", conclusion);
+
+        proof.validate();
+        this.proofs.push(proof);
+        this.dynamicStates.proofsCount = this.proofs.length;
+
+        return proof;
+    }
+
+    /**
+     * البرهان المباشر
+     */
+    public directProof(premises: array<LogicalStatement>, conclusion: LogicalStatement): Proof {
+        let proof = new Proof(`proof_${Date.now()}_${this.proofs.length}`, "Direct Proof", ProofMethod.DIRECT);
+
+        // إضافة المقدمات
+        for (let premise of premises) {
+            proof.addAssumption(premise);
+            proof.addStep("Given premise", "Assumption", premise);
+        }
+
+        // تطبيق قواعد الاستدلال
+        let newFacts = this.reasoningEngine.forwardChaining();
+
+        for (let i = 0; i < newFacts.length && i < 5; i++) {
+            let fact = newFacts[i];
+            let stmt = this.createStatement(fact.toString());
+            stmt.truthValue = TruthValue.TRUE;
+            proof.addStep(`Inferred: ${fact.toString()}`, "Forward chaining", stmt);
+        }
+
+        // الاستنتاج
+        proof.setConclusion(conclusion);
+        proof.addStep("Conclusion", "Logical deduction", conclusion);
+
+        proof.validate();
+        this.proofs.push(proof);
+        this.dynamicStates.proofsCount = this.proofs.length;
+
+        return proof;
+    }
+
+    // ============================================
+    // التكامل مع الشبكة الدلالية - Semantic Network Integration
+    // ============================================
+
+    /**
+     * بناء شبكة دلالية من العبارات المنطقية
+     */
+    public buildSemanticNetworkFromStatements(): void {
+        for (let statement of this.statements) {
+            // إنشاء عقدة للعبارة
+            let node = this.semanticNetwork.createNode(statement.expression, NodeType.CONCEPT);
+
+            // إضافة العلاقات بناءً على المشغل
+            if (statement.operator === LogicalOperator.IMPLIES && statement.operands.length >= 2) {
+                let p = statement.operands[0];
+                let q = statement.operands[1];
+
+                if (typeof p === 'object' && typeof q === 'object') {
+                    let pNode = this.semanticNetwork.createNode(p.expression, NodeType.CONCEPT);
+                    let qNode = this.semanticNetwork.createNode(q.expression, NodeType.CONCEPT);
+
+                    this.semanticNetwork.createEdge(pNode.nodeId, qNode.nodeId, RelationType.CAUSES, 0.9);
+                }
+            }
+        }
+    }
+
+    /**
+     * الاستدلال باستخدام الشبكة الدلالية
+     */
+    public inferUsingSemanticNetwork(sourceLabel: string, targetLabel: string): array<string> {
+        let sourceNode = this.semanticNetwork.findNodeByLabel(sourceLabel);
+        let targetNode = this.semanticNetwork.findNodeByLabel(targetLabel);
+
+        if (sourceNode && targetNode) {
+            return this.semanticNetwork.findPath(sourceNode.nodeId, targetNode.nodeId);
+        }
+
+        return [];
+    }
+
+    // ============================================
+    // جداول الحقيقة - Truth Tables
+    // ============================================
+
+    /**
+     * إنشاء جدول حقيقة لعبارة منطقية
+     */
+    public generateTruthTable(statement: LogicalStatement): array<object> {
+        let variables = statement.variables;
+        let rows = [];
+
+        // توليد جميع التوليفات الممكنة
+        let numCombinations = Math.pow(2, variables.length);
+
+        for (let i = 0; i < numCombinations; i++) {
+            let assignment = {};
+            let binary = i.toString(2).padStart(variables.length, '0');
+
+            for (let j = 0; j < variables.length; j++) {
+                assignment[variables[j]] = binary[j] === '1';
+            }
+
+            let result = statement.evaluate(assignment);
+
+            rows.push({
+                assignment: assignment,
+                result: result
+            });
+        }
+
+        return rows;
+    }
+
+    /**
+     * التحقق من التكافؤ المنطقي
+     */
+    public areLogicallyEquivalent(stmt1: LogicalStatement, stmt2: LogicalStatement): boolean {
+        let table1 = this.generateTruthTable(stmt1);
+        let table2 = this.generateTruthTable(stmt2);
+
+        if (table1.length !== table2.length) {
+            return false;
+        }
+
+        for (let i = 0; i < table1.length; i++) {
+            if (table1[i].result !== table2[i].result) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // ============================================
+    // الإحصائيات - Statistics
+    // ============================================
+
+    public getStatistics(): object {
+        return {
+            statementsCount: this.statements.length,
+            proofsCount: this.proofs.length,
+            axiomsCount: this.knowledgeBase.axioms.length,
+            theoremsCount: this.knowledgeBase.theorems.length,
+            rulesCount: this.reasoningEngine.rules.length,
+            factsCount: this.reasoningEngine.facts.length,
+            semanticNodesCount: Object.keys(this.semanticNetwork.nodes).length,
+            semanticEdgesCount: this.semanticNetwork.edges.length,
+            validProofsCount: this.getValidProofsCount()
+        };
+    }
+
+    private getValidProofsCount(): number {
+        let count = 0;
+        for (let proof of this.proofs) {
+            if (proof.isValid) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public reset(): void {
+        this.reasoningEngine.reset();
+        this.semanticNetwork.reset();
+        this.statements = [];
+        this.proofs = [];
+        this.knowledgeBase = {
+            axioms: [],
+            theorems: [],
+            rules: []
+        };
+        this.dynamicStates.statementsCount = 0;
+        this.dynamicStates.proofsCount = 0;
+        this.dynamicStates.axiomsCount = 0;
+
+        // إعادة تهيئة القواعد الأساسية
+        this.initializeBasicLogicRules();
+    }
+}
+
+// ============================================
+// التصدير - Exports
+// ============================================
+
+export {
+    LogicalOperator,
+    QuantifierType,
+    ProofMethod,
+    TruthValue,
+    LogicalStatement,
+    Quantifier,
+    Proof,
+    LogicalInferenceSystem
+};
+

@@ -1,0 +1,365 @@
+/**
+ * أمثلة على استخدام النظام المتكامل للذكاء الحواري
+ * 
+ * @version 1.0.0
+ * @author Baserah AI Team
+ */
+
+import { IntegratedConversationalAI, SystemState } from "./integrated-conversational-ai.bn";
+import { WritingStyle, DetailLevel } from "./text-generator.bn";
+import { FeedbackType } from "./conversational-learning.bn";
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 1: محادثة بسيطة
+// ═══════════════════════════════════════════════════════════════
+
+function example1_SimpleConversation(): void {
+    console.log("═══════════════════════════════════════");
+    console.log("مثال 1: محادثة بسيطة");
+    console.log("═══════════════════════════════════════\n");
+
+    // إنشاء النظام
+    let ai = new IntegratedConversationalAI("ai-example-1");
+
+    // بدء محادثة
+    ai.startConversation("تحية");
+
+    // معالجة تحية
+    let result1 = ai.process("السلام عليكم");
+    console.log(`المستخدم: ${result1.userInput}`);
+    console.log(`النظام: ${result1.finalResponse}\n`);
+
+    // معالجة سؤال
+    let result2 = ai.process("كيف حالك؟");
+    console.log(`المستخدم: ${result2.userInput}`);
+    console.log(`النظام: ${result2.finalResponse}\n`);
+
+    // معالجة وداع
+    let result3 = ai.process("شكراً، وداعاً");
+    console.log(`المستخدم: ${result3.userInput}`);
+    console.log(`النظام: ${result3.finalResponse}\n`);
+
+    // إنهاء المحادثة
+    ai.endConversation();
+
+    // عرض الإحصائيات
+    console.log("📊 الإحصائيات:");
+    console.log(JSON.stringify(ai.getStats(), null, 2));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 2: تغيير الأسلوب
+// ═══════════════════════════════════════════════════════════════
+
+function example2_StyleVariation(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 2: تغيير الأسلوب");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-2");
+    let userInput = "ما هو الذكاء الاصطناعي؟";
+
+    // أسلوب رسمي
+    ai.updateSettings({ writingStyle: WritingStyle.FORMAL });
+    let result1 = ai.process(userInput);
+    console.log(`📝 أسلوب رسمي:`);
+    console.log(`   ${result1.finalResponse}\n`);
+
+    // أسلوب ودي
+    ai.updateSettings({ writingStyle: WritingStyle.FRIENDLY });
+    let result2 = ai.process(userInput);
+    console.log(`😊 أسلوب ودي:`);
+    console.log(`   ${result2.finalResponse}\n`);
+
+    // أسلوب عامي
+    ai.updateSettings({ writingStyle: WritingStyle.CASUAL });
+    let result3 = ai.process(userInput);
+    console.log(`💬 أسلوب عامي:`);
+    console.log(`   ${result3.finalResponse}\n`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 3: مستويات التفاصيل
+// ═══════════════════════════════════════════════════════════════
+
+function example3_DetailLevels(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 3: مستويات التفاصيل");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-3");
+    let userInput = "اشرح لي كيف يعمل الحاسوب";
+
+    // مختصر
+    ai.updateSettings({ detailLevel: DetailLevel.BRIEF });
+    let result1 = ai.process(userInput);
+    console.log(`📄 مختصر:`);
+    console.log(`   ${result1.finalResponse}\n`);
+
+    // متوسط
+    ai.updateSettings({ detailLevel: DetailLevel.MODERATE });
+    let result2 = ai.process(userInput);
+    console.log(`📋 متوسط:`);
+    console.log(`   ${result2.finalResponse}\n`);
+
+    // مفصل
+    ai.updateSettings({ detailLevel: DetailLevel.DETAILED });
+    let result3 = ai.process(userInput);
+    console.log(`📚 مفصل:`);
+    console.log(`   ${result3.finalResponse}\n`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 4: التعلم من ردود الفعل
+// ═══════════════════════════════════════════════════════════════
+
+function example4_LearningFromFeedback(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 4: التعلم من ردود الفعل");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-4");
+    ai.startConversation("تعلم");
+
+    // معالجة سؤال
+    let result1 = ai.process("ما هي عاصمة مصر؟");
+    console.log(`المستخدم: ${result1.userInput}`);
+    console.log(`النظام: ${result1.finalResponse}\n`);
+
+    // ردة فعل إيجابية
+    ai.addFeedback(
+        result1.id,
+        FeedbackType.POSITIVE,
+        0.9,
+        "إجابة ممتازة!"
+    );
+    console.log("✅ ردة فعل إيجابية: إجابة ممتازة!\n");
+
+    // معالجة سؤال آخر
+    let result2 = ai.process("كم عدد سكان العالم؟");
+    console.log(`المستخدم: ${result2.userInput}`);
+    console.log(`النظام: ${result2.finalResponse}\n`);
+
+    // ردة فعل سلبية
+    ai.addFeedback(
+        result2.id,
+        FeedbackType.NEGATIVE,
+        0.2,
+        "الإجابة غير دقيقة"
+    );
+    console.log("❌ ردة فعل سلبية: الإجابة غير دقيقة\n");
+
+    // معالجة تصحيح
+    let result3 = ai.process("العدد الصحيح هو 8 مليار");
+    ai.addFeedback(
+        result3.id,
+        FeedbackType.CORRECTION,
+        0.8,
+        "عدد سكان العالم: 8 مليار"
+    );
+    console.log("🔧 تصحيح: عدد سكان العالم: 8 مليار\n");
+
+    ai.endConversation();
+
+    // عرض تقرير التعلم
+    console.log("📚 تقرير التعلم:");
+    let learningStats = ai.getStats().learningSystem;
+    console.log(JSON.stringify(learningStats, null, 2));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 5: محادثة متعددة الأدوار
+// ═══════════════════════════════════════════════════════════════
+
+function example5_MultiTurnConversation(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 5: محادثة متعددة الأدوار");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-5");
+    ai.updateSettings({ 
+        writingStyle: WritingStyle.FRIENDLY,
+        detailLevel: DetailLevel.MODERATE
+    });
+
+    ai.startConversation("مساعدة تقنية");
+
+    let conversation = [
+        "مرحباً، أحتاج مساعدة",
+        "الحاسوب لا يعمل",
+        "نعم، جربت إعادة التشغيل",
+        "حسناً، سأجرب ذلك",
+        "شكراً جزيلاً!"
+    ];
+
+    for (let userInput of conversation) {
+        let result = ai.process(userInput);
+        console.log(`👤 المستخدم: ${result.userInput}`);
+        console.log(`🤖 النظام: ${result.finalResponse}`);
+        console.log(`⏱️ الوقت: ${result.processingTime}ms\n`);
+    }
+
+    ai.endConversation();
+
+    // عرض سجل المحادثة
+    console.log("📜 سجل المحادثة:");
+    let history = ai.getHistory();
+    console.log(`   عدد الرسائل: ${history.length}`);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 6: تحليل عميق
+// ═══════════════════════════════════════════════════════════════
+
+function example6_DeepUnderstanding(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 6: تحليل عميق");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-6");
+    ai.updateSettings({ enableDeepUnderstanding: true });
+
+    let inputs = [
+        "أنا سعيد جداً اليوم! 😊",
+        "للأسف، لم أستطع إنجاز المهمة",
+        "هل يمكنك مساعدتي من فضلك؟",
+        "هذا رائع! شكراً جزيلاً"
+    ];
+
+    for (let input of inputs) {
+        let result = ai.process(input);
+        
+        console.log(`📝 المدخل: "${input}"`);
+        
+        if (result.deepUnderstanding) {
+            if (result.deepUnderstanding.emotionAnalysis) {
+                console.log(`   😊 المشاعر: ${result.deepUnderstanding.emotionAnalysis.primaryEmotion}`);
+                console.log(`   📊 الشدة: ${(result.deepUnderstanding.emotionAnalysis.intensity * 100).toFixed(0)}%`);
+            }
+            
+            if (result.deepUnderstanding.toneAnalysis) {
+                console.log(`   🎵 النبرة: ${result.deepUnderstanding.toneAnalysis.primaryTone}`);
+            }
+        }
+        
+        console.log(`   🤖 الاستجابة: "${result.finalResponse}"\n`);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 7: تقرير شامل
+// ═══════════════════════════════════════════════════════════════
+
+function example7_ComprehensiveReport(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 7: تقرير شامل");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-7");
+    
+    // معالجة عدة مدخلات
+    ai.startConversation("اختبار شامل");
+    
+    ai.process("مرحباً");
+    ai.process("كيف حالك؟");
+    ai.process("ما هو الذكاء الاصطناعي؟");
+    ai.process("شكراً");
+    ai.process("وداعاً");
+    
+    ai.endConversation();
+
+    // عرض التقرير الشامل
+    console.log(ai.generateSystemReport());
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مثال 8: معالجة نية معقدة
+// ═══════════════════════════════════════════════════════════════
+
+function example8_ComplexIntent(): void {
+    console.log("\n═══════════════════════════════════════");
+    console.log("مثال 8: معالجة نية معقدة");
+    console.log("═══════════════════════════════════════\n");
+
+    let ai = new IntegratedConversationalAI("ai-example-8");
+    ai.updateSettings({ 
+        enableDeepUnderstanding: true,
+        enableFluencyEnhancement: true
+    });
+
+    let complexInput = "أنا أحتاج مساعدة عاجلة في فهم كيفية عمل الذكاء الاصطناعي، وأيضاً أريد معرفة كيف يمكنني تطبيقه في مشروعي";
+
+    let result = ai.process(complexInput);
+
+    console.log("📋 تقرير المعالجة الكامل:");
+    console.log(result.generateReport());
+}
+
+// ═══════════════════════════════════════════════════════════════
+// تشغيل جميع الأمثلة
+// ═══════════════════════════════════════════════════════════════
+
+export function runAllExamples(): void {
+    console.log("🚀 بدء تشغيل جميع الأمثلة...\n");
+
+    example1_SimpleConversation();
+    example2_StyleVariation();
+    example3_DetailLevels();
+    example4_LearningFromFeedback();
+    example5_MultiTurnConversation();
+    example6_DeepUnderstanding();
+    example7_ComprehensiveReport();
+    example8_ComplexIntent();
+
+    console.log("\n✅ انتهى تشغيل جميع الأمثلة!");
+}
+
+// ═══════════════════════════════════════════════════════════════
+// تشغيل مثال واحد
+// ═══════════════════════════════════════════════════════════════
+
+export function runExample(exampleNumber: number): void {
+    switch (exampleNumber) {
+        case 1:
+            example1_SimpleConversation();
+            break;
+        case 2:
+            example2_StyleVariation();
+            break;
+        case 3:
+            example3_DetailLevels();
+            break;
+        case 4:
+            example4_LearningFromFeedback();
+            break;
+        case 5:
+            example5_MultiTurnConversation();
+            break;
+        case 6:
+            example6_DeepUnderstanding();
+            break;
+        case 7:
+            example7_ComprehensiveReport();
+            break;
+        case 8:
+            example8_ComplexIntent();
+            break;
+        default:
+            console.log(`❌ مثال رقم ${exampleNumber} غير موجود`);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// نقطة الدخول الرئيسية
+// ═══════════════════════════════════════════════════════════════
+
+// تشغيل جميع الأمثلة عند التنفيذ
+if (typeof window === "undefined") {
+    // في بيئة Node.js
+    runAllExamples();
+} else {
+    // في المتصفح - تصدير الدوال للاستخدام
+    (window as any).runAllExamples = runAllExamples;
+    (window as any).runExample = runExample;
+}
+

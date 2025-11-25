@@ -1,0 +1,486 @@
+/**
+ * محرك الذكاء العاطفي المتقدم
+ * Advanced Emotional Intelligence Engine
+ * 
+ * يوفر قدرات متقدمة لفهم وإدارة المشاعر المعقدة
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+// ==================== التعدادات ====================
+
+/**
+ * شدة المشاعر
+ * Emotion Intensity
+ */
+export enum EmotionIntensity {
+    VERY_LOW = "منخفضة جداً",
+    LOW = "منخفضة",
+    MODERATE = "متوسطة",
+    HIGH = "عالية",
+    VERY_HIGH = "عالية جداً"
+}
+
+/**
+ * قطبية المشاعر
+ * Emotion Valence
+ */
+export enum EmotionValence {
+    POSITIVE = "إيجابي",
+    NEGATIVE = "سلبي",
+    NEUTRAL = "محايد",
+    MIXED = "مختلط"
+}
+
+/**
+ * استراتيجيات تنظيم المشاعر
+ * Emotion Regulation Strategies
+ */
+export enum RegulationStrategy {
+    REAPPRAISAL = "إعادة التقييم",
+    SUPPRESSION = "الكبت",
+    DISTRACTION = "التشتيت",
+    ACCEPTANCE = "القبول",
+    EXPRESSION = "التعبير",
+    PROBLEM_SOLVING = "حل المشكلة",
+    SEEKING_SUPPORT = "طلب الدعم",
+    MINDFULNESS = "اليقظة الذهنية"
+}
+
+/**
+ * أنواع المشاعر الأساسية
+ * Basic Emotion Types
+ */
+export enum BasicEmotion {
+    JOY = "فرح",
+    SADNESS = "حزن",
+    ANGER = "غضب",
+    FEAR = "خوف",
+    SURPRISE = "مفاجأة",
+    DISGUST = "اشمئزاز",
+    TRUST = "ثقة",
+    ANTICIPATION = "ترقب"
+}
+
+// ==================== الفئات ====================
+
+/**
+ * حالة عاطفية
+ * Emotional State
+ */
+export class EmotionalState extends MotherEquation {
+    public stateId: string;
+    public primaryEmotion: string;
+    public secondaryEmotions: Array<string>;
+    public intensity: EmotionIntensity;
+    public valence: EmotionValence;
+    public triggers: Array<string>;
+    public duration: number; // بالدقائق
+    public context: string | null;
+    public timestamp: number;
+
+    constructor(
+        primaryEmotion: string,
+        intensity: EmotionIntensity,
+        valence: EmotionValence,
+        triggers: Array<string> = []
+    ) {
+        super(`emotion_${Date.now()}`, {}, {});
+        this.stateId = this.id;
+        this.primaryEmotion = primaryEmotion;
+        this.secondaryEmotions = [];
+        this.intensity = intensity;
+        this.valence = valence;
+        this.triggers = triggers;
+        this.duration = 0;
+        this.context = null;
+        this.timestamp = Date.now();
+    }
+
+    /**
+     * إضافة مشاعر ثانوية
+     */
+    public addSecondaryEmotion(emotion: string): void {
+        if (!this.secondaryEmotions.includes(emotion)) {
+            this.secondaryEmotions.push(emotion);
+        }
+    }
+
+    /**
+     * حساب درجة تعقيد الحالة العاطفية
+     */
+    public getComplexityScore(): number {
+        let baseScore = 0.3;
+
+        // المشاعر الثانوية تزيد التعقيد
+        let secondaryScore = this.secondaryEmotions.length * 0.15;
+
+        // الشدة العالية تزيد التعقيد
+        let intensityMap = new Map<EmotionIntensity, number>([
+            [EmotionIntensity.VERY_LOW, 0.1],
+            [EmotionIntensity.LOW, 0.2],
+            [EmotionIntensity.MODERATE, 0.3],
+            [EmotionIntensity.HIGH, 0.4],
+            [EmotionIntensity.VERY_HIGH, 0.5]
+        ]);
+        let intensityScore = intensityMap.get(this.intensity) || 0.3;
+
+        // المشاعر المختلطة أكثر تعقيداً
+        let valenceScore = this.valence === EmotionValence.MIXED ? 0.3 : 0.1;
+
+        return Math.min(1.0, baseScore + secondaryScore + intensityScore + valenceScore);
+    }
+
+    /**
+     * تحديث المدة
+     */
+    public updateDuration(minutes: number): void {
+        this.duration += minutes;
+    }
+
+    /**
+     * الحصول على وصف الحالة
+     */
+    public getDescription(): string {
+        let desc = `الشعور الأساسي: ${this.primaryEmotion} (${this.intensity})`;
+        
+        if (this.secondaryEmotions.length > 0) {
+            desc += `\nمشاعر ثانوية: ${this.secondaryEmotions.join(", ")}`;
+        }
+        
+        desc += `\nالقطبية: ${this.valence}`;
+        desc += `\nالمدة: ${this.duration.toFixed(1)} دقيقة`;
+        desc += `\nدرجة التعقيد: ${(this.getComplexityScore() * 100).toFixed(0)}%`;
+        
+        return desc;
+    }
+}
+
+/**
+ * تنظيم عاطفي
+ * Emotional Regulation
+ */
+export class EmotionalRegulation extends MotherEquation {
+    public regulationId: string;
+    public targetEmotion: string;
+    public currentIntensity: number;
+    public desiredIntensity: number;
+    public strategy: RegulationStrategy;
+    public effectiveness: number;
+    public steps: Array<string>;
+    public timestamp: number;
+
+    constructor(
+        targetEmotion: string,
+        currentIntensity: number,
+        desiredIntensity: number,
+        strategy: RegulationStrategy
+    ) {
+        super(`regulation_${Date.now()}`, {}, {});
+        this.regulationId = this.id;
+        this.targetEmotion = targetEmotion;
+        this.currentIntensity = currentIntensity;
+        this.desiredIntensity = desiredIntensity;
+        this.strategy = strategy;
+        this.effectiveness = 0;
+        this.steps = [];
+        this.timestamp = Date.now();
+    }
+
+    /**
+     * إضافة خطوة
+     */
+    public addStep(step: string): void {
+        this.steps.push(step);
+    }
+
+    /**
+     * حساب فعالية التنظيم
+     */
+    public calculateEffectiveness(): number {
+        let intensityReduction = Math.abs(this.currentIntensity - this.desiredIntensity);
+
+        if (intensityReduction < 0.1) {
+            this.effectiveness = 1.0;
+        } else if (intensityReduction < 0.3) {
+            this.effectiveness = 0.8;
+        } else if (intensityReduction < 0.5) {
+            this.effectiveness = 0.6;
+        } else if (intensityReduction < 0.7) {
+            this.effectiveness = 0.4;
+        } else {
+            this.effectiveness = 0.2;
+        }
+
+        return this.effectiveness;
+    }
+
+    /**
+     * تطبيق الاستراتيجية
+     */
+    public applyStrategy(): Array<string> {
+        this.steps = [];
+
+        switch (this.strategy) {
+            case RegulationStrategy.REAPPRAISAL:
+                this.steps.push("إعادة تقييم الموقف من منظور مختلف");
+                this.steps.push("البحث عن الجوانب الإيجابية");
+                this.steps.push("تغيير التفسير الشخصي للحدث");
+                break;
+
+            case RegulationStrategy.SUPPRESSION:
+                this.steps.push("كبت التعبير الخارجي عن المشاعر");
+                this.steps.push("الحفاظ على مظهر محايد");
+                this.steps.push("تأجيل المعالجة العاطفية");
+                break;
+
+            case RegulationStrategy.DISTRACTION:
+                this.steps.push("تحويل الانتباه إلى نشاط آخر");
+                this.steps.push("الانخراط في مهمة تتطلب تركيزاً");
+                this.steps.push("تغيير البيئة المحيطة");
+                break;
+
+            case RegulationStrategy.ACCEPTANCE:
+                this.steps.push("قبول المشاعر دون حكم");
+                this.steps.push("الاعتراف بالمشاعر كجزء طبيعي");
+                this.steps.push("السماح للمشاعر بالمرور");
+                break;
+
+            case RegulationStrategy.EXPRESSION:
+                this.steps.push("التعبير عن المشاعر بطريقة صحية");
+                this.steps.push("مشاركة المشاعر مع شخص موثوق");
+                this.steps.push("استخدام الكتابة أو الفن للتعبير");
+                break;
+
+            case RegulationStrategy.PROBLEM_SOLVING:
+                this.steps.push("تحديد المشكلة الأساسية");
+                this.steps.push("وضع خطة عمل للحل");
+                this.steps.push("تنفيذ الحل خطوة بخطوة");
+                break;
+
+            case RegulationStrategy.SEEKING_SUPPORT:
+                this.steps.push("التواصل مع شخص داعم");
+                this.steps.push("طلب المساعدة أو النصيحة");
+                this.steps.push("الاستفادة من الدعم الاجتماعي");
+                break;
+
+            case RegulationStrategy.MINDFULNESS:
+                this.steps.push("ممارسة التنفس العميق");
+                this.steps.push("التركيز على اللحظة الحالية");
+                this.steps.push("مراقبة المشاعر دون تفاعل");
+                break;
+        }
+
+        return this.steps;
+    }
+
+    /**
+     * الحصول على تقرير
+     */
+    public getReport(): string {
+        let report = `تنظيم المشاعر: ${this.targetEmotion}\n`;
+        report += `الشدة الحالية: ${(this.currentIntensity * 100).toFixed(0)}%\n`;
+        report += `الشدة المرغوبة: ${(this.desiredIntensity * 100).toFixed(0)}%\n`;
+        report += `الاستراتيجية: ${this.strategy}\n`;
+        report += `الفعالية: ${(this.effectiveness * 100).toFixed(0)}%\n`;
+        report += `\nالخطوات:\n`;
+        this.steps.forEach((step, index) => {
+            report += `${index + 1}. ${step}\n`;
+        });
+
+        return report;
+    }
+}
+
+/**
+ * محرك الذكاء العاطفي
+ * Emotional Intelligence Engine
+ */
+export class EmotionalIntelligenceEngine extends MotherEquation {
+    public currentStates: Map<string, EmotionalState>;
+    public regulationHistory: Array<EmotionalRegulation>;
+    public emotionPatterns: Map<string, Array<string>>; // trigger -> emotions
+    public maxHistorySize: number;
+
+    constructor() {
+        super("emotional_intelligence_engine", {}, {});
+        this.currentStates = new Map();
+        this.regulationHistory = [];
+        this.emotionPatterns = new Map();
+        this.maxHistorySize = 100;
+    }
+
+    /**
+     * تسجيل حالة عاطفية جديدة
+     */
+    public recordEmotionalState(state: EmotionalState): void {
+        this.currentStates.set(state.stateId, state);
+
+        // تسجيل الأنماط
+        state.triggers.forEach(trigger => {
+            if (!this.emotionPatterns.has(trigger)) {
+                this.emotionPatterns.set(trigger, []);
+            }
+            let emotions = this.emotionPatterns.get(trigger)!;
+            if (!emotions.includes(state.primaryEmotion)) {
+                emotions.push(state.primaryEmotion);
+            }
+        });
+
+        console.log(`✅ تم تسجيل حالة عاطفية: ${state.primaryEmotion} (${state.intensity})`);
+    }
+
+    /**
+     * الحصول على الحالة العاطفية الحالية
+     */
+    public getCurrentDominantEmotion(): EmotionalState | null {
+        if (this.currentStates.size === 0) {
+            return null;
+        }
+
+        // البحث عن أقوى مشاعر
+        let strongest: EmotionalState | null = null;
+        let maxIntensity = 0;
+
+        this.currentStates.forEach(state => {
+            let intensityValue = this.getIntensityValue(state.intensity);
+            if (intensityValue > maxIntensity) {
+                maxIntensity = intensityValue;
+                strongest = state;
+            }
+        });
+
+        return strongest;
+    }
+
+    /**
+     * تحويل شدة المشاعر إلى قيمة رقمية
+     */
+    private getIntensityValue(intensity: EmotionIntensity): number {
+        switch (intensity) {
+            case EmotionIntensity.VERY_LOW: return 0.2;
+            case EmotionIntensity.LOW: return 0.4;
+            case EmotionIntensity.MODERATE: return 0.6;
+            case EmotionIntensity.HIGH: return 0.8;
+            case EmotionIntensity.VERY_HIGH: return 1.0;
+            default: return 0.5;
+        }
+    }
+
+    /**
+     * اقتراح استراتيجية تنظيم
+     */
+    public suggestRegulationStrategy(
+        emotion: string,
+        currentIntensity: number,
+        desiredIntensity: number
+    ): RegulationStrategy {
+        let difference = Math.abs(currentIntensity - desiredIntensity);
+
+        // اختيار الاستراتيجية بناءً على الفرق والمشاعر
+        if (difference < 0.2) {
+            return RegulationStrategy.ACCEPTANCE;
+        } else if (difference < 0.4) {
+            return RegulationStrategy.MINDFULNESS;
+        } else if (emotion === BasicEmotion.ANGER || emotion === BasicEmotion.FEAR) {
+            return RegulationStrategy.REAPPRAISAL;
+        } else if (emotion === BasicEmotion.SADNESS) {
+            return RegulationStrategy.SEEKING_SUPPORT;
+        } else {
+            return RegulationStrategy.PROBLEM_SOLVING;
+        }
+    }
+
+    /**
+     * تنظيم المشاعر
+     */
+    public regulateEmotion(
+        emotion: string,
+        currentIntensity: number,
+        desiredIntensity: number,
+        strategy?: RegulationStrategy
+    ): EmotionalRegulation {
+        // اختيار الاستراتيجية إذا لم تُحدد
+        if (!strategy) {
+            strategy = this.suggestRegulationStrategy(emotion, currentIntensity, desiredIntensity);
+        }
+
+        // إنشاء خطة التنظيم
+        let regulation = new EmotionalRegulation(
+            emotion,
+            currentIntensity,
+            desiredIntensity,
+            strategy
+        );
+
+        // تطبيق الاستراتيجية
+        regulation.applyStrategy();
+
+        // حساب الفعالية
+        regulation.calculateEffectiveness();
+
+        // حفظ في السجل
+        this.regulationHistory.push(regulation);
+        if (this.regulationHistory.length > this.maxHistorySize) {
+            this.regulationHistory.shift();
+        }
+
+        console.log(`✅ تم إنشاء خطة تنظيم للمشاعر: ${emotion}`);
+        console.log(`   الاستراتيجية: ${strategy}`);
+        console.log(`   الفعالية المتوقعة: ${(regulation.effectiveness * 100).toFixed(0)}%`);
+
+        return regulation;
+    }
+
+    /**
+     * التنبؤ بالمشاعر بناءً على المحفز
+     */
+    public predictEmotions(trigger: string): Array<string> {
+        if (this.emotionPatterns.has(trigger)) {
+            return this.emotionPatterns.get(trigger)!;
+        }
+        return [];
+    }
+
+    /**
+     * الحصول على إحصائيات
+     */
+    public getStatistics(): any {
+        let totalStates = this.currentStates.size;
+        let totalRegulations = this.regulationHistory.length;
+        let avgEffectiveness = 0;
+
+        if (totalRegulations > 0) {
+            let sum = this.regulationHistory.reduce((acc, reg) => acc + reg.effectiveness, 0);
+            avgEffectiveness = sum / totalRegulations;
+        }
+
+        return {
+            totalEmotionalStates: totalStates,
+            totalRegulations: totalRegulations,
+            averageEffectiveness: avgEffectiveness,
+            patternsLearned: this.emotionPatterns.size
+        };
+    }
+
+    /**
+     * مسح الحالات القديمة
+     */
+    public clearOldStates(maxAgeMinutes: number = 60): void {
+        let now = Date.now();
+        let cleared = 0;
+
+        this.currentStates.forEach((state, id) => {
+            let ageMinutes = (now - state.timestamp) / (1000 * 60);
+            if (ageMinutes > maxAgeMinutes) {
+                this.currentStates.delete(id);
+                cleared++;
+            }
+        });
+
+        if (cleared > 0) {
+            console.log(`🧹 تم مسح ${cleared} حالة عاطفية قديمة`);
+        }
+    }
+}
+

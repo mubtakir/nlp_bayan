@@ -1,0 +1,527 @@
+/**
+ * مدير قواعد بيانات طبقات التفكير - Thinking Layers Database Manager
+ * 
+ * 🗄️ إدارة قواعد البيانات المتنامية لكل طبقة تفكير
+ * 💾 حفظ واسترجاع المعرفة المتخصصة
+ * 🔍 بحث متقدم في المعرفة
+ * 📊 إحصائيات ومقاييس الأداء
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-28
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+// ==================== التعدادات ====================
+
+/**
+ * أنواع طبقات التفكير
+ */
+enum LayerType {
+    MATHEMATICAL = "رياضية",
+    LOGICAL = "منطقية",
+    INTERPRETIVE = "تفسيرية",
+    PHYSICAL = "فيزيائية",
+    LINGUISTIC = "لغوية",
+    SYMBOLIC = "رمزية",
+    VISUAL = "بصرية",
+    SEMANTIC = "دلالية",
+    EVENT = "أحداث",
+    EMOTIONAL = "عاطفية",
+    PROPERTY = "خصائص"
+}
+
+/**
+ * أنواع البحث في قاعدة البيانات
+ */
+enum SearchType {
+    EXACT = "مطابق_تماماً",
+    CONTAINS = "يحتوي",
+    STARTS_WITH = "يبدأ_بـ",
+    ENDS_WITH = "ينتهي_بـ",
+    PATTERN = "نمط",
+    SEMANTIC = "دلالي",
+    FUZZY = "تقريبي"
+}
+
+/**
+ * مستويات الثقة
+ */
+enum ConfidenceLevel {
+    VERY_LOW = "منخفض_جداً",
+    LOW = "منخفض",
+    MEDIUM = "متوسط",
+    HIGH = "عالي",
+    VERY_HIGH = "عالي_جداً",
+    ABSOLUTE = "مطلق"
+}
+
+/**
+ * حالة المعرفة
+ */
+enum KnowledgeStatus {
+    PENDING = "معلق",
+    VERIFIED = "موثق",
+    UNVERIFIED = "غير_موثق",
+    CONFLICTING = "متضارب",
+    DEPRECATED = "قديم",
+    ACTIVE = "نشط"
+}
+
+// ==================== الفئات ====================
+
+/**
+ * عنصر معرفي في قاعدة البيانات
+ */
+class KnowledgeEntry extends MotherEquation {
+    public id: number;
+    public layerType: LayerType;
+    public key: string;
+    public value: string;
+    public metadata: object;
+    public confidence: number;
+    public status: KnowledgeStatus;
+    public source: string;
+    public timestamp: number;
+    public accessCount: number;
+    public lastAccessed: number;
+    
+    constructor(
+        id: number,
+        layerType: LayerType,
+        key: string,
+        value: string,
+        metadata: object = {},
+        confidence: number = 0.8
+    ) {
+        super(`knowledge_entry_${id}`);
+        
+        this.id = id;
+        this.layerType = layerType;
+        this.key = key;
+        this.value = value;
+        this.metadata = metadata;
+        this.confidence = confidence;
+        this.status = KnowledgeStatus.ACTIVE;
+        this.source = "system";
+        this.timestamp = Date.now();
+        this.accessCount = 0;
+        this.lastAccessed = Date.now();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            id: id,
+            layerType: layerType,
+            createdAt: this.timestamp
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            value: value,
+            confidence: confidence,
+            status: this.status,
+            accessCount: this.accessCount,
+            lastAccessed: this.lastAccessed
+        };
+    }
+    
+    public updateValue(newValue: string, newConfidence: number = null): void {
+        this.value = newValue;
+        if (newConfidence !== null) {
+            this.confidence = newConfidence;
+        }
+        this.timestamp = Date.now();
+        
+        this.dynamicStates.value = newValue;
+        this.dynamicStates.confidence = this.confidence;
+    }
+    
+    public incrementAccess(): void {
+        this.accessCount++;
+        this.lastAccessed = Date.now();
+        
+        this.dynamicStates.accessCount = this.accessCount;
+        this.dynamicStates.lastAccessed = this.lastAccessed;
+    }
+    
+    public getConfidenceLevel(): ConfidenceLevel {
+        if (this.confidence >= 0.95) return ConfidenceLevel.ABSOLUTE;
+        if (this.confidence >= 0.8) return ConfidenceLevel.VERY_HIGH;
+        if (this.confidence >= 0.6) return ConfidenceLevel.HIGH;
+        if (this.confidence >= 0.4) return ConfidenceLevel.MEDIUM;
+        if (this.confidence >= 0.2) return ConfidenceLevel.LOW;
+        return ConfidenceLevel.VERY_LOW;
+    }
+}
+
+/**
+ * استعلام قاعدة البيانات
+ */
+class DatabaseQuery extends MotherEquation {
+    public layerType: LayerType | null;
+    public searchType: SearchType;
+    public searchTerm: string;
+    public minConfidence: number;
+    public maxResults: number;
+    public filters: object;
+    
+    constructor(
+        searchTerm: string,
+        searchType: SearchType = SearchType.CONTAINS,
+        layerType: LayerType | null = null
+    ) {
+        super("database_query");
+        
+        this.layerType = layerType;
+        this.searchType = searchType;
+        this.searchTerm = searchTerm;
+        this.minConfidence = 0.0;
+        this.maxResults = 100;
+        this.filters = {};
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            searchType: searchType,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            searchTerm: searchTerm,
+            layerType: layerType,
+            minConfidence: this.minConfidence
+        };
+    }
+    
+    public setMinConfidence(minConf: number): DatabaseQuery {
+        this.minConfidence = minConf;
+        this.dynamicStates.minConfidence = minConf;
+        return this;
+    }
+    
+    public setMaxResults(max: number): DatabaseQuery {
+        this.maxResults = max;
+        return this;
+    }
+    
+    public addFilter(key: string, value: any): DatabaseQuery {
+        this.filters[key] = value;
+        return this;
+    }
+}
+
+/**
+ * مدير قاعدة بيانات طبقة واحدة
+ */
+class LayerDatabaseManager extends MotherEquation {
+    public layerType: LayerType;
+    public databasePath: string;
+    public entries: Map<string, KnowledgeEntry>;
+    public keyIndex: Map<string, Array<number>>;
+    public nextId: number;
+    
+    // إحصائيات
+    public totalEntries: number;
+    public totalQueries: number;
+    public cacheHits: number;
+    public cacheMisses: number;
+    
+    constructor(layerType: LayerType, databasePath: string) {
+        super(`layer_db_${layerType}`);
+        
+        this.layerType = layerType;
+        this.databasePath = databasePath;
+        this.entries = new Map();
+        this.keyIndex = new Map();
+        this.nextId = 1;
+        
+        this.totalEntries = 0;
+        this.totalQueries = 0;
+        this.cacheHits = 0;
+        this.cacheMisses = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            layerType: layerType,
+            databasePath: databasePath,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalEntries: 0,
+            totalQueries: 0,
+            cacheHitRate: 0.0
+        };
+        
+        console.log(`🗄️ تهيئة قاعدة بيانات طبقة ${layerType}`);
+    }
+    
+    /**
+     * إضافة عنصر معرفي
+     */
+    public addEntry(
+        key: string,
+        value: string,
+        metadata: object = {},
+        confidence: number = 0.8
+    ): number {
+        let entry = new KnowledgeEntry(
+            this.nextId,
+            this.layerType,
+            key,
+            value,
+            metadata,
+            confidence
+        );
+        
+        this.entries.set(entry.id.toString(), entry);
+        
+        // تحديث الفهرس
+        if (!this.keyIndex.has(key)) {
+            this.keyIndex.set(key, []);
+        }
+        this.keyIndex.get(key)!.push(entry.id);
+        
+        this.nextId++;
+        this.totalEntries++;
+        this.dynamicStates.totalEntries = this.totalEntries;
+        
+        return entry.id;
+    }
+
+    /**
+     * تحديث عنصر معرفي
+     */
+    public updateEntry(id: number, newValue: string, newConfidence: number = null): boolean {
+        let entry = this.entries.get(id.toString());
+        if (entry) {
+            entry.updateValue(newValue, newConfidence);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * حذف عنصر معرفي
+     */
+    public deleteEntry(id: number): boolean {
+        let entry = this.entries.get(id.toString());
+        if (entry) {
+            // حذف من الفهرس
+            let keyEntries = this.keyIndex.get(entry.key);
+            if (keyEntries) {
+                let index = keyEntries.indexOf(id);
+                if (index > -1) {
+                    keyEntries.splice(index, 1);
+                }
+            }
+
+            // حذف من القاموس
+            this.entries.delete(id.toString());
+            this.totalEntries--;
+            this.dynamicStates.totalEntries = this.totalEntries;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * البحث بالمفتاح
+     */
+    public searchByKey(key: string): Array<KnowledgeEntry> {
+        this.totalQueries++;
+        this.dynamicStates.totalQueries = this.totalQueries;
+
+        let ids = this.keyIndex.get(key);
+        if (!ids) {
+            this.cacheMisses++;
+            return [];
+        }
+
+        this.cacheHits++;
+        this._updateCacheHitRate();
+
+        let results: Array<KnowledgeEntry> = [];
+        for (let id of ids) {
+            let entry = this.entries.get(id.toString());
+            if (entry) {
+                entry.incrementAccess();
+                results.push(entry);
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * البحث المتقدم
+     */
+    public search(query: DatabaseQuery): Array<KnowledgeEntry> {
+        this.totalQueries++;
+        this.dynamicStates.totalQueries = this.totalQueries;
+
+        let results: Array<KnowledgeEntry> = [];
+
+        for (let [id, entry] of this.entries) {
+            // تصفية حسب الثقة
+            if (entry.confidence < query.minConfidence) {
+                continue;
+            }
+
+            // تصفية حسب نوع البحث
+            let matches = false;
+
+            if (query.searchType === SearchType.EXACT) {
+                matches = entry.key === query.searchTerm || entry.value === query.searchTerm;
+            } else if (query.searchType === SearchType.CONTAINS) {
+                matches = entry.key.includes(query.searchTerm) || entry.value.includes(query.searchTerm);
+            } else if (query.searchType === SearchType.STARTS_WITH) {
+                matches = entry.key.startsWith(query.searchTerm) || entry.value.startsWith(query.searchTerm);
+            } else if (query.searchType === SearchType.ENDS_WITH) {
+                matches = entry.key.endsWith(query.searchTerm) || entry.value.endsWith(query.searchTerm);
+            } else if (query.searchType === SearchType.PATTERN) {
+                // بحث نمطي بسيط
+                let pattern = query.searchTerm.replace(/%/g, ".*").replace(/_/g, ".");
+                let regex = new RegExp(pattern);
+                matches = regex.test(entry.key) || regex.test(entry.value);
+            }
+
+            if (matches) {
+                entry.incrementAccess();
+                results.push(entry);
+
+                if (results.length >= query.maxResults) {
+                    break;
+                }
+            }
+        }
+
+        // ترتيب حسب الثقة
+        results.sort((a, b) => b.confidence - a.confidence);
+
+        return results;
+    }
+
+    /**
+     * الحصول على أكثر العناصر استخداماً
+     */
+    public getMostAccessed(limit: number = 10): Array<KnowledgeEntry> {
+        let allEntries = Array.from(this.entries.values());
+        allEntries.sort((a, b) => b.accessCount - a.accessCount);
+        return allEntries.slice(0, limit);
+    }
+
+    /**
+     * الحصول على أحدث العناصر
+     */
+    public getRecent(limit: number = 10): Array<KnowledgeEntry> {
+        let allEntries = Array.from(this.entries.values());
+        allEntries.sort((a, b) => b.timestamp - a.timestamp);
+        return allEntries.slice(0, limit);
+    }
+
+    /**
+     * تحديث معدل نجاح الذاكرة المؤقتة
+     */
+    private _updateCacheHitRate(): void {
+        let total = this.cacheHits + this.cacheMisses;
+        if (total > 0) {
+            this.dynamicStates.cacheHitRate = this.cacheHits / total;
+        }
+    }
+
+    /**
+     * الحصول على الإحصائيات
+     */
+    public getStatistics(): object {
+        return {
+            layerType: this.layerType,
+            totalEntries: this.totalEntries,
+            totalQueries: this.totalQueries,
+            cacheHits: this.cacheHits,
+            cacheMisses: this.cacheMisses,
+            cacheHitRate: this.dynamicStates.cacheHitRate,
+            averageConfidence: this._calculateAverageConfidence(),
+            databaseSize: this._estimateDatabaseSize()
+        };
+    }
+
+    private _calculateAverageConfidence(): number {
+        if (this.totalEntries === 0) return 0.0;
+
+        let sum = 0;
+        for (let [id, entry] of this.entries) {
+            sum += entry.confidence;
+        }
+        return sum / this.totalEntries;
+    }
+
+    private _estimateDatabaseSize(): string {
+        let size = this.totalEntries * 500; // تقدير 500 بايت لكل عنصر
+        if (size < 1024) return `${size} B`;
+        if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+        return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+    }
+
+    /**
+     * تصدير البيانات إلى JSON
+     */
+    public exportToJSON(): string {
+        let data = {
+            layerType: this.layerType,
+            entries: Array.from(this.entries.values()).map(entry => ({
+                id: entry.id,
+                key: entry.key,
+                value: entry.value,
+                metadata: entry.metadata,
+                confidence: entry.confidence,
+                status: entry.status,
+                timestamp: entry.timestamp,
+                accessCount: entry.accessCount
+            })),
+            statistics: this.getStatistics()
+        };
+
+        return JSON.stringify(data, null, 2);
+    }
+
+    /**
+     * استيراد البيانات من JSON
+     */
+    public importFromJSON(jsonData: string): number {
+        try {
+            let data = JSON.parse(jsonData);
+            let imported = 0;
+
+            for (let entryData of data.entries) {
+                this.addEntry(
+                    entryData.key,
+                    entryData.value,
+                    entryData.metadata || {},
+                    entryData.confidence || 0.8
+                );
+                imported++;
+            }
+
+            console.log(`✅ تم استيراد ${imported} عنصر معرفي`);
+            return imported;
+        } catch (error) {
+            console.error(`❌ خطأ في الاستيراد: ${error}`);
+            return 0;
+        }
+    }
+}
+
+// ==================== التصدير ====================
+
+export {
+    LayerType,
+    SearchType,
+    ConfidenceLevel,
+    KnowledgeStatus,
+    KnowledgeEntry,
+    DatabaseQuery,
+    LayerDatabaseManager
+};

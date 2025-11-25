@@ -1,0 +1,367 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * نواة المستكشف الثورية - Revolutionary Explorer Core
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * المستكشف: يكتشف أنماط وحلول جديدة
+ * Explorer: Discovers new patterns and solutions
+ * 
+ * القدرات:
+ * - اكتشاف أنماط جديدة
+ * - تجريب حلول مبتكرة
+ * - المخاطرة المحسوبة
+ * - الإبداع والابتكار
+ * 
+ * @author Baserah AI System
+ * @version 1.0.0
+ * @date 2025-10-26
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+import { MotherEquation, ObjectType } from "../core/mother-equation.bn";
+import { ExplorationStrategy, ExplorationResult } from "./expert-explorer-system.bn";
+
+class BaserahExplorerCore extends MotherEquation {
+    explorationDomain: string;
+    explorationHistory: ExplorationResult[];
+    
+    // إعدادات الاستكشاف
+    curiosityLevel: number;
+    riskTolerance: number;
+    innovationThreshold: number;
+    
+    // إحصائيات الاستكشاف
+    totalExplorations: number;
+    successfulDiscoveries: number;
+    innovationScore: number;
+    
+    constructor(name: string, explorationDomain: string = "general") {
+        super(ObjectType.ABSTRACT, name);
+        
+        this.explorationDomain = explorationDomain;
+        this.explorationHistory = [];
+        
+        this.curiosityLevel = 0.8;
+        this.riskTolerance = 0.6;
+        this.innovationThreshold = 0.5;
+        
+        this.totalExplorations = 0;
+        this.successfulDiscoveries = 0;
+        this.innovationScore = 0.0;
+        
+        console.log(`🔍🚀 تم إنشاء نواة المستكشف: ${name} (مجال: ${explorationDomain})`);
+    }
+    
+    // ═══ استراتيجيات الاستكشاف ═══
+    
+    function exploreRandom(searchSpace: object, numSamples: number = 10): ExplorationResult {
+        /**
+         * استكشاف عشوائي في مساحة البحث
+         * Random exploration in search space
+         */
+        let result = new ExplorationResult(ExplorationStrategy.RANDOM_SEARCH);
+        
+        try {
+            let discoveredPatterns = [];
+            
+            for (let i = 0; i < numSamples; i++) {
+                // توليد عينة عشوائية
+                let sample = {};
+                for (let param in searchSpace) {
+                    let range = searchSpace[param];
+                    let minVal = range[0];
+                    let maxVal = range[1];
+                    sample[param] = Math.random() * (maxVal - minVal) + minVal;
+                }
+                
+                // تقييم العينة
+                let patternScore = this.evaluatePattern(sample);
+                if (patternScore > this.innovationThreshold) {
+                    discoveredPatterns.push({
+                        pattern: sample,
+                        score: patternScore,
+                        type: "random_discovery"
+                    });
+                }
+            }
+            
+            result.discoveredPatterns = discoveredPatterns;
+            result.innovationScore = discoveredPatterns.length > 0 ? 
+                discoveredPatterns.reduce((sum, p) => sum + p.score, 0) / discoveredPatterns.length : 0.0;
+            result.success = discoveredPatterns.length > 0;
+            
+        } catch (e) {
+            result.success = false;
+            result.innovationScore = 0.0;
+        }
+        
+        this.explorationHistory.push(result);
+        this.totalExplorations += 1;
+        if (result.success) {
+            this.successfulDiscoveries += 1;
+        }
+        
+        console.log(`🔍 استكشاف عشوائي: ${result.discoveredPatterns.length} أنماط مكتشفة`);
+        return result;
+    }
+    
+    function exploreGuided(currentBest: object, explorationRadius: number = 0.2): ExplorationResult {
+        /**
+         * استكشاف موجه حول أفضل حل حالي
+         * Guided exploration around current best solution
+         */
+        let result = new ExplorationResult(ExplorationStrategy.GUIDED_EXPLORATION);
+        
+        try {
+            let discoveredPatterns = [];
+            
+            // استكشاف حول النقطة الحالية
+            for (let i = 0; i < 15; i++) {
+                // إضافة تنويع محدود
+                let newPattern = {};
+                for (let key in currentBest) {
+                    let value = currentBest[key];
+                    if (typeof value == "number") {
+                        // توليد تنويع عشوائي
+                        let variation = (Math.random() - 0.5) * 2 * explorationRadius * Math.abs(value);
+                        newPattern[key] = value + variation;
+                    } else {
+                        newPattern[key] = value;
+                    }
+                }
+                
+                // تقييم النمط الجديد
+                let patternScore = this.evaluatePattern(newPattern);
+                if (patternScore > this.innovationThreshold) {
+                    discoveredPatterns.push({
+                        pattern: newPattern,
+                        score: patternScore,
+                        type: "guided_discovery",
+                        distanceFromBest: this.calculateDistance(currentBest, newPattern)
+                    });
+                }
+            }
+            
+            result.discoveredPatterns = discoveredPatterns;
+            result.innovationScore = discoveredPatterns.length > 0 ?
+                discoveredPatterns.reduce((sum, p) => sum + p.score, 0) / discoveredPatterns.length : 0.0;
+            result.success = discoveredPatterns.length > 0;
+            
+        } catch (e) {
+            result.success = false;
+            result.innovationScore = 0.0;
+        }
+        
+        this.explorationHistory.push(result);
+        this.totalExplorations += 1;
+        if (result.success) {
+            this.successfulDiscoveries += 1;
+        }
+        
+        console.log(`🎯 استكشاف موجه: ${result.discoveredPatterns.length} أنماط مكتشفة`);
+        return result;
+    }
+    
+    function exploreRevolutionary(problemContext: object): ExplorationResult {
+        /**
+         * استكشاف ثوري باستخدام النظريات الثلاث
+         * Revolutionary exploration using the three theories
+         */
+        let result = new ExplorationResult(ExplorationStrategy.REVOLUTIONARY_DISCOVERY);
+        
+        try {
+            let discoveredPatterns = [];
+            
+            // 1. تطبيق نظرية ثنائية الصفر
+            let zeroDualityPatterns = this.exploreZeroDuality(problemContext);
+            discoveredPatterns = discoveredPatterns.concat(zeroDualityPatterns);
+            
+            // 2. تطبيق نظرية تعامد الأضداد
+            let perpendicularPatterns = this.explorePerpendicularOpposites(problemContext);
+            discoveredPatterns = discoveredPatterns.concat(perpendicularPatterns);
+            
+            // 3. تطبيق نظرية الفتائل
+            let filamentPatterns = this.exploreFilamentTheory(problemContext);
+            discoveredPatterns = discoveredPatterns.concat(filamentPatterns);
+            
+            result.discoveredPatterns = discoveredPatterns;
+            result.innovationScore = discoveredPatterns.length > 0 ?
+                discoveredPatterns.reduce((sum, p) => sum + p.score, 0) / discoveredPatterns.length : 0.0;
+            result.success = discoveredPatterns.length > 0;
+            result.potentialValue = result.innovationScore * 1.5;  // الاستكشاف الثوري له قيمة أعلى
+            
+        } catch (e) {
+            result.success = false;
+            result.innovationScore = 0.0;
+        }
+        
+        this.explorationHistory.push(result);
+        this.totalExplorations += 1;
+        if (result.success) {
+            this.successfulDiscoveries += 1;
+        }
+        
+        console.log(`🌟 استكشاف ثوري: ${result.discoveredPatterns.length} أنماط ثورية مكتشفة`);
+        return result;
+    }
+    
+    // ═══ استكشاف بالنظريات الثورية ═══
+    
+    function exploreZeroDuality(context: object): any[] {
+        /**
+         * استكشاف باستخدام نظرية ثنائية الصفر
+         * Explore using Zero Duality Theory
+         */
+        let patterns = [];
+        
+        // إنشاء أنماط متوازنة (مجموعها صفر)
+        for (let i = 0; i < 5; i++) {
+            let positiveValues = [Math.random(), Math.random(), Math.random()];
+            let sum = positiveValues.reduce((a, b) => a + b, 0);
+            let negativeValues = [-sum/3, -sum/3, -sum/3];
+            
+            let pattern = {
+                positiveComponents: positiveValues,
+                negativeComponents: negativeValues,
+                balanceScore: Math.abs(sum + negativeValues.reduce((a, b) => a + b, 0)),
+                theory: "zero_duality"
+            };
+            
+            let score = this.evaluatePattern(pattern);
+            if (score > this.innovationThreshold) {
+                patterns.push({
+                    pattern: pattern,
+                    score: score,
+                    type: "zero_duality_discovery"
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    function explorePerpendicularOpposites(context: object): any[] {
+        /**
+         * استكشاف باستخدام نظرية تعامد الأضداد
+         * Explore using Perpendicular Opposites Theory
+         */
+        let patterns = [];
+        
+        // إنشاء أنماط متعامدة
+        for (let i = 0; i < 5; i++) {
+            let angle = Math.random() * 2 * Math.PI;
+            let perpendicularAngle = angle + Math.PI/2;
+            
+            let vector1 = [Math.cos(angle), Math.sin(angle)];
+            let vector2 = [Math.cos(perpendicularAngle), Math.sin(perpendicularAngle)];
+            
+            let pattern = {
+                vector1: vector1,
+                vector2: vector2,
+                dotProduct: vector1[0] * vector2[0] + vector1[1] * vector2[1],
+                theory: "perpendicular_opposites"
+            };
+            
+            let score = this.evaluatePattern(pattern);
+            if (score > this.innovationThreshold) {
+                patterns.push({
+                    pattern: pattern,
+                    score: score,
+                    type: "perpendicular_discovery"
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    function exploreFilamentTheory(context: object): any[] {
+        /**
+         * استكشاف باستخدام نظرية الفتائل
+         * Explore using Filament Theory
+         */
+        let patterns = [];
+        
+        // إنشاء أنماط مترابطة (فتائل)
+        for (let i = 0; i < 5; i++) {
+            // إنشاء سلسلة مترابطة من القيم
+            let baseValue = Math.random();
+            let filamentChain = [baseValue];
+            
+            for (let j = 0; j < 4; j++) {
+                // كل قيمة تعتمد على السابقة
+                let nextValue = filamentChain[filamentChain.length - 1] * (0.8 + Math.random() * 0.4);
+                filamentChain.push(nextValue);
+            }
+            
+            let pattern = {
+                filamentChain: filamentChain,
+                connectionStrength: this.calculateStd(filamentChain),
+                theory: "filament_theory"
+            };
+            
+            let score = this.evaluatePattern(pattern);
+            if (score > this.innovationThreshold) {
+                patterns.push({
+                    pattern: pattern,
+                    score: score,
+                    type: "filament_discovery"
+                });
+            }
+        }
+        
+        return patterns;
+    }
+    
+    // ═══ دوال مساعدة ═══
+    
+    function evaluatePattern(pattern: object): number {
+        /**
+         * تقييم جودة النمط المكتشف
+         * Evaluate discovered pattern quality
+         */
+        let score = 0.0;
+        
+        // تقييم الأصالة
+        let noveltyScore = this.calculateNovelty(pattern);
+        score += noveltyScore * 0.4;
+        
+        // تقييم الفائدة المحتملة
+        let utilityScore = this.calculateUtility(pattern);
+        score += utilityScore * 0.3;
+        
+        // تقييم الأناقة الرياضية
+        let eleganceScore = this.calculateElegance(pattern);
+        score += eleganceScore * 0.3;
+        
+        return Math.min(score, 1.0);
+    }
+    
+    function calculateNovelty(pattern: object): number {
+        if (this.explorationHistory.length == 0) {
+            return 1.0;
+        }
+        return 0.7;  // تبسيط مؤقت
+    }
+    
+    function calculateUtility(pattern: object): number {
+        return 0.6;  // تبسيط مؤقت
+    }
+    
+    function calculateElegance(pattern: object): number {
+        return 0.5;  // تبسيط مؤقت
+    }
+    
+    function calculateDistance(pattern1: object, pattern2: object): number {
+        return 0.5;  // تبسيط مؤقت
+    }
+    
+    function calculateStd(values: number[]): number {
+        let mean = values.reduce((a, b) => a + b, 0) / values.length;
+        let variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        return Math.sqrt(variance);
+    }
+}
+
+export { BaserahExplorerCore };
+

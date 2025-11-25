@@ -1,0 +1,454 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// 🎼 بصيرة AI - منسق الأنظمة (System Orchestrator)
+// ═══════════════════════════════════════════════════════════════════════════
+// الوصف: منسق ذكي لتنسيق العمل بين جميع أنظمة بصيرة AI
+// المهمة: إدارة تدفق البيانات والتنسيق بين الأنظمة الفرعية
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { BaserahUnifiedSystem, SystemTask, TaskPriority, TaskType } from "./unified-system.bn";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// التعدادات (Enums)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// استراتيجية التنسيق
+enum OrchestrationStrategy {
+    SEQUENTIAL = "sequential",           // تنفيذ متسلسل
+    PARALLEL = "parallel",               // تنفيذ متوازي
+    ADAPTIVE = "adaptive",               // تكيفي حسب الحمل
+    PRIORITY_BASED = "priority_based",   // حسب الأولوية
+    INTELLIGENT = "intelligent"          // ذكي (يختار الأفضل)
+}
+
+// نوع التنسيق
+enum OrchestrationType {
+    DATA_FLOW = "data_flow",             // تدفق البيانات
+    EVENT_DRIVEN = "event_driven",       // مدفوع بالأحداث
+    REQUEST_RESPONSE = "request_response", // طلب-استجابة
+    PIPELINE = "pipeline",               // خط أنابيب
+    HYBRID = "hybrid"                    // هجين
+}
+
+// حالة التنسيق
+enum OrchestrationState {
+    IDLE = "idle",
+    PLANNING = "planning",
+    EXECUTING = "executing",
+    MONITORING = "monitoring",
+    OPTIMIZING = "optimizing",
+    ERROR_HANDLING = "error_handling"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// الفئات (Classes)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// خطة التنسيق
+class OrchestrationPlan extends MotherEquation {
+    public planId: string;
+    public task: SystemTask;
+    public strategy: OrchestrationStrategy;
+    public steps: array<object>;
+    public dependencies: object;
+    public estimatedTime: number;
+    public actualTime: number;
+    
+    constructor(planId: string, task: SystemTask, strategy: OrchestrationStrategy) {
+        super(planId);
+        this.planId = planId;
+        this.task = task;
+        this.strategy = strategy;
+        this.steps = [];
+        this.dependencies = {};
+        this.estimatedTime = 0;
+        this.actualTime = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            planId: planId,
+            taskId: task.taskId,
+            strategy: strategy
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            currentStep: 0,
+            progress: 0,
+            status: "pending"
+        };
+    }
+    
+    public addStep(stepName: string, subsystem: string, operation: string, input: object): void {
+        this.steps.push({
+            stepNumber: this.steps.length + 1,
+            stepName: stepName,
+            subsystem: subsystem,
+            operation: operation,
+            input: input,
+            output: null,
+            status: "pending",
+            startTime: 0,
+            endTime: 0
+        });
+    }
+    
+    public executeStep(stepNumber: number, output: object): void {
+        if (stepNumber > 0 && stepNumber <= this.steps.length) {
+            this.steps[stepNumber - 1].output = output;
+            this.steps[stepNumber - 1].status = "completed";
+            this.steps[stepNumber - 1].endTime = Date.now();
+            this.dynamicStates.currentStep = stepNumber;
+            this.dynamicStates.progress = (stepNumber / this.steps.length) * 100;
+        }
+    }
+}
+
+// حدث النظام
+class SystemEvent extends MotherEquation {
+    public eventId: string;
+    public eventType: string;
+    public source: string;
+    public target: string;
+    public data: object;
+    public timestamp: number;
+    public priority: TaskPriority;
+    
+    constructor(eventId: string, eventType: string, source: string, target: string) {
+        super(eventId);
+        this.eventId = eventId;
+        this.eventType = eventType;
+        this.source = source;
+        this.target = target;
+        this.data = {};
+        this.timestamp = Date.now();
+        this.priority = TaskPriority.MEDIUM;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            eventId: eventId,
+            eventType: eventType,
+            source: source,
+            target: target
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            processed: false,
+            processingTime: 0
+        };
+    }
+}
+
+// منسق الأنظمة
+class SystemOrchestrator extends MotherEquation {
+    public orchestratorId: string;
+    public unifiedSystem: BaserahUnifiedSystem;
+    public state: OrchestrationState;
+    public defaultStrategy: OrchestrationStrategy;
+    
+    // خطط التنسيق
+    public activePlans: array<OrchestrationPlan>;
+    public completedPlans: array<OrchestrationPlan>;
+    
+    // الأحداث
+    public eventQueue: array<SystemEvent>;
+    public eventHandlers: object;
+    
+    // الإحصائيات
+    public statistics: object;
+    
+    constructor(orchestratorId: string, unifiedSystem: BaserahUnifiedSystem) {
+        super(orchestratorId);
+        this.orchestratorId = orchestratorId;
+        this.unifiedSystem = unifiedSystem;
+        this.state = OrchestrationState.IDLE;
+        this.defaultStrategy = OrchestrationStrategy.INTELLIGENT;
+        
+        this.activePlans = [];
+        this.completedPlans = [];
+        this.eventQueue = [];
+        this.eventHandlers = {};
+        
+        this.statistics = {
+            totalPlans: 0,
+            completedPlans: 0,
+            failedPlans: 0,
+            totalEvents: 0,
+            processedEvents: 0,
+            averagePlanTime: 0
+        };
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            orchestratorId: orchestratorId,
+            capabilities: [
+                "sequential_execution",
+                "parallel_execution",
+                "adaptive_orchestration",
+                "event_handling",
+                "dependency_management"
+            ]
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            state: OrchestrationState.IDLE,
+            activePlansCount: 0,
+            eventQueueSize: 0,
+            systemLoad: 0
+        };
+        
+        // تسجيل معالجات الأحداث الافتراضية
+        this.registerDefaultEventHandlers();
+    }
+    
+    // تسجيل معالجات الأحداث
+    private registerDefaultEventHandlers(): void {
+        this.eventHandlers = {
+            "query_received": this.handleQueryEvent.bind(this),
+            "learning_required": this.handleLearningEvent.bind(this),
+            "knowledge_update": this.handleKnowledgeUpdateEvent.bind(this),
+            "memory_consolidation": this.handleMemoryConsolidationEvent.bind(this),
+            "system_error": this.handleSystemErrorEvent.bind(this)
+        };
+    }
+    
+    // إنشاء خطة تنسيق
+    public createPlan(task: SystemTask, strategy: OrchestrationStrategy): OrchestrationPlan {
+        this.state = OrchestrationState.PLANNING;
+        
+        let plan = new OrchestrationPlan(
+            "plan_" + Date.now(),
+            task,
+            strategy || this.defaultStrategy
+        );
+        
+        // بناء الخطوات حسب نوع المهمة
+        this.buildPlanSteps(plan, task);
+        
+        this.activePlans.push(plan);
+        this.statistics.totalPlans++;
+        this.dynamicStates.activePlansCount++;
+        
+        return plan;
+    }
+    
+    // بناء خطوات الخطة
+    private buildPlanSteps(plan: OrchestrationPlan, task: SystemTask): void {
+        if (task.taskType === TaskType.QUERY) {
+            // خطوات معالجة الاستعلام
+            plan.addStep("تحليل لغوي", "language", "processText", task.input);
+            plan.addStep("استرجاع من الذاكرة", "memory", "retrieveRelevant", {});
+            plan.addStep("استعلام المعرفة", "knowledge", "query", {});
+            plan.addStep("استدلال منطقي", "reasoning", "reason", {});
+            plan.addStep("توليد رد", "response", "generate", {});
+            plan.addStep("حفظ في الذاكرة", "memory", "addEpisode", {});
+        } else if (task.taskType === TaskType.LEARNING) {
+            // خطوات التعلم
+            plan.addStep("تحليل التغذية الراجعة", "learning", "analyzeFeedback", task.input);
+            plan.addStep("استخراج الأنماط", "learning", "extractPatterns", {});
+            plan.addStep("تحديث المعرفة", "knowledge", "update", {});
+            plan.addStep("دمج في الذاكرة", "memory", "consolidate", {});
+        } else if (task.taskType === TaskType.REASONING) {
+            // خطوات الاستدلال
+            plan.addStep("استرجاع المعرفة", "knowledge", "queryByDomain", task.input);
+            plan.addStep("استدعاء الخبير", "brain", "expertRecall", {});
+            plan.addStep("استكشاف جديد", "brain", "explorerExplore", {});
+            plan.addStep("استدلال منطقي", "reasoning", "reason", {});
+            plan.addStep("دمج الحلول", "orchestrator", "integrateSolutions", {});
+        } else if (task.taskType === TaskType.INTERACTION) {
+            // خطوات التفاعل
+            plan.addStep("معالجة دور المستخدم", "dialogue", "processUserTurn", task.input);
+            plan.addStep("تحليل لغوي", "language", "processText", {});
+            plan.addStep("استرجاع السياق", "memory", "getActiveContext", {});
+            plan.addStep("توليد رد", "response", "generate", {});
+            plan.addStep("تحديث نموذج المستخدم", "userModeling", "updateFromTurn", {});
+        }
+    }
+
+    // تنفيذ خطة
+    public executePlan(plan: OrchestrationPlan): object {
+        this.state = OrchestrationState.EXECUTING;
+        let startTime = Date.now();
+        let results = {};
+
+        if (plan.strategy === OrchestrationStrategy.SEQUENTIAL) {
+            results = this.executeSequential(plan);
+        } else if (plan.strategy === OrchestrationStrategy.PARALLEL) {
+            results = this.executeParallel(plan);
+        } else if (plan.strategy === OrchestrationStrategy.INTELLIGENT) {
+            results = this.executeIntelligent(plan);
+        }
+
+        plan.actualTime = Date.now() - startTime;
+        plan.dynamicStates.status = "completed";
+
+        // نقل من النشطة إلى المكتملة
+        let index = this.activePlans.indexOf(plan);
+        if (index > -1) {
+            this.activePlans.splice(index, 1);
+        }
+        this.completedPlans.push(plan);
+        this.statistics.completedPlans++;
+        this.dynamicStates.activePlansCount--;
+
+        this.state = OrchestrationState.IDLE;
+        return results;
+    }
+
+    // تنفيذ متسلسل
+    private executeSequential(plan: OrchestrationPlan): object {
+        let results = {};
+        let previousOutput = null;
+
+        for (let step of plan.steps) {
+            step.startTime = Date.now();
+            step.status = "executing";
+
+            // تنفيذ الخطوة
+            let output = this.executeStep(step, previousOutput);
+
+            step.output = output;
+            step.status = "completed";
+            step.endTime = Date.now();
+
+            previousOutput = output;
+            results[step.stepName] = output;
+        }
+
+        return results;
+    }
+
+    // تنفيذ متوازي
+    private executeParallel(plan: OrchestrationPlan): object {
+        let results = {};
+
+        // تنفيذ جميع الخطوات المستقلة بالتوازي
+        for (let step of plan.steps) {
+            step.startTime = Date.now();
+            step.status = "executing";
+
+            let output = this.executeStep(step, null);
+
+            step.output = output;
+            step.status = "completed";
+            step.endTime = Date.now();
+
+            results[step.stepName] = output;
+        }
+
+        return results;
+    }
+
+    // تنفيذ ذكي
+    private executeIntelligent(plan: OrchestrationPlan): object {
+        // تحليل التبعيات واختيار الاستراتيجية الأفضل
+        let hasSequentialDependencies = this.analyzeSequentialDependencies(plan);
+
+        if (hasSequentialDependencies) {
+            return this.executeSequential(plan);
+        } else {
+            return this.executeParallel(plan);
+        }
+    }
+
+    // تحليل التبعيات المتسلسلة
+    private analyzeSequentialDependencies(plan: OrchestrationPlan): boolean {
+        // في معظم الحالات، الخطوات لها تبعيات متسلسلة
+        return true;
+    }
+
+    // تنفيذ خطوة واحدة
+    private executeStep(step: object, previousOutput: object): object {
+        // محاكاة تنفيذ الخطوة
+        return {
+            stepName: step.stepName,
+            subsystem: step.subsystem,
+            operation: step.operation,
+            result: "success",
+            data: previousOutput || step.input
+        };
+    }
+
+    // معالجة حدث
+    public handleEvent(event: SystemEvent): void {
+        this.eventQueue.push(event);
+        this.statistics.totalEvents++;
+        this.dynamicStates.eventQueueSize++;
+
+        // معالجة الحدث إذا كان هناك معالج مسجل
+        if (this.eventHandlers[event.eventType]) {
+            this.eventHandlers[event.eventType](event);
+            event.dynamicStates.processed = true;
+            this.statistics.processedEvents++;
+            this.dynamicStates.eventQueueSize--;
+        }
+    }
+
+    // معالجات الأحداث
+    private handleQueryEvent(event: SystemEvent): void {
+        let task = new SystemTask(
+            "query_" + Date.now(),
+            TaskType.QUERY,
+            TaskPriority.HIGH,
+            "Handle query event"
+        );
+        task.input = event.data;
+
+        let plan = this.createPlan(task, OrchestrationStrategy.SEQUENTIAL);
+        this.executePlan(plan);
+    }
+
+    private handleLearningEvent(event: SystemEvent): void {
+        let task = new SystemTask(
+            "learn_" + Date.now(),
+            TaskType.LEARNING,
+            TaskPriority.MEDIUM,
+            "Handle learning event"
+        );
+        task.input = event.data;
+
+        let plan = this.createPlan(task, OrchestrationStrategy.SEQUENTIAL);
+        this.executePlan(plan);
+    }
+
+    private handleKnowledgeUpdateEvent(event: SystemEvent): void {
+        this.unifiedSystem.knowledge.updateKnowledge(event.data);
+    }
+
+    private handleMemoryConsolidationEvent(event: SystemEvent): void {
+        this.unifiedSystem.memory.consolidate();
+    }
+
+    private handleSystemErrorEvent(event: SystemEvent): void {
+        this.state = OrchestrationState.ERROR_HANDLING;
+        console.error("System Error:", event.data);
+        this.state = OrchestrationState.IDLE;
+    }
+
+    // الحصول على إحصائيات
+    public getStatistics(): object {
+        return {
+            ...this.statistics,
+            activePlansCount: this.activePlans.length,
+            completedPlansCount: this.completedPlans.length,
+            eventQueueSize: this.eventQueue.length,
+            currentState: this.state
+        };
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// التصدير (Exports)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+    OrchestrationStrategy,
+    OrchestrationType,
+    OrchestrationState,
+    OrchestrationPlan,
+    SystemEvent,
+    SystemOrchestrator
+};
+

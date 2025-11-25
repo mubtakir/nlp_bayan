@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بصيرة - نظام ذكاء اصطناعي ثوري</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-right: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-right: 20px;
+        }
+
+        .info-box li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .info-box li::before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .demo-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-card .icon {
+            font-size: 1.8em;
+        }
+
+        .demo-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .demo-card .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .demo-card .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .category {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .category h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 بصيرة - Baserah AI 🌟</h1>
+            <p class="subtitle">نظام ذكاء اصطناعي ثوري بدون شبكات عصبية</p>
+            
+            <div class="info-box">
+                <h3>النظريات الثورية الثلاث</h3>
+                <ul>
+                    <li><strong>ثنائية الصفر (Zero Duality):</strong> كل قيمة لها نقيض والتوازن يساوي صفر</li>
+                    <li><strong>تعامد الأضداد (Perpendicular Opposites):</strong> كل اتجاه له نقيض عمودي</li>
+                    <li><strong>نظرية الفتائل (Filament Theory):</strong> النتائج المعقدة تُبنى من فتائل بسيطة</li>
+                </ul>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">وحدات رئيسية</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">26</div>
+                    <div class="stat-label">عرض تفاعلي</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">105</div>
+                    <div class="stat-label">ملف TypeScript</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">شبكات عصبية</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="category">
+            <h2>🎯 العروض الرئيسية</h2>
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <h3><span class="icon">💬</span> المحادثة الذكية</h3>
+                    <p>نظام محادثة ذكي يستخدم الاستنباط والمعرفة بدلاً من التلقين المسبق</p>
+                    <a href="conversational-ai-live.html" class="btn">تجربة الآن</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🧠</span> الخبير-المستكشف</h3>
+                    <p>نظام ثنائي يجمع بين الخبرة والاستكشاف للحلول الإبداعية</p>
+                    <a href="expert-explorer-demo.html" class="btn">استكشف</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">📐</span> المعادلة الأم</h3>
+                    <p>المعادلة الأساسية التي تمثل كل كائن في النظام</p>
+                    <a href="mother-equation-demo.html" class="btn">شاهد</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>🎨 الوحدات الفنية والرياضية</h2>
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <h3><span class="icon">📊</span> رسم السيجمويد</h3>
+                    <p>رسم وتحليل دوال السيجمويد المعممة</p>
+                    <a href="sigmoid-drawing-demo.html" class="btn">رسم</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🎯</span> الاستنباط السيجمويدي</h3>
+                    <p>استنباط المعاملات من البيانات</p>
+                    <a href="sigmoid-inference-demo.html" class="btn">استنبط</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🎬</span> الرسوم المتحركة</h3>
+                    <p>تحريك المعادلات والأشكال</p>
+                    <a href="animation-demo.html" class="btn">شاهد</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🖌️</span> الرسم الكلاسيكي</h3>
+                    <p>رسم الأشكال الهندسية</p>
+                    <a href="classic-drawing-demo.html" class="btn">ارسم</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>🧠 الوحدات الذكية</h2>
+            <div class="demos-grid">
+                <div class="demo-card">
+                    <h3><span class="icon">💾</span> الذاكرة</h3>
+                    <p>نظام ذاكرة قصيرة وطويلة المدى</p>
+                    <a href="memory-demo.html" class="btn">جرب</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🤔</span> التفكير</h3>
+                    <p>محرك التفكير والمعالجة</p>
+                    <a href="thinking-demo.html" class="btn">فكر</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">📏</span> الاستنباط</h3>
+                    <p>محرك الاستنباط المنطقي</p>
+                    <a href="reasoning-demo.html" class="btn">استنبط</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">📚</span> قاعدة المعرفة</h3>
+                    <p>تخزين واسترجاع المعرفة</p>
+                    <a href="knowledge-demo.html" class="btn">استكشف</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">📖</span> المعجم</h3>
+                    <p>معجم الكلمات والمعاني</p>
+                    <a href="lexicon-demo.html" class="btn">تصفح</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">❤️</span> الذكاء العاطفي</h3>
+                    <p>كشف وفهم المشاعر</p>
+                    <a href="emotional-intelligence-demo.html" class="btn">اكتشف</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">📊</span> التعلم</h3>
+                    <p>التعلم التكيفي من البيانات</p>
+                    <a href="learning-demo.html" class="btn">تعلم</a>
+                </div>
+
+                <div class="demo-card">
+                    <h3><span class="icon">🔤</span> معاني الحروف</h3>
+                    <p>محرر معاني الحروف العربية</p>
+                    <a href="letter-meanings-editor.html" class="btn">حرر</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>بصيرة - Baserah AI</strong></p>
+            <p>نظام ذكاء اصطناعي ثوري من تطوير Basel Yahya Abdullah</p>
+            <p style="margin-top: 10px; color: #999;">© 2024 - جميع الحقوق محفوظة</p>
+        </footer>
+    </div>
+</body>
+</html>
+

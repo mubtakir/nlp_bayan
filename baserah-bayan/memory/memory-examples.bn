@@ -1,0 +1,290 @@
+/**
+ * أمثلة نظام الذاكرة - Memory System Examples
+ * 
+ * أمثلة عملية على استخدام نظام الذاكرة المتكامل
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { IntegratedMemorySystem } from "./memory-integration.bn";
+import { EpisodeType } from "./episodic-memory.bn";
+import { ItemType } from "./working-memory.bn";
+
+/**
+ * مثال 1: حوار بسيط مع الذاكرة
+ */
+function example1_SimpleDialogue(): void {
+    console.log("\n=== مثال 1: حوار بسيط مع الذاكرة ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    
+    // حوار 1
+    memory.remember({
+        type: "dialogue",
+        userInput: "ما هو نظام بصيرة؟",
+        botResponse: "بصيرة هو نظام ذكاء اصطناعي ثوري يعتمد على معادلات رياضية متكيفة",
+        intent: "question",
+        topics: ["بصيرة", "ذكاء اصطناعي"],
+        success: true
+    });
+    
+    // حوار 2
+    memory.remember({
+        type: "dialogue",
+        userInput: "هل يستخدم شبكات عصبية؟",
+        botResponse: "لا، بصيرة لا يستخدم شبكات عصبية، بل يعتمد على معادلات رياضية",
+        intent: "question",
+        topics: ["بصيرة", "شبكات عصبية"],
+        success: true
+    });
+    
+    // استرجاع الحوارات الأخيرة
+    let recentDialogues = memory.recall({type: "recent", count: 2});
+    console.log("الحوارات الأخيرة:", recentDialogues.length);
+    
+    // استرجاع حسب الموضوع
+    let baserahDialogues = memory.recall({type: "topic", topic: "بصيرة"});
+    console.log("حوارات عن بصيرة:", baserahDialogues.length);
+}
+
+/**
+ * مثال 2: التعلم من التجارب
+ */
+function example2_LearningFromExperience(): void {
+    console.log("\n=== مثال 2: التعلم من التجارب ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    
+    // تجربة تعلم
+    memory.learn({
+        userInput: "علمني عن البرمجة",
+        botResponse: "البرمجة هي فن كتابة التعليمات للحاسوب",
+        intent: "learning",
+        topics: ["البرمجة"],
+        entities: [{text: "البرمجة", entityType: "concept"}],
+        success: true,
+        turnNumber: 1,
+        facts: [
+            {subject: "البرمجة", predicate: "هي", object: "فن كتابة التعليمات", confidence: 0.9}
+        ]
+    });
+    
+    // استرجاع المفهوم المتعلم
+    let concept = memory.recall({type: "concept", name: "البرمجة"});
+    if (concept) {
+        console.log("تم تعلم مفهوم:", concept.name);
+        console.log("التعريف:", concept.definition);
+    }
+    
+    // استرجاع الحقائق
+    let facts = memory.recall({type: "fact", subject: "البرمجة"});
+    console.log("حقائق عن البرمجة:", facts.length);
+}
+
+/**
+ * مثال 3: الذاكرة العاملة
+ */
+function example3_WorkingMemory(): void {
+    console.log("\n=== مثال 3: الذاكرة العاملة ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    let workingMemory = memory.getWorkingMemory();
+    
+    // حفظ معلومات مؤقتة
+    workingMemory.store("current_user", "أحمد", ItemType.DATA, 1);
+    workingMemory.store("current_task", "تعلم البرمجة", ItemType.GOAL, 2);
+    workingMemory.store("temp_result", {score: 85}, ItemType.RESULT, 0, 60);
+    
+    // استرجاع
+    let user = workingMemory.retrieve("current_user");
+    let task = workingMemory.retrieve("current_task");
+    
+    console.log("المستخدم الحالي:", user);
+    console.log("المهمة الحالية:", task);
+    
+    // الأهداف النشطة
+    let goals = workingMemory.getActiveGoals();
+    console.log("الأهداف النشطة:", goals);
+    
+    // الإحصائيات
+    let stats = workingMemory.getStatistics();
+    console.log("الاستخدام:", `${stats.currentSize}/${stats.capacity}`);
+}
+
+/**
+ * مثال 4: تتبع السياق
+ */
+function example4_ContextTracking(): void {
+    console.log("\n=== مثال 4: تتبع السياق ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    let contextTracker = memory.getContextTracker();
+    
+    // دور 1
+    contextTracker.updateContext(1, "أخبرني عن الذكاء الاصطناعي", [
+        {text: "الذكاء الاصطناعي", entityType: "concept"}
+    ]);
+    
+    // دور 2
+    contextTracker.updateContext(2, "ما هي تطبيقاته؟", [
+        {text: "تطبيقات", entityType: "thing"}
+    ]);
+    
+    // دور 3
+    contextTracker.updateContext(3, "وماذا عن البرمجة؟", [
+        {text: "البرمجة", entityType: "concept"}
+    ]);
+    
+    // السياق الحالي
+    let context = contextTracker.getCurrentContext();
+    console.log("الدور الحالي:", context.currentTurn);
+    console.log("المواضيع النشطة:", context.activeTopics);
+    console.log("التركيز الحالي:", context.currentFocus);
+    
+    // تاريخ المواضيع
+    let history = contextTracker.getTopicHistory();
+    console.log("عدد التحولات:", history.length);
+}
+
+/**
+ * مثال 5: البحث الشامل
+ */
+function example5_ComprehensiveSearch(): void {
+    console.log("\n=== مثال 5: البحث الشامل ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    
+    // إضافة بيانات متنوعة
+    memory.remember({
+        type: "dialogue",
+        userInput: "ما هي بصيرة؟",
+        botResponse: "بصيرة نظام ذكاء اصطناعي",
+        topics: ["بصيرة"]
+    });
+    
+    memory.remember({
+        type: "fact",
+        subject: "بصيرة",
+        predicate: "يستخدم",
+        object: "معادلات رياضية"
+    });
+    
+    memory.remember({
+        type: "concept",
+        name: "بصيرة",
+        definition: "نظام ذكاء اصطناعي ثوري"
+    });
+    
+    // البحث الشامل
+    let results = memory.search("بصيرة", 10);
+    
+    console.log("نتائج البحث عن 'بصيرة':");
+    console.log("- الأحداث:", results.episodes.length);
+    console.log("- الحقائق:", results.facts.length);
+    console.log("- المفاهيم:", results.concepts.length);
+}
+
+/**
+ * مثال 6: دمج الذكريات
+ */
+function example6_MemoryConsolidation(): void {
+    console.log("\n=== مثال 6: دمج الذكريات ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    let workingMemory = memory.getWorkingMemory();
+    
+    // إضافة حقائق مؤقتة في الذاكرة العاملة
+    workingMemory.store("fact1", {
+        subject: "Python",
+        predicate: "هي",
+        object: "لغة برمجة",
+        confidence: 0.9
+    }, ItemType.DATA);
+    
+    workingMemory.store("fact2", {
+        subject: "JavaScript",
+        predicate: "هي",
+        object: "لغة برمجة",
+        confidence: 0.9
+    }, ItemType.DATA);
+    
+    console.log("قبل الدمج - الذاكرة العاملة:", workingMemory.size());
+    
+    // دمج الذكريات (نقل إلى الذاكرة طويلة المدى)
+    memory.consolidate();
+    
+    // التحقق من الذاكرة الدلالية
+    let pythonFacts = memory.getSemanticMemory().retrieveFactsAbout("Python");
+    console.log("بعد الدمج - حقائق عن Python:", pythonFacts.length);
+}
+
+/**
+ * مثال 7: الإحصائيات الشاملة
+ */
+function example7_ComprehensiveStatistics(): void {
+    console.log("\n=== مثال 7: الإحصائيات الشاملة ===\n");
+    
+    let memory = new IntegratedMemorySystem();
+    
+    // إضافة بيانات متنوعة
+    for (let i = 0; i < 5; i++) {
+        memory.remember({
+            type: "dialogue",
+            userInput: `سؤال ${i + 1}`,
+            botResponse: `إجابة ${i + 1}`,
+            topics: ["عام"]
+        });
+    }
+    
+    memory.remember({
+        type: "fact",
+        subject: "AI",
+        predicate: "هو",
+        object: "ذكاء اصطناعي"
+    });
+    
+    // الإحصائيات
+    let stats = memory.getStatistics();
+    
+    console.log("إحصائيات النظام:");
+    console.log("- الذاكرة الحدثية:", stats.episodic.totalEpisodes, "حدث");
+    console.log("- الذاكرة الدلالية:", stats.semantic.totalFacts, "حقيقة،", stats.semantic.totalConcepts, "مفهوم");
+    console.log("- الذاكرة العاملة:", stats.working.currentSize, "/", stats.working.capacity);
+    console.log("- السياق:", stats.context.totalTopics, "موضوع");
+}
+
+/**
+ * تشغيل جميع الأمثلة
+ */
+function runAllExamples(): void {
+    console.log("╔════════════════════════════════════════╗");
+    console.log("║   أمثلة نظام الذاكرة المتكامل        ║");
+    console.log("╚════════════════════════════════════════╝");
+    
+    example1_SimpleDialogue();
+    example2_LearningFromExperience();
+    example3_WorkingMemory();
+    example4_ContextTracking();
+    example5_ComprehensiveSearch();
+    example6_MemoryConsolidation();
+    example7_ComprehensiveStatistics();
+    
+    console.log("\n✅ تم تنفيذ جميع الأمثلة بنجاح!");
+}
+
+// تشغيل الأمثلة
+runAllExamples();
+
+// تصدير الدوال
+export {
+    example1_SimpleDialogue,
+    example2_LearningFromExperience,
+    example3_WorkingMemory,
+    example4_ContextTracking,
+    example5_ComprehensiveSearch,
+    example6_MemoryConsolidation,
+    example7_ComprehensiveStatistics,
+    runAllExamples
+};

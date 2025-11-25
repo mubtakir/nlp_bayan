@@ -1,0 +1,438 @@
+/**
+ * مخطط الاستجابة - Response Planner
+ * 
+ * يخطط للاستجابة المناسبة بناءً على النية المكتشفة
+ * يحدد نوع الاستجابة والمعلومات المطلوبة
+ * يبني هيكل الرد قبل التوليد
+ * 
+ * @version 1.0.0
+ * @author Baserah AI Team
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { IntentType, DetectedIntent, IntentAnalysisResult } from "./intent-analyzer.bn";
+import { ResponseType } from "./text-generator.bn";
+
+// ═══════════════════════════════════════════════════════════════
+// التعدادات - Enumerations
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * استراتيجية الاستجابة
+ */
+export enum ResponseStrategy {
+    DIRECT = "DIRECT",              // مباشرة
+    INFORMATIVE = "INFORMATIVE",    // معلوماتية
+    INTERACTIVE = "INTERACTIVE",    // تفاعلية
+    EDUCATIONAL = "EDUCATIONAL",    // تعليمية
+    SUPPORTIVE = "SUPPORTIVE",      // داعمة
+    CLARIFYING = "CLARIFYING"       // توضيحية
+}
+
+/**
+ * أولوية الاستجابة
+ */
+export enum ResponsePriority {
+    URGENT = "URGENT",              // عاجل
+    HIGH = "HIGH",                  // عالي
+    NORMAL = "NORMAL",              // عادي
+    LOW = "LOW"                     // منخفض
+}
+
+// ═══════════════════════════════════════════════════════════════
+// الفئات - Classes
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * عنصر في خطة الاستجابة
+ */
+export class ResponseComponent extends MotherEquation {
+    type: string;
+    content: Map<string, any>;
+    order: number;
+    isOptional: boolean;
+
+    constructor(id: string, type: string, order: number) {
+        super(id);
+        this.type = type;
+        this.content = new Map();
+        this.order = order;
+        this.isOptional = false;
+    }
+
+    /**
+     * إضافة محتوى
+     */
+    addContent(key: string, value: any): void {
+        this.content.set(key, value);
+    }
+
+    /**
+     * الحصول على محتوى
+     */
+    getContent(key: string): any {
+        return this.content.get(key);
+    }
+}
+
+/**
+ * خطة الاستجابة
+ */
+export class ResponsePlan extends MotherEquation {
+    intentAnalysis: IntentAnalysisResult;
+    responseType: ResponseType;
+    strategy: ResponseStrategy;
+    priority: ResponsePriority;
+    components: ResponseComponent[];
+    requiredData: Map<string, any>;
+    metadata: Map<string, any>;
+
+    constructor(id: string, intentAnalysis: IntentAnalysisResult) {
+        super(id);
+        this.intentAnalysis = intentAnalysis;
+        this.responseType = ResponseType.UNKNOWN;
+        this.strategy = ResponseStrategy.DIRECT;
+        this.priority = ResponsePriority.NORMAL;
+        this.components = [];
+        this.requiredData = new Map();
+        this.metadata = new Map();
+    }
+
+    /**
+     * إضافة مكون
+     */
+    addComponent(component: ResponseComponent): void {
+        this.components.push(component);
+        this.components.sort((a, b) => a.order - b.order);
+    }
+
+    /**
+     * إضافة بيانات مطلوبة
+     */
+    addRequiredData(key: string, value: any): void {
+        this.requiredData.set(key, value);
+    }
+
+    /**
+     * الحصول على البيانات المطلوبة
+     */
+    getRequiredData(): Map<string, any> {
+        return this.requiredData;
+    }
+
+    /**
+     * توليد تقرير
+     */
+    generateReport(): string {
+        let report = "═══════════════════════════════════════\n";
+        report += "📋 خطة الاستجابة\n";
+        report += "═══════════════════════════════════════\n\n";
+
+        report += `🎯 نوع الاستجابة: ${this.responseType}\n`;
+        report += `📊 الاستراتيجية: ${this.strategy}\n`;
+        report += `⚡ الأولوية: ${this.priority}\n\n`;
+
+        if (this.components.length > 0) {
+            report += `🧩 المكونات (${this.components.length}):\n`;
+            for (let component of this.components) {
+                let optional = component.isOptional ? " (اختياري)" : "";
+                report += `   ${component.order}. ${component.type}${optional}\n`;
+            }
+        }
+
+        if (this.requiredData.size > 0) {
+            report += `\n📦 البيانات المطلوبة (${this.requiredData.size}):\n`;
+            for (let [key, value] of this.requiredData) {
+                report += `   - ${key}: ${value}\n`;
+            }
+        }
+
+        return report;
+    }
+}
+
+/**
+ * مخطط الاستجابة - Response Planner
+ */
+export class ResponsePlanner extends MotherEquation {
+    // خريطة النوايا إلى أنواع الاستجابة
+    private intentToResponseMap: Map<IntentType, ResponseType>;
+    
+    // خريطة النوايا إلى الاستراتيجيات
+    private intentToStrategyMap: Map<IntentType, ResponseStrategy>;
+    
+    // إحصائيات
+    private stats: {
+        totalPlans: number;
+        strategyDistribution: Map<ResponseStrategy, number>;
+        averageComponents: number;
+    };
+
+    constructor(id: string = "response-planner-001") {
+        super(id);
+        this.intentToResponseMap = new Map();
+        this.intentToStrategyMap = new Map();
+        this.stats = {
+            totalPlans: 0,
+            strategyDistribution: new Map(),
+            averageComponents: 0
+        };
+        
+        this.initializeMappings();
+    }
+
+    /**
+     * تهيئة الخرائط
+     */
+    private initializeMappings(): void {
+        // خريطة النوايا إلى أنواع الاستجابة
+        this.intentToResponseMap.set(IntentType.QUESTION, ResponseType.ANSWER);
+        this.intentToResponseMap.set(IntentType.REQUEST, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.COMMAND, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.GREETING, ResponseType.GREETING);
+        this.intentToResponseMap.set(IntentType.FAREWELL, ResponseType.FAREWELL);
+        this.intentToResponseMap.set(IntentType.THANKS, ResponseType.THANKS);
+        this.intentToResponseMap.set(IntentType.APOLOGY, ResponseType.APOLOGY);
+        this.intentToResponseMap.set(IntentType.CONFIRMATION, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.NEGATION, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.OPINION, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.EMOTION, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.SUGGESTION, ResponseType.SUGGESTION);
+        this.intentToResponseMap.set(IntentType.COMPLAINT, ResponseType.APOLOGY);
+        this.intentToResponseMap.set(IntentType.PRAISE, ResponseType.THANKS);
+        this.intentToResponseMap.set(IntentType.CRITICISM, ResponseType.ACKNOWLEDGMENT);
+        this.intentToResponseMap.set(IntentType.UNKNOWN, ResponseType.CLARIFICATION);
+
+        // خريطة النوايا إلى الاستراتيجيات
+        this.intentToStrategyMap.set(IntentType.QUESTION, ResponseStrategy.INFORMATIVE);
+        this.intentToStrategyMap.set(IntentType.REQUEST, ResponseStrategy.SUPPORTIVE);
+        this.intentToStrategyMap.set(IntentType.COMMAND, ResponseStrategy.DIRECT);
+        this.intentToStrategyMap.set(IntentType.GREETING, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.FAREWELL, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.THANKS, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.APOLOGY, ResponseStrategy.SUPPORTIVE);
+        this.intentToStrategyMap.set(IntentType.CONFIRMATION, ResponseStrategy.DIRECT);
+        this.intentToStrategyMap.set(IntentType.NEGATION, ResponseStrategy.CLARIFYING);
+        this.intentToStrategyMap.set(IntentType.OPINION, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.EMOTION, ResponseStrategy.SUPPORTIVE);
+        this.intentToStrategyMap.set(IntentType.SUGGESTION, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.COMPLAINT, ResponseStrategy.SUPPORTIVE);
+        this.intentToStrategyMap.set(IntentType.PRAISE, ResponseStrategy.INTERACTIVE);
+        this.intentToStrategyMap.set(IntentType.CRITICISM, ResponseStrategy.SUPPORTIVE);
+        this.intentToStrategyMap.set(IntentType.UNKNOWN, ResponseStrategy.CLARIFYING);
+    }
+
+    /**
+     * إنشاء خطة استجابة
+     */
+    createPlan(intentAnalysis: IntentAnalysisResult): ResponsePlan {
+        let plan = new ResponsePlan(
+            `response-plan-${Date.now()}`,
+            intentAnalysis
+        );
+
+        // تحديد نوع الاستجابة
+        plan.responseType = this.determineResponseType(intentAnalysis);
+
+        // تحديد الاستراتيجية
+        plan.strategy = this.determineStrategy(intentAnalysis);
+
+        // تحديد الأولوية
+        plan.priority = this.determinePriority(intentAnalysis);
+
+        // بناء المكونات
+        this.buildComponents(plan);
+
+        // تحديد البيانات المطلوبة
+        this.identifyRequiredData(plan);
+
+        // تحديث الإحصائيات
+        this.updateStats(plan);
+
+        return plan;
+    }
+
+    /**
+     * تحديد نوع الاستجابة
+     */
+    private determineResponseType(analysis: IntentAnalysisResult): ResponseType {
+        if (!analysis.primaryIntent) {
+            return ResponseType.UNKNOWN;
+        }
+
+        let intentType = analysis.primaryIntent.type;
+        
+        if (this.intentToResponseMap.has(intentType)) {
+            return this.intentToResponseMap.get(intentType);
+        }
+
+        return ResponseType.UNKNOWN;
+    }
+
+    /**
+     * تحديد الاستراتيجية
+     */
+    private determineStrategy(analysis: IntentAnalysisResult): ResponseStrategy {
+        if (!analysis.primaryIntent) {
+            return ResponseStrategy.CLARIFYING;
+        }
+
+        let intentType = analysis.primaryIntent.type;
+        
+        if (this.intentToStrategyMap.has(intentType)) {
+            return this.intentToStrategyMap.get(intentType);
+        }
+
+        return ResponseStrategy.DIRECT;
+    }
+
+    /**
+     * تحديد الأولوية
+     */
+    private determinePriority(analysis: IntentAnalysisResult): ResponsePriority {
+        if (!analysis.primaryIntent) {
+            return ResponsePriority.NORMAL;
+        }
+
+        let intentType = analysis.primaryIntent.type;
+
+        // الأوامر والشكاوى لها أولوية عالية
+        if (intentType === IntentType.COMMAND || intentType === IntentType.COMPLAINT) {
+            return ResponsePriority.HIGH;
+        }
+
+        // الأسئلة لها أولوية عادية
+        if (intentType === IntentType.QUESTION) {
+            return ResponsePriority.NORMAL;
+        }
+
+        // التحيات والوداع لها أولوية منخفضة
+        if (intentType === IntentType.GREETING || intentType === IntentType.FAREWELL) {
+            return ResponsePriority.LOW;
+        }
+
+        return ResponsePriority.NORMAL;
+    }
+
+    /**
+     * بناء المكونات
+     */
+    private buildComponents(plan: ResponsePlan): void {
+        let order = 1;
+
+        // مكون التحية (اختياري)
+        if (plan.strategy === ResponseStrategy.INTERACTIVE) {
+            let greeting = new ResponseComponent(
+                `component-greeting-${Date.now()}`,
+                "greeting",
+                order++
+            );
+            greeting.isOptional = true;
+            plan.addComponent(greeting);
+        }
+
+        // مكون الإقرار
+        if (plan.responseType === ResponseType.ACKNOWLEDGMENT) {
+            let ack = new ResponseComponent(
+                `component-acknowledgment-${Date.now()}`,
+                "acknowledgment",
+                order++
+            );
+            plan.addComponent(ack);
+        }
+
+        // مكون المحتوى الرئيسي
+        let mainContent = new ResponseComponent(
+            `component-main-${Date.now()}`,
+            "main_content",
+            order++
+        );
+        plan.addComponent(mainContent);
+
+        // مكون التفاصيل (اختياري)
+        if (plan.strategy === ResponseStrategy.INFORMATIVE || 
+            plan.strategy === ResponseStrategy.EDUCATIONAL) {
+            let details = new ResponseComponent(
+                `component-details-${Date.now()}`,
+                "details",
+                order++
+            );
+            details.isOptional = true;
+            plan.addComponent(details);
+        }
+
+        // مكون الاقتراحات (اختياري)
+        if (plan.strategy === ResponseStrategy.SUPPORTIVE) {
+            let suggestions = new ResponseComponent(
+                `component-suggestions-${Date.now()}`,
+                "suggestions",
+                order++
+            );
+            suggestions.isOptional = true;
+            plan.addComponent(suggestions);
+        }
+
+        // مكون الختام (اختياري)
+        let closing = new ResponseComponent(
+            `component-closing-${Date.now()}`,
+            "closing",
+            order++
+        );
+        closing.isOptional = true;
+        plan.addComponent(closing);
+    }
+
+    /**
+     * تحديد البيانات المطلوبة
+     */
+    private identifyRequiredData(plan: ResponsePlan): void {
+        let analysis = plan.intentAnalysis;
+
+        // استخراج الكيانات
+        let entities = analysis.getAllEntities();
+        for (let entity of entities) {
+            plan.addRequiredData(`entity_${entity.type}`, entity.value);
+        }
+
+        // استخراج الكلمات المفتاحية
+        if (analysis.primaryIntent && analysis.primaryIntent.keywords.length > 0) {
+            plan.addRequiredData("keywords", analysis.primaryIntent.keywords.join(", "));
+        }
+
+        // إضافة النص الأصلي
+        plan.addRequiredData("original_text", analysis.inputText);
+
+        // إضافة نوع النية
+        if (analysis.primaryIntent) {
+            plan.addRequiredData("intent_type", analysis.primaryIntent.type);
+        }
+    }
+
+    /**
+     * تحديث الإحصائيات
+     */
+    private updateStats(plan: ResponsePlan): void {
+        this.stats.totalPlans++;
+
+        // تحديث توزيع الاستراتيجيات
+        let count = this.stats.strategyDistribution.get(plan.strategy) || 0;
+        this.stats.strategyDistribution.set(plan.strategy, count + 1);
+
+        // تحديث متوسط المكونات
+        let totalComponents = this.stats.averageComponents * (this.stats.totalPlans - 1);
+        totalComponents += plan.components.length;
+        this.stats.averageComponents = totalComponents / this.stats.totalPlans;
+    }
+
+    /**
+     * الحصول على الإحصائيات
+     */
+    getStats(): any {
+        return {
+            totalPlans: this.stats.totalPlans,
+            averageComponents: this.stats.averageComponents.toFixed(1),
+            strategyDistribution: Object.fromEntries(this.stats.strategyDistribution)
+        };
+    }
+}
+

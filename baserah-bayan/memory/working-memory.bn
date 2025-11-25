@@ -1,0 +1,419 @@
+/**
+ * الذاكرة العاملة - Working Memory System
+ * 
+ * تحفظ المعلومات المؤقتة أثناء المعالجة:
+ * - المعلومات النشطة حالياً
+ * - الأهداف الفرعية
+ * - النتائج المؤقتة
+ * - المتغيرات المحلية
+ * 
+ * السعة: 7±2 عناصر (حسب Miller's Law)
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+/**
+ * نوع العنصر في الذاكرة العاملة
+ */
+enum ItemType {
+    DATA = "data",
+    GOAL = "goal",
+    RESULT = "result",
+    VARIABLE = "variable"
+}
+
+/**
+ * فئة عنصر الذاكرة العاملة - WorkingMemoryItem
+ */
+class WorkingMemoryItem extends MotherEquation {
+    public itemId: string;
+    public key: string;
+    public value: any;
+    public itemType: ItemType;
+    
+    // الوقت
+    public createdAt: Date;
+    public expiresAt: Date | null;
+    public lastAccessed: Date;
+    
+    // الأولوية
+    public priority: number;  // 0 = عادي، 1 = مهم، 2 = حرج
+    public accessCount: number;
+    
+    // العلاقات
+    public relatedItems: array<string>;
+    public source: string;  // user, system, inferred
+    
+    /**
+     * المُنشئ
+     */
+    constructor(
+        key: string,
+        value: any,
+        itemType: ItemType = ItemType.DATA,
+        priority: number = 0,
+        ttl: number | null = null
+    ) {
+        super(`wm_item_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.itemId = this.id;
+        this.key = key;
+        this.value = value;
+        this.itemType = itemType;
+        this.priority = priority;
+        this.createdAt = new Date();
+        this.lastAccessed = new Date();
+        this.accessCount = 0;
+        this.relatedItems = [];
+        this.source = "user";
+        
+        // حساب وقت الانتهاء
+        if (ttl !== null) {
+            this.expiresAt = new Date(Date.now() + ttl * 1000);
+        } else {
+            this.expiresAt = null;
+        }
+    }
+    
+    /**
+     * تحديث الوصول
+     */
+    public updateAccess(): void {
+        this.accessCount += 1;
+        this.lastAccessed = new Date();
+    }
+    
+    /**
+     * التحقق من انتهاء الصلاحية
+     */
+    public isExpired(): boolean {
+        if (this.expiresAt === null) {
+            return false;
+        }
+        return new Date() > this.expiresAt;
+    }
+}
+
+/**
+ * فئة الذاكرة العاملة - WorkingMemory
+ * 
+ * تحفظ المعلومات المؤقتة أثناء المعالجة
+ * السعة محدودة (7±2 عناصر حسب Miller's Law)
+ */
+class WorkingMemory {
+    // الإعدادات
+    private capacity: number;
+    private defaultTTL: number;  // وقت البقاء الافتراضي بالثواني
+    
+    // المحتويات
+    private items: Map<string, WorkingMemoryItem>;
+    private accessQueue: array<string>;  // لتتبع الوصول (LRU)
+    
+    // الإحصائيات
+    private totalItemsStored: number;
+    private totalItemsEvicted: number;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(capacity: number = 7, defaultTTL: number = 300) {
+        this.capacity = capacity;
+        this.defaultTTL = defaultTTL;
+        
+        this.items = new Map();
+        this.accessQueue = [];
+        
+        this.totalItemsStored = 0;
+        this.totalItemsEvicted = 0;
+        
+        console.log(`✅ تم تهيئة الذاكرة العاملة (السعة: ${capacity})`);
+    }
+    
+    /**
+     * حفظ عنصر في الذاكرة العاملة
+     */
+    public store(
+        key: string,
+        value: any,
+        itemType: ItemType = ItemType.DATA,
+        priority: number = 0,
+        ttl: number | null = null
+    ): string {
+        // التحقق من السعة
+        if (this.items.size >= this.capacity && !this.items.has(key)) {
+            this.evictItem();
+        }
+        
+        // استخدام TTL الافتراضي إذا لم يُحدد
+        let actualTTL = ttl !== null ? ttl : this.defaultTTL;
+        
+        // إنشاء أو تحديث العنصر
+        if (this.items.has(key)) {
+            let item = this.items.get(key);
+            item.value = value;
+            item.updateAccess();
+            
+            // تحديث وقت الانتهاء
+            if (actualTTL > 0) {
+                item.expiresAt = new Date(Date.now() + actualTTL * 1000);
+            }
+        } else {
+            let item = new WorkingMemoryItem(key, value, itemType, priority, actualTTL);
+            this.items.set(key, item);
+            this.totalItemsStored += 1;
+        }
+        
+        // تحديث قائمة الوصول
+        let queueIndex = this.accessQueue.indexOf(key);
+        if (queueIndex > -1) {
+            this.accessQueue.splice(queueIndex, 1);
+        }
+        this.accessQueue.push(key);
+        
+        return this.items.get(key).itemId;
+    }
+    
+    /**
+     * استرجاع عنصر من الذاكرة العاملة
+     */
+    public retrieve(key: string): any | null {
+        // تنظيف العناصر المنتهية
+        this.cleanupExpired();
+        
+        if (!this.items.has(key)) {
+            return null;
+        }
+        
+        let item = this.items.get(key);
+        item.updateAccess();
+        
+        // تحديث قائمة الوصول
+        let queueIndex = this.accessQueue.indexOf(key);
+        if (queueIndex > -1) {
+            this.accessQueue.splice(queueIndex, 1);
+        }
+        this.accessQueue.push(key);
+        
+        return item.value;
+    }
+    
+    /**
+     * تحديث قيمة عنصر
+     */
+    public update(key: string, value: any): boolean {
+        if (!this.items.has(key)) {
+            return false;
+        }
+        
+        let item = this.items.get(key);
+        item.value = value;
+        item.updateAccess();
+        
+        return true;
+    }
+    
+    /**
+     * حذف عنصر
+     */
+    public remove(key: string): boolean {
+        if (!this.items.has(key)) {
+            return false;
+        }
+        
+        this.items.delete(key);
+        
+        let queueIndex = this.accessQueue.indexOf(key);
+        if (queueIndex > -1) {
+            this.accessQueue.splice(queueIndex, 1);
+        }
+        
+        return true;
+    }
+    
+    /**
+     * مسح جميع المحتويات
+     */
+    public clear(): void {
+        this.items.clear();
+        this.accessQueue = [];
+    }
+    
+    /**
+     * الحصول على جميع العناصر
+     */
+    public getAll(itemType: ItemType | null = null): object {
+        this.cleanupExpired();
+        
+        let result: object = {};
+        for (let [key, item] of this.items) {
+            if (itemType === null || item.itemType === itemType) {
+                result[key] = item.value;
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * الحصول على الأهداف النشطة
+     */
+    public getActiveGoals(): array<any> {
+        let goals: array<any> = [];
+        for (let [key, item] of this.items) {
+            if (item.itemType === ItemType.GOAL) {
+                goals.push(item.value);
+            }
+        }
+        return goals;
+    }
+    
+    /**
+     * الحصول على النتائج الأخيرة
+     */
+    public getRecentResults(count: number = 5): array<any> {
+        let results: array<{time: Date, value: any}> = [];
+        
+        for (let [key, item] of this.items) {
+            if (item.itemType === ItemType.RESULT) {
+                results.push({time: item.createdAt, value: item.value});
+            }
+        }
+        
+        // ترتيب حسب الوقت
+        results.sort((a, b) => b.time.getTime() - a.time.getTime());
+        
+        return results.slice(0, count).map(r => r.value);
+    }
+
+    /**
+     * طرد عنصر لإفساح المجال (LRU مع مراعاة الأولوية)
+     */
+    private evictItem(): void {
+        if (this.items.size === 0) {
+            return;
+        }
+
+        // استراتيجية الطرد: LRU (الأقل استخداماً مؤخراً) مع مراعاة الأولوية
+
+        // العناصر ذات الأولوية المنخفضة أولاً
+        let candidates: array<{key: string, item: WorkingMemoryItem}> = [];
+        for (let [key, item] of this.items) {
+            if (item.priority === 0) {
+                candidates.push({key: key, item: item});
+            }
+        }
+
+        if (candidates.length === 0) {
+            // إذا كانت جميع العناصر ذات أولوية، استخدم LRU
+            for (let [key, item] of this.items) {
+                candidates.push({key: key, item: item});
+            }
+        }
+
+        // ترتيب حسب آخر وصول
+        candidates.sort((a, b) =>
+            a.item.lastAccessed.getTime() - b.item.lastAccessed.getTime()
+        );
+
+        // طرد الأقدم
+        if (candidates.length > 0) {
+            let keyToEvict = candidates[0].key;
+            this.items.delete(keyToEvict);
+
+            let queueIndex = this.accessQueue.indexOf(keyToEvict);
+            if (queueIndex > -1) {
+                this.accessQueue.splice(queueIndex, 1);
+            }
+
+            this.totalItemsEvicted += 1;
+        }
+    }
+
+    /**
+     * تنظيف العناصر المنتهية
+     */
+    private cleanupExpired(): void {
+        let now = new Date();
+        let expiredKeys: array<string> = [];
+
+        for (let [key, item] of this.items) {
+            if (item.isExpired()) {
+                expiredKeys.push(key);
+            }
+        }
+
+        for (let key of expiredKeys) {
+            this.items.delete(key);
+
+            let queueIndex = this.accessQueue.indexOf(key);
+            if (queueIndex > -1) {
+                this.accessQueue.splice(queueIndex, 1);
+            }
+
+            this.totalItemsEvicted += 1;
+        }
+    }
+
+    /**
+     * الحصول على إحصائيات الذاكرة
+     */
+    public getStatistics(): object {
+        this.cleanupExpired();
+
+        // تجميع حسب النوع
+        let itemsByType: object = {};
+        for (let [key, item] of this.items) {
+            let type = item.itemType;
+            if (!itemsByType[type]) {
+                itemsByType[type] = 0;
+            }
+            itemsByType[type] += 1;
+        }
+
+        // الأكثر وصولاً
+        let allItems: array<WorkingMemoryItem> = [];
+        for (let [key, item] of this.items) {
+            allItems.push(item);
+        }
+        allItems.sort((a, b) => b.accessCount - a.accessCount);
+        let mostAccessed = allItems.slice(0, 3);
+
+        return {
+            currentSize: this.items.size,
+            capacity: this.capacity,
+            utilization: this.items.size / this.capacity,
+            totalStored: this.totalItemsStored,
+            totalEvicted: this.totalItemsEvicted,
+            itemsByType: itemsByType,
+            mostAccessed: mostAccessed.map(item => ({
+                key: item.key,
+                accessCount: item.accessCount,
+                itemType: item.itemType
+            }))
+        };
+    }
+
+    /**
+     * عدد العناصر الحالية
+     */
+    public size(): number {
+        this.cleanupExpired();
+        return this.items.size;
+    }
+
+    /**
+     * التحقق من وجود مفتاح
+     */
+    public has(key: string): boolean {
+        this.cleanupExpired();
+        return this.items.has(key);
+    }
+}
+
+// تصدير الفئات
+export { WorkingMemoryItem, WorkingMemory, ItemType };
+

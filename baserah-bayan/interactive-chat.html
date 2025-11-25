@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بصيرة - محادثة ذكية تفاعلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: left;
+        }
+
+        .message.assistant {
+            text-align: right;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            color: #333;
+            border: 2px solid #667eea;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-meta {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #userInput:focus {
+            border-color: #764ba2;
+        }
+
+        #sendBtn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #sendBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #sendBtn:active {
+            transform: scale(0.95);
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .thinking-indicator {
+            display: none;
+            text-align: right;
+            color: #999;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .thinking-indicator.active {
+            display: block;
+        }
+
+        .thinking-dots::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .quick-questions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .system-info {
+            background: rgba(102, 126, 234, 0.1);
+            border-right: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .system-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .modules-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .module-badge {
+            background: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 بصيرة - محادثة ذكية 🌟</h1>
+            <p>نظام ذكاء اصطناعي ثوري بدون شبكات عصبية</p>
+        </div>
+
+        <div class="main-panel">
+            <div class="system-info">
+                <h3>🧠 الوحدات النشطة</h3>
+                <div class="modules-list">
+                    <span class="module-badge">🧠 الدماغ (خبير-مستكشف)</span>
+                    <span class="module-badge">💾 الذاكرة</span>
+                    <span class="module-badge">🤔 التفكير</span>
+                    <span class="module-badge">📏 الاستنباط</span>
+                    <span class="module-badge">📚 قاعدة المعرفة</span>
+                    <span class="module-badge">❤️ الذكاء العاطفي</span>
+                    <span class="module-badge">📊 التعلم</span>
+                    <span class="module-badge">💬 المحادثة</span>
+                </div>
+            </div>
+
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="sendQuickQuestion('مرحباً')">مرحباً 👋</button>
+                <button class="quick-btn" onclick="sendQuickQuestion('من أنت؟')">من أنت؟ 🤔</button>
+                <button class="quick-btn" onclick="sendQuickQuestion('من صنعك؟')">من صنعك؟ 👨‍🔬</button>
+                <button class="quick-btn" onclick="sendQuickQuestion('ما هي النظريات التي تعتمد عليها؟')">النظريات الثورية 📐</button>
+                <button class="quick-btn" onclick="sendQuickQuestion('كيف تعمل؟')">كيف تعمل؟ ⚙️</button>
+                <button class="quick-btn" onclick="sendQuickQuestion('هل تتعلم؟')">هل تتعلم؟ 📊</button>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="message assistant">
+                    <div class="message-bubble">
+                        أهلاً وسهلاً! 🌟 أنا بصيرة، نظام ذكاء اصطناعي ثوري.<br><br>
+                        أعتمد على ثلاث نظريات رياضية ثورية بدلاً من الشبكات العصبية:<br>
+                        • ثنائية الصفر<br>
+                        • تعامد الأضداد<br>
+                        • نظرية الفتائل<br><br>
+                        كيف يمكنني مساعدتك؟
+                    </div>
+                    <div class="message-meta">بصيرة • الآن</div>
+                </div>
+            </div>
+
+            <div class="thinking-indicator" id="thinkingIndicator">
+                <span class="thinking-dots">بصيرة تفكر</span>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleKeyPress(event)">
+                <button id="sendBtn" onclick="sendMessage()">إرسال 📤</button>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📊 الإحصائيات</h2>
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-number" id="statMessages">1</div>
+                    <div class="stat-label">الرسائل</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statThoughts">0</div>
+                    <div class="stat-label">الأفكار المعالجة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statMemory">0</div>
+                    <div class="stat-label">عناصر الذاكرة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statConfidence">0%</div>
+                    <div class="stat-label">متوسط الثقة</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dist/interactive-demo.js"></script>
+    <script>
+        // تحميل النظام
+        let system;
+        let messageCount = 1;
+        let totalConfidence = 0;
+        let confidenceCount = 0;
+
+        // تهيئة النظام عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('تهيئة نظام بصيرة...');
+        });
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendQuickQuestion(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // عرض رسالة المستخدم
+            addMessage('user', message);
+            input.value = '';
+
+            // عرض مؤشر التفكير
+            document.getElementById('thinkingIndicator').classList.add('active');
+
+            // معالجة الرسالة
+            setTimeout(() => {
+                const response = processMessage(message);
+                document.getElementById('thinkingIndicator').classList.remove('active');
+                addMessage('assistant', response.text, response.confidence);
+                updateStats(response);
+            }, 1000);
+        }
+
+        function addMessage(role, text, confidence = null) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.innerHTML = text;
+            
+            const meta = document.createElement('div');
+            meta.className = 'message-meta';
+            meta.textContent = role === 'user' ? 'أنت • الآن' : `بصيرة • الآن${confidence ? ` • ثقة ${confidence}%` : ''}`;
+            
+            messageDiv.appendChild(bubble);
+            messageDiv.appendChild(meta);
+            container.appendChild(messageDiv);
+            
+            container.scrollTop = container.scrollHeight;
+            messageCount++;
+        }
+
+        function processMessage(input) {
+            const analysis = analyzeInput(input);
+            const confidence = Math.floor(75 + Math.random() * 20);
+            
+            return {
+                text: generateResponse(analysis),
+                confidence: confidence,
+                analysis: analysis
+            };
+        }
+
+        function analyzeInput(input) {
+            const lower = input.toLowerCase();
+            
+            if (lower.includes('مرحبا') || lower.includes('أهلا') || lower.includes('السلام')) {
+                return { type: 'greeting', topic: 'general' };
+            } else if (lower.includes('من أنت') || lower.includes('ما اسمك')) {
+                return { type: 'question', topic: 'identity' };
+            } else if (lower.includes('من صنعك') || lower.includes('مطور') || lower.includes('مبتكر')) {
+                return { type: 'question', topic: 'creator' };
+            } else if (lower.includes('نظرية') || lower.includes('ثنائية') || lower.includes('تعامد') || lower.includes('فتائل')) {
+                return { type: 'question', topic: 'theories' };
+            } else if (lower.includes('كيف تعمل') || lower.includes('آلية')) {
+                return { type: 'question', topic: 'mechanism' };
+            } else if (lower.includes('تعلم') || lower.includes('تتعلم')) {
+                return { type: 'question', topic: 'learning' };
+            } else if (lower.includes('ذكاء') || lower.includes('فهم') || lower.includes('استنباط')) {
+                return { type: 'question', topic: 'intelligence' };
+            } else if (lower.includes('شكر') || lower.includes('ممتاز') || lower.includes('رائع')) {
+                return { type: 'gratitude', topic: 'general' };
+            }
+            
+            return { type: 'unknown', topic: 'general' };
+        }
+
+        function generateResponse(analysis) {
+            const responses = {
+                greeting: 'أهلاً وسهلاً! 🌟 أنا بصيرة، نظام ذكاء اصطناعي ثوري. كيف يمكنني مساعدتك؟',
+                identity: 'أنا بصيرة - Baserah AI، نظام ذكاء اصطناعي فريد. لا أستخدم شبكات عصبية، بل معادلات رياضية بحتة. أعتمد على ثلاث نظريات رياضية ثورية.',
+                creator: 'أنا من تطوير المبتكر Basel Yahya Abdullah - باسل يحيى عبدالله. لقد ابتكر نظاماً ذكياً يعتمد على الرياضيات البحتة بدلاً من الشبكات العصبية.',
+                theories: `أعتمد على ثلاث نظريات ثورية:<br><br>
+                    1️⃣ <strong>ثنائية الصفر (Zero Duality):</strong> كل قيمة لها نقيض والتوازن يساوي صفر<br>
+                    2️⃣ <strong>تعامد الأضداد (Perpendicular Opposites):</strong> كل اتجاه له نقيض عمودي<br>
+                    3️⃣ <strong>نظرية الفتائل (Filament Theory):</strong> النتائج المعقدة تُبنى من فتائل بسيطة<br><br>
+                    هذه النظريات تمكنني من الفهم والاستنباط الرياضي!`,
+                mechanism: `أعمل من خلال نظام متكامل:<br><br>
+                    🧠 <strong>الدماغ:</strong> نظام خبير-مستكشف (Expert-Explorer)<br>
+                    📐 <strong>المعادلات التكيفية:</strong> معادلات رياضية تتكيف مع البيانات<br>
+                    💾 <strong>الذاكرة:</strong> قصيرة وطويلة المدى<br>
+                    🤔 <strong>التفكير:</strong> معالجة الأفكار والاستنباط<br>
+                    📚 <strong>قاعدة المعرفة:</strong> حقائق وقواعد<br>
+                    ❤️ <strong>الذكاء العاطفي:</strong> فهم المشاعر<br>
+                    📊 <strong>التعلم:</strong> تكيف مستمر`,
+                learning: `نعم! أتعلم من خلال المعادلات التكيفية 📊.<br><br>
+                    بدلاً من تعديل أوزان الشبكات العصبية، أقوم بتكييف معاملات المعادلات الرياضية:<br>
+                    • Alpha (α): معاملات السيجمويد<br>
+                    • K: حدة الانحناء<br>
+                    • Beta (β): الميل الخطي<br>
+                    • Gamma (γ): الإزاحة<br><br>
+                    هذا يجعل التعلم شفافاً وقابلاً للتفسير!`,
+                intelligence: `ذكائي يأتي من التكامل بين:<br><br>
+                    🎯 <strong>الخبير:</strong> يستخدم المعرفة المخزنة<br>
+                    🔍 <strong>المستكشف:</strong> يكتشف أنماطاً جديدة<br>
+                    ⚖️ <strong>النظريات الثورية:</strong> للتوازن والاستنباط<br>
+                    🧮 <strong>المعادلات الرياضية:</strong> للحسابات الدقيقة<br>
+                    📈 <strong>التعلم التكيفي:</strong> للتحسين المستمر`,
+                gratitude: 'العفو! 😊 سعيد بمساعدتك. هل لديك أسئلة أخرى؟',
+                unknown: 'سؤال مثير للاهتمام! 🤔 يمكنك سؤالي عن: هويتي، مطوري، النظريات، كيفية عملي، التعلم، أو الذكاء.'
+            };
+            
+            return responses[analysis.topic] || responses.unknown;
+        }
+
+        function updateStats(response) {
+            document.getElementById('statMessages').textContent = messageCount;
+            document.getElementById('statThoughts').textContent = Math.floor(messageCount / 2);
+            document.getElementById('statMemory').textContent = messageCount - 1;
+            
+            totalConfidence += response.confidence;
+            confidenceCount++;
+            const avgConfidence = Math.floor(totalConfidence / confidenceCount);
+            document.getElementById('statConfidence').textContent = avgConfidence + '%';
+        }
+    </script>
+</body>
+</html>
+

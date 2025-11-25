@@ -1,0 +1,440 @@
+/**
+ * أمثلة نظام التعلم
+ * Learning System Examples
+ * 
+ * أمثلة عملية شاملة لاستخدام نظام التعلم المتكامل
+ * 
+ * @author Basel Yahya Abdullah
+ * @version 1.0.0
+ */
+
+import {
+    IntegratedLearningSystem,
+    LearningType,
+    PatternType,
+    ImprovementStrategy
+} from './learning-integration.bn';
+import { ImprovementRule } from './adaptive-learning.bn';
+
+// ============================================================================
+// المثال 1: التعلم من حوار ناجح
+// ============================================================================
+
+function example1_LearnFromSuccessfulDialogue(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 1: التعلم من حوار ناجح");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // حوار ناجح
+    const result = system.learnFromDialogue(
+        "ما هو الذكاء الاصطناعي؟",
+        "الذكاء الاصطناعي هو علم يهدف إلى جعل الآلات تفكر وتتصرف بذكاء مثل البشر.",
+        {
+            intent: "question",
+            responseStyle: "educational",
+            language: "arabic"
+        },
+        true,  // success
+        0.9    // feedbackScore
+    );
+    
+    console.log("نتيجة التعلم:", JSON.stringify(result, null, 2));
+    console.log("عدد الأنماط المتعلمة:", result.patternCount);
+    
+    // الحصول على الأنماط ذات الصلة
+    const relevantPatterns = system.getRelevantPatterns({
+        intent: "question",
+        language: "arabic"
+    });
+    
+    console.log(`\nالأنماط ذات الصلة: ${relevantPatterns.length} نمط`);
+    for (const pattern of relevantPatterns) {
+        console.log(`  - ${pattern.description} (ثقة: ${pattern.confidence.toFixed(2)})`);
+    }
+    
+    console.log("\n✅ تم إنجاز المثال 1\n");
+}
+
+// ============================================================================
+// المثال 2: التعلم من حوار فاشل
+// ============================================================================
+
+function example2_LearnFromFailedDialogue(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 2: التعلم من حوار فاشل");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // حوار فاشل
+    const result = system.learnFromDialogue(
+        "كيف أتعلم البرمجة؟",
+        "البرمجة صعبة.",  // إجابة سيئة
+        {
+            intent: "how_to",
+            responseStyle: "brief",
+            language: "arabic"
+        },
+        false,  // failure
+        0.2     // feedbackScore
+    );
+    
+    console.log("نتيجة التعلم:", JSON.stringify(result, null, 2));
+    
+    // النظام تعلم من الخطأ
+    const errorPatterns = system.getRelevantPatterns(
+        { intent: "how_to" },
+        LearningType.ERROR_CORRECTION
+    );
+    
+    console.log(`\nأنماط تصحيح الأخطاء: ${errorPatterns.length} نمط`);
+    
+    console.log("\n✅ تم إنجاز المثال 2\n");
+}
+
+// ============================================================================
+// المثال 3: اكتشاف الأنماط من البيانات
+// ============================================================================
+
+function example3_DiscoverPatterns(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 3: اكتشاف الأنماط من البيانات");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // بيانات تجريبية
+    const data = [
+        { type: "question", topic: "AI", timestamp: new Date("2024-01-01 09:00") },
+        { type: "question", topic: "AI", timestamp: new Date("2024-01-01 09:15") },
+        { type: "question", topic: "programming", timestamp: new Date("2024-01-01 14:00") },
+        { type: "question", topic: "AI", timestamp: new Date("2024-01-01 09:30") },
+        { type: "answer", topic: "AI", timestamp: new Date("2024-01-01 09:35") },
+        { type: "question", topic: "programming", timestamp: new Date("2024-01-01 14:15") },
+        { type: "question", topic: "AI", timestamp: new Date("2024-01-01 10:00") }
+    ];
+    
+    // تحليل البيانات
+    const result = system.analyzeData(data);
+    
+    console.log(`إجمالي الأنماط المكتشفة: ${result.totalPatternsFound}`);
+    console.log(`أنماط عالية الثقة: ${result.highConfidencePatterns}`);
+    console.log(`نقاط البيانات المحللة: ${result.dataPointsAnalyzed}`);
+    console.log(`وقت المعالجة: ${result.processingTime} مللي ثانية`);
+    
+    // عرض الأنماط المكتشفة
+    console.log("\nالأنماط المكتشفة:");
+    for (const pattern of result.patterns.slice(0, 5)) {
+        console.log(`  - ${pattern.description}`);
+        console.log(`    النوع: ${pattern.patternType}`);
+        console.log(`    الظهورات: ${pattern.occurrences}`);
+        console.log(`    الثقة: ${pattern.confidence.toFixed(2)}`);
+    }
+    
+    console.log("\n✅ تم إنجاز المثال 3\n");
+}
+
+// ============================================================================
+// المثال 4: تحسين إجابة قصيرة
+// ============================================================================
+
+function example4_ImproveShortResponse(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 4: تحسين إجابة قصيرة");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // إجابة قصيرة تحتاج تحسين
+    const originalResponse = "الذكاء الاصطناعي مهم.";
+    
+    const improved = system.improveResponse(
+        originalResponse,
+        { intent: "question" },
+        { completeness: 0.3, clarity: 0.7 }
+    );
+    
+    console.log("الإجابة الأصلية:", improved.originalResponse);
+    console.log("الإجابة المحسّنة:", improved.improvedResponse);
+    console.log("نقاط التحسين:", improved.improvementScore.toFixed(2));
+    console.log("مستوى التحسين:", improved.improvementLevel);
+    console.log("القواعد المطبقة:", improved.appliedRules.join(", "));
+    console.log("الشرح:", improved.explanation);
+    
+    console.log("\n✅ تم إنجاز المثال 4\n");
+}
+
+// ============================================================================
+// المثال 5: تحسين إجابة طويلة ومعقدة
+// ============================================================================
+
+function example5_SimplifyLongResponse(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 5: تبسيط إجابة طويلة ومعقدة");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // إجابة طويلة ومعقدة
+    const originalResponse = "الذكاء الاصطناعي هو مجال واسع يشمل العديد من التقنيات والأساليب المختلفة التي تهدف إلى محاكاة القدرات البشرية في التفكير والتعلم واتخاذ القرارات ويتضمن ذلك التعلم الآلي والشبكات العصبية ومعالجة اللغة الطبيعية والرؤية الحاسوبية وغيرها من المجالات المتقدمة.";
+    
+    const improved = system.improveResponse(
+        originalResponse,
+        { intent: "question" },
+        { completeness: 0.9, clarity: 0.4 }
+    );
+    
+    console.log("الإجابة الأصلية:");
+    console.log(improved.originalResponse);
+    console.log("\nالإجابة المحسّنة:");
+    console.log(improved.improvedResponse);
+    console.log("\nنقاط التحسين:", improved.improvementScore.toFixed(2));
+    
+    console.log("\n✅ تم إنجاز المثال 5\n");
+}
+
+// ============================================================================
+// المثال 6: التعلم والتحسين في خطوة واحدة
+// ============================================================================
+
+function example6_LearnAndImprove(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 6: التعلم والتحسين في خطوة واحدة");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // حوار يحتاج تعلم وتحسين
+    const result = system.learnAndImprove(
+        "ما هي فوائد الذكاء الاصطناعي؟",
+        "له فوائد كثيرة.",  // إجابة ضعيفة
+        {
+            intent: "question",
+            responseStyle: "brief",
+            language: "arabic"
+        },
+        false,  // not successful
+        0.4,    // low feedback score
+        { completeness: 0.2, clarity: 0.6 }
+    );
+    
+    console.log("نتيجة التعلم:");
+    console.log(JSON.stringify(result.learning, null, 2));
+    
+    if (result.improvement) {
+        console.log("\nنتيجة التحسين:");
+        console.log("الإجابة المحسّنة:", result.improvement.improvedResponse);
+        console.log("نقاط التحسين:", result.improvement.improvementScore);
+    }
+    
+    console.log("\n✅ تم إنجاز المثال 6\n");
+}
+
+// ============================================================================
+// المثال 7: إضافة قاعدة تحسين مخصصة
+// ============================================================================
+
+function example7_CustomImprovementRule(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 7: إضافة قاعدة تحسين مخصصة");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // إنشاء قاعدة مخصصة
+    const customRule = new ImprovementRule(
+        "add_emoji",
+        "إضافة رموز تعبيرية",
+        "إضافة رموز تعبيرية للإجابات القصيرة",
+        ImprovementStrategy.ENHANCE_CLARITY,
+        {
+            minLength: 10,
+            maxLength: 50
+        },
+        {
+            addEmoji: true
+        },
+        8
+    );
+    
+    // إضافة القاعدة
+    system.addImprovementRule(customRule);
+    
+    console.log("تم إضافة قاعدة مخصصة:", customRule.name);
+    console.log("الاستراتيجية:", customRule.strategy);
+    console.log("الأولوية:", customRule.priority);
+    
+    // اختبار القاعدة
+    const improved = system.improveResponse(
+        "مرحباً بك!",
+        { intent: "greeting" },
+        null
+    );
+    
+    console.log("\nالإجابة الأصلية:", improved.originalResponse);
+    console.log("الإجابة المحسّنة:", improved.improvedResponse);
+    
+    console.log("\n✅ تم إنجاز المثال 7\n");
+}
+
+// ============================================================================
+// المثال 8: تحليل شامل للأداء
+// ============================================================================
+
+function example8_ComprehensiveAnalysis(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 8: تحليل شامل للأداء");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // بيانات حوارات
+    const dialogues = [
+        { type: "question", topic: "AI", user: "user1" },
+        { type: "question", topic: "AI", user: "user2" },
+        { type: "question", topic: "programming", user: "user1" },
+        { type: "answer", topic: "AI", user: "bot" },
+        { type: "question", topic: "AI", user: "user3" }
+    ];
+    
+    // إجابات للتحليل
+    const responses = [
+        "الذكاء الاصطناعي مهم.",
+        "البرمجة سهلة.",
+        "يمكنك التعلم من الكتب."
+    ];
+    
+    // تحليل شامل
+    const analysis = system.comprehensiveAnalysis(dialogues, responses);
+    
+    console.log("نتائج التحليل الشامل:");
+    console.log("\nالأنماط المكتشفة:", analysis.patterns.totalPatternsFound);
+    console.log("التحسينات المقترحة:", analysis.suggestedImprovements.length);
+    
+    console.log("\nالتحسينات المقترحة:");
+    for (const improvement of analysis.suggestedImprovements) {
+        console.log(`  - الأصلية: ${improvement.originalResponse}`);
+        console.log(`    المحسّنة: ${improvement.improvedResponse}`);
+        console.log(`    النقاط: ${improvement.improvementScore.toFixed(2)}`);
+    }
+    
+    console.log("\n✅ تم إنجاز المثال 8\n");
+}
+
+// ============================================================================
+// المثال 9: الإحصائيات الشاملة
+// ============================================================================
+
+function example9_ComprehensiveStatistics(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 9: الإحصائيات الشاملة");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // إجراء بعض العمليات
+    system.learnFromDialogue(
+        "ما هو الذكاء الاصطناعي؟",
+        "الذكاء الاصطناعي هو...",
+        { intent: "question" },
+        true,
+        0.9
+    );
+    
+    system.improveResponse(
+        "إجابة قصيرة",
+        { intent: "question" },
+        { completeness: 0.3 }
+    );
+    
+    // الحصول على الإحصائيات
+    const stats = system.getComprehensiveStatistics();
+    
+    console.log("الإحصائيات الشاملة:");
+    console.log(JSON.stringify(stats, null, 2));
+    
+    // ملخص الأداء
+    const summary = system.getPerformanceSummary();
+    
+    console.log("\nملخص الأداء:");
+    console.log(JSON.stringify(summary, null, 2));
+    
+    console.log("\n✅ تم إنجاز المثال 9\n");
+}
+
+// ============================================================================
+// المثال 10: تصدير ومسح البيانات
+// ============================================================================
+
+function example10_ExportAndClear(): void {
+    console.log("=".repeat(60));
+    console.log("المثال 10: تصدير ومسح البيانات");
+    console.log("=".repeat(60));
+    
+    const system = new IntegratedLearningSystem();
+    
+    // إجراء بعض العمليات
+    system.learnFromDialogue(
+        "سؤال تجريبي",
+        "إجابة تجريبية",
+        { intent: "test" },
+        true,
+        0.8
+    );
+    
+    // تصدير البيانات
+    const exportedData = system.exportAllData();
+    
+    console.log("تم تصدير البيانات:");
+    console.log("الطابع الزمني:", exportedData.timestamp);
+    console.log("عدد أفضل الأنماط:", exportedData.bestPatterns.length);
+    console.log("عدد أفضل القواعد:", exportedData.bestRules.length);
+    
+    // مسح جميع البيانات
+    system.clearAll();
+    
+    console.log("\nتم مسح جميع البيانات");
+    
+    // التحقق من المسح
+    const statsAfterClear = system.getPerformanceSummary();
+    console.log("الإحصائيات بعد المسح:", JSON.stringify(statsAfterClear, null, 2));
+    
+    console.log("\n✅ تم إنجاز المثال 10\n");
+}
+
+// ============================================================================
+// تشغيل جميع الأمثلة
+// ============================================================================
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("*".repeat(60));
+    console.log("*" + " ".repeat(58) + "*");
+    console.log("*" + " ".repeat(15) + "أمثلة نظام التعلم" + " ".repeat(23) + "*");
+    console.log("*" + " ".repeat(58) + "*");
+    console.log("*".repeat(60));
+    console.log("\n");
+    
+    example1_LearnFromSuccessfulDialogue();
+    example2_LearnFromFailedDialogue();
+    example3_DiscoverPatterns();
+    example4_ImproveShortResponse();
+    example5_SimplifyLongResponse();
+    example6_LearnAndImprove();
+    example7_CustomImprovementRule();
+    example8_ComprehensiveAnalysis();
+    example9_ComprehensiveStatistics();
+    example10_ExportAndClear();
+    
+    console.log("*".repeat(60));
+    console.log("*" + " ".repeat(58) + "*");
+    console.log("*" + " ".repeat(10) + "تم إنجاز جميع الأمثلة بنجاح!" + " ".repeat(16) + "*");
+    console.log("*" + " ".repeat(58) + "*");
+    console.log("*".repeat(60));
+}
+
+// تشغيل الأمثلة
+runAllExamples();
+

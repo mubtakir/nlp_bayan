@@ -1,0 +1,306 @@
+/*
+ * ==================== أمثلة النواة التفكيرية متعددة الطبقات ====================
+ * Multi-Layer Thinking Core Examples - Baserah AI System
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ * 
+ * أمثلة عملية لاستخدام النواة التفكيرية متعددة الطبقات
+ */
+
+import { MultiLayerThinkingCore } from "./multi-layer-thinking-core.bn";
+
+// ==================== مثال 1: معالجة بطبقة واحدة ====================
+
+function example1_SingleLayerProcessing(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 1: معالجة بطبقة واحدة (الطبقة الرياضية)");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example1Core");
+    
+    let inputText = "المعادلة 2x + 5 = 15 لها حل واحد وهو x = 5";
+    
+    console.log("\nالنص المدخل: " + inputText);
+    console.log("\nالمعالجة بالطبقة الرياضية فقط...");
+    
+    let result = core.targetedProcessing(inputText, ["mathematical"]);
+    
+    console.log("\n📊 النتيجة:");
+    console.log(JSON.stringify(result, null, 2));
+    
+    core.shutdownCore();
+}
+
+// ==================== مثال 2: معالجة بطبقات متعددة ====================
+
+function example2_MultiLayerProcessing(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 2: معالجة بطبقات متعددة");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example2Core");
+    
+    let inputText = "الرياضيات هي لغة الكون 🌟 والفيزياء تفسر الوجود";
+    
+    console.log("\nالنص المدخل: " + inputText);
+    console.log("\nالمعالجة بطبقات: رياضية، فيزيائية، رمزية، دلالية...");
+    
+    let result = core.targetedProcessing(inputText, [
+        "mathematical",
+        "physical",
+        "symbolic",
+        "semantic"
+    ]);
+    
+    console.log("\n📊 النتيجة:");
+    console.log("   الطبقات المستخدمة: " + result.processingLayers.join(", "));
+    console.log("   مستوى التزامن: " + result.synchronizationLevel.toFixed(3));
+    console.log("   وقت المعالجة: " + result.processingTime.toFixed(3) + " ثانية");
+    
+    console.log("\n🔗 مصفوفة التزامن:");
+    let syncMatrix = core.getSynchronizationMatrix();
+    console.log(JSON.stringify(syncMatrix, null, 2));
+    
+    console.log("\n💡 التحليل المتكامل:");
+    console.log(JSON.stringify(result.integratedAnalysis, null, 2));
+    
+    core.shutdownCore();
+}
+
+// ==================== مثال 3: معالجة شاملة بجميع الطبقات ====================
+
+function example3_ComprehensiveProcessing(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 3: معالجة شاملة بجميع الطبقات الثمانية");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example3Core");
+    
+    let inputText = `
+        إذا كانت القوة = الكتلة × التسارع
+        فإن الطاقة = نصف الكتلة × مربع السرعة
+        وهذا يعني أن الحركة 🚀 تحتاج طاقة
+        والطاقة تتحول ولا تفنى ⚡
+    `;
+    
+    console.log("\nالنص المدخل: " + inputText);
+    console.log("\nالمعالجة الشاملة بجميع الطبقات الثمانية...");
+    
+    let result = core.comprehensiveProcessing(inputText);
+    
+    console.log("\n📊 النتيجة:");
+    console.log("   الطبقات المستخدمة: " + result.processingLayers.length);
+    console.log("   مستوى التزامن: " + result.synchronizationLevel.toFixed(3));
+    console.log("   وقت المعالجة: " + result.processingTime.toFixed(3) + " ثانية");
+    
+    console.log("\n🎯 نتائج الطبقات:");
+    for (let layerName in result.layerResults) {
+        let layerResult = result.layerResults[layerName];
+        console.log("\n   " + layerName + ":");
+        console.log("      " + JSON.stringify(layerResult.specialized, null, 2));
+    }
+    
+    console.log("\n💡 التحليل المتكامل:");
+    let analysis = result.integratedAnalysis;
+    console.log("   إجمالي الطبقات: " + analysis.totalLayers);
+    console.log("   الطبقات الناجحة: " + analysis.successfulLayers);
+    console.log("   متوسط الثقة: " + (analysis.averageConfidence * 100).toFixed(1) + "%");
+    console.log("   المواضيع المهيمنة: " + analysis.dominantThemes.join(", "));
+    console.log("   الرؤى المتقاطعة: " + analysis.crossLayerInsights.join(", "));
+    
+    console.log("\n🚀 التركيب الثوري:");
+    let synthesis = analysis.revolutionarySynthesis;
+    console.log("   ثنائية الصفر: " + synthesis.zeroDualityManifestation);
+    console.log("   التكامل بالتعامد: " + synthesis.perpendicularIntegration);
+    console.log("   بناء الفتائل: " + synthesis.filamentConstruction);
+    console.log("   الفهم الموحد: " + synthesis.unifiedUnderstanding);
+    
+    core.shutdownCore();
+}
+
+// ==================== مثال 4: تزامن الطبقات ====================
+
+function example4_LayerSynchronization(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 4: تزامن الطبقات");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example4Core");
+    
+    // معالجة أولى
+    let text1 = "الرياضيات والمنطق يتكاملان";
+    console.log("\nالمعالجة الأولى: " + text1);
+    let result1 = core.targetedProcessing(text1, ["mathematical", "logical"]);
+    console.log("   مستوى التزامن: " + result1.synchronizationLevel.toFixed(3));
+    
+    // معالجة ثانية
+    let text2 = "الفيزياء والرياضيات أساس العلوم";
+    console.log("\nالمعالجة الثانية: " + text2);
+    let result2 = core.targetedProcessing(text2, ["mathematical", "physical"]);
+    console.log("   مستوى التزامن: " + result2.synchronizationLevel.toFixed(3));
+    
+    // معالجة ثالثة
+    let text3 = "اللغة والدلالة والرموز تحمل المعاني";
+    console.log("\nالمعالجة الثالثة: " + text3);
+    let result3 = core.targetedProcessing(text3, ["linguistic", "semantic", "symbolic"]);
+    console.log("   مستوى التزامن: " + result3.synchronizationLevel.toFixed(3));
+    
+    // عرض مصفوفة التزامن الكاملة
+    console.log("\n🔗 مصفوفة التزامن الكاملة:");
+    let syncMatrix = core.getSynchronizationMatrix();
+    
+    for (let layer1 in syncMatrix) {
+        console.log("\n   " + layer1 + ":");
+        for (let layer2 in syncMatrix[layer1]) {
+            let syncLevel = syncMatrix[layer1][layer2];
+            if (syncLevel > 0) {
+                console.log("      → " + layer2 + ": " + syncLevel.toFixed(3));
+            }
+        }
+    }
+    
+    // إحصائيات النواة
+    console.log("\n📊 إحصائيات النواة:");
+    let status = core.getCoreStatus();
+    console.log("   إجمالي المعالجات: " + status.totalProcessed);
+    console.log("   نسبة النجاح: " + (status.successRate * 100).toFixed(1) + "%");
+    console.log("   متوسط التزامن: " + status.averageSyncLevel.toFixed(3));
+    
+    core.shutdownCore();
+}
+
+// ==================== مثال 5: التركيب الثوري ====================
+
+function example5_RevolutionarySynthesis(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 5: التركيب الثوري - النظريات الثلاث");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example5Core");
+    
+    let inputText = `
+        في الكون توازن: كل شيء له ضده
+        النور والظلام، الحرارة والبرودة، الموجب والسالب
+        وكل اتجاه له اتجاه متعامد معه
+        والتعقيد يُبنى من البساطة
+    `;
+    
+    console.log("\nالنص المدخل: " + inputText);
+    console.log("\nالمعالجة بالطبقات: تفسيرية، فيزيائية، رمزية، دلالية...");
+    
+    let result = core.targetedProcessing(inputText, [
+        "interpretive",
+        "physical",
+        "symbolic",
+        "semantic"
+    ]);
+    
+    console.log("\n🚀 التركيب الثوري:");
+    let synthesis = result.integratedAnalysis.revolutionarySynthesis;
+    
+    console.log("\n   1️⃣ ثنائية الصفر (Zero Duality):");
+    console.log("      " + synthesis.zeroDualityManifestation);
+    console.log("      الثنائية مكتشفة: " + (synthesis.dualityDetected ? "نعم ✅" : "لا ❌"));
+    
+    console.log("\n   2️⃣ تعامد الأضداد (Perpendicular Opposites):");
+    console.log("      " + synthesis.perpendicularIntegration);
+    console.log("      التكامل ممكن: " + (synthesis.integrationPossible ? "نعم ✅" : "لا ❌"));
+    
+    console.log("\n   3️⃣ نظرية الفتائل (Filament Theory):");
+    console.log("      " + synthesis.filamentConstruction);
+    console.log("      مستوى التعقيد: " + synthesis.complexityLevel);
+    
+    console.log("\n   🎯 الفهم الموحد:");
+    console.log("      " + synthesis.unifiedUnderstanding);
+    
+    console.log("\n💡 الرؤى المتقاطعة:");
+    result.integratedAnalysis.crossLayerInsights.forEach((insight, index) => {
+        console.log("      " + (index + 1) + ". " + insight);
+    });
+    
+    core.shutdownCore();
+}
+
+// ==================== مثال 6: إدارة الطبقات ====================
+
+function example6_LayerManagement(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 6: إدارة الطبقات (تفعيل/تعطيل/إعادة تعيين)");
+    console.log("=".repeat(60));
+    
+    let core = new MultiLayerThinkingCore("Example6Core");
+    
+    console.log("\n📊 حالة النواة الأولية:");
+    let status1 = core.getCoreStatus();
+    console.log("   الطبقات النشطة: " + status1.activeLayers + "/" + status1.totalLayers);
+    
+    // تعطيل بعض الطبقات
+    console.log("\n🛑 تعطيل الطبقات: visual, symbolic");
+    core.disableLayer("visual");
+    core.disableLayer("symbolic");
+    
+    let status2 = core.getCoreStatus();
+    console.log("   الطبقات النشطة: " + status2.activeLayers + "/" + status2.totalLayers);
+    
+    // معالجة بالطبقات النشطة فقط
+    let inputText = "الرياضيات والفيزياء واللغة";
+    console.log("\n🔄 معالجة بالطبقات النشطة: " + inputText);
+    let result = core.comprehensiveProcessing(inputText);
+    console.log("   الطبقات المستخدمة: " + result.processingLayers.join(", "));
+    
+    // إعادة تفعيل الطبقات
+    console.log("\n✅ إعادة تفعيل الطبقات: visual, symbolic");
+    core.enableLayer("visual");
+    core.enableLayer("symbolic");
+    
+    let status3 = core.getCoreStatus();
+    console.log("   الطبقات النشطة: " + status3.activeLayers + "/" + status3.totalLayers);
+    
+    // إعادة تعيين طبقة معينة
+    console.log("\n🔄 إعادة تعيين الطبقة الرياضية");
+    core.resetLayer("mathematical");
+    
+    // إعادة تعيين جميع الطبقات
+    console.log("\n🔄 إعادة تعيين جميع الطبقات");
+    core.resetAllLayers();
+    
+    console.log("\n📊 حالة النواة النهائية:");
+    let statusFinal = core.getCoreStatus();
+    console.log("   إجمالي المعالجات: " + statusFinal.totalProcessed);
+    console.log("   نسبة النجاح: " + (statusFinal.successRate * 100).toFixed(1) + "%");
+    
+    core.shutdownCore();
+}
+
+// ==================== تشغيل جميع الأمثلة ====================
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("🧠🌟 أمثلة النواة التفكيرية متعددة الطبقات 🌟🧠");
+    console.log("نظام بصيرة AI الثوري - باسل يحيى عبدالله");
+    console.log("\n");
+    
+    example1_SingleLayerProcessing();
+    example2_MultiLayerProcessing();
+    example3_ComprehensiveProcessing();
+    example4_LayerSynchronization();
+    example5_RevolutionarySynthesis();
+    example6_LayerManagement();
+    
+    console.log("\n" + "=".repeat(60));
+    console.log("✅ تم تشغيل جميع الأمثلة بنجاح!");
+    console.log("=".repeat(60) + "\n");
+}
+
+// ==================== التصدير ====================
+
+export {
+    example1_SingleLayerProcessing,
+    example2_MultiLayerProcessing,
+    example3_ComprehensiveProcessing,
+    example4_LayerSynchronization,
+    example5_RevolutionarySynthesis,
+    example6_LayerManagement,
+    runAllExamples
+};

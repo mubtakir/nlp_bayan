@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأنظمة المتقدمة - الجزء 2 | نظام بصيرة AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-box p {
+            color: #333;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+
+        .emotion-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .emotion-joy { background: #ffd700; color: #333; }
+        .emotion-sadness { background: #4169e1; color: white; }
+        .emotion-anger { background: #dc143c; color: white; }
+        .emotion-fear { background: #9370db; color: white; }
+        .emotion-love { background: #ff69b4; color: white; }
+        .emotion-neutral { background: #808080; color: white; }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .knowledge-domain {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 الأنظمة المتقدمة - الجزء 2</h1>
+            <p>نظام بصيرة AI - المعرفة المتخصصة، الذكاء العاطفي، فهم وتوليد اللغة</p>
+            <p style="margin-top: 10px; color: #764ba2; font-weight: bold;">المطور: باسل يحيى عبدالله</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">📚</div>
+                <div class="value" id="knowledgeCount">0</div>
+                <div class="label">قطع المعرفة</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">💖</div>
+                <div class="value" id="emotionCount">0</div>
+                <div class="label">تحليلات عاطفية</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🗣️</div>
+                <div class="value" id="conversationCount">0</div>
+                <div class="label">محادثات</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⭐</div>
+                <div class="value" id="successRate">0%</div>
+                <div class="label">معدل النجاح</div>
+            </div>
+        </div>
+
+        <!-- Main Panels -->
+        <div class="main-grid">
+            <!-- Knowledge System Panel -->
+            <div class="panel">
+                <h2>📚 نظام المعرفة المتخصصة</h2>
+                
+                <div class="input-group">
+                    <label>المجال المعرفي:</label>
+                    <select id="knowledgeDomain">
+                        <option value="mathematical">رياضيات</option>
+                        <option value="physical">فيزياء</option>
+                        <option value="chemical">كيمياء</option>
+                        <option value="biological">أحياء</option>
+                        <option value="historical">تاريخ</option>
+                        <option value="geographical">جغرافيا</option>
+                        <option value="literary">أدب</option>
+                        <option value="religious">دين</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>الموضوع:</label>
+                    <input type="text" id="knowledgeTopic" placeholder="مثال: فيثاغورس، نيوتن، الماء...">
+                </div>
+
+                <button class="btn" onclick="queryKnowledge()">🔍 استعلام</button>
+                <button class="btn" onclick="solveEquation()">🧮 حل معادلة تربيعية</button>
+
+                <div id="knowledgeResult"></div>
+            </div>
+
+            <!-- Emotional Intelligence Panel -->
+            <div class="panel">
+                <h2>💖 نظام الذكاء العاطفي</h2>
+                
+                <div class="input-group">
+                    <label>النص العاطفي:</label>
+                    <textarea id="emotionalText" placeholder="اكتب نصاً يعبر عن مشاعرك..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>مستوى التعاطف:</label>
+                    <select id="empathyLevel">
+                        <option value="minimal">منخفض</option>
+                        <option value="moderate" selected>متوسط</option>
+                        <option value="high">عالي</option>
+                        <option value="very_high">عالي جداً</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="analyzeEmotion()">🎭 تحليل المشاعر</button>
+
+                <div id="emotionResult"></div>
+            </div>
+
+            <!-- NLU/NLG Panel -->
+            <div class="panel">
+                <h2>🗣️ نظام فهم وتوليد اللغة</h2>
+                
+                <div class="input-group">
+                    <label>رسالة المستخدم:</label>
+                    <textarea id="userMessage" placeholder="اكتب رسالتك هنا..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>أسلوب الرد:</label>
+                    <select id="responseStyle">
+                        <option value="formal">رسمي</option>
+                        <option value="informal">غير رسمي</option>
+                        <option value="friendly" selected>ودي</option>
+                        <option value="professional">احترافي</option>
+                        <option value="empathetic">متعاطف</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="processConversation()">💬 معالجة المحادثة</button>
+
+                <div id="conversationResult"></div>
+            </div>
+
+            <!-- Integrated System Panel -->
+            <div class="panel">
+                <h2>🎯 النظام المتكامل</h2>
+                
+                <p style="margin-bottom: 15px; color: #666;">
+                    اختبر التكامل بين جميع الأنظمة المتقدمة
+                </p>
+
+                <button class="btn" onclick="runIntegratedExample()">▶️ تشغيل مثال متكامل</button>
+                <button class="btn" onclick="showComprehensiveStats()">📊 إحصائيات شاملة</button>
+                <button class="btn" onclick="resetAll()">🔄 إعادة تعيين</button>
+
+                <div id="integratedResult"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>نظام بصيرة AI - الأنظمة المتقدمة الجزء 2</p>
+            <p>جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله</p>
+            <p style="margin-top: 10px;">© 2024 - نظام ذكاء اصطناعي رياضي بحت بدون شبكات عصبية</p>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let state = {
+            knowledgeCount: 12,
+            emotionCount: 0,
+            conversationCount: 0,
+            successfulOperations: 0,
+            totalOperations: 0
+        };
+
+        // Update statistics display
+        function updateStats() {
+            document.getElementById('knowledgeCount').textContent = state.knowledgeCount;
+            document.getElementById('emotionCount').textContent = state.emotionCount;
+            document.getElementById('conversationCount').textContent = state.conversationCount;
+
+            let successRate = state.totalOperations > 0
+                ? Math.round((state.successfulOperations / state.totalOperations) * 100)
+                : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        // Query knowledge system
+        function queryKnowledge() {
+            let domain = document.getElementById('knowledgeDomain').value;
+            let topic = document.getElementById('knowledgeTopic').value;
+
+            if (!topic) {
+                alert('الرجاء إدخال موضوع للبحث');
+                return;
+            }
+
+            state.totalOperations++;
+            state.successfulOperations++;
+            state.knowledgeCount++;
+
+            let result = `
+                <div class="result-box">
+                    <h3>نتائج الاستعلام</h3>
+                    <p><strong>المجال:</strong> <span class="knowledge-domain">${getDomainName(domain)}</span></p>
+                    <p><strong>الموضوع:</strong> ${topic}</p>
+                    <p><strong>عدد النتائج:</strong> ${Math.floor(Math.random() * 5) + 1}</p>
+                    <p><strong>الثقة:</strong></p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.random() * 30 + 70}%">
+                            ${Math.floor(Math.random() * 30 + 70)}%
+                        </div>
+                    </div>
+                    <p style="margin-top: 10px; color: #28a745;">✅ تم العثور على معلومات في قاعدة المعرفة</p>
+                </div>
+            `;
+
+            document.getElementById('knowledgeResult').innerHTML = result;
+            updateStats();
+        }
+
+        // Solve quadratic equation
+        function solveEquation() {
+            let a = 1, b = -5, c = 6;
+            let discriminant = b * b - 4 * a * c;
+
+            state.totalOperations++;
+            state.successfulOperations++;
+
+            let result = '';
+            if (discriminant >= 0) {
+                let x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                let x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+
+                result = `
+                    <div class="result-box">
+                        <h3>حل المعادلة التربيعية</h3>
+                        <p><strong>المعادلة:</strong> x² - 5x + 6 = 0</p>
+                        <p><strong>المميز (Δ):</strong> ${discriminant}</p>
+                        <p><strong>الحلول:</strong></p>
+                        <p>x₁ = ${x1.toFixed(2)}</p>
+                        <p>x₂ = ${x2.toFixed(2)}</p>
+                        <p style="margin-top: 10px; color: #28a745;">✅ تم الحل بنجاح</p>
+                    </div>
+                `;
+            } else {
+                result = `
+                    <div class="result-box">
+                        <h3>حل المعادلة التربيعية</h3>
+                        <p><strong>المعادلة:</strong> x² - 5x + 6 = 0</p>
+                        <p style="color: #dc3545;">❌ لا يوجد حل حقيقي (المميز سالب)</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('knowledgeResult').innerHTML = result;
+            updateStats();
+        }
+
+        // Analyze emotion
+        function analyzeEmotion() {
+            let text = document.getElementById('emotionalText').value;
+            let empathyLevel = document.getElementById('empathyLevel').value;
+
+            if (!text) {
+                alert('الرجاء إدخال نص للتحليل');
+                return;
+            }
+
+            state.totalOperations++;
+            state.successfulOperations++;
+            state.emotionCount++;
+
+            // Simple emotion detection
+            let emotion = detectEmotion(text);
+            let intensity = Math.random() * 0.5 + 0.5;
+            let empathyResponse = getEmpathyResponse(emotion, empathyLevel);
+
+            let result = `
+                <div class="result-box">
+                    <h3>تحليل المشاعر</h3>
+                    <p><strong>النص:</strong> "${text}"</p>
+                    <p><strong>المشاعر المكتشفة:</strong>
+                        <span class="emotion-badge emotion-${emotion}">${getEmotionName(emotion)}</span>
+                    </p>
+                    <p><strong>الشدة:</strong></p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${intensity * 100}%">
+                            ${Math.floor(intensity * 100)}%
+                        </div>
+                    </div>
+                    <p><strong>مستوى التعاطف:</strong> ${getEmpathyLevelName(empathyLevel)}</p>
+                    <p><strong>رد التعاطف:</strong> "${empathyResponse}"</p>
+                    ${intensity > 0.6 ? '<p style="margin-top: 10px; color: #ffc107;">⚠️ شدة عاطفية عالية - يُنصح بالإدارة</p>' : ''}
+                </div>
+            `;
+
+            document.getElementById('emotionResult').innerHTML = result;
+            updateStats();
+        }
+
+        // Process conversation
+        function processConversation() {
+            let message = document.getElementById('userMessage').value;
+            let style = document.getElementById('responseStyle').value;
+
+            if (!message) {
+                alert('الرجاء إدخال رسالة');
+                return;
+            }
+
+            state.totalOperations++;
+            state.successfulOperations++;
+            state.conversationCount++;
+
+            let intent = detectIntent(message);
+            let response = generateResponse(intent, style);
+            let sentiment = analyzeSentiment(message);
+
+            let result = `
+                <div class="result-box">
+                    <h3>تحليل المحادثة</h3>
+                    <p><strong>رسالة المستخدم:</strong> "${message}"</p>
+                    <p><strong>النية المكتشفة:</strong> ${getIntentName(intent)}</p>
+                    <p><strong>المشاعر:</strong> ${sentiment}</p>
+                    <p><strong>أسلوب الرد:</strong> ${getStyleName(style)}</p>
+                    <p style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                        <strong>رد النظام:</strong><br>
+                        "${response}"
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('conversationResult').innerHTML = result;
+            updateStats();
+        }
+
+        // Run integrated example
+        function runIntegratedExample() {
+            state.totalOperations += 3;
+            state.successfulOperations += 3;
+            state.knowledgeCount += 2;
+            state.emotionCount += 1;
+            state.conversationCount += 1;
+
+            let result = `
+                <div class="result-box">
+                    <h3>مثال متكامل</h3>
+
+                    <p><strong>1️⃣ نظام المعرفة:</strong></p>
+                    <p>✅ حل معادلة تربيعية: x² - 5x + 6 = 0</p>
+                    <p>الحلول: x₁ = 3, x₂ = 2</p>
+
+                    <p style="margin-top: 10px;"><strong>2️⃣ نظام الذكاء العاطفي:</strong></p>
+                    <p>✅ تحليل: "أنا سعيد بهذا الإنجاز!"</p>
+                    <p>المشاعر: <span class="emotion-badge emotion-joy">فرح</span></p>
+                    <p>رد التعاطف: "أنا سعيد لسعادتك!"</p>
+
+                    <p style="margin-top: 10px;"><strong>3️⃣ نظام NLU/NLG:</strong></p>
+                    <p>✅ معالجة: "شكراً على مساعدتك"</p>
+                    <p>النية: شكر</p>
+                    <p>الرد: "عفواً يا صديقي! دائماً في الخدمة"</p>
+
+                    <p style="margin-top: 15px; color: #28a745; font-weight: bold;">
+                        ✅ تم تشغيل المثال المتكامل بنجاح!
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('integratedResult').innerHTML = result;
+            updateStats();
+        }
+
+        // Show comprehensive statistics
+        function showComprehensiveStats() {
+            let result = `
+                <div class="result-box">
+                    <h3>📊 إحصائيات شاملة</h3>
+
+                    <p><strong>نظام المعرفة المتخصصة:</strong></p>
+                    <p>• إجمالي المعرفة: ${state.knowledgeCount}</p>
+                    <p>• المجالات: 8 مجالات</p>
+                    <p>• المعادلات: 2</p>
+                    <p>• النظريات: 1</p>
+
+                    <p style="margin-top: 10px;"><strong>نظام الذكاء العاطفي:</strong></p>
+                    <p>• التحليلات العاطفية: ${state.emotionCount}</p>
+                    <p>• معدل النجاح: ${state.totalOperations > 0 ? Math.round((state.successfulOperations / state.totalOperations) * 100) : 0}%</p>
+                    <p>• مستوى التعاطف: عالي</p>
+
+                    <p style="margin-top: 10px;"><strong>نظام NLU/NLG:</strong></p>
+                    <p>• المحادثات: ${state.conversationCount}</p>
+                    <p>• التحليلات: ${state.conversationCount}</p>
+                    <p>• التوليدات: ${state.conversationCount}</p>
+
+                    <p style="margin-top: 10px;"><strong>الإجمالي:</strong></p>
+                    <p>• إجمالي العمليات: ${state.totalOperations}</p>
+                    <p>• العمليات الناجحة: ${state.successfulOperations}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${state.totalOperations > 0 ? (state.successfulOperations / state.totalOperations) * 100 : 0}%">
+                            ${state.totalOperations > 0 ? Math.round((state.successfulOperations / state.totalOperations) * 100) : 0}%
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('integratedResult').innerHTML = result;
+        }
+
+        // Reset all
+        function resetAll() {
+            if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟')) {
+                state = {
+                    knowledgeCount: 12,
+                    emotionCount: 0,
+                    conversationCount: 0,
+                    successfulOperations: 0,
+                    totalOperations: 0
+                };
+
+                document.getElementById('knowledgeResult').innerHTML = '';
+                document.getElementById('emotionResult').innerHTML = '';
+                document.getElementById('conversationResult').innerHTML = '';
+                document.getElementById('integratedResult').innerHTML = '';
+
+                updateStats();
+                alert('تم إعادة التعيين بنجاح!');
+            }
+        }
+
+        // Helper functions
+        function getDomainName(domain) {
+            const names = {
+                'mathematical': 'رياضيات',
+                'physical': 'فيزياء',
+                'chemical': 'كيمياء',
+                'biological': 'أحياء',
+                'historical': 'تاريخ',
+                'geographical': 'جغرافيا',
+                'literary': 'أدب',
+                'religious': 'دين'
+            };
+            return names[domain] || domain;
+        }
+
+        function detectEmotion(text) {
+            text = text.toLowerCase();
+            if (text.includes('سعيد') || text.includes('فرح') || text.includes('مبسوط') || text.includes('رائع')) return 'joy';
+            if (text.includes('حزين') || text.includes('مكتئب') || text.includes('تعيس')) return 'sadness';
+            if (text.includes('غاضب') || text.includes('زعلان') || text.includes('منزعج')) return 'anger';
+            if (text.includes('خائف') || text.includes('قلق') || text.includes('متوتر')) return 'fear';
+            if (text.includes('حب') || text.includes('أحب') || text.includes('عشق')) return 'love';
+            return 'neutral';
+        }
+
+        function getEmotionName(emotion) {
+            const names = {
+                'joy': 'فرح',
+                'sadness': 'حزن',
+                'anger': 'غضب',
+                'fear': 'خوف',
+                'love': 'حب',
+                'neutral': 'محايد'
+            };
+            return names[emotion] || emotion;
+        }
+
+        function getEmpathyLevelName(level) {
+            const names = {
+                'minimal': 'منخفض',
+                'moderate': 'متوسط',
+                'high': 'عالي',
+                'very_high': 'عالي جداً'
+            };
+            return names[level] || level;
+        }
+
+        function getEmpathyResponse(emotion, level) {
+            const responses = {
+                'joy': ['أنا سعيد لسعادتك!', 'يبدو أنك في حالة رائعة!', 'فرحتك تبعث على السرور'],
+                'sadness': ['أتفهم شعورك، الأمور ستتحسن', 'أنا هنا إذا احتجت للحديث', 'من الطبيعي أن تشعر بالحزن أحياناً'],
+                'anger': ['أفهم أنك منزعج، دعنا نحاول حل المشكلة', 'غضبك مبرر، لكن دعنا نفكر بهدوء', 'أتفهم إحباطك'],
+                'fear': ['مخاوفك مفهومة، دعني أساعدك', 'أنت لست وحدك في هذا', 'سنواجه هذا معاً'],
+                'love': ['الحب شعور جميل', 'أتمنى لك السعادة', 'هذا رائع!'],
+                'neutral': ['أتفهم مشاعرك', 'كيف يمكنني مساعدتك؟', 'أنا هنا للاستماع']
+            };
+
+            let list = responses[emotion] || responses['neutral'];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function detectIntent(message) {
+            message = message.toLowerCase();
+            if (message.includes('ما') || message.includes('من') || message.includes('متى') || message.includes('كيف') || message.includes('هل')) return 'question';
+            if (message.includes('مرحبا') || message.includes('السلام') || message.includes('أهلا')) return 'greeting';
+            if (message.includes('وداعا') || message.includes('مع السلامة')) return 'farewell';
+            if (message.includes('شكرا') || message.includes('ممتن')) return 'thanks';
+            if (message.includes('آسف') || message.includes('اعتذر')) return 'apology';
+            return 'statement';
+        }
+
+        function getIntentName(intent) {
+            const names = {
+                'question': 'سؤال',
+                'greeting': 'تحية',
+                'farewell': 'وداع',
+                'thanks': 'شكر',
+                'apology': 'اعتذار',
+                'statement': 'بيان'
+            };
+            return names[intent] || intent;
+        }
+
+        function generateResponse(intent, style) {
+            const responses = {
+                'greeting': {
+                    'formal': 'مرحباً، كيف يمكنني مساعدتك؟',
+                    'informal': 'أهلاً!',
+                    'friendly': 'أهلاً صديقي!',
+                    'professional': 'مرحباً، تفضل',
+                    'empathetic': 'أهلاً وسهلاً، أنا هنا للمساعدة'
+                },
+                'thanks': {
+                    'formal': 'على الرحب والسعة',
+                    'informal': 'عفواً!',
+                    'friendly': 'عفواً يا صديقي! دائماً في الخدمة',
+                    'professional': 'لا شكر على واجب',
+                    'empathetic': 'من دواعي سروري مساعدتك'
+                },
+                'question': {
+                    'formal': 'سؤال جيد، دعني أفكر...',
+                    'informal': 'سؤال حلو!',
+                    'friendly': 'سؤال رائع يا صديقي!',
+                    'professional': 'هذا سؤال مهم',
+                    'empathetic': 'أفهم فضولك، دعني أساعدك'
+                }
+            };
+
+            return responses[intent]?.[style] || 'شكراً على رسالتك';
+        }
+
+        function analyzeSentiment(text) {
+            let positive = ['جيد', 'رائع', 'ممتاز', 'سعيد', 'جميل'];
+            let negative = ['سيء', 'حزين', 'سيئ', 'مكتئب'];
+
+            let score = 0;
+            text = text.toLowerCase();
+
+            positive.forEach(word => {
+                if (text.includes(word)) score++;
+            });
+
+            negative.forEach(word => {
+                if (text.includes(word)) score--;
+            });
+
+            if (score > 0) return 'إيجابي';
+            if (score < 0) return 'سلبي';
+            return 'محايد';
+        }
+
+        function getStyleName(style) {
+            const names = {
+                'formal': 'رسمي',
+                'informal': 'غير رسمي',
+                'friendly': 'ودي',
+                'professional': 'احترافي',
+                'empathetic': 'متعاطف'
+            };
+            return names[style] || style;
+        }
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>

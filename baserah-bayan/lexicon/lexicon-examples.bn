@@ -1,0 +1,318 @@
+#!/usr/bin/env bayan
+/**
+ * أمثلة نظام المعاجم اللغوية - Lexicon System Examples
+ * نظام بصيرة الثوري
+ * 
+ * 📚 أمثلة عملية شاملة
+ * 🔤 استخراج معاني الحروف
+ * 🔍 البحث في المعاجم
+ * 💾 إدارة قاعدة البيانات
+ * 
+ * المطور: باسل يحيى عبدالله
+ */
+
+import { 
+    DigitalLexiconLoader, 
+    LexiconSource, 
+    Language 
+} from "./digital-lexicon-loader.bn";
+
+import { 
+    CharacterMeaningExtractor,
+    ExtractionMethod 
+} from "./character-meaning-extractor.bn";
+
+import { 
+    DictionaryDatabaseManager,
+    SearchType 
+} from "./dictionary-database-manager.bn";
+
+import { 
+    DigitalDictionaryScraper,
+    DictionarySource 
+} from "./digital-dictionary-scraper.bn";
+
+import { 
+    IntegratedLexiconSystem,
+    IntegrationMode 
+} from "./lexicon-integration.bn";
+
+// ==================== المثال 1: تحميل معجم بسيط ====================
+
+function example1_SimpleLexiconLoading(): void {
+    console.log("=== المثال 1: تحميل معجم بسيط ===\n");
+    
+    let loader = new DigitalLexiconLoader("loader_example1");
+    
+    // إضافة كلمات
+    loader.addWord("كتب", "سجل الأفكار والمعلومات", PartOfSpeech.VERB, "كتب", LexiconSource.MANUAL, Language.ARABIC);
+    loader.addWord("كتاب", "مجموعة من الصفحات المطبوعة", PartOfSpeech.NOUN, "كتب", LexiconSource.MANUAL, Language.ARABIC);
+    loader.addWord("مكتب", "مكان للعمل والدراسة", PartOfSpeech.NOUN, "كتب", LexiconSource.MANUAL, Language.ARABIC);
+    loader.addWord("مكتبة", "مكان لحفظ الكتب", PartOfSpeech.NOUN, "كتب", LexiconSource.MANUAL, Language.ARABIC);
+    loader.addWord("كاتب", "من يكتب", PartOfSpeech.NOUN, "كتب", LexiconSource.MANUAL, Language.ARABIC);
+    
+    // عرض الإحصائيات
+    let stats = loader.getStatistics();
+    console.log("📊 الإحصائيات:");
+    console.log(`   - إجمالي الكلمات: ${stats.totalWords}`);
+    console.log(`   - متوسط طول الكلمة: ${stats.averageWordLength.toFixed(2)}`);
+    console.log(`   - اللغات: ${stats.languages.join(', ')}`);
+    
+    // البحث عن كلمة
+    let word = loader.getWord("كتاب");
+    if (word) {
+        console.log(`\n🔍 البحث عن "كتاب":`);
+        console.log(`   - المعنى: ${word.meaning}`);
+        console.log(`   - الجذر: ${word.root}`);
+    }
+    
+    console.log("\n✅ المثال 1 اكتمل!\n");
+}
+
+// ==================== المثال 2: استخراج معاني الحروف ====================
+
+function example2_CharacterMeaningExtraction(): void {
+    console.log("=== المثال 2: استخراج معاني الحروف ===\n");
+    
+    let loader = new DigitalLexiconLoader("loader_example2");
+    
+    // إضافة كلمات تشترك في حرف "ك"
+    let wordsWithKaf = {
+        "كتب": "سجل الأفكار",
+        "كتاب": "مجموعة صفحات",
+        "كبير": "عظيم الحجم",
+        "كريم": "سخي معطاء",
+        "كامل": "تام غير ناقص",
+        "كثير": "وفير العدد",
+        "كلام": "حديث ونطق",
+        "كوكب": "جرم سماوي"
+    };
+    
+    loader.loadFromDict(wordsWithKaf, LexiconSource.MANUAL, Language.ARABIC);
+    
+    // استخراج معاني الحروف
+    let extractor = new CharacterMeaningExtractor("extractor_example2");
+    extractor.loadLexicon(loader.lexicon);
+    
+    let analyses = extractor.extractCharacterMeanings(0.1);
+    
+    // عرض تحليل حرف "ك"
+    let kafAnalysis = extractor.getCharacterAnalysis("ك");
+    if (kafAnalysis) {
+        console.log(`📝 تحليل حرف "ك":`);
+        console.log(`   - عدد الكلمات: ${kafAnalysis.totalWords}`);
+        console.log(`   - عدد المعاني: ${kafAnalysis.totalMeanings}`);
+        console.log(`   - الثقة: ${(kafAnalysis.confidence * 100).toFixed(1)}%`);
+        console.log(`   - الجودة: ${kafAnalysis.getQuality()}`);
+        
+        console.log(`\n   🔝 أفضل المعاني:`);
+        let topMeanings = kafAnalysis.getTopMeanings(3);
+        for (let i = 0; i < topMeanings.length; i++) {
+            let m = topMeanings[i];
+            console.log(`      ${i + 1}. ${m.meaning} (${(m.score * 100).toFixed(1)}%)`);
+        }
+    }
+    
+    console.log("\n✅ المثال 2 اكتمل!\n");
+}
+
+// ==================== المثال 3: إدارة قاعدة البيانات ====================
+
+function example3_DatabaseManagement(): void {
+    console.log("=== المثال 3: إدارة قاعدة البيانات ===\n");
+    
+    let dbManager = new DictionaryDatabaseManager("databases/test_dictionary.db");
+    
+    // إدراج كلمات
+    console.log("📥 إدراج كلمات...");
+    dbManager.insertWord("علم", "المعرفة والإدراك", "manual");
+    dbManager.insertWord("عالم", "من يعلم", "manual");
+    dbManager.insertWord("معلم", "من يعلّم", "manual");
+    dbManager.insertWord("تعليم", "نقل المعرفة", "manual");
+    dbManager.insertWord("علمي", "متعلق بالعلم", "manual");
+    
+    // البحث
+    console.log("\n🔍 البحث عن كلمة 'علم':");
+    let entry = dbManager.searchWord("علم");
+    if (entry) {
+        console.log(`   - المعنى: ${entry.meaning}`);
+        console.log(`   - المصدر: ${entry.source}`);
+    }
+    
+    // البحث بنمط
+    console.log("\n🔍 البحث عن كلمات تبدأ بـ 'عل':");
+    let results = dbManager.searchByPattern("عل", SearchType.STARTS_WITH);
+    console.log(`   - عدد النتائج: ${results.length}`);
+    for (let r of results) {
+        console.log(`   - ${r.word}: ${r.meaning}`);
+    }
+    
+    // البحث بحرف مشترك
+    console.log("\n🔍 البحث عن كلمات تحتوي على 'ع':");
+    let charResults = dbManager.searchByCharacter("ع");
+    console.log(`   - عدد النتائج: ${charResults.length}`);
+    
+    // الإحصائيات
+    let stats = dbManager.calculateStatistics();
+    console.log("\n📊 الإحصائيات:");
+    console.log(`   - إجمالي الكلمات: ${stats.totalWords}`);
+    console.log(`   - إجمالي الحروف: ${stats.totalCharacters}`);
+    console.log(`   - متوسط طول الكلمة: ${stats.averageWordLength.toFixed(2)}`);
+    
+    console.log("\n✅ المثال 3 اكتمل!\n");
+}
+
+// ==================== المثال 4: استخراج من الإنترنت ====================
+
+async function example4_WebScraping(): Promise<void> {
+    console.log("=== المثال 4: استخراج من الإنترنت ===\n");
+    
+    let scraper = new DigitalDictionaryScraper("databases/test_dictionary.db");
+    
+    // البحث عن كلمة
+    console.log("🌐 البحث عن كلمة 'حكمة'...");
+    let meaning = await scraper.scrapeAlmaany("حكمة");
+    if (meaning) {
+        console.log(`   ✅ المعنى: ${meaning}`);
+    } else {
+        console.log(`   ❌ لم يتم العثور على المعنى`);
+    }
+    
+    // تحليل معنى حرف
+    console.log("\n🔤 تحليل معنى حرف 'ح'...");
+    let analysis = scraper.analyzeCharacterMeanings("ح");
+    console.log(`   - عدد الكلمات: ${analysis.totalWords}`);
+    console.log(`   - المعنى العام: ${analysis.generalMeaning}`);
+    console.log(`   - الثقة: ${(analysis.confidence * 100).toFixed(1)}%`);
+    
+    // الإحصائيات
+    let stats = scraper.getScrapingStatistics();
+    console.log("\n📊 إحصائيات الاستخراج:");
+    console.log(`   - إجمالي المحاولات: ${stats.totalScraped}`);
+    console.log(`   - النجاح: ${stats.successCount}`);
+    console.log(`   - الفشل: ${stats.failedCount}`);
+    console.log(`   - نسبة النجاح: ${stats.successRate.toFixed(1)}%`);
+    
+    console.log("\n✅ المثال 4 اكتمل!\n");
+}
+
+// ==================== المثال 5: النظام المتكامل ====================
+
+async function example5_IntegratedSystem(): Promise<void> {
+    console.log("=== المثال 5: النظام المتكامل ===\n");
+    
+    let system = new IntegratedLexiconSystem("system_example5", IntegrationMode.FULL_INTEGRATION);
+    
+    // التهيئة
+    console.log("🔧 تهيئة النظام...");
+    let initialized = system.initialize();
+    console.log(`   ${initialized ? '✅' : '❌'} التهيئة ${initialized ? 'نجحت' : 'فشلت'}`);
+    
+    // إضافة كلمات
+    console.log("\n📥 إضافة كلمات...");
+    system.loader.addWord("حب", "المودة والعاطفة", PartOfSpeech.NOUN, "حبب", LexiconSource.MANUAL, Language.ARABIC);
+    system.loader.addWord("حبيب", "المحبوب", PartOfSpeech.NOUN, "حبب", LexiconSource.MANUAL, Language.ARABIC);
+    system.loader.addWord("محبة", "الحب والمودة", PartOfSpeech.NOUN, "حبب", LexiconSource.MANUAL, Language.ARABIC);
+    
+    // استخراج معاني الحروف
+    console.log("\n🔤 استخراج معاني الحروف...");
+    let charAnalyses = system.extractCharacterMeanings(0.1);
+    console.log(`   ✅ تم استخراج معاني ${Object.keys(charAnalyses).length} حرف`);
+    
+    // تحليل حرف معين
+    console.log("\n📝 تحليل حرف 'ح'...");
+    let charAnalysis = await system.analyzeCharacter("ح");
+    console.log(`   - عدد الكلمات: ${charAnalysis.totalWords}`);
+    console.log(`   - المعنى العام: ${charAnalysis.generalMeaning}`);
+    
+    // الإحصائيات الشاملة
+    let stats = system.getStatistics();
+    console.log("\n📊 الإحصائيات الشاملة:");
+    console.log(`   - وضع التكامل: ${stats.mode}`);
+    console.log(`   - مهيأ: ${stats.isInitialized ? 'نعم' : 'لا'}`);
+    console.log(`   - إرشادات الخبير: ${stats.expertGuidances}`);
+    console.log(`   - معدل إصابة الكاش: ${stats.cache.hitRate.toFixed(1)}%`);
+    
+    console.log("\n✅ المثال 5 اكتمل!\n");
+}
+
+// ==================== المثال 6: البحث المتقدم ====================
+
+function example6_AdvancedSearch(): void {
+    console.log("=== المثال 6: البحث المتقدم ===\n");
+    
+    let dbManager = new DictionaryDatabaseManager("databases/test_dictionary.db");
+    
+    // إدراج كلمات للاختبار
+    dbManager.insertWord("سماء", "الفضاء العلوي", "manual");
+    dbManager.insertWord("سمع", "الإدراك بالأذن", "manual");
+    dbManager.insertWord("سمك", "حيوان مائي", "manual");
+    dbManager.insertWord("اسم", "ما يعرف به الشيء", "manual");
+    dbManager.insertWord("رسم", "تصوير بالخطوط", "manual");
+    
+    // بحث بأنماط مختلفة
+    console.log("🔍 أنواع البحث المختلفة:\n");
+    
+    console.log("1. البحث المطابق تماماً:");
+    let exact = dbManager.searchByPattern("سماء", SearchType.EXACT);
+    console.log(`   - النتائج: ${exact.length}`);
+    
+    console.log("\n2. البحث بالاحتواء:");
+    let contains = dbManager.searchByPattern("سم", SearchType.CONTAINS);
+    console.log(`   - النتائج: ${contains.length}`);
+    for (let r of contains) {
+        console.log(`   - ${r.word}`);
+    }
+    
+    console.log("\n3. البحث بالبداية:");
+    let startsWith = dbManager.searchByPattern("سم", SearchType.STARTS_WITH);
+    console.log(`   - النتائج: ${startsWith.length}`);
+    for (let r of startsWith) {
+        console.log(`   - ${r.word}`);
+    }
+    
+    console.log("\n4. البحث بالنهاية:");
+    let endsWith = dbManager.searchByPattern("سم", SearchType.ENDS_WITH);
+    console.log(`   - النتائج: ${endsWith.length}`);
+    for (let r of endsWith) {
+        console.log(`   - ${r.word}`);
+    }
+    
+    console.log("\n5. البحث بحروف مشتركة:");
+    let shared = dbManager.searchBySharedCharacters(["س", "م"]);
+    console.log(`   - النتائج: ${shared.length}`);
+    for (let r of shared) {
+        console.log(`   - ${r.word}`);
+    }
+    
+    console.log("\n✅ المثال 6 اكتمل!\n");
+}
+
+// ==================== تشغيل جميع الأمثلة ====================
+
+async function runAllExamples(): Promise<void> {
+    console.log("\n🚀 بدء تشغيل جميع الأمثلة...\n");
+    console.log("=".repeat(60) + "\n");
+    
+    example1_SimpleLexiconLoading();
+    example2_CharacterMeaningExtraction();
+    example3_DatabaseManagement();
+    await example4_WebScraping();
+    await example5_IntegratedSystem();
+    example6_AdvancedSearch();
+    
+    console.log("=".repeat(60));
+    console.log("\n🎉 اكتملت جميع الأمثلة بنجاح!\n");
+}
+
+// تصدير الدوال
+export {
+    example1_SimpleLexiconLoading,
+    example2_CharacterMeaningExtraction,
+    example3_DatabaseManagement,
+    example4_WebScraping,
+    example5_IntegratedSystem,
+    example6_AdvancedSearch,
+    runAllExamples
+};
+

@@ -1,0 +1,358 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * محرك الرسم بالسيغمويد - Sigmoid Drawing Engine
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * النظام الثوري لرسم الأشكال باستخدام دوال سيغمويد المعممة
+ * Revolutionary drawing engine using generalized sigmoid functions
+ * 
+ * الفلسفة:
+ * ════════
+ * - كل شكل طبيعي = استقامة + انحناء
+ * - الاستقامة = مكون خطي
+ * - الانحناء = دوال سيغمويد
+ * - الشكل الكامل = مجموع الحدود
+ * 
+ * المميزات:
+ * ════════
+ * ✓ رسم دقيق للأشكال المعقدة
+ * ✓ انتقالات ناعمة وحادة
+ * ✓ دوال البوابة (المستطيلات)
+ * ✓ تحكم محلي في الشكل
+ * ✓ لا حاجة لآلاف الصور
+ * 
+ * @author Baserah AI System
+ * @version 1.0.0
+ * @date 2025-10-26
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+import { SigmoidShapeEquation } from "./sigmoid-shape-equation.bn";
+
+// ═══════════════════════════════════════════════════════════════════════
+// سياق الرسم - Drawing Context
+// ═══════════════════════════════════════════════════════════════════════
+
+class SigmoidCanvasContext {
+    canvas: object;
+    ctx: object;
+    width: number;
+    height: number;
+    scaleX: number;
+    scaleY: number;
+    offsetX: number;
+    offsetY: number;
+    
+    constructor(canvasId: string, width: number = 800, height: number = 600) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.width = width;
+        this.height = height;
+        
+        // إعدادات التحجيم الافتراضية
+        this.scaleX = 50;  // 50 بكسل لكل وحدة
+        this.scaleY = 50;
+        this.offsetX = width / 2;
+        this.offsetY = height / 2;
+    }
+    
+    function setScale(scaleX: number, scaleY: number): void {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+    }
+    
+    function setOffset(offsetX: number, offsetY: number): void {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+    }
+    
+    function toCanvasX(x: number): number {
+        return this.offsetX + x * this.scaleX;
+    }
+    
+    function toCanvasY(y: number): number {
+        return this.offsetY - y * this.scaleY;  // عكس Y للرسم
+    }
+    
+    function clear(): void {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// محرك الرسم بالسيغمويد - Sigmoid Drawing Engine
+// ═══════════════════════════════════════════════════════════════════════
+
+class SigmoidDrawingEngine {
+    canvasContext: SigmoidCanvasContext;
+    currentEquation: SigmoidShapeEquation;
+    drawingRange: number[];
+    resolution: number;
+    
+    // إحصائيات
+    stats: object;
+    
+    constructor() {
+        this.canvasContext = null;
+        this.currentEquation = null;
+        this.drawingRange = [-10, 10];
+        this.resolution = 500;
+        
+        this.stats = {
+            shapesDrawn: 0,
+            termsEvaluated: 0,
+            pointsPlotted: 0,
+            lastDrawTime: 0
+        };
+        
+        console.log("🌊 تم تهيئة محرك الرسم بالسيغمويد");
+    }
+    
+    // ═══ التهيئة ═══
+    
+    function initialize(canvasId: string, width: number = 800, height: number = 600): boolean {
+        try {
+            this.canvasContext = new SigmoidCanvasContext(canvasId, width, height);
+            console.log(`✓ تم تهيئة اللوحة: ${width}x${height}`);
+            return true;
+        } catch (e) {
+            console.error(`✗ فشل تهيئة اللوحة: ${e}`);
+            return false;
+        }
+    }
+    
+    function setDrawingRange(start: number, end: number): void {
+        this.drawingRange = [start, end];
+        console.log(`✓ نطاق الرسم: [${start}, ${end}]`);
+    }
+    
+    function setResolution(resolution: number): void {
+        this.resolution = resolution;
+        console.log(`✓ دقة الرسم: ${resolution} نقطة`);
+    }
+    
+    // ═══ الرسم ═══
+    
+    function drawEquation(equation: SigmoidShapeEquation, color: string = "#2563eb"): boolean {
+        /**
+         * رسم معادلة شكل سيغمويد
+         * Draw sigmoid shape equation
+         */
+        if (!this.canvasContext) {
+            console.error("✗ لم يتم تهيئة اللوحة");
+            return false;
+        }
+        
+        let startTime = Date.now();
+        
+        this.currentEquation = equation;
+        let ctx = this.canvasContext.ctx;
+        
+        // حساب النقاط
+        let points = equation.evaluateRange(this.drawingRange[0], this.drawingRange[1]);
+        
+        // بدء الرسم
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        
+        // رسم المنحنى
+        for (let i = 0; i < points.length; i++) {
+            let point = points[i];
+            let canvasX = this.canvasContext.toCanvasX(point.x);
+            let canvasY = this.canvasContext.toCanvasY(point.y);
+            
+            if (i === 0) {
+                ctx.moveTo(canvasX, canvasY);
+            } else {
+                ctx.lineTo(canvasX, canvasY);
+            }
+        }
+        
+        ctx.stroke();
+        
+        // تحديث الإحصائيات
+        this.stats.shapesDrawn++;
+        this.stats.termsEvaluated += equation.sigmoidTerms.length;
+        this.stats.pointsPlotted += points.length;
+        this.stats.lastDrawTime = Date.now() - startTime;
+        
+        console.log(`✓ تم رسم: ${equation.shapeName} (${this.stats.lastDrawTime}ms)`);
+        
+        return true;
+    }
+    
+    function drawParametric(
+        equation: SigmoidShapeEquation,
+        yEquation: SigmoidShapeEquation,
+        color: string = "#2563eb"
+    ): boolean {
+        /**
+         * رسم منحنى بارامتري
+         * Draw parametric curve
+         * 
+         * x = equation(t)
+         * y = yEquation(t)
+         */
+        if (!this.canvasContext) {
+            console.error("✗ لم يتم تهيئة اللوحة");
+            return false;
+        }
+        
+        let ctx = this.canvasContext.ctx;
+        
+        // حساب النقاط
+        let step = (this.drawingRange[1] - this.drawingRange[0]) / this.resolution;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i <= this.resolution; i++) {
+            let t = this.drawingRange[0] + i * step;
+            let x = equation.evaluate(t);
+            let y = yEquation.evaluate(t);
+            
+            let canvasX = this.canvasContext.toCanvasX(x);
+            let canvasY = this.canvasContext.toCanvasY(y);
+            
+            if (i === 0) {
+                ctx.moveTo(canvasX, canvasY);
+            } else {
+                ctx.lineTo(canvasX, canvasY);
+            }
+        }
+        
+        ctx.stroke();
+        
+        console.log(`✓ تم رسم منحنى بارامتري`);
+        
+        return true;
+    }
+    
+    function drawAxes(): void {
+        /**
+         * رسم المحاور
+         * Draw axes
+         */
+        if (!this.canvasContext) return;
+        
+        let ctx = this.canvasContext.ctx;
+        
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 1;
+        
+        // المحور X
+        ctx.beginPath();
+        ctx.moveTo(0, this.canvasContext.offsetY);
+        ctx.lineTo(this.canvasContext.width, this.canvasContext.offsetY);
+        ctx.stroke();
+        
+        // المحور Y
+        ctx.beginPath();
+        ctx.moveTo(this.canvasContext.offsetX, 0);
+        ctx.lineTo(this.canvasContext.offsetX, this.canvasContext.height);
+        ctx.stroke();
+    }
+    
+    function drawGrid(spacing: number = 1): void {
+        /**
+         * رسم الشبكة
+         * Draw grid
+         */
+        if (!this.canvasContext) return;
+        
+        let ctx = this.canvasContext.ctx;
+        
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 0.5;
+        
+        // خطوط عمودية
+        for (let x = this.drawingRange[0]; x <= this.drawingRange[1]; x += spacing) {
+            let canvasX = this.canvasContext.toCanvasX(x);
+            ctx.beginPath();
+            ctx.moveTo(canvasX, 0);
+            ctx.lineTo(canvasX, this.canvasContext.height);
+            ctx.stroke();
+        }
+        
+        // خطوط أفقية
+        for (let y = this.drawingRange[0]; y <= this.drawingRange[1]; y += spacing) {
+            let canvasY = this.canvasContext.toCanvasY(y);
+            ctx.beginPath();
+            ctx.moveTo(0, canvasY);
+            ctx.lineTo(this.canvasContext.width, canvasY);
+            ctx.stroke();
+        }
+    }
+    
+    function clear(): void {
+        /**
+         * مسح اللوحة
+         * Clear canvas
+         */
+        if (this.canvasContext) {
+            this.canvasContext.clear();
+        }
+    }
+    
+    // ═══ أدوات مساعدة ═══
+    
+    function visualizeTerms(equation: SigmoidShapeEquation): void {
+        /**
+         * رسم كل حد على حدة
+         * Visualize individual terms
+         */
+        if (!this.canvasContext) return;
+        
+        let colors = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6"];
+        
+        // رسم المكون الخطي
+        let linearEq = new SigmoidShapeEquation("Linear");
+        linearEq.setLinearComponent(
+            equation.linearComponent.slope,
+            equation.linearComponent.intercept
+        );
+        this.drawEquation(linearEq, "#94a3b8");
+        
+        // رسم كل حد سيغمويد
+        for (let i = 0; i < equation.sigmoidTerms.length; i++) {
+            let term = equation.sigmoidTerms[i];
+            let termEq = new SigmoidShapeEquation(`Term ${i + 1}`);
+            
+            let sig = term.sigmoid;
+            termEq.addSigmoidTerm(
+                sig.scale,
+                sig.sharpness,
+                sig.center,
+                sig.cutoff,
+                term.weight
+            );
+            
+            let color = colors[i % colors.length];
+            this.drawEquation(termEq, color);
+        }
+        
+        // رسم المعادلة الكاملة
+        this.drawEquation(equation, "#000000");
+    }
+    
+    function getStats(): object {
+        /**
+         * الحصول على الإحصائيات
+         * Get statistics
+         */
+        return {
+            shapesDrawn: this.stats.shapesDrawn,
+            termsEvaluated: this.stats.termsEvaluated,
+            pointsPlotted: this.stats.pointsPlotted,
+            lastDrawTime: this.stats.lastDrawTime,
+            averagePointsPerShape: this.stats.shapesDrawn > 0 
+                ? Math.floor(this.stats.pointsPlotted / this.stats.shapesDrawn)
+                : 0
+        };
+    }
+}
+
+export { SigmoidCanvasContext, SigmoidDrawingEngine };
+

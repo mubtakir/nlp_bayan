@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 محرك الرسم التقليدي - Classic Drawing Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .canvas-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #drawingCanvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            max-width: 100%;
+            cursor: crosshair;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .control-group h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .color-picker {
+            width: 100%;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .equation-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 15px;
+            border-right: 4px solid #667eea;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .shape-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .shape-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .shape-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .stat-value {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 محرك الرسم التقليدي</h1>
+            <p>Classic Drawing Engine - Baserah AI Artistic Unit</p>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Controls -->
+            <div class="card">
+                <h2>⚙️ التحكم</h2>
+                
+                <!-- Shape Selection -->
+                <div class="control-group">
+                    <h3>اختر الشكل</h3>
+                    <div class="shape-list">
+                        <button class="shape-btn" onclick="drawLine()">📏 خط</button>
+                        <button class="shape-btn" onclick="drawCircle()">⭕ دائرة</button>
+                        <button class="shape-btn" onclick="drawRectangle()">▭ مستطيل</button>
+                        <button class="shape-btn" onclick="drawSineWave()">〰️ موجة</button>
+                        <button class="shape-btn" onclick="drawSpiral()">🌀 حلزون</button>
+                        <button class="shape-btn" onclick="drawStar()">⭐ نجمة</button>
+                    </div>
+                </div>
+                
+                <!-- Style Controls -->
+                <div class="control-group">
+                    <h3>الأنماط</h3>
+                    
+                    <div class="input-group">
+                        <label>لون الخط:</label>
+                        <input type="color" id="strokeColor" class="color-picker" value="#000000">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>لون التعبئة:</label>
+                        <input type="color" id="fillColor" class="color-picker" value="#ffffff">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>سمك الخط:</label>
+                        <input type="range" id="lineWidth" min="1" max="20" value="2" 
+                               oninput="document.getElementById('lineWidthValue').textContent = this.value">
+                        <span id="lineWidthValue">2</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>نمط الخط:</label>
+                        <select id="lineStyle">
+                            <option value="solid">متصل</option>
+                            <option value="dashed">متقطع</option>
+                            <option value="dotted">منقط</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>التعبئة:</label>
+                        <input type="checkbox" id="fillEnabled"> تفعيل التعبئة
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="control-group">
+                    <h3>الإجراءات</h3>
+                    <button class="btn" onclick="clearCanvas()">🗑️ مسح</button>
+                    <button class="btn btn-secondary" onclick="exportSVG()">💾 تصدير SVG</button>
+                    <button class="btn btn-success" onclick="showEquation()">📐 عرض المعادلة</button>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">عدد الأشكال</div>
+                        <div class="stat-value" id="shapeCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">عدد الحدود</div>
+                        <div class="stat-value" id="termCount">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Canvas -->
+            <div class="card">
+                <h2>🖼️ لوحة الرسم</h2>
+                <div class="canvas-container">
+                    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+                </div>
+                
+                <!-- Equation Display -->
+                <div class="equation-display" id="equationDisplay">
+                    جاهز للرسم...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // محاكاة النظام
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let shapes = [];
+        let currentShape = null;
+        
+        function getStyle() {
+            return {
+                strokeColor: document.getElementById('strokeColor').value,
+                fillColor: document.getElementById('fillColor').value,
+                lineWidth: parseInt(document.getElementById('lineWidth').value),
+                lineStyle: document.getElementById('lineStyle').value,
+                fillEnabled: document.getElementById('fillEnabled').checked
+            };
+        }
+        
+        function applyStyle(style) {
+            ctx.strokeStyle = style.strokeColor;
+            ctx.fillStyle = style.fillColor;
+            ctx.lineWidth = style.lineWidth;
+            
+            if (style.lineStyle === 'dashed') {
+                ctx.setLineDash([10, 5]);
+            } else if (style.lineStyle === 'dotted') {
+                ctx.setLineDash([2, 3]);
+            } else {
+                ctx.setLineDash([]);
+            }
+        }
+        
+        function drawLine() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            ctx.beginPath();
+            ctx.moveTo(100, 100);
+            ctx.lineTo(700, 500);
+            ctx.stroke();
+            
+            shapes.push({type: 'line', params: {x1: 100, y1: 100, x2: 700, y2: 500}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function drawCircle() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            ctx.beginPath();
+            ctx.arc(400, 300, 150, 0, 2 * Math.PI);
+            ctx.stroke();
+            if (style.fillEnabled) ctx.fill();
+            
+            shapes.push({type: 'circle', params: {cx: 400, cy: 300, r: 150}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function drawRectangle() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            ctx.beginPath();
+            ctx.rect(200, 150, 400, 300);
+            ctx.stroke();
+            if (style.fillEnabled) ctx.fill();
+            
+            shapes.push({type: 'rectangle', params: {x: 200, y: 150, w: 400, h: 300}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function drawSineWave() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            ctx.beginPath();
+            for (let x = 0; x <= 800; x += 5) {
+                let y = 300 + 100 * Math.sin(x / 50);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            shapes.push({type: 'sine', params: {amplitude: 100, frequency: 1/50}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function drawSpiral() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            ctx.beginPath();
+            for (let angle = 0; angle <= 10 * Math.PI; angle += 0.1) {
+                let r = angle * 5;
+                let x = 400 + r * Math.cos(angle);
+                let y = 300 + r * Math.sin(angle);
+                if (angle === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            shapes.push({type: 'spiral', params: {}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function drawStar() {
+            const style = getStyle();
+            applyStyle(style);
+            
+            const cx = 400, cy = 300, outerR = 150, innerR = 60, points = 5;
+            
+            ctx.beginPath();
+            for (let i = 0; i < points * 2; i++) {
+                const angle = (i * Math.PI) / points - Math.PI / 2;
+                const r = i % 2 === 0 ? outerR : innerR;
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.stroke();
+            if (style.fillEnabled) ctx.fill();
+            
+            shapes.push({type: 'star', params: {points: 5}, style});
+            updateStats();
+            updateEquation();
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            shapes = [];
+            updateStats();
+            document.getElementById('equationDisplay').textContent = 'جاهز للرسم...';
+        }
+        
+        function updateStats() {
+            document.getElementById('shapeCount').textContent = shapes.length;
+            let termCount = shapes.reduce((sum, shape) => sum + 1, 0);
+            document.getElementById('termCount').textContent = termCount;
+        }
+        
+        function updateEquation() {
+            let equation = 'معادلة الشكل العام:\n\n';
+            shapes.forEach((shape, i) => {
+                equation += `الحد ${i + 1}: ${shape.type}(${JSON.stringify(shape.params)})\n`;
+            });
+            document.getElementById('equationDisplay').textContent = equation;
+        }
+        
+        function showEquation() {
+            updateEquation();
+            alert('تم عرض المعادلة في الأسفل!');
+        }
+        
+        function exportSVG() {
+            alert('تصدير SVG - قريباً!\nSVG Export - Coming Soon!');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,325 @@
+/**
+ * أمثلة على استخدام قواعد بيانات طبقات التفكير
+ * Examples of Using Thinking Layer Databases
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-28
+ */
+
+import {
+    LayerType,
+    SearchType,
+    ConfidenceLevel,
+    KnowledgeStatus,
+    KnowledgeEntry,
+    DatabaseQuery,
+    LayerDatabaseManager
+} from "./layer-database-manager.bn";
+
+import {
+    UnifiedSearchStrategy,
+    IntegrationMode,
+    UnifiedSearchResult,
+    UnifiedLayerDatabasesSystem
+} from "./unified-layer-databases.bn";
+
+// ==================== مثال 1: إدارة قاعدة بيانات طبقة واحدة ====================
+
+function example1_SingleLayerDatabase(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 1: إدارة قاعدة بيانات طبقة واحدة");
+    console.log("=".repeat(60));
+    
+    // إنشاء مدير قاعدة بيانات للطبقة الرياضية
+    let mathDB = new LayerDatabaseManager(
+        LayerType.MATHEMATICAL,
+        "databases/mathematical_knowledge.db"
+    );
+    
+    // إضافة معرفة رياضية
+    console.log("\n📝 إضافة معرفة رياضية...");
+    
+    mathDB.addEntry(
+        "نظرية_فيثاغورس",
+        "في المثلث القائم: a² + b² = c²",
+        { category: "هندسة", difficulty: "متوسط" },
+        1.0
+    );
+    
+    mathDB.addEntry(
+        "قانون_الجيب",
+        "a/sin(A) = b/sin(B) = c/sin(C)",
+        { category: "مثلثات", difficulty: "متقدم" },
+        0.95
+    );
+    
+    mathDB.addEntry(
+        "مساحة_الدائرة",
+        "A = πr²",
+        { category: "هندسة", difficulty: "سهل" },
+        1.0
+    );
+    
+    mathDB.addEntry(
+        "المشتقة_الأولى",
+        "d/dx(x^n) = nx^(n-1)",
+        { category: "تفاضل", difficulty: "متوسط" },
+        0.9
+    );
+    
+    // البحث بالمفتاح
+    console.log("\n🔍 البحث عن نظرية فيثاغورس...");
+    let results = mathDB.searchByKey("نظرية_فيثاغورس");
+    console.log(`   النتائج: ${results.length}`);
+    if (results.length > 0) {
+        console.log(`   المعرفة: ${results[0].value}`);
+        console.log(`   الثقة: ${results[0].confidence}`);
+    }
+    
+    // البحث المتقدم
+    console.log("\n🔍 البحث عن كل ما يحتوي على 'هندسة'...");
+    let query = new DatabaseQuery("هندسة", SearchType.CONTAINS);
+    query.setMinConfidence(0.8);
+    let geometryResults = mathDB.search(query);
+    console.log(`   النتائج: ${geometryResults.length}`);
+    for (let result of geometryResults) {
+        console.log(`   - ${result.key}: ${result.value}`);
+    }
+    
+    // الإحصائيات
+    console.log("\n📊 إحصائيات قاعدة البيانات:");
+    let stats = mathDB.getStatistics();
+    console.log(`   إجمالي العناصر: ${stats.totalEntries}`);
+    console.log(`   إجمالي الاستعلامات: ${stats.totalQueries}`);
+    console.log(`   متوسط الثقة: ${stats.averageConfidence.toFixed(2)}`);
+    console.log(`   حجم قاعدة البيانات: ${stats.databaseSize}`);
+}
+
+// ==================== مثال 2: النظام الموحد ====================
+
+function example2_UnifiedSystem(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 2: النظام الموحد لقواعد البيانات");
+    console.log("=".repeat(60));
+    
+    // إنشاء النظام الموحد
+    let unifiedSystem = new UnifiedLayerDatabasesSystem(
+        "BaserahUnifiedDB",
+        "databases/"
+    );
+    
+    // إضافة معرفة لطبقات مختلفة
+    console.log("\n📝 إضافة معرفة لطبقات مختلفة...");
+    
+    // طبقة رياضية
+    unifiedSystem.addEntry(
+        LayerType.MATHEMATICAL,
+        "معادلة_أينشتاين",
+        "E = mc²",
+        { scientist: "أينشتاين", year: 1905 },
+        1.0
+    );
+    
+    // طبقة فيزيائية
+    unifiedSystem.addEntry(
+        LayerType.PHYSICAL,
+        "قانون_نيوتن_الأول",
+        "الجسم يبقى في حالة سكون أو حركة منتظمة ما لم تؤثر عليه قوة خارجية",
+        { scientist: "نيوتن", type: "قانون_حركة" },
+        1.0
+    );
+    
+    // طبقة لغوية
+    unifiedSystem.addEntry(
+        LayerType.LINGUISTIC,
+        "الفعل_الماضي",
+        "ما دل على حدث وقع قبل زمن التكلم",
+        { category: "نحو", type: "فعل" },
+        0.95
+    );
+    
+    // طبقة منطقية
+    unifiedSystem.addEntry(
+        LayerType.LOGICAL,
+        "قانون_عدم_التناقض",
+        "لا يمكن أن يكون الشيء صحيحاً وخاطئاً في نفس الوقت",
+        { type: "مبدأ_منطقي" },
+        1.0
+    );
+    
+    console.log("✅ تم إضافة 4 عناصر معرفية");
+    
+    // البحث الموحد
+    console.log("\n🔍 البحث الموحد عن 'قانون'...");
+    let searchResult = unifiedSystem.unifiedSearch(
+        "قانون",
+        SearchType.CONTAINS,
+        UnifiedSearchStrategy.PARALLEL,
+        10
+    );
+    
+    console.log(`   إجمالي النتائج: ${searchResult.totalResults}`);
+    console.log(`   الطبقات المبحوثة: ${searchResult.layersSearched}`);
+    console.log(`   وقت البحث: ${searchResult.searchTime}ms`);
+    
+    console.log("\n   أفضل النتائج:");
+    for (let i = 0; i < Math.min(3, searchResult.topResults.length); i++) {
+        let result = searchResult.topResults[i];
+        console.log(`   ${i+1}. [${result.layerType}] ${result.key}`);
+        console.log(`      ${result.value}`);
+        console.log(`      الثقة: ${result.confidence}`);
+    }
+    
+    // البحث الذكي
+    console.log("\n🧠 البحث الذكي عن 'حركة' في سياق 'فيزياء'...");
+    let intelligentResult = unifiedSystem.intelligentSearch("حركة", "فيزياء");
+    console.log(`   النتائج: ${intelligentResult.totalResults}`);
+    console.log(`   الطبقات المبحوثة: ${intelligentResult.layersSearched}`);
+    
+    // الإحصائيات الموحدة
+    console.log("\n📊 الإحصائيات الموحدة:");
+    let unifiedStats = unifiedSystem.getUnifiedStatistics();
+    console.log(`   إجمالي الطبقات: ${unifiedStats.totalLayers}`);
+    console.log(`   إجمالي العناصر: ${unifiedStats.totalEntries}`);
+    console.log(`   متوسط العناصر لكل طبقة: ${unifiedStats.averageEntriesPerLayer.toFixed(2)}`);
+    console.log(`   الطبقة الأكثر نشاطاً: ${unifiedStats.mostActiveLayer}`);
+    console.log(`   الطبقة الأقل نشاطاً: ${unifiedStats.leastActiveLayer}`);
+}
+
+// ==================== مثال 3: البحث المتقدم ====================
+
+function example3_AdvancedSearch(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 3: البحث المتقدم");
+    console.log("=".repeat(60));
+    
+    let unifiedSystem = new UnifiedLayerDatabasesSystem();
+    
+    // إضافة بيانات تجريبية
+    console.log("\n📝 إضافة بيانات تجريبية...");
+    
+    let testData = [
+        { layer: LayerType.MATHEMATICAL, key: "جمع", value: "عملية رياضية أساسية" },
+        { layer: LayerType.MATHEMATICAL, key: "طرح", value: "عملية رياضية عكس الجمع" },
+        { layer: LayerType.MATHEMATICAL, key: "ضرب", value: "جمع متكرر" },
+        { layer: LayerType.LOGICAL, key: "استنتاج", value: "الوصول إلى نتيجة من مقدمات" },
+        { layer: LayerType.LOGICAL, key: "استقراء", value: "الانتقال من الجزئي إلى الكلي" },
+        { layer: LayerType.LINGUISTIC, key: "اسم", value: "ما دل على معنى في نفسه" },
+        { layer: LayerType.LINGUISTIC, key: "فعل", value: "ما دل على حدث مقترن بزمن" },
+        { layer: LayerType.PHYSICAL, key: "قوة", value: "مؤثر يغير حالة الجسم الحركية" }
+    ];
+    
+    for (let data of testData) {
+        unifiedSystem.addEntry(data.layer, data.key, data.value, {}, 0.9);
+    }
+    
+    console.log(`✅ تم إضافة ${testData.length} عنصر`);
+    
+    // أنواع البحث المختلفة
+    console.log("\n🔍 1. البحث المطابق تماماً:");
+    let exactSearch = unifiedSystem.unifiedSearch("جمع", SearchType.EXACT);
+    console.log(`   النتائج: ${exactSearch.totalResults}`);
+    
+    console.log("\n🔍 2. البحث بالاحتواء:");
+    let containsSearch = unifiedSystem.unifiedSearch("عملية", SearchType.CONTAINS);
+    console.log(`   النتائج: ${containsSearch.totalResults}`);
+    for (let result of containsSearch.topResults) {
+        console.log(`   - ${result.key}: ${result.value}`);
+    }
+    
+    console.log("\n🔍 3. البحث بالبداية:");
+    let startsWithSearch = unifiedSystem.unifiedSearch("است", SearchType.STARTS_WITH);
+    console.log(`   النتائج: ${startsWithSearch.totalResults}`);
+    for (let result of startsWithSearch.topResults) {
+        console.log(`   - ${result.key}`);
+    }
+    
+    console.log("\n🔍 4. البحث في طبقة محددة:");
+    let layerSearch = unifiedSystem.searchInLayer(
+        LayerType.MATHEMATICAL,
+        "رياضية",
+        SearchType.CONTAINS
+    );
+    console.log(`   النتائج في الطبقة الرياضية: ${layerSearch.length}`);
+}
+
+// ==================== مثال 4: التصدير والاستيراد ====================
+
+function example4_ExportImport(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 4: التصدير والاستيراد");
+    console.log("=".repeat(60));
+    
+    let system1 = new UnifiedLayerDatabasesSystem("System1");
+    
+    // إضافة بيانات
+    console.log("\n📝 إضافة بيانات للنظام الأول...");
+    system1.addEntry(LayerType.MATHEMATICAL, "pi", "π ≈ 3.14159", {}, 1.0);
+    system1.addEntry(LayerType.PHYSICAL, "c", "سرعة الضوء = 299,792,458 m/s", {}, 1.0);
+    
+    // تصدير البيانات
+    console.log("\n📤 تصدير البيانات...");
+    let exportedData = system1.exportAllData();
+    let jsonData = JSON.stringify(exportedData, null, 2);
+    console.log(`   حجم البيانات المصدرة: ${jsonData.length} حرف`);
+    
+    // إنشاء نظام جديد واستيراد البيانات
+    console.log("\n📥 استيراد البيانات إلى نظام جديد...");
+    let system2 = new UnifiedLayerDatabasesSystem("System2");
+    let imported = system2.importAllData(exportedData);
+    console.log(`   تم استيراد ${imported} عنصر`);
+    
+    // التحقق
+    console.log("\n✅ التحقق من الاستيراد:");
+    let stats = system2.getUnifiedStatistics();
+    console.log(`   إجمالي العناصر في النظام الجديد: ${stats.totalEntries}`);
+}
+
+// ==================== مثال 5: مثال شامل ====================
+
+function example5_Comprehensive(): void {
+    console.log("\n" + "=".repeat(60));
+    console.log("مثال 5: مثال شامل");
+    console.log("=".repeat(60));
+    
+    let system = new UnifiedLayerDatabasesSystem("BaserahKnowledge");
+    
+    // تشغيل المثال السريع
+    console.log("\n🚀 تشغيل المثال السريع...");
+    let quickResult = system.quickExample();
+    
+    console.log(`\n✅ تم إضافة ${quickResult.entriesAdded} عناصر`);
+    console.log(`\n🔍 نتائج البحث عن "${quickResult.searchResults.query}":`);
+    console.log(`   إجمالي النتائج: ${quickResult.searchResults.totalResults}`);
+    console.log(`   الطبقات المبحوثة: ${quickResult.searchResults.layersSearched}`);
+    
+    console.log(`\n📊 الإحصائيات:`);
+    console.log(`   إجمالي الطبقات: ${quickResult.statistics.totalLayers}`);
+    console.log(`   إجمالي العناصر: ${quickResult.statistics.totalEntries}`);
+}
+
+// ==================== تشغيل جميع الأمثلة ====================
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("╔" + "═".repeat(58) + "╗");
+    console.log("║" + " ".repeat(10) + "أمثلة قواعد بيانات طبقات التفكير" + " ".repeat(16) + "║");
+    console.log("║" + " ".repeat(12) + "Thinking Layer Databases Examples" + " ".repeat(13) + "║");
+    console.log("╚" + "═".repeat(58) + "╝");
+    
+    example1_SingleLayerDatabase();
+    example2_UnifiedSystem();
+    example3_AdvancedSearch();
+    example4_ExportImport();
+    example5_Comprehensive();
+    
+    console.log("\n" + "=".repeat(60));
+    console.log("✅ اكتملت جميع الأمثلة بنجاح!");
+    console.log("=".repeat(60) + "\n");
+}
+
+// تشغيل الأمثلة
+runAllExamples();
+
+export { runAllExamples };

@@ -1,0 +1,603 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// 🌟 بصيرة AI - النظام الموحد (Unified System)
+// ═══════════════════════════════════════════════════════════════════════════
+// الوصف: النظام الموحد الذي يدمج جميع أنظمة بصيرة AI
+// المكونات: 8 أنظمة رئيسية + منسق مركزي
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { BaserahIntegratedExpertExplorer } from "../brain/integrated-expert-explorer.bn";
+import { MemoryIntegrationSystem } from "../memory/memory-integration.bn";
+import { KnowledgeIntegrationSystem } from "../knowledge/knowledge-integration.bn";
+import { LearningIntegrationSystem } from "../learning/learning-integration.bn";
+import { LanguageIntegrationSystem } from "../language/language-integration.bn";
+import { ReasoningEngine } from "../reasoning/reasoning-engine.bn";
+import { DialogueManager } from "../interaction/dialogue-manager.bn";
+import { ResponseGenerator } from "../interaction/response-generator.bn";
+import { UserModelingSystem } from "../interaction/user-modeling.bn";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// التعدادات (Enums)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// حالة النظام
+enum SystemState {
+    INITIALIZING = "initializing",
+    READY = "ready",
+    PROCESSING = "processing",
+    LEARNING = "learning",
+    REASONING = "reasoning",
+    INTERACTING = "interacting",
+    ERROR = "error",
+    SHUTDOWN = "shutdown"
+}
+
+// أولوية المهمة
+enum TaskPriority {
+    CRITICAL = "critical",
+    HIGH = "high",
+    MEDIUM = "medium",
+    LOW = "low",
+    BACKGROUND = "background"
+}
+
+// نوع المهمة
+enum TaskType {
+    QUERY = "query",
+    LEARNING = "learning",
+    REASONING = "reasoning",
+    INTERACTION = "interaction",
+    KNOWLEDGE_UPDATE = "knowledge_update",
+    MEMORY_CONSOLIDATION = "memory_consolidation",
+    SYSTEM_MAINTENANCE = "system_maintenance",
+    CUSTOM = "custom"
+}
+
+// مستوى التكامل
+enum IntegrationLevel {
+    BASIC = "basic",
+    INTERMEDIATE = "intermediate",
+    ADVANCED = "advanced",
+    FULL = "full"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// الفئات (Classes)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// مهمة النظام
+class SystemTask extends MotherEquation {
+    public taskId: string;
+    public taskType: TaskType;
+    public priority: TaskPriority;
+    public description: string;
+    public input: object;
+    public output: object;
+    public status: string;
+    public startTime: number;
+    public endTime: number;
+    public duration: number;
+    public involvedSystems: array<string>;
+    
+    constructor(taskId: string, taskType: TaskType, priority: TaskPriority, description: string) {
+        super(taskId);
+        this.taskId = taskId;
+        this.taskType = taskType;
+        this.priority = priority;
+        this.description = description;
+        this.input = {};
+        this.output = {};
+        this.status = "pending";
+        this.startTime = 0;
+        this.endTime = 0;
+        this.duration = 0;
+        this.involvedSystems = [];
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            taskId: taskId,
+            taskType: taskType,
+            priority: priority,
+            description: description
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            status: "pending",
+            progress: 0,
+            currentSystem: null
+        };
+    }
+    
+    public start(): void {
+        this.status = "running";
+        this.startTime = Date.now();
+        this.dynamicStates.status = "running";
+    }
+    
+    public complete(output: object): void {
+        this.status = "completed";
+        this.output = output;
+        this.endTime = Date.now();
+        this.duration = this.endTime - this.startTime;
+        this.dynamicStates.status = "completed";
+        this.dynamicStates.progress = 100;
+    }
+    
+    public fail(error: string): void {
+        this.status = "failed";
+        this.output = { error: error };
+        this.endTime = Date.now();
+        this.duration = this.endTime - this.startTime;
+        this.dynamicStates.status = "failed";
+    }
+}
+
+// سياق النظام الموحد
+class UnifiedSystemContext extends MotherEquation {
+    public contextId: string;
+    public currentTask: SystemTask;
+    public taskHistory: array<SystemTask>;
+    public activeUser: string;
+    public sessionData: object;
+    public systemMetrics: object;
+    
+    constructor(contextId: string) {
+        super(contextId);
+        this.contextId = contextId;
+        this.currentTask = null;
+        this.taskHistory = [];
+        this.activeUser = null;
+        this.sessionData = {};
+        this.systemMetrics = {
+            totalTasks: 0,
+            completedTasks: 0,
+            failedTasks: 0,
+            averageResponseTime: 0,
+            systemUptime: 0
+        };
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            contextId: contextId,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            activeTaskCount: 0,
+            systemLoad: 0,
+            lastActivity: Date.now()
+        };
+    }
+    
+    public addTask(task: SystemTask): void {
+        this.taskHistory.push(task);
+        this.systemMetrics.totalTasks++;
+        this.dynamicStates.activeTaskCount++;
+    }
+    
+    public completeTask(task: SystemTask): void {
+        this.systemMetrics.completedTasks++;
+        this.dynamicStates.activeTaskCount--;
+        this.updateMetrics();
+    }
+    
+    public updateMetrics(): void {
+        let totalTime = 0;
+        let count = 0;
+        
+        for (let task of this.taskHistory) {
+            if (task.status === "completed") {
+                totalTime += task.duration;
+                count++;
+            }
+        }
+        
+        if (count > 0) {
+            this.systemMetrics.averageResponseTime = totalTime / count;
+        }
+    }
+}
+
+// النظام الموحد الرئيسي
+class BaserahUnifiedSystem extends MotherEquation {
+    public systemId: string;
+    public systemState: SystemState;
+    public integrationLevel: IntegrationLevel;
+    
+    // الأنظمة الفرعية
+    public brain: BaserahIntegratedExpertExplorer;
+    public memory: MemoryIntegrationSystem;
+    public knowledge: KnowledgeIntegrationSystem;
+    public learning: LearningIntegrationSystem;
+    public language: LanguageIntegrationSystem;
+    public reasoning: ReasoningEngine;
+    public dialogue: DialogueManager;
+    public responseGen: ResponseGenerator;
+    public userModeling: UserModelingSystem;
+    
+    // السياق والمهام
+    public context: UnifiedSystemContext;
+    public taskQueue: array<SystemTask>;
+    public activeTasks: object;
+    
+    // الإحصائيات
+    public statistics: object;
+    
+    constructor(systemId: string, integrationLevel: IntegrationLevel) {
+        super(systemId);
+        this.systemId = systemId;
+        this.systemState = SystemState.INITIALIZING;
+        this.integrationLevel = integrationLevel;
+        
+        // تهيئة الأنظمة الفرعية
+        this.initializeSubsystems();
+        
+        // تهيئة السياق
+        this.context = new UnifiedSystemContext(systemId + "_context");
+        this.taskQueue = [];
+        this.activeTasks = {};
+        
+        // تهيئة الإحصائيات
+        this.statistics = {
+            totalQueries: 0,
+            totalLearningEvents: 0,
+            totalReasoningTasks: 0,
+            totalInteractions: 0,
+            systemStartTime: Date.now(),
+            lastQueryTime: 0
+        };
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            systemId: systemId,
+            integrationLevel: integrationLevel,
+            version: "1.0.0",
+            capabilities: [
+                "memory_management",
+                "knowledge_processing",
+                "adaptive_learning",
+                "language_understanding",
+                "logical_reasoning",
+                "intelligent_interaction"
+            ]
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            state: SystemState.INITIALIZING,
+            activeSubsystems: 0,
+            currentLoad: 0,
+            healthStatus: "healthy"
+        };
+        
+        // تغيير الحالة إلى جاهز
+        this.systemState = SystemState.READY;
+        this.dynamicStates.state = SystemState.READY;
+    }
+    
+    // تهيئة الأنظمة الفرعية
+    private initializeSubsystems(): void {
+        this.brain = new BaserahIntegratedExpertExplorer(this.systemId + "_brain", "general");
+        this.memory = new MemoryIntegrationSystem(this.systemId + "_memory");
+        this.knowledge = new KnowledgeIntegrationSystem(this.systemId + "_knowledge");
+        this.learning = new LearningIntegrationSystem(this.systemId + "_learning");
+        this.language = new LanguageIntegrationSystem(this.systemId + "_language");
+        this.reasoning = new ReasoningEngine(this.systemId + "_reasoning");
+        this.dialogue = new DialogueManager(this.systemId + "_dialogue");
+        this.responseGen = new ResponseGenerator(this.systemId + "_response");
+        this.userModeling = new UserModelingSystem(this.systemId + "_users");
+
+        this.dynamicStates.activeSubsystems = 9;
+    }
+
+    // معالجة استعلام شامل
+    public processQuery(userId: string, query: string): object {
+        this.systemState = SystemState.PROCESSING;
+        this.statistics.totalQueries++;
+        this.statistics.lastQueryTime = Date.now();
+
+        // إنشاء مهمة
+        let task = new SystemTask(
+            "query_" + Date.now(),
+            TaskType.QUERY,
+            TaskPriority.HIGH,
+            "Process user query"
+        );
+        task.input = { userId: userId, query: query };
+        task.start();
+        this.context.addTask(task);
+
+        // 1. معالجة لغوية
+        let linguisticAnalysis = this.language.processText(query);
+        task.involvedSystems.push("language");
+
+        // 2. استرجاع من الذاكرة
+        let memoryContext = this.memory.retrieveRelevant(query, 5);
+        task.involvedSystems.push("memory");
+
+        // 3. استعلام المعرفة
+        let knowledgeResults = this.knowledge.query(query);
+        task.involvedSystems.push("knowledge");
+
+        // 4. استدلال منطقي
+        let reasoningResult = this.reasoning.reason(query, knowledgeResults);
+        task.involvedSystems.push("reasoning");
+
+        // 5. توليد رد
+        let dialogueContext = this.dialogue.context;
+        let response = this.responseGen.generate(
+            dialogueContext,
+            "informative",
+            {
+                query: query,
+                analysis: linguisticAnalysis,
+                knowledge: knowledgeResults,
+                reasoning: reasoningResult
+            }
+        );
+        task.involvedSystems.push("interaction");
+
+        // 6. حفظ في الذاكرة
+        this.memory.episodic.addEpisode(
+            "query_response",
+            { query: query, response: response.text },
+            { userId: userId, timestamp: Date.now() }
+        );
+
+        // 7. تحديث نموذج المستخدم
+        this.userModeling.updateFromContext(userId, dialogueContext);
+
+        // إكمال المهمة
+        let result = {
+            query: query,
+            response: response.text,
+            confidence: reasoningResult.confidence || 0.8,
+            sources: knowledgeResults.sources || [],
+            involvedSystems: task.involvedSystems
+        };
+
+        task.complete(result);
+        this.context.completeTask(task);
+        this.systemState = SystemState.READY;
+
+        return result;
+    }
+
+    // التعلم من تفاعل
+    public learnFromInteraction(userId: string, query: string, feedback: object): void {
+        this.systemState = SystemState.LEARNING;
+        this.statistics.totalLearningEvents++;
+
+        // إنشاء مهمة تعلم
+        let task = new SystemTask(
+            "learn_" + Date.now(),
+            TaskType.LEARNING,
+            TaskPriority.MEDIUM,
+            "Learn from user interaction"
+        );
+        task.input = { userId: userId, query: query, feedback: feedback };
+        task.start();
+
+        // 1. تحليل التغذية الراجعة
+        let satisfaction = feedback.rating || 0;
+        let corrections = feedback.corrections || {};
+
+        // 2. تحديث نظام التعلم
+        this.learning.learnFromExperience(
+            query,
+            feedback.expectedResponse || "",
+            satisfaction
+        );
+        task.involvedSystems.push("learning");
+
+        // 3. تحديث المعرفة إذا كانت هناك تصحيحات
+        if (Object.keys(corrections).length > 0) {
+            this.knowledge.updateKnowledge(corrections);
+            task.involvedSystems.push("knowledge");
+        }
+
+        // 4. تحديث نموذج المستخدم
+        let userProfile = this.userModeling.getProfile(userId);
+        if (userProfile) {
+            userProfile.behavior.addQuery(query);
+            userProfile.behavior.updateSatisfaction(satisfaction);
+        }
+        task.involvedSystems.push("user_modeling");
+
+        // 5. دمج في الذاكرة
+        this.memory.consolidate();
+        task.involvedSystems.push("memory");
+
+        task.complete({ learned: true, improvements: Object.keys(corrections).length });
+        this.context.completeTask(task);
+        this.systemState = SystemState.READY;
+    }
+
+    // حوار تفاعلي
+    public interactiveDialogue(userId: string, message: string, strategy: string): object {
+        this.systemState = SystemState.INTERACTING;
+        this.statistics.totalInteractions++;
+
+        // إنشاء مهمة تفاعل
+        let task = new SystemTask(
+            "interact_" + Date.now(),
+            TaskType.INTERACTION,
+            TaskPriority.HIGH,
+            "Interactive dialogue"
+        );
+        task.input = { userId: userId, message: message, strategy: strategy };
+        task.start();
+
+        // 1. معالجة دور المستخدم
+        let userTurn = this.dialogue.processUserTurn(message, "user_message", {});
+        task.involvedSystems.push("dialogue");
+
+        // 2. تحليل لغوي
+        let analysis = this.language.processText(message);
+        task.involvedSystems.push("language");
+
+        // 3. استرجاع السياق
+        let context = this.memory.working.getActiveContext();
+        task.involvedSystems.push("memory");
+
+        // 4. توليد رد
+        let response = this.responseGen.generate(
+            this.dialogue.context,
+            "conversational",
+            { message: message, analysis: analysis, context: context }
+        );
+        task.involvedSystems.push("response_generation");
+
+        // 5. إضافة دور النظام
+        let systemTurn = this.dialogue.generateSystemTurn(response.text, "system_response");
+
+        // 6. تحديث نموذج المستخدم
+        this.userModeling.updateFromTurn(userId, userTurn);
+        task.involvedSystems.push("user_modeling");
+
+        let result = {
+            userMessage: message,
+            systemResponse: response.text,
+            dialogueState: this.dialogue.context.currentState,
+            confidence: userTurn.confidence
+        };
+
+        task.complete(result);
+        this.context.completeTask(task);
+        this.systemState = SystemState.READY;
+
+        return result;
+    }
+
+    // استدلال معقد
+    public complexReasoning(problem: string, domain: string): object {
+        this.systemState = SystemState.REASONING;
+        this.statistics.totalReasoningTasks++;
+
+        // إنشاء مهمة استدلال
+        let task = new SystemTask(
+            "reason_" + Date.now(),
+            TaskType.REASONING,
+            TaskPriority.HIGH,
+            "Complex reasoning task"
+        );
+        task.input = { problem: problem, domain: domain };
+        task.start();
+
+        // 1. استرجاع المعرفة ذات الصلة
+        let relevantKnowledge = this.knowledge.queryByDomain(domain);
+        task.involvedSystems.push("knowledge");
+
+        // 2. استخدام الخبير للحلول المعروفة
+        let expertSolution = this.brain.expert.recall(domain, problem);
+        task.involvedSystems.push("brain_expert");
+
+        // 3. استخدام المستكشف للحلول الجديدة
+        let explorerSolution = null;
+        if (!expertSolution || expertSolution.confidence < 0.7) {
+            explorerSolution = this.brain.explorer.explore(domain, problem);
+            task.involvedSystems.push("brain_explorer");
+        }
+
+        // 4. استدلال منطقي
+        let reasoningResult = this.reasoning.reason(problem, relevantKnowledge);
+        task.involvedSystems.push("reasoning");
+
+        // 5. دمج النتائج
+        let finalSolution = this.integrateSolutions(
+            expertSolution,
+            explorerSolution,
+            reasoningResult
+        );
+
+        // 6. التعلم من الحل
+        if (finalSolution.confidence > 0.8) {
+            this.learning.learnPattern(problem, finalSolution.solution);
+            task.involvedSystems.push("learning");
+        }
+
+        task.complete(finalSolution);
+        this.context.completeTask(task);
+        this.systemState = SystemState.READY;
+
+        return finalSolution;
+    }
+
+    // دمج الحلول
+    private integrateSolutions(expert: object, explorer: object, reasoning: object): object {
+        let solutions = [];
+
+        if (expert && expert.confidence > 0.5) {
+            solutions.push({ source: "expert", solution: expert.solution, confidence: expert.confidence });
+        }
+
+        if (explorer && explorer.confidence > 0.5) {
+            solutions.push({ source: "explorer", solution: explorer.solution, confidence: explorer.confidence });
+        }
+
+        if (reasoning && reasoning.confidence > 0.5) {
+            solutions.push({ source: "reasoning", solution: reasoning.conclusion, confidence: reasoning.confidence });
+        }
+
+        // اختيار الحل الأفضل
+        if (solutions.length === 0) {
+            return { solution: "لا يوجد حل متاح", confidence: 0, sources: [] };
+        }
+
+        // ترتيب حسب الثقة
+        solutions.sort((a, b) => b.confidence - a.confidence);
+
+        return {
+            solution: solutions[0].solution,
+            confidence: solutions[0].confidence,
+            sources: solutions.map(s => s.source),
+            alternatives: solutions.slice(1)
+        };
+    }
+
+    // الحصول على إحصائيات النظام
+    public getSystemStatistics(): object {
+        return {
+            ...this.statistics,
+            uptime: Date.now() - this.statistics.systemStartTime,
+            systemState: this.systemState,
+            integrationLevel: this.integrationLevel,
+            contextMetrics: this.context.systemMetrics,
+            subsystemsActive: this.dynamicStates.activeSubsystems,
+            taskQueueSize: this.taskQueue.length,
+            completedTasks: this.context.systemMetrics.completedTasks,
+            averageResponseTime: this.context.systemMetrics.averageResponseTime
+        };
+    }
+
+    // إيقاف النظام
+    public shutdown(): void {
+        this.systemState = SystemState.SHUTDOWN;
+        this.dynamicStates.state = SystemState.SHUTDOWN;
+
+        // حفظ الذاكرة
+        this.memory.consolidate();
+
+        // حفظ المعرفة
+        // this.knowledge.save();
+
+        console.log("🌟 بصيرة AI - النظام الموحد تم إيقافه بنجاح");
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// التصدير (Exports)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+    SystemState,
+    TaskPriority,
+    TaskType,
+    IntegrationLevel,
+    SystemTask,
+    UnifiedSystemContext,
+    BaserahUnifiedSystem
+};
+

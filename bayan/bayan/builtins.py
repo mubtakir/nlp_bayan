@@ -4,6 +4,22 @@ Built-in functions and utilities for Bayan Language
 """
 
 from .logical_engine import Term, Predicate
+from .gse import GSEModel, generalized_sigmoid
+from .mother_equation import (
+    MotherEquation, Property, State, PropertyDomain,
+    create_example_human, create_example_tree, create_example_building
+)
+from .linguistic_equation import (
+    LinguisticEquation, EntityState, Role, EventType,
+    KnowledgeBase, LinguisticEquationParser,
+    create_simple_equation
+)
+
+try:
+    from .gse_fitting import GSEFitter
+    GSE_FITTING_AVAILABLE = True
+except ImportError:
+    GSE_FITTING_AVAILABLE = False
 
 class BuiltinFunctions:
     """Collection of built-in functions"""
@@ -339,6 +355,338 @@ class BuiltinFunctions:
         if isinstance(obj, dict):
             return obj
         return {}
+    
+    # ═══════════════════════════════════════════════════════════════
+    # GSE and Mother Equation Functions
+    # دوال المعادلة الأم ونظام GSE
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def GSEModel(beta=0.0, gamma=0.0):
+        """
+        Create a new GSE (Generalized Shape Equation) model.
+        إنشاء نموذج معادلة شكل عام جديد.
+        
+        Args:
+            beta: slope of linear component (ميل المكون الخطي)
+            gamma: intercept of linear component (إزاحة المكون الخطي)
+        
+        Returns:
+            GSEModel instance
+        
+        Example:
+            model = GSEModel(0.5, 1.0)
+            model.add_sigmoid(2.0, 3, 10.0, 0.0)
+            y = model.evaluate([0.5, 1.0, 1.5])
+        """
+        from .gse import GSEModel as GSE
+        return GSE(beta, gamma)
+    
+    @staticmethod
+    def MotherEquation(object_id, object_name):
+        """
+        Create a Mother Equation object.
+        إنشاء كائن معادلة أم.
+        
+        Args:
+            object_id: unique identifier (معرف فريد)
+            object_name: object name (اسم الكائن)
+        
+        Returns:
+            MotherEquation instance
+        
+        Example:
+            obj = MotherEquation("H001", "محمد")
+            obj.add_property("الطول", 175, PropertyDomain.PHYSICAL, "cm")
+            obj.add_state("الجوع", 0.5)
+        """
+        from .mother_equation import MotherEquation as ME
+        return ME(object_id, object_name)
+    
+    @staticmethod
+    def PropertyDomain(domain_name):
+        """
+        Get PropertyDomain enum value.
+        الحصول على قيمة PropertyDomain.
+        
+        Args:
+            domain_name: domain name (e.g., "PHYSICAL", "فيزيائي")
+        
+        Returns:
+            PropertyDomain enum value
+        """
+        from .mother_equation import PropertyDomain as PD
+        # Support both English and Arabic names
+        mapping = {
+            'PHYSICAL': PD.PHYSICAL,
+            'فيزيائي': PD.PHYSICAL,
+            'CHEMICAL': PD.CHEMICAL,
+            'كيميائي': PD.CHEMICAL,
+            'PSYCHOLOGICAL': PD.PSYCHOLOGICAL,
+            'نفسي': PD.PSYCHOLOGICAL,
+            'SOCIAL': PD.SOCIAL,
+            'اجتماعي': PD.SOCIAL,
+            'BIOLOGICAL': PD.BIOLOGICAL,
+            'بيولوجي': PD.BIOLOGICAL,
+        }
+        return mapping.get(domain_name, PD.PHYSICAL)
+    
+    @staticmethod
+    def create_example_human():
+        """Create an example human object (إنشاء مثال إنسان)"""
+        from .mother_equation import create_example_human as ceh
+        return ceh()
+    
+    @staticmethod
+    def create_example_tree():
+        """Create an example tree object (إنشاء مثال شجرة)"""
+        from .mother_equation import create_example_tree as cet
+        return cet()
+    
+    @staticmethod
+    def create_example_building():
+        """Create an example building object (إنشاء مثال مبنى)"""
+        from .mother_equation import create_example_building as ceb
+        return ceb()
+    
+    @staticmethod
+    def render_shape(mother_eq, x_range=(-10, 10), resolution=100):
+        """
+        Render the shape equation of a MotherEquation object.
+        رسم معادلة الشكل لكائن معادلة أم.
+        
+        Args:
+            mother_eq: MotherEquation instance
+            x_range: tuple of (min, max) for x values
+            resolution: number of points
+        
+        Returns:
+            numpy array of y values
+        
+        Example:
+            tree = create_example_tree()
+            y_vals = render_shape(tree, (0, 10), 50)
+        """
+        return mother_eq.render_shape(x_range, resolution)
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Linguistic Equation Functions
+    # دوال المعادلات اللغوية
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def LinguisticEquation(entities, event, event_type="PHYSICAL_ACTION"):
+        """
+        Create a linguistic equation.
+        إنشاء معادلة لغوية.
+        
+        Args:
+            entities: dict of {entity_name: role}
+            event: event/verb name
+            event_type: type of event (default: PHYSICAL_ACTION)
+        
+        Returns:
+            LinguisticEquation instance
+        
+        Example:
+            eq = LinguisticEquation(
+                {"محمد": Role.SUBJECT, "تفاحة": Role.OBJECT},
+                "أكل",
+                "PHYSICAL_ACTION"
+            )
+        """
+        from .linguistic_equation import (
+            LinguisticEquation as LE,
+            Role, EventType
+        )
+        
+        # Convert role strings to Role enum
+        converted_entities = {}
+        for name, role in entities.items():
+            if isinstance(role, str):
+                role_mapping = {
+                    'SUBJECT': Role.SUBJECT,
+                    'فاعل': Role.SUBJECT,
+                    'OBJECT': Role.OBJECT,
+                    'مفعول_به': Role.OBJECT,
+                    'LOCATION': Role.LOCATION,
+                    'مكان': Role.LOCATION,
+                    'TIME': Role.TIME,
+                    'زمان': Role.TIME,
+                }
+                role = role_mapping.get(role, Role.SUBJECT)
+            converted_entities[name] = role
+        
+        # Convert event type
+        if isinstance(event_type, str):
+            type_mapping = {
+                'PHYSICAL_ACTION': EventType.PHYSICAL_ACTION,
+                'فعل_مادي': EventType.PHYSICAL_ACTION,
+                'MENTAL_ACTION': EventType.MENTAL_ACTION,
+                'فعل_عقلي': EventType.MENTAL_ACTION,
+                'COMMUNICATION': EventType.COMMUNICATION,
+                'تواصل': EventType.COMMUNICATION,
+            }
+            event_type = type_mapping.get(event_type, EventType.PHYSICAL_ACTION)
+        
+        return LE(
+            entities=converted_entities,
+            event=event,
+            event_type=event_type
+        )
+    
+    @staticmethod
+    def Role(role_name):
+        """
+        Get Role enum value.
+        الحصول على قيمة Role.
+        """
+        from .linguistic_equation import Role as R
+        mapping = {
+            'SUBJECT': R.SUBJECT,
+            'فاعل': R.SUBJECT,
+            'OBJECT': R.OBJECT,
+            'مفعول_به': R.OBJECT,
+            'LOCATION': R.LOCATION,
+            'مكان': R.LOCATION,
+        }
+        return mapping.get(role_name, R.SUBJECT)
+    
+    @staticmethod
+    def KnowledgeBase():
+        """Create a new KnowledgeBase (إنشاء قاعدة معرفة جديدة)"""
+        from .linguistic_equation import KnowledgeBase as KB
+        return KB()
+    
+    @staticmethod
+    def parse_sentence(sentence, kb=None):
+        """
+        Parse a natural language sentence into a linguistic equation.
+        تحليل جملة طبيعية إلى معادلة لغوية.
+        
+        Args:
+            sentence: Arabic sentence
+            kb: KnowledgeBase instance (optional)
+        
+        Returns:
+            LinguisticEquation or None
+        
+        Example:
+            kb = KnowledgeBase()
+            eq = parse_sentence("محمد أكل تفاحة", kb)
+            print(eq.to_formal_notation())
+        """
+        from .linguistic_equation import LinguisticEquationParser, KnowledgeBase as KB
+        
+        if kb is None:
+            kb = KB()
+        
+        parser = LinguisticEquationParser(kb)
+        return parser.parse(sentence)
+    
+    @staticmethod
+    def create_simple_equation(subject, event, obj=None, kb=None):
+        """
+        Create a simple linguistic equation quickly.
+        إنشاء معادلة لغوية بسيطة بسرعة.
+        
+        Args:
+            subject: subject/actor (الفاعل)
+            event: verb/event (الفعل)
+            obj: object (المفعول به) - optional
+            kb: KnowledgeBase - optional
+        
+        Returns:
+            LinguisticEquation
+        
+        Example:
+            eq = create_simple_equation("محمد", "أكل", "تفاحة")
+        """
+        from .linguistic_equation import create_simple_equation as cse
+        return cse(subject, event, obj, kb)
+    
+    # ═══════════════════════════════════════════════════════════════
+    # GSE Learning Functions (if scipy available)
+    # دوال التعلم لـ GSE
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def learn(model_name, x_data, y_data, max_components=10, epsilon=1e-4, verbose=False):
+        """
+        Learn/fit a GSE model to data.
+        تعلم نموذج GSE من البيانات.
+        
+        Args:
+            model_name: name to store the model (اسم النموذج)
+            x_data: input data (البيانات المدخلة)
+            y_data: target data (البيانات المستهدفة)
+            max_components: max sigmoid components (أقصى عدد مكونات)
+            epsilon: convergence threshold (عتبة التقارب)
+            verbose: print progress (طباعة التقدم)
+        
+        Returns:
+            Fitted GSEModel
+        
+        Example:
+            x = [0, 1, 2, 3, 4]
+            y = [0, 1, 2, 3, 4]
+            model = learn("linear_model", x, y, max_components=3, verbose=True)
+        
+        Note:
+            Requires scipy to be installed.
+        """
+        if not GSE_FITTING_AVAILABLE:
+            raise ImportError(
+                "scipy is required for GSE fitting. "
+                "Install it with: pip install scipy"
+            )
+        
+        from .gse_fitting import GSEFitter
+        from .gse import GSEModel as GSE
+        
+        fitter = GSEFitter(GSE())
+        model = fitter.fit(x_data, y_data, max_components, epsilon, verbose)
+        
+        # Store in a global registry (could be enhanced)
+        if not hasattr(BuiltinFunctions, '_model_registry'):
+            BuiltinFunctions._model_registry = {}
+        BuiltinFunctions._model_registry[model_name] = model
+        
+        return model
+    
+    @staticmethod
+    def infer(model_name, x_value):
+        """
+        Infer/predict using a learned GSE model.
+        الاستنباط/التنبؤ باستخدام نموذج GSE متعلم.
+        
+        Args:
+            model_name: name of stored model (اسم النموذج)
+            x_value: input value or array (قيمة أو مصفوفة مدخلة)
+        
+        Returns:
+            Predicted y value(s)
+        
+        Example:
+            # After learning a model
+            y_pred = infer("linear_model", 2.5)
+        """
+        if not hasattr(BuiltinFunctions, '_model_registry'):
+            raise ValueError(f"No model named '{model_name}' found. Use learn() first.")
+        
+        if model_name not in BuiltinFunctions._model_registry:
+            raise ValueError(f"Model '{model_name}' not found in registry.")
+        
+        model = BuiltinFunctions._model_registry[model_name]
+        
+        # Convert to list if single value
+        if not isinstance(x_value, (list, tuple)):
+            import numpy as np
+            x_value = [x_value]
+            result = model.evaluate(x_value)
+            return result[0] if len(result) == 1 else result
+        
+        return model.evaluate(x_value)
 
 class LogicalBuiltins:
     """Built-in logical predicates"""

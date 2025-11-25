@@ -1,0 +1,254 @@
+/*
+ * ==================== أمثلة على الطبقات الإضافية ====================
+ * Additional Layers Examples - Baserah AI System
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ * 
+ * أمثلة عملية على استخدام الطبقات الإضافية الثلاثة
+ */
+
+import { MultiLayerThinkingCore } from "./multi-layer-thinking-core.bn";
+import {
+    EventActionThinkingLayer,
+    EmotionalStateThinkingLayer,
+    PropertyChangeThinkingLayer
+} from "./additional-thinking-layers.bn";
+
+// ==================== مثال 1: طبقة الأحداث والتأثيرات ====================
+
+function example1_EventActionLayer(): void {
+    console.log("\n========== مثال 1: طبقة الأحداث والتأثيرات ==========\n");
+    
+    let eventLayer = new EventActionThinkingLayer();
+    
+    // مثال 1: حدث التعدي
+    let input1 = "أحمد تعدى على محمد بالضرب";
+    console.log("📝 المدخل: " + input1);
+    
+    let result1 = eventLayer.processInput(input1);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result1, null, 2));
+    
+    // مثال 2: حدث المساعدة
+    let input2 = "فاطمة ساعد علي في حل المشكلة";
+    console.log("\n📝 المدخل: " + input2);
+    
+    let result2 = eventLayer.processInput(input2);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result2, null, 2));
+    
+    // مثال 3: حدث الإهانة
+    let input3 = "المدير أهان الموظف أمام الجميع";
+    console.log("\n📝 المدخل: " + input3);
+    
+    let result3 = eventLayer.processInput(input3);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result3, null, 2));
+}
+
+// ==================== مثال 2: طبقة الحالات العاطفية ====================
+
+function example2_EmotionalStateLayer(): void {
+    console.log("\n========== مثال 2: طبقة الحالات العاطفية ==========\n");
+    
+    let emotionalLayer = new EmotionalStateThinkingLayer();
+    
+    // مثال 1: كشف الغضب
+    let input1 = "شعرت بالغضب الشديد عندما تعدى علي";
+    console.log("📝 المدخل: " + input1);
+    
+    let result1 = emotionalLayer.processInput(input1);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result1, null, 2));
+    
+    // مثال 2: كشف السعادة
+    let input2 = "أشعر بالسعادة والفرح بعد النجاح في الامتحان";
+    console.log("\n📝 المدخل: " + input2);
+    
+    let result2 = emotionalLayer.processInput(input2);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result2, null, 2));
+    
+    // مثال 3: مشاعر مختلطة
+    let input3 = "أشعر بالسعادة والقلق في نفس الوقت";
+    console.log("\n📝 المدخل: " + input3);
+    
+    let result3 = emotionalLayer.processInput(input3);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result3, null, 2));
+}
+
+// ==================== مثال 3: طبقة تغير الخصائص ====================
+
+function example3_PropertyChangeLayer(): void {
+    console.log("\n========== مثال 3: طبقة تغير الخصائص ==========\n");
+    
+    let propertyLayer = new PropertyChangeThinkingLayer();
+    
+    // مثال 1: زيادة المعرفة
+    let input1 = "تعلم الطالب الرياضيات واكتسب معرفة جديدة";
+    console.log("📝 المدخل: " + input1);
+    
+    let result1 = propertyLayer.processInput(input1);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result1, null, 2));
+    
+    // مثال 2: نقصان الطاقة
+    let input2 = "تعب الرياضي بعد الجري الطويل";
+    console.log("\n📝 المدخل: " + input2);
+    
+    let result2 = propertyLayer.processInput(input2);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result2, null, 2));
+    
+    // مثال 3: تحسن الصحة
+    let input3 = "تحسن صحة المريض بعد العلاج";
+    console.log("\n📝 المدخل: " + input3);
+    
+    let result3 = propertyLayer.processInput(input3);
+    console.log("📊 النتيجة:");
+    console.log(JSON.stringify(result3, null, 2));
+}
+
+// ==================== مثال 4: تكامل الطبقات الثلاثة ====================
+
+function example4_IntegratedProcessing(): void {
+    console.log("\n========== مثال 4: تكامل الطبقات الثلاثة ==========\n");
+    
+    let core = new MultiLayerThinkingCore("IntegratedExample");
+    
+    // سيناريو معقد: حدث يؤدي إلى تغير عاطفي وتغير في الخصائص
+    let input = "أحمد تعدى على محمد بالإهانة، فشعر محمد بالغضب الشديد وفقد ثقته بنفسه";
+    
+    console.log("📝 المدخل: " + input);
+    console.log("\n🔄 معالجة بالطبقات الثلاثة...\n");
+    
+    let result = core.targetedProcessing(input, [
+        "event_action",
+        "emotional_state",
+        "property_change"
+    ]);
+    
+    console.log("📊 النتائج المتكاملة:");
+    console.log(JSON.stringify(result, null, 2));
+}
+
+// ==================== مثال 5: معالجة شاملة بجميع الطبقات ====================
+
+function example5_ComprehensiveProcessing(): void {
+    console.log("\n========== مثال 5: معالجة شاملة بجميع الطبقات (11 طبقة) ==========\n");
+    
+    let core = new MultiLayerThinkingCore("ComprehensiveExample");
+    
+    // نص معقد يحتوي على عناصر متعددة
+    let input = `
+        في معادلة 2x + 5 = 15، نرى أن الحل هو x = 5.
+        هذا يعني أن الطالب تعلم كيفية حل المعادلات الخطية.
+        شعر الطالب بالسعادة والفخر بعد حل المسألة بنجاح 🌟.
+        زادت ثقته بنفسه ومعرفته بالرياضيات.
+    `;
+    
+    console.log("📝 المدخل: " + input);
+    console.log("\n🔄 معالجة شاملة بجميع الطبقات...\n");
+    
+    let result = core.comprehensiveProcessing(input);
+    
+    console.log("📊 النتائج الشاملة:");
+    console.log("   - عدد الطبقات المستخدمة: " + result.layersUsed);
+    console.log("   - مستوى التزامن: " + result.synchronizationLevel.toFixed(2));
+    console.log("   - الثقة الإجمالية: " + result.overallConfidence.toFixed(2));
+    
+    console.log("\n📋 نتائج كل طبقة:");
+    for (let [layerName, layerResult] of Object.entries(result.layerResults)) {
+        console.log("\n   🔹 " + layerName + ":");
+        console.log("      " + JSON.stringify(layerResult, null, 6));
+    }
+    
+    console.log("\n🔗 التحليل المتكامل:");
+    console.log(JSON.stringify(result.integratedAnalysis, null, 2));
+}
+
+// ==================== مثال 6: سيناريو واقعي معقد ====================
+
+function example6_RealWorldScenario(): void {
+    console.log("\n========== مثال 6: سيناريو واقعي معقد ==========\n");
+    
+    let core = new MultiLayerThinkingCore("RealWorldExample");
+    
+    // سيناريو: موقف في العمل
+    let scenario = `
+        في اجتماع العمل، قدم أحمد عرضاً تقديمياً رائعاً عن المشروع الجديد.
+        استخدم معادلات رياضية معقدة لإثبات جدوى المشروع: ROI = (الربح - التكلفة) / التكلفة × 100%.
+        أظهر التحليل أن المشروع سيحقق عائداً بنسبة 150%.
+        
+        مدح المدير أحمد أمام الجميع وقال: "عمل ممتاز! 👏"
+        شعر أحمد بالفخر والسعادة الشديدة.
+        زادت ثقته بنفسه ومكانته في الشركة.
+        
+        لكن زميله خالد شعر بالغيرة والحزن لأنه لم يحصل على نفس التقدير.
+        انخفضت معنوياته وشعر بالإحباط.
+    `;
+    
+    console.log("📝 السيناريو: " + scenario);
+    console.log("\n🔄 تحليل شامل للسيناريو...\n");
+    
+    let result = core.comprehensiveProcessing(scenario);
+    
+    console.log("📊 ملخص التحليل:");
+    console.log("   - الطبقات المستخدمة: " + result.layersUsed);
+    console.log("   - مستوى التزامن: " + (result.synchronizationLevel * 100).toFixed(1) + "%");
+    console.log("   - الثقة الإجمالية: " + (result.overallConfidence * 100).toFixed(1) + "%");
+    
+    console.log("\n🎯 الرؤى الرئيسية:");
+    
+    // استخراج الرؤى من الطبقات المختلفة
+    if (result.layerResults.mathematical) {
+        console.log("\n   📐 رؤى رياضية:");
+        console.log("      " + JSON.stringify(result.layerResults.mathematical, null, 6));
+    }
+    
+    if (result.layerResults.emotional_state) {
+        console.log("\n   💭 رؤى عاطفية:");
+        console.log("      " + JSON.stringify(result.layerResults.emotional_state, null, 6));
+    }
+    
+    if (result.layerResults.event_action) {
+        console.log("\n   ⚡ رؤى الأحداث:");
+        console.log("      " + JSON.stringify(result.layerResults.event_action, null, 6));
+    }
+    
+    if (result.layerResults.property_change) {
+        console.log("\n   📈 رؤى تغير الخصائص:");
+        console.log("      " + JSON.stringify(result.layerResults.property_change, null, 6));
+    }
+    
+    console.log("\n🌟 التركيب الثوري:");
+    console.log(JSON.stringify(result.integratedAnalysis, null, 2));
+}
+
+// ==================== تشغيل جميع الأمثلة ====================
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("╔════════════════════════════════════════════════════════════════╗");
+    console.log("║  أمثلة الطبقات الإضافية - Additional Layers Examples        ║");
+    console.log("║  النواة التفكيرية متعددة الطبقات - Multi-Layer Thinking Core ║");
+    console.log("╚════════════════════════════════════════════════════════════════╝");
+    
+    example1_EventActionLayer();
+    example2_EmotionalStateLayer();
+    example3_PropertyChangeLayer();
+    example4_IntegratedProcessing();
+    example5_ComprehensiveProcessing();
+    example6_RealWorldScenario();
+    
+    console.log("\n");
+    console.log("╔════════════════════════════════════════════════════════════════╗");
+    console.log("║  ✅ تم تنفيذ جميع الأمثلة بنجاح!                              ║");
+    console.log("╚════════════════════════════════════════════════════════════════╝");
+    console.log("\n");
+}
+
+// تشغيل الأمثلة
+runAllExamples();

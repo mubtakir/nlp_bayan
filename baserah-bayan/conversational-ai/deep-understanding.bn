@@ -1,0 +1,635 @@
+/**
+ * نظام الفهم العميق - Deep Understanding System
+ * 
+ * يفهم السياق العميق للحوار
+ * يكشف النوايا المتعددة والضمنية
+ * يحلل المشاعر والنبرة
+ * 
+ * @version 1.0.0
+ * @author Baserah AI Team
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { IntentType, DetectedIntent, IntentAnalysisResult } from "./intent-analyzer.bn";
+
+// ═══════════════════════════════════════════════════════════════
+// التعدادات - Enumerations
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * المشاعر الأساسية
+ */
+export enum Emotion {
+    JOY = "JOY",                    // فرح
+    SADNESS = "SADNESS",            // حزن
+    ANGER = "ANGER",                // غضب
+    FEAR = "FEAR",                  // خوف
+    SURPRISE = "SURPRISE",          // مفاجأة
+    DISGUST = "DISGUST",            // اشمئزاز
+    TRUST = "TRUST",                // ثقة
+    ANTICIPATION = "ANTICIPATION",  // ترقب
+    NEUTRAL = "NEUTRAL"             // محايد
+}
+
+/**
+ * النبرة
+ */
+export enum Tone {
+    FORMAL = "FORMAL",              // رسمي
+    INFORMAL = "INFORMAL",          // غير رسمي
+    FRIENDLY = "FRIENDLY",          // ودي
+    AGGRESSIVE = "AGGRESSIVE",      // عدواني
+    SARCASTIC = "SARCASTIC",        // ساخر
+    POLITE = "POLITE",              // مهذب
+    URGENT = "URGENT",              // عاجل
+    CALM = "CALM",                  // هادئ
+    NEUTRAL = "NEUTRAL"             // محايد
+}
+
+/**
+ * مستوى الوضوح
+ */
+export enum ClarityLevel {
+    VERY_CLEAR = "VERY_CLEAR",      // واضح جداً
+    CLEAR = "CLEAR",                // واضح
+    MODERATE = "MODERATE",          // متوسط
+    UNCLEAR = "UNCLEAR",            // غير واضح
+    VERY_UNCLEAR = "VERY_UNCLEAR"   // غير واضح جداً
+}
+
+// ═══════════════════════════════════════════════════════════════
+// الفئات - Classes
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * تحليل المشاعر
+ */
+export class EmotionAnalysis extends MotherEquation {
+    primaryEmotion: Emotion;
+    secondaryEmotions: Map<Emotion, number>;
+    intensity: number; // 0-1
+    confidence: number;
+
+    constructor(id: string) {
+        super(id);
+        this.primaryEmotion = Emotion.NEUTRAL;
+        this.secondaryEmotions = new Map();
+        this.intensity = 0;
+        this.confidence = 0;
+    }
+
+    /**
+     * إضافة عاطفة ثانوية
+     */
+    addSecondaryEmotion(emotion: Emotion, score: number): void {
+        this.secondaryEmotions.set(emotion, score);
+    }
+
+    /**
+     * الحصول على جميع المشاعر
+     */
+    getAllEmotions(): Map<Emotion, number> {
+        let all = new Map<Emotion, number>();
+        all.set(this.primaryEmotion, 1.0);
+        
+        for (let [emotion, score] of this.secondaryEmotions) {
+            all.set(emotion, score);
+        }
+        
+        return all;
+    }
+}
+
+/**
+ * تحليل النبرة
+ */
+export class ToneAnalysis extends MotherEquation {
+    primaryTone: Tone;
+    secondaryTones: Map<Tone, number>;
+    confidence: number;
+
+    constructor(id: string) {
+        super(id);
+        this.primaryTone = Tone.NEUTRAL;
+        this.secondaryTones = new Map();
+        this.confidence = 0;
+    }
+
+    /**
+     * إضافة نبرة ثانوية
+     */
+    addSecondaryTone(tone: Tone, score: number): void {
+        this.secondaryTones.set(tone, score);
+    }
+}
+
+/**
+ * السياق العميق
+ */
+export class DeepContext extends MotherEquation {
+    currentTopic: string;
+    relatedTopics: string[];
+    historicalContext: string[];
+    implicitMeanings: string[];
+    assumptions: Map<string, any>;
+    clarityLevel: ClarityLevel;
+
+    constructor(id: string) {
+        super(id);
+        this.currentTopic = "";
+        this.relatedTopics = [];
+        this.historicalContext = [];
+        this.implicitMeanings = [];
+        this.assumptions = new Map();
+        this.clarityLevel = ClarityLevel.MODERATE;
+    }
+
+    /**
+     * إضافة موضوع مرتبط
+     */
+    addRelatedTopic(topic: string): void {
+        if (!this.relatedTopics.includes(topic)) {
+            this.relatedTopics.push(topic);
+        }
+    }
+
+    /**
+     * إضافة سياق تاريخي
+     */
+    addHistoricalContext(context: string): void {
+        this.historicalContext.push(context);
+    }
+
+    /**
+     * إضافة معنى ضمني
+     */
+    addImplicitMeaning(meaning: string): void {
+        this.implicitMeanings.push(meaning);
+    }
+
+    /**
+     * إضافة افتراض
+     */
+    addAssumption(key: string, value: any): void {
+        this.assumptions.set(key, value);
+    }
+}
+
+/**
+ * نتيجة الفهم العميق
+ */
+export class DeepUnderstandingResult extends MotherEquation {
+    intentAnalysis: IntentAnalysisResult;
+    emotionAnalysis: EmotionAnalysis;
+    toneAnalysis: ToneAnalysis;
+    deepContext: DeepContext;
+    implicitIntents: DetectedIntent[];
+    overallClarity: ClarityLevel;
+    confidence: number;
+
+    constructor(id: string, intentAnalysis: IntentAnalysisResult) {
+        super(id);
+        this.intentAnalysis = intentAnalysis;
+        this.emotionAnalysis = null;
+        this.toneAnalysis = null;
+        this.deepContext = null;
+        this.implicitIntents = [];
+        this.overallClarity = ClarityLevel.MODERATE;
+        this.confidence = 0;
+    }
+
+    /**
+     * إضافة نية ضمنية
+     */
+    addImplicitIntent(intent: DetectedIntent): void {
+        this.implicitIntents.push(intent);
+    }
+
+    /**
+     * توليد تقرير
+     */
+    generateReport(): string {
+        let report = "═══════════════════════════════════════\n";
+        report += "🧠 تقرير الفهم العميق\n";
+        report += "═══════════════════════════════════════\n\n";
+
+        report += `📝 النص: "${this.intentAnalysis.inputText}"\n\n`;
+
+        // تحليل المشاعر
+        if (this.emotionAnalysis) {
+            report += `😊 المشاعر:\n`;
+            report += `   الرئيسية: ${this.emotionAnalysis.primaryEmotion}\n`;
+            report += `   الشدة: ${(this.emotionAnalysis.intensity * 100).toFixed(0)}%\n`;
+            
+            if (this.emotionAnalysis.secondaryEmotions.size > 0) {
+                report += `   الثانوية: `;
+                let emotions = [];
+                for (let [emotion, score] of this.emotionAnalysis.secondaryEmotions) {
+                    emotions.push(`${emotion} (${(score * 100).toFixed(0)}%)`);
+                }
+                report += emotions.join(", ") + "\n";
+            }
+            report += "\n";
+        }
+
+        // تحليل النبرة
+        if (this.toneAnalysis) {
+            report += `🎵 النبرة:\n`;
+            report += `   الرئيسية: ${this.toneAnalysis.primaryTone}\n`;
+            
+            if (this.toneAnalysis.secondaryTones.size > 0) {
+                report += `   الثانوية: `;
+                let tones = [];
+                for (let [tone, score] of this.toneAnalysis.secondaryTones) {
+                    tones.push(`${tone} (${(score * 100).toFixed(0)}%)`);
+                }
+                report += tones.join(", ") + "\n";
+            }
+            report += "\n";
+        }
+
+        // السياق العميق
+        if (this.deepContext) {
+            report += `🔍 السياق العميق:\n`;
+            
+            if (this.deepContext.currentTopic) {
+                report += `   الموضوع الحالي: ${this.deepContext.currentTopic}\n`;
+            }
+            
+            if (this.deepContext.relatedTopics.length > 0) {
+                report += `   المواضيع المرتبطة: ${this.deepContext.relatedTopics.join(", ")}\n`;
+            }
+            
+            if (this.deepContext.implicitMeanings.length > 0) {
+                report += `   المعاني الضمنية:\n`;
+                for (let meaning of this.deepContext.implicitMeanings) {
+                    report += `      - ${meaning}\n`;
+                }
+            }
+            
+            report += `   مستوى الوضوح: ${this.deepContext.clarityLevel}\n\n`;
+        }
+
+        // النوايا الضمنية
+        if (this.implicitIntents.length > 0) {
+            report += `💡 النوايا الضمنية (${this.implicitIntents.length}):\n`;
+            for (let intent of this.implicitIntents) {
+                report += `   - ${intent.type} (${(intent.confidence * 100).toFixed(0)}%)\n`;
+            }
+            report += "\n";
+        }
+
+        report += `📊 الوضوح الإجمالي: ${this.overallClarity}\n`;
+        report += `🎯 الثقة: ${(this.confidence * 100).toFixed(1)}%\n`;
+
+        return report;
+    }
+}
+
+/**
+ * نظام الفهم العميق - Deep Understanding System
+ */
+export class DeepUnderstandingSystem extends MotherEquation {
+    // قواعد المشاعر
+    private emotionKeywords: Map<Emotion, string[]>;
+    
+    // قواعد النبرة
+    private toneKeywords: Map<Tone, string[]>;
+    
+    // إحصائيات
+    private stats: {
+        totalAnalyses: number;
+        emotionDistribution: Map<Emotion, number>;
+        toneDistribution: Map<Tone, number>;
+        averageClarity: number;
+    };
+
+    constructor(id: string = "deep-understanding-001") {
+        super(id);
+        this.emotionKeywords = new Map();
+        this.toneKeywords = new Map();
+        this.stats = {
+            totalAnalyses: 0,
+            emotionDistribution: new Map(),
+            toneDistribution: new Map(),
+            averageClarity: 0
+        };
+        
+        this.initializeEmotionKeywords();
+        this.initializeToneKeywords();
+    }
+
+    /**
+     * تهيئة كلمات المشاعر
+     */
+    private initializeEmotionKeywords(): void {
+        this.emotionKeywords.set(Emotion.JOY, [
+            "سعيد", "فرح", "مسرور", "ممتن", "رائع", "جميل", "ممتاز", "أحب", "يعجبني"
+        ]);
+
+        this.emotionKeywords.set(Emotion.SADNESS, [
+            "حزين", "أسف", "مؤسف", "للأسف", "يؤسفني", "محبط", "كئيب"
+        ]);
+
+        this.emotionKeywords.set(Emotion.ANGER, [
+            "غاضب", "منزعج", "مستاء", "غضب", "أكره", "سيء", "فظيع"
+        ]);
+
+        this.emotionKeywords.set(Emotion.FEAR, [
+            "خائف", "قلق", "متوتر", "مرعوب", "أخاف", "خوف", "قلق"
+        ]);
+
+        this.emotionKeywords.set(Emotion.SURPRISE, [
+            "مفاجأة", "مذهل", "عجيب", "غريب", "لم أتوقع", "مفاجئ"
+        ]);
+
+        this.emotionKeywords.set(Emotion.TRUST, [
+            "أثق", "ثقة", "موثوق", "أمين", "صادق", "أعتمد"
+        ]);
+
+        this.emotionKeywords.set(Emotion.ANTICIPATION, [
+            "أتطلع", "أنتظر", "متحمس", "متشوق", "أترقب"
+        ]);
+    }
+
+    /**
+     * تهيئة كلمات النبرة
+     */
+    private initializeToneKeywords(): void {
+        this.toneKeywords.set(Tone.FORMAL, [
+            "حضرتك", "سيادتكم", "تفضلوا", "يرجى", "نأمل"
+        ]);
+
+        this.toneKeywords.set(Tone.INFORMAL, [
+            "يا", "هلا", "شوف", "خلاص", "ماشي"
+        ]);
+
+        this.toneKeywords.set(Tone.FRIENDLY, [
+            "صديقي", "حبيبي", "عزيزي", "أخي", "يا غالي"
+        ]);
+
+        this.toneKeywords.set(Tone.POLITE, [
+            "من فضلك", "لو سمحت", "شكراً", "أشكرك", "ممتن"
+        ]);
+
+        this.toneKeywords.set(Tone.URGENT, [
+            "عاجل", "سريع", "فوراً", "حالاً", "الآن", "بسرعة"
+        ]);
+
+        this.toneKeywords.set(Tone.AGGRESSIVE, [
+            "لازم", "يجب", "حالاً", "فوراً", "ما في"
+        ]);
+    }
+
+    /**
+     * تحليل عميق
+     */
+    analyze(intentAnalysis: IntentAnalysisResult): DeepUnderstandingResult {
+        let result = new DeepUnderstandingResult(
+            `deep-understanding-${Date.now()}`,
+            intentAnalysis
+        );
+
+        // 1. تحليل المشاعر
+        result.emotionAnalysis = this.analyzeEmotion(intentAnalysis.inputText);
+
+        // 2. تحليل النبرة
+        result.toneAnalysis = this.analyzeTone(intentAnalysis.inputText);
+
+        // 3. استخراج السياق العميق
+        result.deepContext = this.extractDeepContext(intentAnalysis);
+
+        // 4. كشف النوايا الضمنية
+        result.implicitIntents = this.detectImplicitIntents(intentAnalysis);
+
+        // 5. تحديد الوضوح الإجمالي
+        result.overallClarity = this.determineClarity(intentAnalysis, result);
+
+        // 6. حساب الثقة
+        result.confidence = this.calculateConfidence(result);
+
+        // 7. تحديث الإحصائيات
+        this.updateStats(result);
+
+        return result;
+    }
+
+    /**
+     * تحليل المشاعر
+     */
+    private analyzeEmotion(text: string): EmotionAnalysis {
+        let analysis = new EmotionAnalysis(`emotion-${Date.now()}`);
+        let scores: Map<Emotion, number> = new Map();
+
+        // حساب النقاط لكل عاطفة
+        for (let [emotion, keywords] of this.emotionKeywords) {
+            let score = 0;
+            
+            for (let keyword of keywords) {
+                if (text.includes(keyword)) {
+                    score += 1;
+                }
+            }
+            
+            if (score > 0) {
+                scores.set(emotion, score);
+            }
+        }
+
+        // اختيار العاطفة الرئيسية
+        let maxScore = 0;
+        let primaryEmotion = Emotion.NEUTRAL;
+
+        for (let [emotion, score] of scores) {
+            if (score > maxScore) {
+                maxScore = score;
+                primaryEmotion = emotion;
+            }
+        }
+
+        analysis.primaryEmotion = primaryEmotion;
+        analysis.intensity = Math.min(maxScore / 3, 1.0);
+        analysis.confidence = Math.min(maxScore / 2, 1.0);
+
+        // إضافة المشاعر الثانوية
+        for (let [emotion, score] of scores) {
+            if (emotion !== primaryEmotion && score > 0) {
+                analysis.addSecondaryEmotion(emotion, score / maxScore);
+            }
+        }
+
+        return analysis;
+    }
+
+    /**
+     * تحليل النبرة
+     */
+    private analyzeTone(text: string): ToneAnalysis {
+        let analysis = new ToneAnalysis(`tone-${Date.now()}`);
+        let scores: Map<Tone, number> = new Map();
+
+        // حساب النقاط لكل نبرة
+        for (let [tone, keywords] of this.toneKeywords) {
+            let score = 0;
+            
+            for (let keyword of keywords) {
+                if (text.includes(keyword)) {
+                    score += 1;
+                }
+            }
+            
+            if (score > 0) {
+                scores.set(tone, score);
+            }
+        }
+
+        // اختيار النبرة الرئيسية
+        let maxScore = 0;
+        let primaryTone = Tone.NEUTRAL;
+
+        for (let [tone, score] of scores) {
+            if (score > maxScore) {
+                maxScore = score;
+                primaryTone = tone;
+            }
+        }
+
+        analysis.primaryTone = primaryTone;
+        analysis.confidence = Math.min(maxScore / 2, 1.0);
+
+        // إضافة النبرات الثانوية
+        for (let [tone, score] of scores) {
+            if (tone !== primaryTone && score > 0) {
+                analysis.addSecondaryTone(tone, score / maxScore);
+            }
+        }
+
+        return analysis;
+    }
+
+    /**
+     * استخراج السياق العميق
+     */
+    private extractDeepContext(intentAnalysis: IntentAnalysisResult): DeepContext {
+        let context = new DeepContext(`context-${Date.now()}`);
+
+        // استخراج الموضوع الحالي من الكلمات المفتاحية
+        if (intentAnalysis.primaryIntent && intentAnalysis.primaryIntent.keywords.length > 0) {
+            context.currentTopic = intentAnalysis.primaryIntent.keywords[0];
+            
+            for (let i = 1; i < intentAnalysis.primaryIntent.keywords.length; i++) {
+                context.addRelatedTopic(intentAnalysis.primaryIntent.keywords[i]);
+            }
+        }
+
+        // تحديد مستوى الوضوح
+        context.clarityLevel = this.assessClarity(intentAnalysis);
+
+        return context;
+    }
+
+    /**
+     * كشف النوايا الضمنية
+     */
+    private detectImplicitIntents(intentAnalysis: IntentAnalysisResult): DetectedIntent[] {
+        let implicitIntents: DetectedIntent[] = [];
+
+        // مثال: إذا كان السؤال يحتوي على شكوى ضمنية
+        if (intentAnalysis.primaryIntent && 
+            intentAnalysis.primaryIntent.type === IntentType.QUESTION) {
+            
+            let text = intentAnalysis.inputText.toLowerCase();
+            
+            if (text.includes("لا يعمل") || text.includes("مشكلة") || text.includes("خطأ")) {
+                let complaint = new DetectedIntent(
+                    `implicit-complaint-${Date.now()}`,
+                    IntentType.COMPLAINT,
+                    0.7
+                );
+                implicitIntents.push(complaint);
+            }
+        }
+
+        return implicitIntents;
+    }
+
+    /**
+     * تقييم الوضوح
+     */
+    private assessClarity(intentAnalysis: IntentAnalysisResult): ClarityLevel {
+        let confidence = intentAnalysis.overallConfidence;
+
+        if (confidence > 0.9) return ClarityLevel.VERY_CLEAR;
+        if (confidence > 0.7) return ClarityLevel.CLEAR;
+        if (confidence > 0.5) return ClarityLevel.MODERATE;
+        if (confidence > 0.3) return ClarityLevel.UNCLEAR;
+        return ClarityLevel.VERY_UNCLEAR;
+    }
+
+    /**
+     * تحديد الوضوح الإجمالي
+     */
+    private determineClarity(
+        intentAnalysis: IntentAnalysisResult,
+        result: DeepUnderstandingResult
+    ): ClarityLevel {
+        return result.deepContext.clarityLevel;
+    }
+
+    /**
+     * حساب الثقة
+     */
+    private calculateConfidence(result: DeepUnderstandingResult): number {
+        let total = 0;
+        let count = 0;
+
+        // ثقة تحليل النية
+        total += result.intentAnalysis.overallConfidence;
+        count++;
+
+        // ثقة تحليل المشاعر
+        if (result.emotionAnalysis) {
+            total += result.emotionAnalysis.confidence;
+            count++;
+        }
+
+        // ثقة تحليل النبرة
+        if (result.toneAnalysis) {
+            total += result.toneAnalysis.confidence;
+            count++;
+        }
+
+        return count > 0 ? total / count : 0;
+    }
+
+    /**
+     * تحديث الإحصائيات
+     */
+    private updateStats(result: DeepUnderstandingResult): void {
+        this.stats.totalAnalyses++;
+
+        // توزيع المشاعر
+        if (result.emotionAnalysis) {
+            let count = this.stats.emotionDistribution.get(result.emotionAnalysis.primaryEmotion) || 0;
+            this.stats.emotionDistribution.set(result.emotionAnalysis.primaryEmotion, count + 1);
+        }
+
+        // توزيع النبرة
+        if (result.toneAnalysis) {
+            let count = this.stats.toneDistribution.get(result.toneAnalysis.primaryTone) || 0;
+            this.stats.toneDistribution.set(result.toneAnalysis.primaryTone, count + 1);
+        }
+    }
+
+    /**
+     * الحصول على الإحصائيات
+     */
+    getStats(): any {
+        return {
+            totalAnalyses: this.stats.totalAnalyses,
+            emotionDistribution: Object.fromEntries(this.stats.emotionDistribution),
+            toneDistribution: Object.fromEntries(this.stats.toneDistribution)
+        };
+    }
+}
+

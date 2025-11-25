@@ -1,0 +1,308 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// 🌟 بصيرة AI - أمثلة التكامل النهائي
+// ═══════════════════════════════════════════════════════════════════════════
+// الوصف: أمثلة عملية شاملة للنظام الموحد
+// العدد: 8 أمثلة تغطي جميع الحالات
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { BaserahUnifiedSystem, IntegrationLevel } from "./unified-system.bn";
+import { SystemOrchestrator, OrchestrationStrategy } from "./system-orchestrator.bn";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 1: استعلام بسيط
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example1_SimpleQuery(): void {
+    console.log("═══ المثال 1: استعلام بسيط ═══");
+    
+    // إنشاء النظام الموحد
+    let system = new BaserahUnifiedSystem("baserah_main", IntegrationLevel.FULL);
+    
+    // معالجة استعلام
+    let result = system.processQuery("user_001", "ما هي المعادلة الأم في بصيرة AI؟");
+    
+    console.log("الاستعلام:", result.query);
+    console.log("الرد:", result.response);
+    console.log("الثقة:", result.confidence);
+    console.log("الأنظمة المشاركة:", result.involvedSystems);
+    
+    // عرض الإحصائيات
+    let stats = system.getSystemStatistics();
+    console.log("إجمالي الاستعلامات:", stats.totalQueries);
+    console.log("حالة النظام:", stats.systemState);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 2: التعلم من التفاعل
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example2_LearningFromInteraction(): void {
+    console.log("═══ المثال 2: التعلم من التفاعل ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_learning", IntegrationLevel.FULL);
+    
+    // استعلام أولي
+    let query = "كيف تعمل ثنائية الصفر؟";
+    let result = system.processQuery("user_002", query);
+    
+    console.log("الرد الأولي:", result.response);
+    
+    // تغذية راجعة من المستخدم
+    let feedback = {
+        rating: 0.6,
+        corrections: {
+            "ثنائية الصفر": "كل قيمة لها ضد، ومجموع التأثيرات = صفر في التوازن المثالي"
+        },
+        expectedResponse: "ثنائية الصفر هي إحدى النظريات الثورية الثلاث في بصيرة AI"
+    };
+    
+    // التعلم من التغذية الراجعة
+    system.learnFromInteraction("user_002", query, feedback);
+    
+    // استعلام مرة أخرى
+    let result2 = system.processQuery("user_002", query);
+    console.log("الرد بعد التعلم:", result2.response);
+    
+    let stats = system.getSystemStatistics();
+    console.log("أحداث التعلم:", stats.totalLearningEvents);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 3: حوار تفاعلي متعدد الأدوار
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example3_MultiTurnDialogue(): void {
+    console.log("═══ المثال 3: حوار تفاعلي متعدد الأدوار ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_dialogue", IntegrationLevel.FULL);
+    
+    // دور 1
+    let turn1 = system.interactiveDialogue("user_003", "مرحباً، أريد تعلم المعادلات الرياضية", "adaptive");
+    console.log("المستخدم:", turn1.userMessage);
+    console.log("النظام:", turn1.systemResponse);
+    console.log("حالة الحوار:", turn1.dialogueState);
+    
+    // دور 2
+    let turn2 = system.interactiveDialogue("user_003", "ابدأ بالمعادلات الخطية", "guided");
+    console.log("\nالمستخدم:", turn2.userMessage);
+    console.log("النظام:", turn2.systemResponse);
+    
+    // دور 3
+    let turn3 = system.interactiveDialogue("user_003", "أعطني مثالاً", "direct");
+    console.log("\nالمستخدم:", turn3.userMessage);
+    console.log("النظام:", turn3.systemResponse);
+    
+    let stats = system.getSystemStatistics();
+    console.log("\nإجمالي التفاعلات:", stats.totalInteractions);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 4: استدلال معقد
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example4_ComplexReasoning(): void {
+    console.log("═══ المثال 4: استدلال معقد ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_reasoning", IntegrationLevel.FULL);
+    
+    // مسألة رياضية معقدة
+    let problem = "حل المعادلة: 2x + 5 = 15";
+    let result = system.complexReasoning(problem, "mathematics");
+    
+    console.log("المسألة:", problem);
+    console.log("الحل:", result.solution);
+    console.log("الثقة:", result.confidence);
+    console.log("المصادر:", result.sources);
+    
+    if (result.alternatives && result.alternatives.length > 0) {
+        console.log("حلول بديلة:", result.alternatives.length);
+    }
+    
+    let stats = system.getSystemStatistics();
+    console.log("مهام الاستدلال:", stats.totalReasoningTasks);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 5: التنسيق بالمنسق
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example5_OrchestratorUsage(): void {
+    console.log("═══ المثال 5: التنسيق بالمنسق ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_orchestrated", IntegrationLevel.FULL);
+    let orchestrator = new SystemOrchestrator("main_orchestrator", system);
+    
+    // إنشاء مهمة
+    let task = {
+        taskId: "task_001",
+        taskType: "query",
+        priority: "high",
+        description: "Process complex query",
+        input: { query: "شرح نظرية الفتائل" }
+    };
+    
+    // إنشاء خطة
+    let plan = orchestrator.createPlan(task, OrchestrationStrategy.INTELLIGENT);
+    console.log("الخطة:", plan.planId);
+    console.log("الاستراتيجية:", plan.strategy);
+    console.log("عدد الخطوات:", plan.steps.length);
+    
+    // تنفيذ الخطة
+    let results = orchestrator.executePlan(plan);
+    console.log("النتائج:", Object.keys(results).length, "خطوات");
+    
+    // إحصائيات المنسق
+    let stats = orchestrator.getStatistics();
+    console.log("إجمالي الخطط:", stats.totalPlans);
+    console.log("الخطط المكتملة:", stats.completedPlans);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 6: نظام متكامل كامل
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example6_FullIntegratedSystem(): void {
+    console.log("═══ المثال 6: نظام متكامل كامل ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_full", IntegrationLevel.FULL);
+    let orchestrator = new SystemOrchestrator("full_orchestrator", system);
+    
+    // سيناريو كامل: استعلام + تعلم + حوار
+    
+    // 1. استعلام أولي
+    console.log("\n--- مرحلة 1: الاستعلام ---");
+    let queryResult = system.processQuery("user_006", "ما هي المعادلة الأم؟");
+    console.log("الرد:", queryResult.response);
+    
+    // 2. حوار تفاعلي
+    console.log("\n--- مرحلة 2: الحوار ---");
+    let dialogue1 = system.interactiveDialogue("user_006", "أريد المزيد من التفاصيل", "adaptive");
+    console.log("الرد:", dialogue1.systemResponse);
+    
+    // 3. تغذية راجعة وتعلم
+    console.log("\n--- مرحلة 3: التعلم ---");
+    let feedback = {
+        rating: 0.9,
+        corrections: {},
+        expectedResponse: "ممتاز"
+    };
+    system.learnFromInteraction("user_006", "ما هي المعادلة الأم؟", feedback);
+    
+    // 4. استدلال معقد
+    console.log("\n--- مرحلة 4: الاستدلال ---");
+    let reasoning = system.complexReasoning("كيف تتكامل النظريات الثلاث؟", "philosophy");
+    console.log("الحل:", reasoning.solution);
+    
+    // إحصائيات شاملة
+    console.log("\n--- الإحصائيات الشاملة ---");
+    let systemStats = system.getSystemStatistics();
+    console.log("الاستعلامات:", systemStats.totalQueries);
+    console.log("التعلم:", systemStats.totalLearningEvents);
+    console.log("الاستدلال:", systemStats.totalReasoningTasks);
+    console.log("التفاعلات:", systemStats.totalInteractions);
+    console.log("وقت التشغيل:", systemStats.uptime, "ms");
+    
+    let orchStats = orchestrator.getStatistics();
+    console.log("خطط المنسق:", orchStats.totalPlans);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 7: معالجة الأخطاء والتعافي
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example7_ErrorHandling(): void {
+    console.log("═══ المثال 7: معالجة الأخطاء والتعافي ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_error", IntegrationLevel.FULL);
+    
+    try {
+        // استعلام قد يسبب خطأ
+        let result = system.processQuery("user_007", "");
+        console.log("النتيجة:", result);
+    } catch (error) {
+        console.log("تم اكتشاف خطأ:", error);
+    }
+    
+    // التحقق من صحة النظام
+    let stats = system.getSystemStatistics();
+    console.log("حالة النظام:", stats.systemState);
+    console.log("صحة النظام:", system.dynamicStates.healthStatus);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// المثال 8: الأداء والتحسين
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example8_PerformanceOptimization(): void {
+    console.log("═══ المثال 8: الأداء والتحسين ═══");
+    
+    let system = new BaserahUnifiedSystem("baserah_perf", IntegrationLevel.FULL);
+    
+    // قياس الأداء
+    let startTime = Date.now();
+    
+    // تنفيذ 10 استعلامات
+    for (let i = 0; i < 10; i++) {
+        system.processQuery("user_008", "استعلام رقم " + (i + 1));
+    }
+    
+    let endTime = Date.now();
+    let totalTime = endTime - startTime;
+    
+    console.log("عدد الاستعلامات: 10");
+    console.log("الوقت الإجمالي:", totalTime, "ms");
+    console.log("متوسط الوقت:", totalTime / 10, "ms");
+    
+    let stats = system.getSystemStatistics();
+    console.log("متوسط وقت الاستجابة:", stats.averageResponseTime, "ms");
+    console.log("المهام المكتملة:", stats.completedTasks);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// تشغيل جميع الأمثلة
+// ═══════════════════════════════════════════════════════════════════════════
+
+function runAllExamples(): void {
+    console.log("🌟 بصيرة AI - أمثلة التكامل النهائي 🌟\n");
+    
+    example1_SimpleQuery();
+    console.log("\n");
+    
+    example2_LearningFromInteraction();
+    console.log("\n");
+    
+    example3_MultiTurnDialogue();
+    console.log("\n");
+    
+    example4_ComplexReasoning();
+    console.log("\n");
+    
+    example5_OrchestratorUsage();
+    console.log("\n");
+    
+    example6_FullIntegratedSystem();
+    console.log("\n");
+    
+    example7_ErrorHandling();
+    console.log("\n");
+    
+    example8_PerformanceOptimization();
+    
+    console.log("\n✅ تم تشغيل جميع الأمثلة بنجاح!");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// التصدير (Exports)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+    example1_SimpleQuery,
+    example2_LearningFromInteraction,
+    example3_MultiTurnDialogue,
+    example4_ComplexReasoning,
+    example5_OrchestratorUsage,
+    example6_FullIntegratedSystem,
+    example7_ErrorHandling,
+    example8_PerformanceOptimization,
+    runAllExamples
+};

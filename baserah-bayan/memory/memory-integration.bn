@@ -1,0 +1,299 @@
+/**
+ * نظام الذاكرة المتكامل - Integrated Memory System
+ * 
+ * يدمج الأنواع الثلاثة من الذاكرة:
+ * 1. الذاكرة الحدثية (Episodic Memory) - الأحداث والتجارب
+ * 2. الذاكرة الدلالية (Semantic Memory) - المعرفة والحقائق
+ * 3. الذاكرة العاملة (Working Memory) - المعلومات المؤقتة
+ * 
+ * مع نظام تتبع السياق المتقدم
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { EpisodicMemory, DialogueEpisode, EpisodeType } from "./episodic-memory.bn";
+import { SemanticMemory, Fact, Concept } from "./semantic-memory.bn";
+import { WorkingMemory, ItemType } from "./working-memory.bn";
+import { AdvancedContextTracker } from "./context-tracker.bn";
+
+/**
+ * فئة نظام الذاكرة المتكامل - IntegratedMemorySystem
+ * 
+ * يدمج جميع أنواع الذاكرة ويوفر واجهة موحدة
+ */
+class IntegratedMemorySystem {
+    // أنواع الذاكرة
+    private episodicMemory: EpisodicMemory;
+    private semanticMemory: SemanticMemory;
+    private workingMemory: WorkingMemory;
+    private contextTracker: AdvancedContextTracker;
+    
+    // الإعدادات
+    private consolidationInterval: number;
+    private lastConsolidation: Date;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(
+        maxEpisodes: number = 1000,
+        maxFacts: number = 10000,
+        workingMemoryCapacity: number = 7
+    ) {
+        // تهيئة أنواع الذاكرة
+        this.episodicMemory = new EpisodicMemory(maxEpisodes);
+        this.semanticMemory = new SemanticMemory(maxFacts);
+        this.workingMemory = new WorkingMemory(workingMemoryCapacity);
+        this.contextTracker = new AdvancedContextTracker();
+        
+        // إعدادات الدمج
+        this.consolidationInterval = 3600000; // ساعة واحدة بالميلي ثانية
+        this.lastConsolidation = new Date();
+        
+        console.log("✅ تم تهيئة نظام الذاكرة المتكامل");
+    }
+    
+    /**
+     * تذكر - حفظ معلومة في الذاكرة المناسبة
+     */
+    public remember(data: object): string {
+        let memoryType = data.type || "fact";
+        
+        if (memoryType === "dialogue") {
+            // حفظ في الذاكرة الحدثية
+            return this.episodicMemory.storeDialogue(
+                data.userInput || "",
+                data.botResponse || "",
+                data.intent || "unknown",
+                data.entities || [],
+                data.topics || [],
+                data.context || {},
+                data.success !== false
+            );
+        } else if (memoryType === "fact") {
+            // حفظ في الذاكرة الدلالية
+            return this.semanticMemory.storeFact(
+                data.subject || "",
+                data.predicate || "",
+                data.object || "",
+                data.confidence || 1.0,
+                data.source || "learned",
+                data.domain || "general"
+            );
+        } else if (memoryType === "concept") {
+            // حفظ في الذاكرة الدلالية
+            return this.semanticMemory.storeConcept(
+                data.name || "",
+                data.definition || "",
+                data.properties || {},
+                data.examples || []
+            );
+        } else if (memoryType === "temporary") {
+            // حفظ في الذاكرة العاملة
+            return this.workingMemory.store(
+                data.key || "",
+                data.value,
+                data.itemType || ItemType.DATA,
+                data.priority || 0,
+                data.ttl || null
+            );
+        }
+        
+        return "";
+    }
+    
+    /**
+     * استرجاع - استرجاع معلومة من الذاكرة
+     */
+    public recall(query: object): any {
+        let queryType = query.type || "recent";
+        
+        if (queryType === "recent") {
+            // استرجاع الأحداث الأخيرة
+            return this.episodicMemory.retrieveRecent(
+                query.count || 10,
+                query.episodeType || null
+            );
+        } else if (queryType === "topic") {
+            // استرجاع حسب الموضوع
+            return this.episodicMemory.retrieveByTopic(
+                query.topic || "",
+                query.maxCount || 10
+            );
+        } else if (queryType === "fact") {
+            // استرجاع حقائق
+            return this.semanticMemory.retrieveFactsAbout(
+                query.subject || "",
+                query.maxCount || 10
+            );
+        } else if (queryType === "concept") {
+            // استرجاع مفهوم
+            return this.semanticMemory.retrieveConcept(query.name || "");
+        } else if (queryType === "working") {
+            // استرجاع من الذاكرة العاملة
+            return this.workingMemory.retrieve(query.key || "");
+        } else if (queryType === "context") {
+            // استرجاع السياق الحالي
+            return this.contextTracker.getCurrentContext();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * تعلم - التعلم من تجربة
+     */
+    public learn(experience: object): void {
+        // حفظ التجربة في الذاكرة الحدثية
+        let episodeId = this.episodicMemory.storeDialogue(
+            experience.userInput || "",
+            experience.botResponse || "",
+            experience.intent || "unknown",
+            experience.entities || [],
+            experience.topics || [],
+            experience.context || {},
+            experience.success !== false
+        );
+        
+        // استخراج حقائق من التجربة
+        if (experience.facts && Array.isArray(experience.facts)) {
+            for (let fact of experience.facts) {
+                this.semanticMemory.storeFact(
+                    fact.subject,
+                    fact.predicate,
+                    fact.object,
+                    fact.confidence || 0.8,
+                    "learned"
+                );
+            }
+        }
+        
+        // تحديث السياق
+        if (experience.turnNumber) {
+            this.contextTracker.updateContext(
+                experience.turnNumber,
+                experience.userInput || "",
+                experience.entities || []
+            );
+        }
+    }
+    
+    /**
+     * دمج الذكريات - نقل من الذاكرة العاملة إلى طويلة المدى
+     */
+    public consolidate(): void {
+        let now = new Date();
+        
+        // التحقق من الوقت منذ آخر دمج
+        if (now.getTime() - this.lastConsolidation.getTime() < this.consolidationInterval) {
+            return;
+        }
+        
+        console.log("🔄 بدء دمج الذكريات...");
+        
+        // الحصول على جميع العناصر من الذاكرة العاملة
+        let workingItems = this.workingMemory.getAll();
+        
+        // نقل الحقائق المهمة إلى الذاكرة الدلالية
+        for (let key in workingItems) {
+            let value = workingItems[key];
+            
+            // إذا كانت حقيقة
+            if (value && typeof value === "object" && value.subject && value.predicate && value.object) {
+                this.semanticMemory.storeFact(
+                    value.subject,
+                    value.predicate,
+                    value.object,
+                    value.confidence || 0.7,
+                    "consolidated"
+                );
+            }
+        }
+        
+        this.lastConsolidation = now;
+        console.log("✅ تم دمج الذكريات");
+    }
+    
+    /**
+     * البحث الشامل - البحث في جميع أنواع الذاكرة
+     */
+    public search(searchTerm: string, maxResults: number = 10): object {
+        let results = {
+            episodes: [],
+            facts: [],
+            concepts: [],
+            context: null
+        };
+        
+        // البحث في الذاكرة الحدثية
+        results.episodes = this.episodicMemory.retrieveByTopic(searchTerm, maxResults);
+        
+        // البحث في الذاكرة الدلالية
+        results.facts = this.semanticMemory.retrieveFactsAbout(searchTerm, maxResults);
+        
+        // البحث عن مفهوم
+        let concept = this.semanticMemory.retrieveConcept(searchTerm);
+        if (concept !== null) {
+            results.concepts = [concept];
+        }
+        
+        // السياق الحالي
+        results.context = this.contextTracker.getCurrentContext();
+        
+        return results;
+    }
+    
+    /**
+     * الحصول على الذاكرة الحدثية
+     */
+    public getEpisodicMemory(): EpisodicMemory {
+        return this.episodicMemory;
+    }
+    
+    /**
+     * الحصول على الذاكرة الدلالية
+     */
+    public getSemanticMemory(): SemanticMemory {
+        return this.semanticMemory;
+    }
+    
+    /**
+     * الحصول على الذاكرة العاملة
+     */
+    public getWorkingMemory(): WorkingMemory {
+        return this.workingMemory;
+    }
+    
+    /**
+     * الحصول على متتبع السياق
+     */
+    public getContextTracker(): AdvancedContextTracker {
+        return this.contextTracker;
+    }
+    
+    /**
+     * الحصول على إحصائيات شاملة
+     */
+    public getStatistics(): object {
+        return {
+            episodic: this.episodicMemory.getStatistics(),
+            semantic: this.semanticMemory.getStatistics(),
+            working: this.workingMemory.getStatistics(),
+            context: this.contextTracker.getStatistics(),
+            lastConsolidation: this.lastConsolidation
+        };
+    }
+    
+    /**
+     * مسح جميع الذاكرة
+     */
+    public clearAll(): void {
+        this.workingMemory.clear();
+        console.log("🧹 تم مسح الذاكرة العاملة");
+    }
+}
+
+// تصدير الفئة
+export { IntegratedMemorySystem };

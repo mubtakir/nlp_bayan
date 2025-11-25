@@ -1,0 +1,553 @@
+/**
+ * نظام استخراج المعادلات المتكيفة - Adaptive Equation Extraction System
+ * ═══════════════════════════════════════════════════════════════════════════════
+ *
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ *
+ * الوصف:
+ * -------
+ * نظام متقدم لاستخراج واستنباط المعادلات الرياضية من البيانات:
+ * - استخراج معاملات دوال السيغمويد
+ * - استخراج معاملات المعادلات الخطية
+ * - تكيف المعادلات مع البيانات الجديدة
+ * - توليد معادلات رياضية قابلة للقراءة
+ *
+ * الهدف:
+ * ------
+ * - تحويل الأشكال البصرية إلى معادلات رياضية دقيقة
+ * - استخدام sigmoid + linear فقط
+ * - توفير معادلات متكيفة تتطور مع البيانات
+ */
+
+import { AdaptiveRevolutionaryEquation, AdaptationType } from "./adaptive-equations-core.bn";
+
+// ==================== الأنواع ====================
+
+enum EquationType {
+    SIGMOID = "sigmoid",
+    LINEAR = "linear",
+    SIGMOID_LINEAR_COMBINATION = "sigmoid_linear_combination",
+    ADAPTIVE = "adaptive"
+}
+
+// ==================== معاملات السيغمويد ====================
+
+class SigmoidParameters {
+    alpha: number;  // السعة
+    k: number;      // الانحدار
+    x0: number;     // الإزاحة الأفقية
+    n: number;      // عامل التكميم
+
+    constructor(alpha: number = 1.0, k: number = 1.0, x0: number = 0.0, n: number = 1.0) {
+        this.alpha = alpha;
+        this.k = k;
+        this.x0 = x0;
+        this.n = n;
+    }
+
+    function toDict(): object {
+        return {
+            alpha: this.alpha,
+            k: this.k,
+            x0: this.x0,
+            n: this.n
+        };
+    }
+}
+
+// ==================== معاملات الخط المستقيم ====================
+
+class LinearParameters {
+    beta: number;   // الميل
+    gamma: number;  // الجزء الثابت
+    n: number;      // عامل التكميم
+
+    constructor(beta: number = 1.0, gamma: number = 0.0, n: number = 1.0) {
+        this.beta = beta;
+        this.gamma = gamma;
+        this.n = n;
+    }
+
+    function toDict(): object {
+        return {
+            beta: this.beta,
+            gamma: this.gamma,
+            n: this.n
+        };
+    }
+}
+
+// ==================== المعادلة المستخرجة ====================
+
+class ExtractedEquation {
+    equationType: EquationType;
+    sigmoidParams: SigmoidParameters;
+    linearParams: LinearParameters;
+    sigmoidWeight: number;
+    linearWeight: number;
+
+    // جودة الاستخراج
+    fitQuality: number;
+    residualError: number;
+    rSquared: number;
+
+    // معلومات إضافية
+    equationString: string;
+    timestamp: Date;
+    processingTime: number;
+
+    constructor() {
+        this.equationType = EquationType.ADAPTIVE;
+        this.sigmoidParams = new SigmoidParameters();
+        this.linearParams = new LinearParameters();
+        this.sigmoidWeight = 0.5;
+        this.linearWeight = 0.5;
+
+        this.fitQuality = 0.0;
+        this.residualError = 0.0;
+        this.rSquared = 0.0;
+
+        this.equationString = "";
+        this.timestamp = new Date();
+        this.processingTime = 0.0;
+    }
+}
+
+// ==================== نظام استخراج المعادلات المتكيفة ====================
+
+class AdaptiveEquationExtractor {
+    creator: string;
+    methodology: string;
+
+    // معاملات التحسين
+    learningRate: number;
+    maxIterations: number;
+    convergenceThreshold: number;
+
+    // سجل المعادلات المستخرجة
+    extractionHistory: ExtractedEquation[];
+
+    constructor() {
+        this.creator = "باسل يحيى عبدالله";
+        this.methodology = "Adaptive Sigmoid + Linear Equation Extraction";
+
+        // معاملات التحسين
+        this.learningRate = 0.01;
+        this.maxIterations = 1000;
+        this.convergenceThreshold = 1e-6;
+
+        // سجل المعادلات المستخرجة
+        this.extractionHistory = [];
+
+        console.log("🧬 تم إنشاء نظام استخراج المعادلات المتكيفة");
+    }
+
+    // ==================== استخراج المعادلة ====================
+
+    function extractEquation(x: number[], y: number[]): ExtractedEquation {
+        let startTime = Date.now();
+
+        let equation = new ExtractedEquation();
+
+        try {
+            // محاولة استخراج معاملات السيغمويد
+            equation.sigmoidParams = this.extractSigmoidParameters(x, y);
+
+            // محاولة استخراج معاملات الخط المستقيم
+            equation.linearParams = this.extractLinearParameters(x, y);
+
+            // تحديد الأوزان المثلى
+            let weights = this.optimizeWeights(x, y, equation.sigmoidParams, equation.linearParams);
+            equation.sigmoidWeight = weights.sigmoid;
+            equation.linearWeight = weights.linear;
+
+            // حساب جودة الاستخراج
+            let quality = this.evaluateFit(x, y, equation.sigmoidParams, equation.linearParams,
+                                          equation.sigmoidWeight, equation.linearWeight);
+            equation.fitQuality = quality.fitQuality;
+            equation.residualError = quality.residualError;
+            equation.rSquared = quality.rSquared;
+
+            // توليد نص المعادلة
+            equation.equationString = this.generateEquationString(
+                equation.sigmoidParams, equation.linearParams,
+                equation.sigmoidWeight, equation.linearWeight
+            );
+
+            equation.processingTime = (Date.now() - startTime) / 1000.0;
+
+            this.extractionHistory.push(equation);
+
+            console.log("✅ تم استخراج المعادلة بنجاح");
+            console.log("   📊 جودة الاستخراج: " + equation.fitQuality.toFixed(3));
+            console.log("   📈 R²: " + equation.rSquared.toFixed(3));
+
+        } catch (e) {
+            console.log("❌ خطأ في استخراج المعادلة: " + e);
+        }
+
+        return equation;
+    }
+
+    // ==================== استخراج معاملات السيغمويد ====================
+
+    function extractSigmoidParameters(x: number[], y: number[]): SigmoidParameters {
+        let params = new SigmoidParameters();
+
+        try {
+            // تقدير السعة
+            let yMin = Math.min(...y);
+            let yMax = Math.max(...y);
+            params.alpha = (yMax - yMin) / 2.0;
+
+            // تقدير الإزاحة الأفقية
+            let yMean = (yMin + yMax) / 2.0;
+            let closestIdx = 0;
+            let minDiff = Math.abs(y[0] - yMean);
+            for (let i = 1; i < y.length; i++) {
+                let diff = Math.abs(y[i] - yMean);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIdx = i;
+                }
+            }
+            params.x0 = x[closestIdx];
+
+            // تقدير الانحدار من المشتقة
+            let slopes: number[] = [];
+            for (let i = 1; i < x.length; i++) {
+                let dy = y[i] - y[i - 1];
+                let dx = x[i] - x[i - 1];
+                if (Math.abs(dx) > 1e-10) {
+                    slopes.push(Math.abs(dy / dx));
+                }
+            }
+
+            if (slopes.length > 0) {
+                let maxSlope = Math.max(...slopes);
+                params.k = maxSlope / (params.alpha + 1e-10);
+            }
+
+            // تحسين المعاملات
+            params = this.refineSigmoidParameters(x, y, params);
+
+        } catch (e) {
+            console.log("⚠️ خطأ في استخراج معاملات السيغمويد: " + e);
+        }
+
+        return params;
+    }
+
+    // ==================== استخراج معاملات الخط المستقيم ====================
+
+    function extractLinearParameters(x: number[], y: number[]): LinearParameters {
+        let params = new LinearParameters();
+
+        try {
+            // استخدام المربعات الصغرى
+            let n = x.length;
+            let sumX = x.reduce((a, b) => a + b, 0);
+            let sumY = y.reduce((a, b) => a + b, 0);
+            let sumXY = 0.0;
+            let sumX2 = 0.0;
+
+            for (let i = 0; i < n; i++) {
+                sumXY += x[i] * y[i];
+                sumX2 += x[i] * x[i];
+            }
+
+            let denominator = n * sumX2 - sumX * sumX;
+            if (Math.abs(denominator) > 1e-10) {
+                params.beta = (n * sumXY - sumX * sumY) / denominator;
+                params.gamma = (sumY - params.beta * sumX) / n;
+            }
+
+        } catch (e) {
+            console.log("⚠️ خطأ في استخراج معاملات الخط المستقيم: " + e);
+        }
+
+        return params;
+    }
+
+
+
+    // ==================== تحسين معاملات السيغمويد ====================
+
+    function refineSigmoidParameters(x: number[], y: number[], params: SigmoidParameters): SigmoidParameters {
+        try {
+            for (let iter = 0; iter < this.maxIterations; iter++) {
+                // حساب القيم المتنبأ بها
+                let yPred = this.sigmoidFunction(x, params);
+
+                // حساب الخطأ
+                let error: number[] = [];
+                let mse = 0.0;
+                for (let i = 0; i < y.length; i++) {
+                    error.push(y[i] - yPred[i]);
+                    mse += error[i] * error[i];
+                }
+                mse /= y.length;
+
+                // تحديث المعاملات
+                let gradAlpha = 0.0;
+                let gradK = 0.0;
+                let gradX0 = 0.0;
+
+                for (let i = 0; i < y.length; i++) {
+                    gradAlpha += error[i] * this.sigmoidDerivativeAlpha(x[i], params);
+                    gradK += error[i] * this.sigmoidDerivativeK(x[i], params);
+                    gradX0 += error[i] * this.sigmoidDerivativeX0(x[i], params);
+                }
+
+                gradAlpha /= y.length;
+                gradK /= y.length;
+                gradX0 /= y.length;
+
+                params.alpha += this.learningRate * gradAlpha;
+                params.k += this.learningRate * gradK;
+                params.x0 += this.learningRate * gradX0;
+
+                if (mse < this.convergenceThreshold) {
+                    break;
+                }
+            }
+        } catch (e) {
+            console.log("⚠️ خطأ في تحسين معاملات السيغمويد: " + e);
+        }
+
+        return params;
+    }
+
+    // ==================== دالة السيغمويد ====================
+
+    function sigmoidFunction(x: number[], params: SigmoidParameters): number[] {
+        let result: number[] = [];
+
+        try {
+            for (let i = 0; i < x.length; i++) {
+                let quantizedX = params.n > 0 ? Math.round(x[i] * params.n) / params.n : x[i];
+                let expTerm = Math.exp(-params.k * (quantizedX - params.x0));
+                result.push(params.alpha / (1 + expTerm));
+            }
+        } catch (e) {
+            result = new Array(x.length).fill(0);
+        }
+
+        return result;
+    }
+
+    // ==================== مشتقات السيغمويد ====================
+
+    function sigmoidDerivativeAlpha(x: number, params: SigmoidParameters): number {
+        try {
+            let quantizedX = params.n > 0 ? Math.round(x * params.n) / params.n : x;
+            let expTerm = Math.exp(-params.k * (quantizedX - params.x0));
+            return 1 / (1 + expTerm);
+        } catch (e) {
+            return 0.0;
+        }
+    }
+
+    function sigmoidDerivativeK(x: number, params: SigmoidParameters): number {
+        try {
+            let quantizedX = params.n > 0 ? Math.round(x * params.n) / params.n : x;
+            let expTerm = Math.exp(-params.k * (quantizedX - params.x0));
+            let sigmoid = params.alpha / (1 + expTerm);
+            return sigmoid * (1 - sigmoid / params.alpha) * (quantizedX - params.x0);
+        } catch (e) {
+            return 0.0;
+        }
+    }
+
+    function sigmoidDerivativeX0(x: number, params: SigmoidParameters): number {
+        try {
+            let quantizedX = params.n > 0 ? Math.round(x * params.n) / params.n : x;
+            let expTerm = Math.exp(-params.k * (quantizedX - params.x0));
+            let sigmoid = params.alpha / (1 + expTerm);
+            return sigmoid * (1 - sigmoid / params.alpha) * params.k;
+        } catch (e) {
+            return 0.0;
+        }
+    }
+
+    // ==================== تحسين الأوزان ====================
+
+    function optimizeWeights(x: number[], y: number[],
+                            sigmoidParams: SigmoidParameters,
+                            linearParams: LinearParameters): object {
+        try {
+            // حساب الأخطاء
+            let ySigmoid = this.sigmoidFunction(x, sigmoidParams);
+            let yLinear: number[] = [];
+            for (let i = 0; i < x.length; i++) {
+                yLinear.push(linearParams.beta * x[i] + linearParams.gamma);
+            }
+
+            let errorSigmoid = 0.0;
+            let errorLinear = 0.0;
+            for (let i = 0; i < y.length; i++) {
+                errorSigmoid += Math.pow(y[i] - ySigmoid[i], 2);
+                errorLinear += Math.pow(y[i] - yLinear[i], 2);
+            }
+            errorSigmoid /= y.length;
+            errorLinear /= y.length;
+
+            // حساب الأوزان بناءً على الأخطاء
+            let totalError = errorSigmoid + errorLinear + 1e-10;
+            let sigmoidWeight = 1.0 - (errorSigmoid / totalError);
+            let linearWeight = 1.0 - (errorLinear / totalError);
+
+            // تطبيع الأوزان
+            let totalWeight = sigmoidWeight + linearWeight;
+            sigmoidWeight /= totalWeight;
+            linearWeight /= totalWeight;
+
+            return { sigmoid: sigmoidWeight, linear: linearWeight };
+
+        } catch (e) {
+            console.log("⚠️ خطأ في تحسين الأوزان: " + e);
+            return { sigmoid: 0.5, linear: 0.5 };
+        }
+    }
+
+    // ==================== تقييم جودة الاستخراج ====================
+
+    function evaluateFit(x: number[], y: number[],
+                        sigmoidParams: SigmoidParameters,
+                        linearParams: LinearParameters,
+                        sigmoidWeight: number,
+                        linearWeight: number): object {
+        try {
+            // حساب القيم المتنبأ بها
+            let ySigmoid = this.sigmoidFunction(x, sigmoidParams);
+            let yPred: number[] = [];
+
+            for (let i = 0; i < x.length; i++) {
+                let yLinear = linearParams.beta * x[i] + linearParams.gamma;
+                yPred.push(sigmoidWeight * ySigmoid[i] + linearWeight * yLinear);
+            }
+
+            // حساب الأخطاء
+            let residuals: number[] = [];
+            let ssRes = 0.0;
+            for (let i = 0; i < y.length; i++) {
+                let residual = y[i] - yPred[i];
+                residuals.push(residual);
+                ssRes += residual * residual;
+            }
+
+            let residualError = Math.sqrt(ssRes / y.length);
+
+            // حساب R²
+            let yMean = y.reduce((a, b) => a + b, 0) / y.length;
+            let ssTot = 0.0;
+            for (let i = 0; i < y.length; i++) {
+                ssTot += Math.pow(y[i] - yMean, 2);
+            }
+
+            let rSquared = 1.0 - (ssRes / (ssTot + 1e-10));
+
+            // حساب جودة الاستخراج
+            let fitQuality = Math.max(0.0, Math.min(1.0, rSquared));
+
+            return {
+                fitQuality: fitQuality,
+                residualError: residualError,
+                rSquared: rSquared
+            };
+
+        } catch (e) {
+            console.log("⚠️ خطأ في تقييم الاستخراج: " + e);
+            return {
+                fitQuality: 0.0,
+                residualError: Infinity,
+                rSquared: 0.0
+            };
+        }
+    }
+
+    // ==================== توليد نص المعادلة ====================
+
+    function generateEquationString(sigmoidParams: SigmoidParameters,
+                                    linearParams: LinearParameters,
+                                    sigmoidWeight: number,
+                                    linearWeight: number): string {
+        try {
+            let equation = "y = ";
+
+            if (sigmoidWeight > 0.01) {
+                equation += sigmoidWeight.toFixed(2) + " × Sigmoid(";
+                equation += "α=" + sigmoidParams.alpha.toFixed(2) + ", ";
+                equation += "k=" + sigmoidParams.k.toFixed(2) + ", ";
+                equation += "x₀=" + sigmoidParams.x0.toFixed(2) + ")";
+            }
+
+            if (linearWeight > 0.01) {
+                if (sigmoidWeight > 0.01) {
+                    equation += " + ";
+                }
+                equation += linearWeight.toFixed(2) + " × (";
+                equation += linearParams.beta.toFixed(2) + "×x + ";
+                equation += linearParams.gamma.toFixed(2) + ")";
+            }
+
+            return equation;
+
+        } catch (e) {
+            console.log("⚠️ خطأ في توليد نص المعادلة: " + e);
+            return "معادلة متكيفة";
+        }
+    }
+
+    // ==================== تكيف المعادلة ====================
+
+    function adaptEquation(equation: ExtractedEquation,
+                          newX: number[], newY: number[]): ExtractedEquation {
+        try {
+            console.log("🔄 تكيف المعادلة مع بيانات جديدة...");
+
+            // استخراج معادلة جديدة من البيانات الجديدة
+            let newEquation = this.extractEquation(newX, newY);
+
+            // دمج المعادلتين بأوزان
+            let adaptedEquation = new ExtractedEquation();
+
+            // متوسط المعاملات
+            adaptedEquation.sigmoidParams.alpha = (equation.sigmoidParams.alpha + newEquation.sigmoidParams.alpha) / 2;
+            adaptedEquation.sigmoidParams.k = (equation.sigmoidParams.k + newEquation.sigmoidParams.k) / 2;
+            adaptedEquation.sigmoidParams.x0 = (equation.sigmoidParams.x0 + newEquation.sigmoidParams.x0) / 2;
+
+            adaptedEquation.linearParams.beta = (equation.linearParams.beta + newEquation.linearParams.beta) / 2;
+            adaptedEquation.linearParams.gamma = (equation.linearParams.gamma + newEquation.linearParams.gamma) / 2;
+
+            // متوسط الأوزان
+            adaptedEquation.sigmoidWeight = (equation.sigmoidWeight + newEquation.sigmoidWeight) / 2;
+            adaptedEquation.linearWeight = (equation.linearWeight + newEquation.linearWeight) / 2;
+
+            // إعادة تقييم
+            let quality = this.evaluateFit(newX, newY, adaptedEquation.sigmoidParams, adaptedEquation.linearParams,
+                                          adaptedEquation.sigmoidWeight, adaptedEquation.linearWeight);
+            adaptedEquation.fitQuality = quality.fitQuality;
+            adaptedEquation.residualError = quality.residualError;
+            adaptedEquation.rSquared = quality.rSquared;
+
+            adaptedEquation.equationString = this.generateEquationString(
+                adaptedEquation.sigmoidParams, adaptedEquation.linearParams,
+                adaptedEquation.sigmoidWeight, adaptedEquation.linearWeight
+            );
+
+            console.log("✅ تم تكيف المعادلة بنجاح");
+
+            return adaptedEquation;
+
+        } catch (e) {
+            console.log("❌ خطأ في تكيف المعادلة: " + e);
+            return equation;
+        }
+    }
+}
+
+// ==================== التصدير ====================
+
+export { EquationType, SigmoidParameters, LinearParameters, ExtractedEquation, AdaptiveEquationExtractor };

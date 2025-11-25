@@ -1,0 +1,601 @@
+/**
+ * نظام التعلم التكيفي المحسن - Enhanced Adaptive Learning System
+ * نظام بصيرة AI الثوري
+ * 
+ * 🧠 تعلم ذاتي متقدم من التجارب والتغذية الراجعة
+ * 🔄 تكيف ديناميكي للمعاملات والاستراتيجيات
+ * 📈 تحسين مستمر للأداء والدقة
+ * ⚡ يعتمد على النظريات الثلاث الثورية
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+
+// ==================== التعدادات ====================
+
+enum LearningType {
+    SUPERVISED = "supervised",
+    UNSUPERVISED = "unsupervised",
+    REINFORCEMENT = "reinforcement",
+    ADAPTIVE = "adaptive",
+    REVOLUTIONARY = "revolutionary"
+}
+
+enum FeedbackType {
+    POSITIVE = "positive",
+    NEGATIVE = "negative",
+    NEUTRAL = "neutral",
+    CORRECTIVE = "corrective",
+    ENHANCEMENT = "enhancement"
+}
+
+enum AdaptationStrategy {
+    GRADUAL = "gradual",
+    AGGRESSIVE = "aggressive",
+    CONSERVATIVE = "conservative",
+    REVOLUTIONARY = "revolutionary",
+    DYNAMIC = "dynamic"
+}
+
+// ==================== الفئات الأساسية ====================
+
+/**
+ * تجربة تعلم
+ */
+class LearningExperience extends MotherEquation {
+    public experienceId: string;
+    public inputData: any;
+    public expectedOutput: any;
+    public actualOutput: any;
+    public feedback: object;
+    public feedbackType: FeedbackType;
+    public learningContext: string;
+    public timestamp: Date;
+    public successScore: number;
+    public improvementSuggestions: array<string>;
+    
+    constructor(inputData: any, actualOutput: any) {
+        super(`exp_${Date.now()}`, {}, {}, null);
+        
+        this.experienceId = this.id;
+        this.inputData = inputData;
+        this.expectedOutput = null;
+        this.actualOutput = actualOutput;
+        this.feedback = {};
+        this.feedbackType = FeedbackType.NEUTRAL;
+        this.learningContext = "general";
+        this.timestamp = new Date();
+        this.successScore = 0.5;
+        this.improvementSuggestions = [];
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            experienceId: this.experienceId,
+            timestamp: this.timestamp
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            successScore: this.successScore,
+            feedbackType: this.feedbackType
+        };
+    }
+    
+    public setFeedback(feedbackType: FeedbackType, score: number, suggestions: array<string> = []): void {
+        this.feedbackType = feedbackType;
+        this.successScore = score;
+        this.improvementSuggestions = suggestions;
+        this.dynamicStates.feedbackType = feedbackType;
+        this.dynamicStates.successScore = score;
+    }
+}
+
+/**
+ * قاعدة تكيف
+ */
+class AdaptationRule extends MotherEquation {
+    public ruleId: string;
+    public condition: string;
+    public action: string;
+    public priority: number;
+    public successRate: number;
+    public usageCount: number;
+    public lastUsed: Date | null;
+    public effectiveness: number;
+    
+    constructor(condition: string, action: string, priority: number = 1) {
+        super(`rule_${Date.now()}`, {}, {}, null);
+        
+        this.ruleId = this.id;
+        this.condition = condition;
+        this.action = action;
+        this.priority = priority;
+        this.successRate = 0.0;
+        this.usageCount = 0;
+        this.lastUsed = null;
+        this.effectiveness = 0.5;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            ruleId: this.ruleId,
+            condition: this.condition,
+            action: this.action,
+            priority: this.priority
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            successRate: this.successRate,
+            usageCount: this.usageCount,
+            effectiveness: this.effectiveness
+        };
+    }
+    
+    public use(success: boolean): void {
+        this.usageCount++;
+        this.lastUsed = new Date();
+        
+        // تحديث معدل النجاح
+        if (this.usageCount === 1) {
+            this.successRate = success ? 1.0 : 0.0;
+        } else {
+            this.successRate = ((this.successRate * (this.usageCount - 1)) + (success ? 1.0 : 0.0)) / this.usageCount;
+        }
+        
+        // تحديث الفعالية
+        this.effectiveness = this.successRate;
+        
+        this.dynamicStates.successRate = this.successRate;
+        this.dynamicStates.usageCount = this.usageCount;
+        this.dynamicStates.effectiveness = this.effectiveness;
+    }
+}
+
+/**
+ * مقاييس التعلم
+ */
+class LearningMetrics extends MotherEquation {
+    public totalExperiences: number;
+    public successfulExperiences: number;
+    public failedExperiences: number;
+    public averageSuccessRate: number;
+    public learningVelocity: number;
+    public adaptationFrequency: number;
+    public improvementTrend: number;
+    public lastUpdate: Date;
+    
+    constructor() {
+        super("learning_metrics", {}, {}, null);
+        
+        this.totalExperiences = 0;
+        this.successfulExperiences = 0;
+        this.failedExperiences = 0;
+        this.averageSuccessRate = 0.0;
+        this.learningVelocity = 0.0;
+        this.adaptationFrequency = 0.0;
+        this.improvementTrend = 0.0;
+        this.lastUpdate = new Date();
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalExperiences: 0,
+            averageSuccessRate: 0.0,
+            learningVelocity: 0.0
+        };
+    }
+    
+    public update(experience: LearningExperience): void {
+        this.totalExperiences++;
+        
+        if (experience.successScore >= 0.7) {
+            this.successfulExperiences++;
+        } else {
+            this.failedExperiences++;
+        }
+        
+        this.averageSuccessRate = this.successfulExperiences / this.totalExperiences;
+        
+        // حساب سرعة التعلم (التحسن مع الوقت)
+        let timeDiff = (new Date().getTime() - this.lastUpdate.getTime()) / 1000.0;
+        if (timeDiff > 0) {
+            this.learningVelocity = (experience.successScore - this.averageSuccessRate) / timeDiff;
+        }
+        
+        this.lastUpdate = new Date();
+        
+        this.dynamicStates.totalExperiences = this.totalExperiences;
+        this.dynamicStates.averageSuccessRate = this.averageSuccessRate;
+        this.dynamicStates.learningVelocity = this.learningVelocity;
+    }
+}
+
+/**
+ * نظام التعلم التكيفي المحسن
+ */
+class EnhancedAdaptiveLearningSystem extends MotherEquation {
+    public name: string;
+    
+    // ذاكرة التعلم
+    public learningExperiences: array<LearningExperience>;
+    public adaptationRules: array<AdaptationRule>;
+    public learnedPatterns: object;
+    public successfulStrategies: object;
+    
+    // معاملات التعلم
+    public learningRate: number;
+    public adaptationThreshold: number;
+    public memoryCapacity: number;
+    public patternRecognitionThreshold: number;
+    public strategyEffectivenessThreshold: number;
+    
+    // مقاييس الأداء
+    public metrics: LearningMetrics;
+    
+    // استراتيجيات التكيف
+    public currentStrategy: AdaptationStrategy;
+    
+    constructor(name: string = "EnhancedAdaptiveLearningSystem") {
+        super(name, {}, {}, null);
+        
+        this.name = name;
+        
+        // تهيئة الذاكرة
+        this.learningExperiences = [];
+        this.adaptationRules = [];
+        this.learnedPatterns = {};
+        this.successfulStrategies = {};
+        
+        // معاملات التعلم
+        this.learningRate = 0.1;
+        this.adaptationThreshold = 0.7;
+        this.memoryCapacity = 1000;
+        this.patternRecognitionThreshold = 0.6;
+        this.strategyEffectivenessThreshold = 0.8;
+        
+        // مقاييس الأداء
+        this.metrics = new LearningMetrics();
+        
+        // استراتيجية التكيف الحالية
+        this.currentStrategy = AdaptationStrategy.DYNAMIC;
+        
+        // تهيئة قواعد التعلم الثورية
+        this.initializeRevolutionaryRules();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: this.name,
+            learningRate: this.learningRate,
+            memoryCapacity: this.memoryCapacity
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalExperiences: 0,
+            successRate: 0.0,
+            currentStrategy: this.currentStrategy
+        };
+    }
+    
+    /**
+     * تهيئة قواعد التعلم الثورية
+     */
+    private initializeRevolutionaryRules(): void {
+        // قاعدة ثنائية الصفر
+        this.adaptationRules.push(new AdaptationRule(
+            "success_rate < 0.3",
+            "apply_zero_duality_transformation",
+            10
+        ));
+        
+        // قاعدة تعامد الأضداد
+        this.adaptationRules.push(new AdaptationRule(
+            "conflicting_feedback",
+            "apply_perpendicularity_resolution",
+            8
+        ));
+        
+        // قاعدة الفتائل
+        this.adaptationRules.push(new AdaptationRule(
+            "pattern_complexity > 0.8",
+            "apply_filament_decomposition",
+            6
+        ));
+        
+        // قاعدة التكيف التدريجي
+        this.adaptationRules.push(new AdaptationRule(
+            "learning_velocity > 0",
+            "gradual_improvement",
+            5
+        ));
+        
+        // قاعدة التكيف العدواني
+        this.adaptationRules.push(new AdaptationRule(
+            "success_rate < 0.5",
+            "aggressive_optimization",
+            7
+        ));
+    }
+
+    /**
+     * إضافة تجربة تعلم جديدة
+     */
+    public addExperience(inputData: any, actualOutput: any, expectedOutput: any = null): LearningExperience {
+        let experience = new LearningExperience(inputData, actualOutput);
+        experience.expectedOutput = expectedOutput;
+
+        // حساب نقاط النجاح
+        if (expectedOutput !== null) {
+            let similarity = this.calculateSimilarity(actualOutput, expectedOutput);
+            experience.successScore = similarity;
+
+            if (similarity >= 0.7) {
+                experience.feedbackType = FeedbackType.POSITIVE;
+            } else if (similarity >= 0.4) {
+                experience.feedbackType = FeedbackType.NEUTRAL;
+            } else {
+                experience.feedbackType = FeedbackType.NEGATIVE;
+            }
+        }
+
+        this.learningExperiences.push(experience);
+
+        // إدارة سعة الذاكرة
+        if (this.learningExperiences.length > this.memoryCapacity) {
+            this.learningExperiences = this.learningExperiences.slice(-this.memoryCapacity);
+        }
+
+        // تحديث المقاييس
+        this.metrics.update(experience);
+        this.dynamicStates.totalExperiences = this.learningExperiences.length;
+        this.dynamicStates.successRate = this.metrics.averageSuccessRate;
+
+        return experience;
+    }
+
+    /**
+     * حساب التشابه بين مخرجين
+     */
+    private calculateSimilarity(output1: any, output2: any): number {
+        // تحويل إلى نصوص للمقارنة
+        let str1 = JSON.stringify(output1);
+        let str2 = JSON.stringify(output2);
+
+        if (str1 === str2) return 1.0;
+
+        // حساب التشابه بناءً على الأحرف المشتركة
+        let commonChars = 0;
+        let minLength = Math.min(str1.length, str2.length);
+
+        for (let i = 0; i < minLength; i++) {
+            if (str1[i] === str2[i]) {
+                commonChars++;
+            }
+        }
+
+        return commonChars / Math.max(str1.length, str2.length);
+    }
+
+    /**
+     * التعلم من التجارب
+     */
+    public learn(): object {
+        if (this.learningExperiences.length === 0) {
+            return { learned: false, reason: "لا توجد تجارب للتعلم منها" };
+        }
+
+        // تحليل التجارب الناجحة
+        let successfulExperiences = this.learningExperiences.filter(exp => exp.successScore >= 0.7);
+        let failedExperiences = this.learningExperiences.filter(exp => exp.successScore < 0.7);
+
+        // استخراج الأنماط
+        let patterns = this.extractPatterns(successfulExperiences);
+        for (let pattern of patterns) {
+            let patternKey = `pattern_${Object.keys(this.learnedPatterns).length}`;
+            this.learnedPatterns[patternKey] = pattern;
+        }
+
+        // تحديث الاستراتيجيات الناجحة
+        this.updateSuccessfulStrategies(successfulExperiences);
+
+        // تطبيق التكيف
+        this.adapt();
+
+        return {
+            learned: true,
+            patternsFound: patterns.length,
+            successfulExperiences: successfulExperiences.length,
+            failedExperiences: failedExperiences.length,
+            currentStrategy: this.currentStrategy,
+            successRate: this.metrics.averageSuccessRate
+        };
+    }
+
+    /**
+     * استخراج الأنماط من التجارب
+     */
+    private extractPatterns(experiences: array<LearningExperience>): array<object> {
+        let patterns = [];
+
+        if (experiences.length < 3) {
+            return patterns;  // نحتاج 3 تجارب على الأقل
+        }
+
+        // تجميع التجارب حسب السياق
+        let byContext = {};
+        for (let exp of experiences) {
+            let context = exp.learningContext;
+            if (!byContext[context]) {
+                byContext[context] = [];
+            }
+            byContext[context].push(exp);
+        }
+
+        // استخراج نمط لكل سياق
+        for (let context in byContext) {
+            let exps = byContext[context];
+            if (exps.length >= 3) {
+                let avgScore = exps.reduce((sum, exp) => sum + exp.successScore, 0) / exps.length;
+
+                if (avgScore >= this.patternRecognitionThreshold) {
+                    patterns.push({
+                        context: context,
+                        occurrences: exps.length,
+                        averageScore: avgScore,
+                        confidence: avgScore,
+                        timestamp: new Date()
+                    });
+                }
+            }
+        }
+
+        return patterns;
+    }
+
+    /**
+     * تحديث الاستراتيجيات الناجحة
+     */
+    private updateSuccessfulStrategies(experiences: array<LearningExperience>): void {
+        for (let exp of experiences) {
+            let context = exp.learningContext;
+
+            if (!this.successfulStrategies[context]) {
+                this.successfulStrategies[context] = {
+                    count: 0,
+                    totalScore: 0.0,
+                    averageScore: 0.0
+                };
+            }
+
+            let strategy = this.successfulStrategies[context];
+            strategy.count++;
+            strategy.totalScore += exp.successScore;
+            strategy.averageScore = strategy.totalScore / strategy.count;
+        }
+    }
+
+    /**
+     * التكيف بناءً على الأداء
+     */
+    public adapt(): object {
+        let successRate = this.metrics.averageSuccessRate;
+        let learningVelocity = this.metrics.learningVelocity;
+
+        // اختيار استراتيجية التكيف
+        let oldStrategy = this.currentStrategy;
+
+        if (successRate < 0.3) {
+            // أداء ضعيف جداً - تكيف ثوري
+            this.currentStrategy = AdaptationStrategy.REVOLUTIONARY;
+            this.applyRevolutionaryAdaptation();
+        } else if (successRate < 0.5) {
+            // أداء ضعيف - تكيف عدواني
+            this.currentStrategy = AdaptationStrategy.AGGRESSIVE;
+            this.applyAggressiveAdaptation();
+        } else if (successRate < 0.7) {
+            // أداء متوسط - تكيف تدريجي
+            this.currentStrategy = AdaptationStrategy.GRADUAL;
+            this.applyGradualAdaptation();
+        } else if (learningVelocity < 0) {
+            // أداء جيد لكن يتراجع - تكيف محافظ
+            this.currentStrategy = AdaptationStrategy.CONSERVATIVE;
+            this.applyConservativeAdaptation();
+        } else {
+            // أداء ممتاز - تكيف ديناميكي
+            this.currentStrategy = AdaptationStrategy.DYNAMIC;
+            this.applyDynamicAdaptation();
+        }
+
+        this.dynamicStates.currentStrategy = this.currentStrategy;
+
+        return {
+            adapted: true,
+            oldStrategy: oldStrategy,
+            newStrategy: this.currentStrategy,
+            successRate: successRate,
+            learningVelocity: learningVelocity
+        };
+    }
+
+    /**
+     * تطبيق التكيف الثوري (نظرية ثنائية الصفر)
+     */
+    private applyRevolutionaryAdaptation(): void {
+        // عكس المعاملات (ثنائية الصفر)
+        this.learningRate = 1.0 - this.learningRate;
+        this.adaptationThreshold = 1.0 - this.adaptationThreshold;
+    }
+
+    /**
+     * تطبيق التكيف العدواني
+     */
+    private applyAggressiveAdaptation(): void {
+        // زيادة معدل التعلم بشكل كبير
+        this.learningRate = Math.min(this.learningRate * 2.0, 0.5);
+        this.adaptationThreshold = Math.max(this.adaptationThreshold - 0.2, 0.3);
+    }
+
+    /**
+     * تطبيق التكيف التدريجي
+     */
+    private applyGradualAdaptation(): void {
+        // زيادة معدل التعلم تدريجياً
+        this.learningRate = Math.min(this.learningRate * 1.1, 0.3);
+        this.adaptationThreshold = Math.max(this.adaptationThreshold - 0.05, 0.5);
+    }
+
+    /**
+     * تطبيق التكيف المحافظ
+     */
+    private applyConservativeAdaptation(): void {
+        // تقليل معدل التعلم للحفاظ على الأداء
+        this.learningRate = Math.max(this.learningRate * 0.9, 0.05);
+        this.adaptationThreshold = Math.min(this.adaptationThreshold + 0.05, 0.9);
+    }
+
+    /**
+     * تطبيق التكيف الديناميكي
+     */
+    private applyDynamicAdaptation(): void {
+        // تعديل ديناميكي بناءً على سرعة التعلم
+        if (this.metrics.learningVelocity > 0) {
+            this.learningRate = Math.min(this.learningRate * 1.05, 0.2);
+        } else {
+            this.learningRate = Math.max(this.learningRate * 0.95, 0.08);
+        }
+    }
+
+    /**
+     * الحصول على إحصائيات شاملة
+     */
+    public getStatistics(): object {
+        return {
+            name: this.name,
+            totalExperiences: this.learningExperiences.length,
+            successfulExperiences: this.metrics.successfulExperiences,
+            failedExperiences: this.metrics.failedExperiences,
+            averageSuccessRate: this.metrics.averageSuccessRate,
+            learningVelocity: this.metrics.learningVelocity,
+            currentStrategy: this.currentStrategy,
+            learningRate: this.learningRate,
+            adaptationThreshold: this.adaptationThreshold,
+            learnedPatterns: Object.keys(this.learnedPatterns).length,
+            successfulStrategies: Object.keys(this.successfulStrategies).length,
+            adaptationRules: this.adaptationRules.length
+        };
+    }
+}
+
+// ==================== التصدير ====================
+
+export {
+    LearningType,
+    FeedbackType,
+    AdaptationStrategy,
+    LearningExperience,
+    AdaptationRule,
+    LearningMetrics,
+    EnhancedAdaptiveLearningSystem
+};
+

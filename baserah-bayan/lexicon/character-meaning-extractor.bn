@@ -1,0 +1,461 @@
+#!/usr/bin/env bayan
+/**
+ * نظام استخراج معاني الحروف - Character Meaning Extractor
+ * نظام بصيرة الثوري
+ * 
+ * 🔤 استخراج معاني الحروف من المعجم
+ * 🧬 تحليل التشابه بين الكلمات
+ * ⚡ حساب قوة المعاني
+ * 🎯 تكامل مع قاعدة بيانات سيماء الحروف
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { LexiconEntry, CharacterMeaning } from "./digital-lexicon-loader.bn";
+
+// ==================== التعدادات ====================
+
+enum ExtractionMethod {
+    SINGLE_CHARACTER = "حرف_واحد",           // كلمات تشترك في حرف واحد
+    TWO_CONSECUTIVE = "حرفان_متتابعان",      // حرفان متتابعان
+    TWO_WITH_GAP = "حرفان_بينهما_حرف",      // حرفان بينهما حرف
+    THREE_CHARACTERS = "ثلاثة_أحرف",         // ثلاثة أحرف مشتركة
+    ROOT_BASED = "جذر_لغوي",                 // بناءً على الجذر اللغوي
+    PATTERN_BASED = "نمط_لغوي"               // بناءً على النمط
+}
+
+enum AnalysisQuality {
+    LOW = "منخفضة",
+    MEDIUM = "متوسطة",
+    HIGH = "عالية",
+    EXCELLENT = "ممتازة"
+}
+
+// ==================== الفئات ====================
+
+class CharacterAnalysis extends MotherEquation {
+    public character: string;
+    public totalWords: number;
+    public totalMeanings: number;
+    public meaningScores: Map<string, number>;
+    public relatedWords: Array<string>;
+    public confidence: number;
+    public extractionMethods: Array<ExtractionMethod>;
+    
+    constructor(character: string) {
+        super(`char_analysis_${character}`);
+        
+        this.character = character;
+        this.totalWords = 0;
+        this.totalMeanings = 0;
+        this.meaningScores = new Map();
+        this.relatedWords = [];
+        this.confidence = 0.0;
+        this.extractionMethods = [];
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            character: character
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalWords: 0,
+            totalMeanings: 0,
+            confidence: 0.0,
+            lastAnalyzed: Date.now()
+        };
+    }
+    
+    public addMeaning(meaning: string, score: number, method: ExtractionMethod): void {
+        if (!this.meaningScores.has(meaning)) {
+            this.meaningScores.set(meaning, 0);
+        }
+        this.meaningScores.set(meaning, this.meaningScores.get(meaning) + score);
+        
+        if (!this.extractionMethods.includes(method)) {
+            this.extractionMethods.push(method);
+        }
+        
+        this.totalMeanings = this.meaningScores.size;
+        this.dynamicStates.totalMeanings = this.totalMeanings;
+        this.dynamicStates.lastAnalyzed = Date.now();
+    }
+    
+    public addRelatedWord(word: string): void {
+        if (!this.relatedWords.includes(word)) {
+            this.relatedWords.push(word);
+            this.totalWords = this.relatedWords.length;
+            this.dynamicStates.totalWords = this.totalWords;
+        }
+    }
+    
+    public calculateConfidence(): void {
+        if (this.meaningScores.size === 0) {
+            this.confidence = 0.0;
+            return;
+        }
+        
+        let totalScore = 0;
+        for (let [meaning, score] of this.meaningScores) {
+            totalScore += score;
+        }
+        
+        this.confidence = totalScore / this.meaningScores.size;
+        this.dynamicStates.confidence = this.confidence;
+    }
+    
+    public getTopMeanings(topN: number = 5): Array<{meaning: string, score: number}> {
+        let sorted = Array.from(this.meaningScores.entries())
+            .map(([meaning, score]) => ({ meaning, score }))
+            .sort((a, b) => b.score - a.score);
+        
+        return sorted.slice(0, topN);
+    }
+    
+    public getQuality(): AnalysisQuality {
+        if (this.confidence >= 0.8 && this.totalWords >= 10) {
+            return AnalysisQuality.EXCELLENT;
+        } else if (this.confidence >= 0.6 && this.totalWords >= 5) {
+            return AnalysisQuality.HIGH;
+        } else if (this.confidence >= 0.4 && this.totalWords >= 3) {
+            return AnalysisQuality.MEDIUM;
+        } else {
+            return AnalysisQuality.LOW;
+        }
+    }
+}
+
+class WordGroup extends MotherEquation {
+    public sharedCharacters: Array<string>;
+    public words: Array<string>;
+    public commonMeanings: Array<{meaning: string, frequency: number}>;
+    public groupStrength: number;
+    
+    constructor(sharedChars: Array<string>, words: Array<string>) {
+        super(`word_group_${sharedChars.join('_')}`);
+        
+        this.sharedCharacters = sharedChars;
+        this.words = words;
+        this.commonMeanings = [];
+        this.groupStrength = 0.0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            sharedCharacters: sharedChars
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            wordCount: words.length,
+            groupStrength: 0.0
+        };
+    }
+    
+    public addCommonMeaning(meaning: string, frequency: number): void {
+        this.commonMeanings.push({ meaning, frequency });
+    }
+    
+    public calculateStrength(): void {
+        if (this.commonMeanings.length === 0) {
+            this.groupStrength = 0.0;
+            return;
+        }
+        
+        let totalFreq = 0;
+        for (let cm of this.commonMeanings) {
+            totalFreq += cm.frequency;
+        }
+        
+        this.groupStrength = totalFreq / this.words.length;
+        this.dynamicStates.groupStrength = this.groupStrength;
+    }
+}
+
+class CharacterMeaningExtractor extends MotherEquation {
+    public lexicon: Map<string, LexiconEntry>;
+    public characterAnalyses: Map<string, CharacterAnalysis>;
+    public wordGroups: Array<WordGroup>;
+    public commonWords: Set<string>;
+    public minFrequency: number;
+    
+    constructor(extractorId: string = "char_extractor_1") {
+        super(extractorId);
+        
+        this.lexicon = new Map();
+        this.characterAnalyses = new Map();
+        this.wordGroups = [];
+        this.commonWords = this._getCommonWords();
+        this.minFrequency = 0.1;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            extractorId: extractorId,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalAnalyses: 0,
+            lastExtraction: 0
+        };
+    }
+    
+    private _getCommonWords(): Set<string> {
+        return new Set([
+            'في', 'من', 'على', 'إلى', 'أن', 'ما', 'هذا', 'هذه', 'كان',
+            'يكون', 'ذلك', 'كل', 'مع', 'هو', 'هي', 'هم', 'كذلك', 'أيضا',
+            'و', 'أو', 'لا', 'نعم', 'هنا', 'هناك', 'هنالك', 'حيث', 'كيف',
+            'لكن', 'بل', 'ثم', 'إذا', 'لو', 'قد', 'لم', 'لن', 'ليس'
+        ]);
+    }
+    
+    public loadLexicon(lexicon: Map<string, LexiconEntry>): number {
+        let count = 0;
+        for (let [word, entry] of lexicon) {
+            if (word.length >= 2 && !this.commonWords.has(word)) {
+                this.lexicon.set(word, entry);
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    public extractMeaningKeywords(meaning: string): Array<string> {
+        // إزالة الكلمات الشائعة والعلامات
+        let words = meaning.match(/\b\w+\b/g) || [];
+        let filtered = words.filter(w => w.length > 2 && !this.commonWords.has(w));
+        return filtered;
+    }
+    
+    public findSharedCharacterGroups(minShared: number = 2): Array<WordGroup> {
+        let groups = new Map();
+        let words = Array.from(this.lexicon.keys());
+        
+        for (let i = 0; i < words.length; i++) {
+            for (let j = i + 1; j < words.length; j++) {
+                let word1 = words[i];
+                let word2 = words[j];
+                
+                let chars1 = new Set(word1.split(''));
+                let chars2 = new Set(word2.split(''));
+                
+                let shared = Array.from(chars1).filter(c => chars2.has(c));
+                
+                if (shared.length >= minShared) {
+                    let key = shared.sort().join('_');
+                    if (!groups.has(key)) {
+                        groups.set(key, new Set());
+                    }
+                    groups.get(key).add(word1);
+                    groups.get(key).add(word2);
+                }
+            }
+        }
+        
+        // تحويل إلى WordGroup
+        let wordGroups = [];
+        for (let [key, wordSet] of groups) {
+            let sharedChars = key.split('_');
+            let wordArray = Array.from(wordSet);
+            
+            if (wordArray.length >= 3) {
+                wordGroups.push(new WordGroup(sharedChars, wordArray));
+            }
+        }
+        
+        return wordGroups;
+    }
+    
+    public analyzeSharedMeanings(words: Array<string>): Map<string, number> {
+        let allKeywords = [];
+        
+        for (let word of words) {
+            let entry = this.lexicon.get(word);
+            if (entry) {
+                let keywords = this.extractMeaningKeywords(entry.meaning);
+                allKeywords.push(...keywords);
+            }
+        }
+        
+        if (allKeywords.length === 0) {
+            return new Map();
+        }
+        
+        // حساب التكرار
+        let freq = new Map();
+        for (let keyword of allKeywords) {
+            freq.set(keyword, (freq.get(keyword) || 0) + 1);
+        }
+        
+        // حساب النسبة المئوية
+        let total = allKeywords.length;
+        let scores = new Map();
+        for (let [keyword, count] of freq) {
+            scores.set(keyword, count / total);
+        }
+        
+        return scores;
+    }
+
+    public extractCharacterMeanings(minFrequency: number = 0.1): Map<string, CharacterAnalysis> {
+        this.minFrequency = minFrequency;
+
+        // الخطوة 1: إيجاد مجموعات الكلمات المتشابهة
+        this.wordGroups = this.findSharedCharacterGroups(2);
+
+        // الخطوة 2: تحليل المعاني المشتركة
+        for (let group of this.wordGroups) {
+            let meanings = this.analyzeSharedMeanings(group.words);
+
+            for (let char of group.sharedCharacters) {
+                if (!this.characterAnalyses.has(char)) {
+                    this.characterAnalyses.set(char, new CharacterAnalysis(char));
+                }
+
+                let analysis = this.characterAnalyses.get(char);
+
+                for (let [meaning, score] of meanings) {
+                    analysis.addMeaning(meaning, score, ExtractionMethod.TWO_CONSECUTIVE);
+                }
+
+                for (let word of group.words) {
+                    analysis.addRelatedWord(word);
+                }
+            }
+        }
+
+        // الخطوة 3: تحليل الحروف المفردة
+        this._analyzeSingleCharacters();
+
+        // الخطوة 4: تصفية المعاني الضعيفة
+        for (let [char, analysis] of this.characterAnalyses) {
+            let filtered = new Map();
+            for (let [meaning, score] of analysis.meaningScores) {
+                if (score >= minFrequency) {
+                    filtered.set(meaning, score);
+                }
+            }
+            analysis.meaningScores = filtered;
+            analysis.totalMeanings = filtered.size;
+
+            // الاحتفاظ بأفضل 20 كلمة
+            analysis.relatedWords = analysis.relatedWords.slice(0, 20);
+
+            // حساب الثقة
+            analysis.calculateConfidence();
+        }
+
+        this.dynamicStates.totalAnalyses = this.characterAnalyses.size;
+        this.dynamicStates.lastExtraction = Date.now();
+
+        return this.characterAnalyses;
+    }
+
+    private _analyzeSingleCharacters(): void {
+        let singleCharGroups = new Map();
+
+        for (let [word, entry] of this.lexicon) {
+            let uniqueChars = new Set(word.split(''));
+            for (let char of uniqueChars) {
+                if (!singleCharGroups.has(char)) {
+                    singleCharGroups.set(char, []);
+                }
+                singleCharGroups.get(char).push(word);
+            }
+        }
+
+        // تحليل المجموعات
+        for (let [char, words] of singleCharGroups) {
+            if (words.length >= 2) {
+                if (!this.characterAnalyses.has(char)) {
+                    this.characterAnalyses.set(char, new CharacterAnalysis(char));
+                }
+
+                let analysis = this.characterAnalyses.get(char);
+                let meanings = this.analyzeSharedMeanings(words);
+
+                for (let [meaning, score] of meanings) {
+                    // وزن أقل للحروف المفردة
+                    analysis.addMeaning(meaning, score * 0.5, ExtractionMethod.SINGLE_CHARACTER);
+                }
+
+                for (let word of words) {
+                    analysis.addRelatedWord(word);
+                }
+            }
+        }
+    }
+
+    public getCharacterAnalysis(character: string): CharacterAnalysis | null {
+        return this.characterAnalyses.get(character) || null;
+    }
+
+    public getTopMeanings(character: string, topN: number = 5): Array<{meaning: string, score: number}> {
+        let analysis = this.getCharacterAnalysis(character);
+        if (!analysis) {
+            return [];
+        }
+        return analysis.getTopMeanings(topN);
+    }
+
+    public getStatistics(): object {
+        let totalMeanings = 0;
+        let totalConfidence = 0;
+        let qualityDistribution = {
+            [AnalysisQuality.EXCELLENT]: 0,
+            [AnalysisQuality.HIGH]: 0,
+            [AnalysisQuality.MEDIUM]: 0,
+            [AnalysisQuality.LOW]: 0
+        };
+
+        for (let [char, analysis] of this.characterAnalyses) {
+            totalMeanings += analysis.totalMeanings;
+            totalConfidence += analysis.confidence;
+            qualityDistribution[analysis.getQuality()]++;
+        }
+
+        let avgMeanings = this.characterAnalyses.size > 0
+            ? totalMeanings / this.characterAnalyses.size
+            : 0;
+        let avgConfidence = this.characterAnalyses.size > 0
+            ? totalConfidence / this.characterAnalyses.size
+            : 0;
+
+        return {
+            totalCharacters: this.characterAnalyses.size,
+            totalWords: this.lexicon.size,
+            totalWordGroups: this.wordGroups.length,
+            averageMeaningsPerChar: avgMeanings,
+            averageConfidence: avgConfidence,
+            qualityDistribution: qualityDistribution
+        };
+    }
+
+    public exportAnalyses(): object {
+        let data = {};
+        for (let [char, analysis] of this.characterAnalyses) {
+            data[char] = {
+                character: char,
+                totalWords: analysis.totalWords,
+                totalMeanings: analysis.totalMeanings,
+                confidence: analysis.confidence,
+                quality: analysis.getQuality(),
+                topMeanings: analysis.getTopMeanings(5),
+                relatedWords: analysis.relatedWords.slice(0, 10)
+            };
+        }
+        return data;
+    }
+}
+
+export {
+    ExtractionMethod,
+    AnalysisQuality,
+    CharacterAnalysis,
+    WordGroup,
+    CharacterMeaningExtractor
+};
+

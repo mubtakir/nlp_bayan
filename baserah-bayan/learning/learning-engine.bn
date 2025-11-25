@@ -1,0 +1,711 @@
+/**
+ * محرك التعلم الذكي
+ * Intelligent Learning Engine
+ * 
+ * نظام تعلم ذكي يتعلم من التجارب والحوارات لتحسين الأداء
+ * يعتمد على المعادلة الأم ونظرية ثنائية الصفر
+ * 
+ * @author Basel Yahya Abdullah
+ * @version 1.0.0
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+
+// ============================================================================
+// التعدادات (Enums)
+// ============================================================================
+
+/**
+ * أنواع التعلم
+ */
+enum LearningType {
+    PATTERN_RECOGNITION = "pattern_recognition",      // التعرف على الأنماط
+    RESPONSE_OPTIMIZATION = "response_optimization",  // تحسين الإجابات
+    CONTEXT_LEARNING = "context_learning",            // تعلم السياق
+    USER_PREFERENCE = "user_preference",              // تفضيلات المستخدم
+    ERROR_CORRECTION = "error_correction",            // تصحيح الأخطاء
+    ADAPTIVE_BEHAVIOR = "adaptive_behavior",          // السلوك التكيفي
+    KNOWLEDGE_ACQUISITION = "knowledge_acquisition"   // اكتساب المعرفة
+}
+
+/**
+ * مستويات الثقة
+ */
+enum ConfidenceLevel {
+    VERY_LOW = "very_low",      // 0.0 - 0.2
+    LOW = "low",                // 0.2 - 0.4
+    MEDIUM = "medium",          // 0.4 - 0.6
+    HIGH = "high",              // 0.6 - 0.8
+    VERY_HIGH = "very_high"     // 0.8 - 1.0
+}
+
+/**
+ * نتائج التعلم
+ */
+enum LearningOutcome {
+    SUCCESS = "success",        // نجاح
+    FAILURE = "failure",        // فشل
+    PARTIAL = "partial",        // جزئي
+    UNKNOWN = "unknown"         // غير معروف
+}
+
+// ============================================================================
+// الفئات الأساسية (Core Classes)
+// ============================================================================
+
+/**
+ * نمط التعلم
+ * يمثل نمطاً متعلماً من التجارب
+ */
+class LearningPattern extends MotherEquation {
+    public patternId: string;
+    public patternType: LearningType;
+    public description: string;
+    public conditions: object;           // الشروط التي تفعّل النمط
+    public actions: object;              // الإجراءات المرتبطة
+    public confidence: number;           // 0.0 - 1.0
+    public successCount: number;
+    public failureCount: number;
+    public lastUsed: Date | null;
+    public createdAt: Date;
+    public examples: array<object>;
+    public tags: array<string>;
+    
+    /**
+     * المنشئ
+     */
+    constructor(
+        patternId: string,
+        patternType: LearningType,
+        description: string,
+        conditions: object,
+        actions: object
+    ) {
+        super(patternId);
+        
+        this.patternId = patternId;
+        this.patternType = patternType;
+        this.description = description;
+        this.conditions = conditions;
+        this.actions = actions;
+        this.confidence = 0.5;
+        this.successCount = 0;
+        this.failureCount = 0;
+        this.lastUsed = null;
+        this.createdAt = new Date();
+        this.examples = [];
+        this.tags = [];
+        
+        // تحديث المعادلة الأم
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * تحديث المعادلة الأم
+     */
+    private updateMotherEquation(): void {
+        // Φ (Phi) - الخصائص الثابتة
+        this.staticProperties = {
+            patternId: this.patternId,
+            patternType: this.patternType,
+            description: this.description,
+            createdAt: this.createdAt
+        };
+        
+        // Ψ(t) (Psi) - الخصائص الديناميكية
+        this.dynamicProperties = {
+            confidence: this.confidence,
+            successCount: this.successCount,
+            failureCount: this.failureCount,
+            lastUsed: this.lastUsed,
+            successRate: this.getSuccessRate()
+        };
+        
+        // Γ (Gamma) - دالة الشكل
+        this.shapeFunction = (t: number) => {
+            return this.confidence * Math.exp(-0.1 * t);
+        };
+    }
+    
+    /**
+     * حساب معدل النجاح
+     */
+    public getSuccessRate(): number {
+        const total = this.successCount + this.failureCount;
+        if (total === 0) {
+            return 0.0;
+        }
+        return this.successCount / total;
+    }
+    
+    /**
+     * تحديث مستوى الثقة بناءً على معدل النجاح
+     */
+    public updateConfidence(): void {
+        const successRate = this.getSuccessRate();
+        const totalUses = this.successCount + this.failureCount;
+        
+        // الثقة تعتمد على معدل النجاح وعدد الاستخدامات
+        if (totalUses < 5) {
+            // قليل من الاستخدامات = ثقة منخفضة
+            this.confidence = Math.min(0.5, successRate);
+        } else if (totalUses < 20) {
+            // استخدامات متوسطة
+            this.confidence = successRate * 0.9;
+        } else {
+            // كثير من الاستخدامات = ثقة أعلى
+            this.confidence = successRate;
+        }
+        
+        // تحديث المعادلة الأم
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * الحصول على مستوى الثقة
+     */
+    public getConfidenceLevel(): ConfidenceLevel {
+        if (this.confidence < 0.2) return ConfidenceLevel.VERY_LOW;
+        if (this.confidence < 0.4) return ConfidenceLevel.LOW;
+        if (this.confidence < 0.6) return ConfidenceLevel.MEDIUM;
+        if (this.confidence < 0.8) return ConfidenceLevel.HIGH;
+        return ConfidenceLevel.VERY_HIGH;
+    }
+    
+    /**
+     * إضافة مثال
+     */
+    public addExample(example: object): void {
+        this.examples.push(example);
+        
+        // الاحتفاظ بآخر 10 أمثلة فقط
+        if (this.examples.length > 10) {
+            this.examples.shift();
+        }
+    }
+    
+    /**
+     * تسجيل استخدام ناجح
+     */
+    public recordSuccess(): void {
+        this.successCount++;
+        this.lastUsed = new Date();
+        this.updateConfidence();
+    }
+    
+    /**
+     * تسجيل استخدام فاشل
+     */
+    public recordFailure(): void {
+        this.failureCount++;
+        this.lastUsed = new Date();
+        this.updateConfidence();
+    }
+    
+    /**
+     * التحقق من تطابق الشروط
+     */
+    public matchesConditions(context: object): boolean {
+        // التحقق من تطابق الشروط مع السياق
+        for (const key in this.conditions) {
+            if (this.conditions.hasOwnProperty(key)) {
+                const conditionValue = this.conditions[key];
+                const contextValue = context[key];
+                
+                if (conditionValue !== contextValue) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * تحويل إلى JSON
+     */
+    public toJSON(): object {
+        return {
+            patternId: this.patternId,
+            patternType: this.patternType,
+            description: this.description,
+            conditions: this.conditions,
+            actions: this.actions,
+            confidence: this.confidence,
+            confidenceLevel: this.getConfidenceLevel(),
+            successCount: this.successCount,
+            failureCount: this.failureCount,
+            successRate: this.getSuccessRate(),
+            lastUsed: this.lastUsed,
+            createdAt: this.createdAt,
+            exampleCount: this.examples.length,
+            tags: this.tags
+        };
+    }
+}
+
+/**
+ * تجربة التعلم
+ * تمثل تجربة واحدة يتعلم منها النظام
+ */
+class LearningExperience extends MotherEquation {
+    public experienceId: string;
+    public timestamp: Date;
+    public context: object;
+    public actionTaken: string;
+    public outcome: LearningOutcome;
+    public feedbackScore: number | null;  // 0.0 - 1.0
+    public learnedPatterns: array<string>;
+    public notes: string;
+    public metadata: object;
+    
+    /**
+     * المنشئ
+     */
+    constructor(
+        experienceId: string,
+        context: object,
+        actionTaken: string,
+        outcome: LearningOutcome
+    ) {
+        super(experienceId);
+        
+        this.experienceId = experienceId;
+        this.timestamp = new Date();
+        this.context = context;
+        this.actionTaken = actionTaken;
+        this.outcome = outcome;
+        this.feedbackScore = null;
+        this.learnedPatterns = [];
+        this.notes = "";
+        this.metadata = {};
+        
+        // تحديث المعادلة الأم
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * تحديث المعادلة الأم
+     */
+    private updateMotherEquation(): void {
+        // Φ (Phi) - الخصائص الثابتة
+        this.staticProperties = {
+            experienceId: this.experienceId,
+            timestamp: this.timestamp,
+            context: this.context,
+            actionTaken: this.actionTaken
+        };
+        
+        // Ψ(t) (Psi) - الخصائص الديناميكية
+        this.dynamicProperties = {
+            outcome: this.outcome,
+            feedbackScore: this.feedbackScore,
+            learnedPatterns: this.learnedPatterns,
+            notes: this.notes
+        };
+        
+        // Γ (Gamma) - دالة الشكل
+        this.shapeFunction = (t: number) => {
+            const score = this.feedbackScore || 0.5;
+            return score * Math.exp(-0.05 * t);
+        };
+    }
+    
+    /**
+     * تعيين نقاط التغذية الراجعة
+     */
+    public setFeedbackScore(score: number): void {
+        this.feedbackScore = Math.max(0.0, Math.min(1.0, score));
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * إضافة نمط متعلم
+     */
+    public addLearnedPattern(patternId: string): void {
+        if (!this.learnedPatterns.includes(patternId)) {
+            this.learnedPatterns.push(patternId);
+        }
+    }
+    
+    /**
+     * تحويل إلى JSON
+     */
+    public toJSON(): object {
+        return {
+            experienceId: this.experienceId,
+            timestamp: this.timestamp,
+            context: this.context,
+            actionTaken: this.actionTaken,
+            outcome: this.outcome,
+            feedbackScore: this.feedbackScore,
+            learnedPatterns: this.learnedPatterns,
+            notes: this.notes,
+            metadata: this.metadata
+        };
+    }
+}
+
+/**
+ * محرك التعلم الذكي
+ * النظام الرئيسي للتعلم من التجارب
+ */
+class IntelligentLearningEngine extends MotherEquation {
+    private patterns: Map<string, LearningPattern>;
+    private experiences: array<LearningExperience>;
+    private patternsByType: Map<LearningType, Set<string>>;
+    private minPatternConfidence: number;
+
+    // إحصائيات
+    private totalLearningEvents: number;
+    private successfulApplications: number;
+    private failedApplications: number;
+
+    /**
+     * المنشئ
+     */
+    constructor(minPatternConfidence: number = 0.6) {
+        super("intelligent-learning-engine");
+
+        this.patterns = new Map();
+        this.experiences = [];
+        this.patternsByType = new Map();
+        this.minPatternConfidence = minPatternConfidence;
+
+        // تهيئة الفهارس
+        for (const type of Object.values(LearningType)) {
+            this.patternsByType.set(type as LearningType, new Set());
+        }
+
+        // إحصائيات
+        this.totalLearningEvents = 0;
+        this.successfulApplications = 0;
+        this.failedApplications = 0;
+
+        console.log("✅ تم تهيئة محرك التعلم الذكي");
+    }
+
+    /**
+     * التعلم من حوار
+     */
+    public learnFromDialogue(
+        userInput: string,
+        botResponse: string,
+        context: object,
+        success: boolean,
+        feedbackScore: number | null = null
+    ): array<string> {
+        this.totalLearningEvents++;
+
+        // إنشاء تجربة تعلم
+        const experienceId = this.generateId("exp");
+        const outcome = success ? LearningOutcome.SUCCESS : LearningOutcome.FAILURE;
+
+        const experience = new LearningExperience(
+            experienceId,
+            context,
+            botResponse,
+            outcome
+        );
+
+        if (feedbackScore !== null) {
+            experience.setFeedbackScore(feedbackScore);
+        }
+
+        this.experiences.push(experience);
+
+        // استخراج الأنماط
+        const learnedPatterns: array<string> = [];
+
+        // 1. تعلم أنماط الإجابات الناجحة
+        if (success && feedbackScore && feedbackScore > 0.7) {
+            const patternId = this.learnResponsePattern(
+                userInput,
+                botResponse,
+                context,
+                feedbackScore
+            );
+            if (patternId) {
+                learnedPatterns.push(patternId);
+                experience.addLearnedPattern(patternId);
+            }
+        }
+
+        // 2. تعلم تفضيلات المستخدم
+        if (feedbackScore !== null) {
+            const patternId = this.learnUserPreference(context, feedbackScore);
+            if (patternId) {
+                learnedPatterns.push(patternId);
+                experience.addLearnedPattern(patternId);
+            }
+        }
+
+        // 3. تعلم من الأخطاء
+        if (!success) {
+            const patternId = this.learnFromError(userInput, botResponse, context);
+            if (patternId) {
+                learnedPatterns.push(patternId);
+                experience.addLearnedPattern(patternId);
+            }
+        }
+
+        return learnedPatterns;
+    }
+
+    /**
+     * تعلم نمط إجابة ناجح
+     */
+    private learnResponsePattern(
+        userInput: string,
+        botResponse: string,
+        context: object,
+        score: number
+    ): string | null {
+        const intent = context['intent'] || 'unknown';
+        const responseStyle = context['responseStyle'] || 'normal';
+
+        const patternKey = `response_${intent}_${responseStyle}`;
+
+        if (this.patterns.has(patternKey)) {
+            // تحديث نمط موجود
+            const pattern = this.patterns.get(patternKey)!;
+            pattern.recordSuccess();
+            pattern.addExample({
+                input: userInput,
+                response: botResponse,
+                score: score
+            });
+        } else {
+            // إنشاء نمط جديد
+            const pattern = new LearningPattern(
+                patternKey,
+                LearningType.RESPONSE_OPTIMIZATION,
+                `نمط إجابة ناجح للنية: ${intent}`,
+                {
+                    intent: intent,
+                    responseStyle: responseStyle
+                },
+                {
+                    useStyle: responseStyle,
+                    exampleResponse: botResponse
+                }
+            );
+
+            pattern.confidence = score;
+            pattern.successCount = 1;
+
+            this.patterns.set(patternKey, pattern);
+            this.patternsByType.get(LearningType.RESPONSE_OPTIMIZATION)!.add(patternKey);
+        }
+
+        return patternKey;
+    }
+
+    /**
+     * تعلم تفضيلات المستخدم
+     */
+    private learnUserPreference(context: object, score: number): string | null {
+        const responseStyle = context['responseStyle'] || 'normal';
+        const language = context['language'] || 'arabic';
+
+        const patternKey = `preference_${language}_${responseStyle}`;
+
+        if (this.patterns.has(patternKey)) {
+            const pattern = this.patterns.get(patternKey)!;
+            if (score > 0.7) {
+                pattern.recordSuccess();
+            } else {
+                pattern.recordFailure();
+            }
+        } else {
+            const pattern = new LearningPattern(
+                patternKey,
+                LearningType.USER_PREFERENCE,
+                `تفضيل المستخدم للأسلوب: ${responseStyle}`,
+                { language: language },
+                { preferredStyle: responseStyle }
+            );
+
+            pattern.confidence = score;
+            if (score > 0.7) {
+                pattern.successCount = 1;
+            } else {
+                pattern.failureCount = 1;
+            }
+
+            this.patterns.set(patternKey, pattern);
+            this.patternsByType.get(LearningType.USER_PREFERENCE)!.add(patternKey);
+        }
+
+        return patternKey;
+    }
+
+    /**
+     * تعلم من الأخطاء
+     */
+    private learnFromError(
+        userInput: string,
+        botResponse: string,
+        context: object
+    ): string | null {
+        const intent = context['intent'] || 'unknown';
+        const patternKey = `error_${intent}`;
+
+        if (this.patterns.has(patternKey)) {
+            const pattern = this.patterns.get(patternKey)!;
+            pattern.recordFailure();
+            pattern.addExample({
+                input: userInput,
+                failedResponse: botResponse
+            });
+        } else {
+            const pattern = new LearningPattern(
+                patternKey,
+                LearningType.ERROR_CORRECTION,
+                `أخطاء في التعامل مع النية: ${intent}`,
+                { intent: intent },
+                { avoidPattern: botResponse.substring(0, 50) }
+            );
+
+            pattern.confidence = 0.3;
+            pattern.failureCount = 1;
+
+            this.patterns.set(patternKey, pattern);
+            this.patternsByType.get(LearningType.ERROR_CORRECTION)!.add(patternKey);
+        }
+
+        return patternKey;
+    }
+
+    /**
+     * الحصول على الأنماط ذات الصلة
+     */
+    public getRelevantPatterns(
+        context: object,
+        patternType: LearningType | null = null
+    ): array<LearningPattern> {
+        const relevant: array<LearningPattern> = [];
+
+        // تحديد الأنماط المراد البحث فيها
+        let patternIds: Set<string>;
+        if (patternType) {
+            patternIds = this.patternsByType.get(patternType)!;
+        } else {
+            patternIds = new Set(this.patterns.keys());
+        }
+
+        const intent = context['intent'] || 'unknown';
+        const language = context['language'] || 'arabic';
+
+        for (const patternId of patternIds) {
+            const pattern = this.patterns.get(patternId)!;
+
+            // التحقق من الثقة
+            if (pattern.confidence < this.minPatternConfidence) {
+                continue;
+            }
+
+            // التحقق من التطابق
+            if (pattern.matchesConditions(context)) {
+                relevant.push(pattern);
+            }
+        }
+
+        // ترتيب حسب الثقة
+        relevant.sort((a, b) => b.confidence - a.confidence);
+
+        return relevant;
+    }
+
+    /**
+     * تطبيق نمط وتسجيل النتيجة
+     */
+    public applyPattern(patternId: string, success: boolean): void {
+        if (!this.patterns.has(patternId)) {
+            return;
+        }
+
+        const pattern = this.patterns.get(patternId)!;
+
+        if (success) {
+            pattern.recordSuccess();
+            this.successfulApplications++;
+        } else {
+            pattern.recordFailure();
+            this.failedApplications++;
+        }
+    }
+
+    /**
+     * الحصول على إحصائيات التعلم
+     */
+    public getStatistics(): object {
+        const patternsByType: object = {};
+        for (const [type, ids] of this.patternsByType.entries()) {
+            patternsByType[type] = ids.size;
+        }
+
+        return {
+            totalPatterns: this.patterns.size,
+            patternsByType: patternsByType,
+            totalExperiences: this.experiences.length,
+            totalLearningEvents: this.totalLearningEvents,
+            successfulApplications: this.successfulApplications,
+            failedApplications: this.failedApplications,
+            highConfidencePatterns: Array.from(this.patterns.values())
+                .filter(p => p.confidence > 0.8).length
+        };
+    }
+
+    /**
+     * الحصول على أفضل الأنماط
+     */
+    public getBestPatterns(count: number = 10): array<LearningPattern> {
+        const allPatterns = Array.from(this.patterns.values());
+        allPatterns.sort((a, b) => {
+            if (b.confidence !== a.confidence) {
+                return b.confidence - a.confidence;
+            }
+            return b.successCount - a.successCount;
+        });
+
+        return allPatterns.slice(0, count);
+    }
+
+    /**
+     * مسح جميع البيانات
+     */
+    public clearAll(): void {
+        this.patterns.clear();
+        this.experiences = [];
+
+        for (const type of Object.values(LearningType)) {
+            this.patternsByType.get(type as LearningType)!.clear();
+        }
+
+        this.totalLearningEvents = 0;
+        this.successfulApplications = 0;
+        this.failedApplications = 0;
+    }
+
+    /**
+     * توليد معرف فريد
+     */
+    private generateId(prefix: string): string {
+        return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+}
+
+// ============================================================================
+// تصدير
+// ============================================================================
+
+export {
+    LearningType,
+    ConfidenceLevel,
+    LearningOutcome,
+    LearningPattern,
+    LearningExperience,
+    IntelligentLearningEngine
+};
+

@@ -1,0 +1,293 @@
+/**
+ * نظام التكامل اللغوي الموحد
+ * Integrated Language System
+ * 
+ * الفلسفة:
+ * - دمج جميع مكونات النظام اللغوي
+ * - واجهة موحدة للتعامل مع اللغة
+ * - معالجة شاملة من النص إلى التنفيذ
+ * 
+ * المكونات:
+ * 1. المعادلات اللغوية (Linguistic Equations)
+ * 2. سيماء الحروف (Letter Semiotics)
+ * 3. معالج اللغة (Language Processor)
+ * 4. المحلل الدلالي (Semantic Analyzer)
+ * 
+ * @author Basel Yahya Abdullah
+ * @version 1.0.0
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+import { 
+    Entity, 
+    EntityType, 
+    Property,
+    PropertyType,
+    WorldState,
+    EquationResult
+} from './linguistic-equations.bn';
+import { LetterSemioticsSystem } from './letter-semiotics.bn';
+import { LanguageProcessor } from './language-processor.bn';
+import { SemanticAnalyzer } from './semantic-analyzer.bn';
+
+// ============================================================================
+// نتيجة المعالجة الشاملة (ComprehensiveResult)
+// ============================================================================
+
+class ComprehensiveResult {
+    public success: boolean;
+    public originalSentence: string;
+    public parsedSentence: object;
+    public semanticAnalysis: object;
+    public executionResult: object | null;
+    public message: string;
+    
+    constructor(
+        success: boolean,
+        originalSentence: string,
+        parsedSentence: object,
+        semanticAnalysis: object,
+        executionResult: object | null,
+        message: string
+    ) {
+        this.success = success;
+        this.originalSentence = originalSentence;
+        this.parsedSentence = parsedSentence;
+        this.semanticAnalysis = semanticAnalysis;
+        this.executionResult = executionResult;
+        this.message = message;
+    }
+}
+
+// ============================================================================
+// نظام التكامل اللغوي (IntegratedLanguageSystem)
+// ============================================================================
+
+class IntegratedLanguageSystem extends MotherEquation {
+    public worldState: WorldState;
+    public semioticsSystem: LetterSemioticsSystem;
+    public languageProcessor: LanguageProcessor;
+    public semanticAnalyzer: SemanticAnalyzer;
+    
+    constructor() {
+        super("integrated_language_system");
+        this.worldState = new WorldState();
+        this.semioticsSystem = new LetterSemioticsSystem();
+        this.languageProcessor = new LanguageProcessor();
+        this.semanticAnalyzer = new SemanticAnalyzer();
+        
+        // تعيين Φ (الخصائص الثابتة)
+        this.Phi = {
+            type: "integrated_language_system",
+            version: "1.0.0",
+            createdAt: new Date()
+        };
+        
+        // تعيين Ψ (الحالات المتغيرة)
+        this.Psi = {
+            processedSentences: 0,
+            entitiesCount: 0,
+            lastUpdate: new Date()
+        };
+    }
+    
+    // ========================================================================
+    // إدارة الكيانات
+    // ========================================================================
+    
+    public createEntity(
+        id: string,
+        name: string,
+        entityType: EntityType
+    ): Entity {
+        /**
+         * إنشاء كيان جديد
+         */
+        const entity = new Entity(id, name, entityType);
+        this.worldState.addEntity(entity);
+        this.Psi.entitiesCount = Object.keys(this.worldState.entities).length;
+        this.Psi.lastUpdate = new Date();
+        return entity;
+    }
+    
+    public addEntityProperty(
+        entityId: string,
+        propertyName: string,
+        value: any,
+        propertyType: PropertyType,
+        isDynamic: boolean = true
+    ): boolean {
+        /**
+         * إضافة خاصية لكيان
+         */
+        const entity = this.worldState.getEntity(entityId);
+        if (!entity) {
+            return false;
+        }
+        
+        const property = new Property(propertyName, value, propertyType);
+        
+        if (isDynamic) {
+            entity.addDynamicState(propertyName, property);
+        } else {
+            entity.addFixedProperty(propertyName, property);
+        }
+        
+        return true;
+    }
+    
+    public getEntity(id: string): Entity | null {
+        /**
+         * الحصول على كيان
+         */
+        return this.worldState.getEntity(id);
+    }
+    
+    public getAllEntities(): array<Entity> {
+        /**
+         * الحصول على جميع الكيانات
+         */
+        return this.worldState.getAllEntities();
+    }
+    
+    // ========================================================================
+    // معالجة اللغة
+    // ========================================================================
+    
+    public processSentence(sentence: string): ComprehensiveResult {
+        /**
+         * معالجة جملة بشكل شامل
+         * 
+         * الخطوات:
+         * 1. تحليل الجملة (Parsing)
+         * 2. التحليل الدلالي (Semantic Analysis)
+         * 3. التنفيذ (Execution)
+         */
+        
+        // 1. تحليل الجملة
+        const parsed = this.languageProcessor.parseSentence(sentence);
+        
+        // 2. التحليل الدلالي
+        const semantic = this.semanticAnalyzer.analyze(parsed);
+        
+        // 3. التنفيذ
+        let executionResult = null;
+        let success = false;
+        let message = "";
+        
+        if (parsed.operator) {
+            const execResult = this.languageProcessor.executeSentence(
+                sentence,
+                this.worldState
+            );
+            executionResult = execResult;
+            success = execResult.success;
+            message = execResult.message;
+        } else {
+            message = "لم يتم التعرف على الفعل";
+        }
+        
+        this.Psi.processedSentences++;
+        this.Psi.lastUpdate = new Date();
+        
+        return new ComprehensiveResult(
+            success,
+            sentence,
+            parsed,
+            semantic,
+            executionResult,
+            message
+        );
+    }
+    
+    public analyzeWord(word: string): object {
+        /**
+         * تحليل كلمة (معاني الحروف)
+         */
+        return this.semioticsSystem.analyzeWord(word);
+    }
+    
+    // ========================================================================
+    // الإحصائيات والتصدير
+    // ========================================================================
+    
+    public getComprehensiveStatistics(): object {
+        /**
+         * الحصول على إحصائيات شاملة
+         */
+        return {
+            system: {
+                processedSentences: this.Psi.processedSentences,
+                entitiesCount: this.Psi.entitiesCount,
+                lastUpdate: this.Psi.lastUpdate
+            },
+            semiotics: this.semioticsSystem.getStatistics(),
+            processor: this.languageProcessor.getStatistics(),
+            analyzer: this.semanticAnalyzer.getStatistics()
+        };
+    }
+    
+    public exportWorldState(): object {
+        /**
+         * تصدير حالة العالم
+         */
+        const entities = this.worldState.getAllEntities();
+        const exported = {
+            entityCount: entities.length,
+            entities: []
+        };
+        
+        for (const entity of entities) {
+            exported.entities.push({
+                id: entity.id,
+                name: entity.name,
+                type: entity.entityType,
+                fixedProperties: entity.fixedProperties,
+                dynamicStates: entity.dynamicStates,
+                relations: entity.relations
+            });
+        }
+        
+        return exported;
+    }
+    
+    public clearWorldState(): void {
+        /**
+         * مسح حالة العالم
+         */
+        this.worldState = new WorldState();
+        this.Psi.entitiesCount = 0;
+        this.Psi.lastUpdate = new Date();
+    }
+    
+    // ========================================================================
+    // أمثلة سريعة
+    // ========================================================================
+    
+    public quickExample(): object {
+        /**
+         * مثال سريع لإنشاء كيانات وتنفيذ جملة
+         */
+        // إنشاء كيانات
+        const zaid = this.createEntity("زيد", "زيد", EntityType.HUMAN);
+        this.addEntityProperty("زيد", "hunger", 80, PropertyType.STATE, true);
+        this.addEntityProperty("زيد", "energy", 50, PropertyType.STATE, true);
+        
+        const pomegranate = this.createEntity("الرمانة", "رمانة", EntityType.FOOD);
+        this.addEntityProperty("الرمانة", "quantity", 5, PropertyType.QUANTITY, true);
+        
+        // تنفيذ جملة
+        const result = this.processSentence("زيد أكل الرمانة");
+        
+        return {
+            entities: this.exportWorldState(),
+            result: result
+        };
+    }
+}
+
+export {
+    ComprehensiveResult,
+    IntegratedLanguageSystem
+};
+

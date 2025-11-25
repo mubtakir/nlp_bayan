@@ -1,0 +1,541 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 🗣️ مدير الحوار - Dialogue Manager
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * نظام إدارة الحوار الذكي بدون شبكات عصبية
+ * يستخدم المعادلات الرياضية التكيفية لإدارة الحوارات
+ * 
+ * المكونات:
+ * - إدارة حالة الحوار (Dialogue State)
+ * - تتبع السياق (Context Tracking)
+ * - إدارة الأدوار (Turn Management)
+ * - استراتيجيات الحوار (Dialogue Strategies)
+ * 
+ * @author Al-Mubtakir
+ * @version 1.0.0
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🎯 التعدادات - Enumerations
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * أنواع حالات الحوار
+ */
+enum DialogueState {
+    GREETING = "greeting",              // التحية
+    INFORMATION_GATHERING = "info_gathering",  // جمع المعلومات
+    CLARIFICATION = "clarification",    // التوضيح
+    CONFIRMATION = "confirmation",      // التأكيد
+    EXECUTION = "execution",            // التنفيذ
+    FEEDBACK = "feedback",              // التغذية الراجعة
+    CLOSING = "closing",                // الإغلاق
+    ERROR_HANDLING = "error_handling"   // معالجة الأخطاء
+}
+
+/**
+ * أنواع الأدوار في الحوار
+ */
+enum TurnType {
+    USER_INITIATIVE = "user_initiative",      // مبادرة المستخدم
+    SYSTEM_INITIATIVE = "system_initiative",  // مبادرة النظام
+    MIXED_INITIATIVE = "mixed_initiative",    // مبادرة مختلطة
+    CLARIFICATION_REQUEST = "clarification_request",  // طلب توضيح
+    CONFIRMATION_REQUEST = "confirmation_request"     // طلب تأكيد
+}
+
+/**
+ * استراتيجيات الحوار
+ */
+enum DialogueStrategy {
+    DIRECT = "direct",                  // مباشر
+    GUIDED = "guided",                  // موجه
+    EXPLORATORY = "exploratory",        // استكشافي
+    COLLABORATIVE = "collaborative",    // تعاوني
+    ADAPTIVE = "adaptive",              // تكيفي
+    PROACTIVE = "proactive",            // استباقي
+    REACTIVE = "reactive"               // تفاعلي
+}
+
+/**
+ * مستويات الثقة في فهم الحوار
+ */
+enum ConfidenceLevel {
+    VERY_HIGH = "very_high",    // عالية جداً (> 0.9)
+    HIGH = "high",              // عالية (0.7 - 0.9)
+    MEDIUM = "medium",          // متوسطة (0.5 - 0.7)
+    LOW = "low",                // منخفضة (0.3 - 0.5)
+    VERY_LOW = "very_low"       // منخفضة جداً (< 0.3)
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📦 الفئات - Classes
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * دور في الحوار (Turn)
+ */
+class DialogueTurn extends MotherEquation {
+    public speaker: string;           // المتحدث (user/system)
+    public utterance: string;         // النص المنطوق
+    public intent: string;            // النية
+    public entities: object;          // الكيانات المستخرجة
+    public timestamp: number;         // الوقت
+    public turnType: TurnType;        // نوع الدور
+    public confidence: number;        // الثقة في الفهم
+    
+    constructor(speaker: string, utterance: string, intent: string) {
+        super(`turn_${Date.now()}`);
+        this.speaker = speaker;
+        this.utterance = utterance;
+        this.intent = intent;
+        this.entities = {};
+        this.timestamp = Date.now();
+        this.turnType = TurnType.USER_INITIATIVE;
+        this.confidence = 0.8;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            speaker: speaker,
+            utterance: utterance,
+            timestamp: this.timestamp
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            intent: intent,
+            entities: this.entities,
+            confidence: this.confidence
+        };
+    }
+    
+    /**
+     * إضافة كيان مستخرج
+     */
+    public addEntity(entityType: string, value: any): void {
+        this.entities[entityType] = value;
+        this.dynamicStates.entities = this.entities;
+    }
+    
+    /**
+     * تحديث الثقة
+     */
+    public updateConfidence(confidence: number): void {
+        this.confidence = Math.max(0, Math.min(1, confidence));
+        this.dynamicStates.confidence = this.confidence;
+    }
+}
+
+/**
+ * سياق الحوار (Dialogue Context)
+ */
+class DialogueContext extends MotherEquation {
+    public currentState: DialogueState;     // الحالة الحالية
+    public previousStates: array<DialogueState>;  // الحالات السابقة
+    public activeTopics: array<string>;     // المواضيع النشطة
+    public userGoals: array<string>;        // أهداف المستخدم
+    public systemGoals: array<string>;      // أهداف النظام
+    public sharedKnowledge: object;         // المعرفة المشتركة
+    public turnHistory: array<DialogueTurn>; // تاريخ الأدوار
+    
+    constructor(contextId: string) {
+        super(contextId);
+        this.currentState = DialogueState.GREETING;
+        this.previousStates = [];
+        this.activeTopics = [];
+        this.userGoals = [];
+        this.systemGoals = [];
+        this.sharedKnowledge = {};
+        this.turnHistory = [];
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            contextId: contextId,
+            startTime: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            currentState: this.currentState,
+            activeTopics: this.activeTopics,
+            turnCount: 0
+        };
+    }
+    
+    /**
+     * تحديث حالة الحوار
+     */
+    public updateState(newState: DialogueState): void {
+        this.previousStates.push(this.currentState);
+        this.currentState = newState;
+        this.dynamicStates.currentState = newState;
+    }
+    
+    /**
+     * إضافة دور جديد
+     */
+    public addTurn(turn: DialogueTurn): void {
+        this.turnHistory.push(turn);
+        this.dynamicStates.turnCount = this.turnHistory.length;
+    }
+    
+    /**
+     * إضافة موضوع نشط
+     */
+    public addTopic(topic: string): void {
+        if (!this.activeTopics.includes(topic)) {
+            this.activeTopics.push(topic);
+            this.dynamicStates.activeTopics = this.activeTopics;
+        }
+    }
+    
+    /**
+     * إزالة موضوع
+     */
+    public removeTopic(topic: string): void {
+        let index = this.activeTopics.indexOf(topic);
+        if (index > -1) {
+            this.activeTopics.splice(index, 1);
+            this.dynamicStates.activeTopics = this.activeTopics;
+        }
+    }
+    
+    /**
+     * الحصول على آخر N أدوار
+     */
+    public getRecentTurns(n: number): array<DialogueTurn> {
+        let start = Math.max(0, this.turnHistory.length - n);
+        return this.turnHistory.slice(start);
+    }
+    
+    /**
+     * تحديث المعرفة المشتركة
+     */
+    public updateSharedKnowledge(key: string, value: any): void {
+        this.sharedKnowledge[key] = value;
+    }
+}
+
+/**
+ * استراتيجية الحوار (Dialogue Strategy Handler)
+ */
+class DialogueStrategyHandler extends MotherEquation {
+    public strategy: DialogueStrategy;
+    public adaptationRate: number;        // معدل التكيف
+    public proactivityLevel: number;      // مستوى الاستباقية
+    
+    constructor(strategy: DialogueStrategy) {
+        super(`strategy_${strategy}`);
+        this.strategy = strategy;
+        this.adaptationRate = 0.5;
+        this.proactivityLevel = 0.5;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            strategyType: strategy
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            adaptationRate: this.adaptationRate,
+            proactivityLevel: this.proactivityLevel
+        };
+    }
+    
+    /**
+     * تحديد نوع الدور التالي
+     */
+    public determineNextTurnType(context: DialogueContext): TurnType {
+        // استراتيجية مباشرة
+        if (this.strategy === DialogueStrategy.DIRECT) {
+            return TurnType.SYSTEM_INITIATIVE;
+        }
+        
+        // استراتيجية موجهة
+        if (this.strategy === DialogueStrategy.GUIDED) {
+            return context.turnHistory.length % 2 === 0 
+                ? TurnType.SYSTEM_INITIATIVE 
+                : TurnType.USER_INITIATIVE;
+        }
+        
+        // استراتيجية تعاونية
+        if (this.strategy === DialogueStrategy.COLLABORATIVE) {
+            return TurnType.MIXED_INITIATIVE;
+        }
+        
+        // استراتيجية تكيفية
+        if (this.strategy === DialogueStrategy.ADAPTIVE) {
+            let recentTurns = context.getRecentTurns(3);
+            let avgConfidence = this.calculateAverageConfidence(recentTurns);
+            
+            if (avgConfidence < 0.5) {
+                return TurnType.CLARIFICATION_REQUEST;
+            }
+            return TurnType.MIXED_INITIATIVE;
+        }
+        
+        return TurnType.USER_INITIATIVE;
+    }
+    
+    /**
+     * حساب متوسط الثقة
+     */
+    private calculateAverageConfidence(turns: array<DialogueTurn>): number {
+        if (turns.length === 0) return 0.8;
+        
+        let sum = 0;
+        for (let turn of turns) {
+            sum += turn.confidence;
+        }
+        return sum / turns.length;
+    }
+    
+    /**
+     * تحديد ما إذا كان يجب طلب توضيح
+     */
+    public shouldRequestClarification(turn: DialogueTurn): boolean {
+        return turn.confidence < 0.6;
+    }
+    
+    /**
+     * تحديد ما إذا كان يجب طلب تأكيد
+     */
+    public shouldRequestConfirmation(turn: DialogueTurn): boolean {
+        return turn.confidence >= 0.6 && turn.confidence < 0.8;
+    }
+}
+
+/**
+ * مدير الحوار الرئيسي (Main Dialogue Manager)
+ */
+class DialogueManager extends MotherEquation {
+    public context: DialogueContext;
+    public strategyHandler: DialogueStrategyHandler;
+    public currentStrategy: DialogueStrategy;
+    public dialogueHistory: array<DialogueContext>;
+    public activeDialogues: object;
+
+    constructor(managerId: string) {
+        super(managerId);
+        this.context = new DialogueContext("main_context");
+        this.currentStrategy = DialogueStrategy.ADAPTIVE;
+        this.strategyHandler = new DialogueStrategyHandler(this.currentStrategy);
+        this.dialogueHistory = [];
+        this.activeDialogues = {};
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            managerId: managerId,
+            createdAt: Date.now()
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            currentState: this.context.currentState,
+            activeDialogueCount: 0,
+            totalTurns: 0
+        };
+    }
+
+    /**
+     * بدء حوار جديد
+     */
+    public startDialogue(dialogueId: string, strategy: DialogueStrategy): DialogueContext {
+        let newContext = new DialogueContext(dialogueId);
+        this.activeDialogues[dialogueId] = newContext;
+        this.context = newContext;
+
+        // تحديث الاستراتيجية
+        this.currentStrategy = strategy;
+        this.strategyHandler = new DialogueStrategyHandler(strategy);
+
+        this.dynamicStates.activeDialogueCount = Object.keys(this.activeDialogues).length;
+
+        return newContext;
+    }
+
+    /**
+     * معالجة دور المستخدم
+     */
+    public processUserTurn(utterance: string, intent: string, entities: object): DialogueTurn {
+        // إنشاء دور جديد
+        let turn = new DialogueTurn("user", utterance, intent);
+
+        // إضافة الكيانات
+        for (let entityType in entities) {
+            turn.addEntity(entityType, entities[entityType]);
+        }
+
+        // إضافة الدور إلى السياق
+        this.context.addTurn(turn);
+        this.dynamicStates.totalTurns++;
+
+        // تحديث حالة الحوار بناءً على النية
+        this.updateDialogueState(intent, turn);
+
+        return turn;
+    }
+
+    /**
+     * توليد دور النظام
+     */
+    public generateSystemTurn(responseText: string, intent: string): DialogueTurn {
+        let turn = new DialogueTurn("system", responseText, intent);
+        turn.turnType = this.strategyHandler.determineNextTurnType(this.context);
+
+        this.context.addTurn(turn);
+        this.dynamicStates.totalTurns++;
+
+        return turn;
+    }
+
+    /**
+     * تحديث حالة الحوار
+     */
+    private updateDialogueState(intent: string, turn: DialogueTurn): void {
+        // التحية
+        if (intent === "greeting") {
+            this.context.updateState(DialogueState.GREETING);
+        }
+        // طلب معلومات
+        else if (intent === "request_info" || intent === "query") {
+            this.context.updateState(DialogueState.INFORMATION_GATHERING);
+        }
+        // طلب توضيح
+        else if (intent === "clarify" || turn.confidence < 0.6) {
+            this.context.updateState(DialogueState.CLARIFICATION);
+        }
+        // تأكيد
+        else if (intent === "confirm" || intent === "yes") {
+            this.context.updateState(DialogueState.CONFIRMATION);
+        }
+        // تنفيذ
+        else if (intent === "execute" || intent === "action") {
+            this.context.updateState(DialogueState.EXECUTION);
+        }
+        // إغلاق
+        else if (intent === "goodbye" || intent === "end") {
+            this.context.updateState(DialogueState.CLOSING);
+        }
+        // معالجة أخطاء
+        else if (turn.confidence < 0.3) {
+            this.context.updateState(DialogueState.ERROR_HANDLING);
+        }
+
+        this.dynamicStates.currentState = this.context.currentState;
+    }
+
+    /**
+     * تحديد ما إذا كان يجب طلب توضيح
+     */
+    public shouldClarify(turn: DialogueTurn): boolean {
+        return this.strategyHandler.shouldRequestClarification(turn);
+    }
+
+    /**
+     * تحديد ما إذا كان يجب طلب تأكيد
+     */
+    public shouldConfirm(turn: DialogueTurn): boolean {
+        return this.strategyHandler.shouldRequestConfirmation(turn);
+    }
+
+    /**
+     * إنهاء الحوار
+     */
+    public endDialogue(dialogueId: string): void {
+        if (this.activeDialogues[dialogueId]) {
+            this.dialogueHistory.push(this.activeDialogues[dialogueId]);
+            delete this.activeDialogues[dialogueId];
+            this.dynamicStates.activeDialogueCount = Object.keys(this.activeDialogues).length;
+        }
+    }
+
+    /**
+     * الحصول على ملخص الحوار
+     */
+    public getDialogueSummary(): object {
+        return {
+            currentState: this.context.currentState,
+            turnCount: this.context.turnHistory.length,
+            activeTopics: this.context.activeTopics,
+            userGoals: this.context.userGoals,
+            systemGoals: this.context.systemGoals,
+            strategy: this.currentStrategy,
+            totalDialogues: this.dialogueHistory.length,
+            activeDialogues: Object.keys(this.activeDialogues).length
+        };
+    }
+
+    /**
+     * تغيير الاستراتيجية
+     */
+    public changeStrategy(newStrategy: DialogueStrategy): void {
+        this.currentStrategy = newStrategy;
+        this.strategyHandler = new DialogueStrategyHandler(newStrategy);
+    }
+
+    /**
+     * الحصول على مستوى الثقة الحالي
+     */
+    public getCurrentConfidenceLevel(): ConfidenceLevel {
+        let recentTurns = this.context.getRecentTurns(3);
+        if (recentTurns.length === 0) return ConfidenceLevel.MEDIUM;
+
+        let avgConfidence = 0;
+        for (let turn of recentTurns) {
+            avgConfidence += turn.confidence;
+        }
+        avgConfidence /= recentTurns.length;
+
+        if (avgConfidence > 0.9) return ConfidenceLevel.VERY_HIGH;
+        if (avgConfidence > 0.7) return ConfidenceLevel.HIGH;
+        if (avgConfidence > 0.5) return ConfidenceLevel.MEDIUM;
+        if (avgConfidence > 0.3) return ConfidenceLevel.LOW;
+        return ConfidenceLevel.VERY_LOW;
+    }
+
+    /**
+     * إضافة هدف للمستخدم
+     */
+    public addUserGoal(goal: string): void {
+        this.context.userGoals.push(goal);
+    }
+
+    /**
+     * إضافة هدف للنظام
+     */
+    public addSystemGoal(goal: string): void {
+        this.context.systemGoals.push(goal);
+    }
+
+    /**
+     * التحقق من اكتمال الأهداف
+     */
+    public checkGoalsCompletion(): object {
+        return {
+            userGoalsCompleted: this.context.userGoals.length,
+            systemGoalsCompleted: this.context.systemGoals.length,
+            totalGoals: this.context.userGoals.length + this.context.systemGoals.length
+        };
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📤 التصدير - Exports
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+    DialogueState,
+    TurnType,
+    DialogueStrategy,
+    ConfidenceLevel,
+    DialogueTurn,
+    DialogueContext,
+    DialogueStrategyHandler,
+    DialogueManager
+};
+

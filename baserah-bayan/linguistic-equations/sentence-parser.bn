@@ -1,0 +1,463 @@
+/**
+ * محلل الجمل - Sentence Parser
+ * =============================
+ * 
+ * تحليل الجمل العربية وتحويلها تلقائياً إلى معادلات لغوية
+ * 
+ * @version 1.0
+ * @author باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+import {
+    PropertyDomain,
+    ChangeType,
+    PropertyState,
+    Thing,
+    Event,
+    Effect,
+    LinguisticEquation
+} from './linguistic-equations-core.bn';
+
+/**
+ * نوع الكلمة
+ */
+enum WordType {
+    NOUN = "اسم",
+    VERB = "فعل",
+    PARTICLE = "حرف",
+    ADJECTIVE = "صفة",
+    UNKNOWN = "غير_معروف"
+}
+
+/**
+ * كلمة محللة
+ */
+class ParsedWord {
+    public text: string;
+    public type: WordType;
+    public root: string;
+    public role: string;
+    
+    constructor(text: string, type: WordType = WordType.UNKNOWN) {
+        this.text = text;
+        this.type = type;
+        this.root = text;
+        this.role = "";
+    }
+}
+
+/**
+ * قاعدة بيانات الأفعال وتأثيراتها
+ */
+class VerbDatabase extends MotherEquation {
+    public verbs: Map<string, VerbInfo>;
+    
+    constructor() {
+        super("verb_database");
+        this.verbs = new Map();
+        this._initializeCommonVerbs();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            language: "arabic"
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            verbsCount: 0
+        };
+    }
+    
+    /**
+     * تهيئة الأفعال الشائعة
+     */
+    private _initializeCommonVerbs(): void {
+        // فعل: ضرب
+        this.addVerb("ضرب", {
+            verb: "ضرب",
+            subjectEffects: [
+                { property: "نشاط_بدني", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 20 },
+                { property: "حالة_اللعب", domain: PropertyDomain.PSYCHOLOGICAL, change: ChangeType.TRANSFORM, amount: 1 }
+            ],
+            objectEffects: [
+                { property: "موقع_x", domain: PropertyDomain.SPATIAL, change: ChangeType.INCREASE, amount: 10 },
+                { property: "سرعة", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 15 }
+            ]
+        });
+        
+        // فعل: أكل
+        this.addVerb("أكل", {
+            verb: "أكل",
+            subjectEffects: [
+                { property: "جوع", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.DECREASE, amount: 60 },
+                { property: "طاقة", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.INCREASE, amount: 40 },
+                { property: "شبع", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.INCREASE, amount: 70 }
+            ],
+            objectEffects: [
+                { property: "كمية", domain: PropertyDomain.PHYSICAL, change: ChangeType.DECREASE, amount: 100 }
+            ]
+        });
+        
+        // فعل: شرب
+        this.addVerb("شرب", {
+            verb: "شرب",
+            subjectEffects: [
+                { property: "عطش", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.DECREASE, amount: 70 },
+                { property: "ارتواء", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.INCREASE, amount: 80 }
+            ],
+            objectEffects: [
+                { property: "كمية", domain: PropertyDomain.PHYSICAL, change: ChangeType.DECREASE, amount: 100 }
+            ]
+        });
+        
+        // فعل: كسر
+        this.addVerb("كسر", {
+            verb: "كسر",
+            subjectEffects: [
+                { property: "قوة_مستخدمة", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 50 }
+            ],
+            objectEffects: [
+                { property: "سلامة", domain: PropertyDomain.PHYSICAL, change: ChangeType.DECREASE, amount: 100 },
+                { property: "حالة_الكسر", domain: PropertyDomain.PHYSICAL, change: ChangeType.TRANSFORM, amount: 1 }
+            ]
+        });
+        
+        // فعل: قرأ
+        this.addVerb("قرأ", {
+            verb: "قرأ",
+            subjectEffects: [
+                { property: "معرفة", domain: PropertyDomain.COGNITIVE, change: ChangeType.INCREASE, amount: 30 },
+                { property: "تركيز", domain: PropertyDomain.COGNITIVE, change: ChangeType.INCREASE, amount: 40 }
+            ],
+            objectEffects: [
+                { property: "مقروئية", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 100 }
+            ]
+        });
+        
+        // فعل: كتب
+        this.addVerb("كتب", {
+            verb: "كتب",
+            subjectEffects: [
+                { property: "إبداع", domain: PropertyDomain.COGNITIVE, change: ChangeType.INCREASE, amount: 35 },
+                { property: "تعب_يد", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 20 }
+            ],
+            objectEffects: [
+                { property: "محتوى", domain: PropertyDomain.COGNITIVE, change: ChangeType.INCREASE, amount: 100 }
+            ]
+        });
+        
+        // فعل: ذهب
+        this.addVerb("ذهب", {
+            verb: "ذهب",
+            subjectEffects: [
+                { property: "موقع", domain: PropertyDomain.SPATIAL, change: ChangeType.INCREASE, amount: 50 },
+                { property: "تعب", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 15 }
+            ],
+            objectEffects: []
+        });
+        
+        // فعل: جلس
+        this.addVerb("جلس", {
+            verb: "جلس",
+            subjectEffects: [
+                { property: "وضعية", domain: PropertyDomain.PHYSICAL, change: ChangeType.TRANSFORM, amount: 0 },
+                { property: "راحة", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 30 }
+            ],
+            objectEffects: []
+        });
+        
+        // فعل: نام
+        this.addVerb("نام", {
+            verb: "نام",
+            subjectEffects: [
+                { property: "تعب", domain: PropertyDomain.PHYSICAL, change: ChangeType.DECREASE, amount: 80 },
+                { property: "طاقة", domain: PropertyDomain.BIOLOGICAL, change: ChangeType.INCREASE, amount: 90 },
+                { property: "وعي", domain: PropertyDomain.COGNITIVE, change: ChangeType.DECREASE, amount: 100 }
+            ],
+            objectEffects: []
+        });
+        
+        // فعل: استيقظ
+        this.addVerb("استيقظ", {
+            verb: "استيقظ",
+            subjectEffects: [
+                { property: "وعي", domain: PropertyDomain.COGNITIVE, change: ChangeType.INCREASE, amount: 100 },
+                { property: "نشاط", domain: PropertyDomain.PHYSICAL, change: ChangeType.INCREASE, amount: 60 }
+            ],
+            objectEffects: []
+        });
+        
+        this.dynamicStates.verbsCount = this.verbs.size;
+    }
+    
+    /**
+     * إضافة فعل
+     */
+    public addVerb(verb: string, info: VerbInfo): void {
+        this.verbs.set(verb, info);
+        this.dynamicStates.verbsCount = this.verbs.size;
+    }
+    
+    /**
+     * الحصول على معلومات فعل
+     */
+    public getVerb(verb: string): VerbInfo | null {
+        return this.verbs.get(verb) || null;
+    }
+}
+
+/**
+ * معلومات الفعل
+ */
+interface VerbInfo {
+    verb: string;
+    subjectEffects: Array<EffectTemplate>;
+    objectEffects: Array<EffectTemplate>;
+}
+
+/**
+ * قالب التأثير
+ */
+interface EffectTemplate {
+    property: string;
+    domain: PropertyDomain;
+    change: ChangeType;
+    amount: number;
+}
+
+/**
+ * محلل الجمل
+ */
+class SentenceParser extends MotherEquation {
+    public verbDatabase: VerbDatabase;
+    public thingTemplates: Map<string, ThingTemplate>;
+    
+    constructor() {
+        super("sentence_parser");
+        
+        this.verbDatabase = new VerbDatabase();
+        this.thingTemplates = new Map();
+        this._initializeThingTemplates();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            language: "arabic"
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            parsedSentences: 0
+        };
+    }
+    
+    /**
+     * تهيئة قوالب الأشياء
+     */
+    private _initializeThingTemplates(): void {
+        // قالب: شخص
+        this.thingTemplates.set("شخص", {
+            type: "شخص",
+            defaultProperties: [
+                { name: "طاقة", domain: PropertyDomain.BIOLOGICAL, value: 70, min: 0, max: 100, unit: "%" },
+                { name: "جوع", domain: PropertyDomain.BIOLOGICAL, value: 30, min: 0, max: 100, unit: "%" },
+                { name: "عطش", domain: PropertyDomain.BIOLOGICAL, value: 30, min: 0, max: 100, unit: "%" },
+                { name: "تعب", domain: PropertyDomain.PHYSICAL, value: 20, min: 0, max: 100, unit: "%" },
+                { name: "معرفة", domain: PropertyDomain.COGNITIVE, value: 50, min: 0, max: 100, unit: "%" },
+                { name: "موقع", domain: PropertyDomain.SPATIAL, value: 0, min: -Infinity, max: Infinity, unit: "متر" }
+            ]
+        });
+        
+        // قالب: طعام
+        this.thingTemplates.set("طعام", {
+            type: "طعام",
+            defaultProperties: [
+                { name: "كمية", domain: PropertyDomain.PHYSICAL, value: 100, min: 0, max: 100, unit: "%" },
+                { name: "قيمة_غذائية", domain: PropertyDomain.BIOLOGICAL, value: 50, min: 0, max: 100, unit: "%" }
+            ]
+        });
+        
+        // قالب: جسم
+        this.thingTemplates.set("جسم", {
+            type: "جسم",
+            defaultProperties: [
+                { name: "موقع_x", domain: PropertyDomain.SPATIAL, value: 0, min: -Infinity, max: Infinity, unit: "متر" },
+                { name: "موقع_y", domain: PropertyDomain.SPATIAL, value: 0, min: -Infinity, max: Infinity, unit: "متر" },
+                { name: "سرعة", domain: PropertyDomain.PHYSICAL, value: 0, min: 0, max: 100, unit: "م/ث" },
+                { name: "سلامة", domain: PropertyDomain.PHYSICAL, value: 100, min: 0, max: 100, unit: "%" }
+            ]
+        });
+    }
+    
+    /**
+     * تحليل جملة بسيطة
+     * الصيغة: [فاعل] [فعل] [مفعول به]
+     */
+    public parseSentence(sentence: string): LinguisticEquation | null {
+        console.log(`\n=== تحليل الجملة: "${sentence}" ===\n`);
+        
+        // تقسيم الجملة إلى كلمات
+        let words = sentence.trim().split(/\s+/);
+        
+        if (words.length < 2) {
+            console.log("خطأ: الجملة قصيرة جداً");
+            return null;
+        }
+        
+        // إنشاء المعادلة
+        let equation = new LinguisticEquation(sentence);
+        
+        // تحديد الفاعل والفعل والمفعول به
+        let subjectName = words[0];
+        let verbName = words[1];
+        let objectName = words.length > 2 ? words[2] : null;
+        
+        console.log(`الفاعل: ${subjectName}`);
+        console.log(`الفعل: ${verbName}`);
+        console.log(`المفعول به: ${objectName || "لا يوجد"}\n`);
+        
+        // الحصول على معلومات الفعل
+        let verbInfo = this.verbDatabase.getVerb(verbName);
+        if (!verbInfo) {
+            console.log(`تحذير: الفعل "${verbName}" غير موجود في قاعدة البيانات`);
+            return null;
+        }
+        
+        // إنشاء الفاعل
+        let subject = this._createThing(subjectName, "شخص");
+        equation.addThing(subject);
+        
+        // إنشاء المفعول به (إن وجد)
+        let object: Thing | null = null;
+        if (objectName) {
+            object = this._createThing(objectName, this._guessThingType(objectName));
+            equation.addThing(object);
+        }
+        
+        // إنشاء الحدث
+        let event = new Event(`${verbName}_${subjectName}`, verbName);
+        event.setSubject(subject);
+        if (object) {
+            event.setObject(object);
+        }
+        
+        // إضافة تأثيرات الفاعل
+        for (let effectTemplate of verbInfo.subjectEffects) {
+            this._ensureProperty(subject, effectTemplate);
+            event.addEffect(new Effect(
+                subject,
+                effectTemplate.property,
+                effectTemplate.change,
+                effectTemplate.amount,
+                `${subjectName} - ${effectTemplate.property}`
+            ));
+        }
+        
+        // إضافة تأثيرات المفعول به
+        if (object) {
+            for (let effectTemplate of verbInfo.objectEffects) {
+                this._ensureProperty(object, effectTemplate);
+                event.addEffect(new Effect(
+                    object,
+                    effectTemplate.property,
+                    effectTemplate.change,
+                    effectTemplate.amount,
+                    `${objectName} - ${effectTemplate.property}`
+                ));
+            }
+        }
+        
+        equation.addEvent(event);
+        
+        this.dynamicStates.parsedSentences++;
+        
+        return equation;
+    }
+    
+    /**
+     * إنشاء شيء من قالب
+     */
+    private _createThing(name: string, type: string): Thing {
+        let thing = new Thing(name, type);
+        
+        let template = this.thingTemplates.get(type);
+        if (template) {
+            for (let propTemplate of template.defaultProperties) {
+                thing.addProperty(new PropertyState(
+                    propTemplate.name,
+                    propTemplate.domain,
+                    propTemplate.value,
+                    propTemplate.min,
+                    propTemplate.max,
+                    propTemplate.unit
+                ));
+            }
+        }
+        
+        return thing;
+    }
+    
+    /**
+     * تخمين نوع الشيء من اسمه
+     */
+    private _guessThingType(name: string): string {
+        // قائمة بسيطة للتخمين
+        let foodWords = ["تفاحة", "خبز", "ماء", "عصير", "طعام"];
+        let objectWords = ["كرة", "كتاب", "قلم", "باب", "نافذة"];
+        
+        if (foodWords.includes(name)) {
+            return "طعام";
+        } else if (objectWords.includes(name)) {
+            return "جسم";
+        }
+        
+        return "جسم";  // افتراضي
+    }
+    
+    /**
+     * التأكد من وجود خاصية
+     */
+    private _ensureProperty(thing: Thing, effectTemplate: EffectTemplate): void {
+        if (!thing.getProperty(effectTemplate.property)) {
+            thing.addProperty(new PropertyState(
+                effectTemplate.property,
+                effectTemplate.domain,
+                0,
+                0,
+                100,
+                "%"
+            ));
+        }
+    }
+}
+
+/**
+ * قالب الشيء
+ */
+interface ThingTemplate {
+    type: string;
+    defaultProperties: Array<PropertyTemplate>;
+}
+
+/**
+ * قالب الخاصية
+ */
+interface PropertyTemplate {
+    name: string;
+    domain: PropertyDomain;
+    value: number;
+    min: number;
+    max: number;
+    unit: string;
+}
+
+export {
+    WordType,
+    ParsedWord,
+    VerbDatabase,
+    VerbInfo,
+    EffectTemplate,
+    SentenceParser,
+    ThingTemplate,
+    PropertyTemplate
+};

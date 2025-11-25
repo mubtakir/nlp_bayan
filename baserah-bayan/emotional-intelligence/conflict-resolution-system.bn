@@ -1,0 +1,541 @@
+/**
+ * نظام حل النزاعات
+ * Conflict Resolution System
+ * 
+ * يوفر استراتيجيات ذكية لحل الخلافات والتوترات
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+// ==================== التعدادات ====================
+
+/**
+ * أنواع النزاعات
+ * Conflict Types
+ */
+export enum ConflictType {
+    INTERPERSONAL = "بين الأشخاص",
+    INTRAPERSONAL = "داخلي",
+    TASK_BASED = "متعلق بالمهام",
+    VALUE_BASED = "متعلق بالقيم",
+    RESOURCE_BASED = "متعلق بالموارد",
+    COMMUNICATION = "سوء تواصل"
+}
+
+/**
+ * شدة النزاع
+ * Conflict Severity
+ */
+export enum ConflictSeverity {
+    MINOR = "بسيط",
+    MODERATE = "متوسط",
+    SERIOUS = "خطير",
+    CRITICAL = "حرج"
+}
+
+/**
+ * استراتيجيات الحل
+ * Resolution Strategies
+ */
+export enum ResolutionStrategy {
+    COLLABORATION = "التعاون",
+    COMPROMISE = "التسوية",
+    ACCOMMODATION = "التكيف",
+    AVOIDANCE = "التجنب",
+    COMPETITION = "المنافسة",
+    MEDIATION = "الوساطة",
+    NEGOTIATION = "التفاوض"
+}
+
+/**
+ * نتائج الحل
+ * Resolution Outcomes
+ */
+export enum ResolutionOutcome {
+    WIN_WIN = "فوز-فوز",
+    WIN_LOSE = "فوز-خسارة",
+    LOSE_LOSE = "خسارة-خسارة",
+    PARTIAL = "جزئي",
+    UNRESOLVED = "غير محلول"
+}
+
+// ==================== الفئات ====================
+
+/**
+ * نزاع
+ * Conflict
+ */
+export class Conflict extends MotherEquation {
+    public conflictId: string;
+    public conflictType: ConflictType;
+    public severity: ConflictSeverity;
+    public parties: Array<string>;
+    public description: string;
+    public rootCauses: Array<string>;
+    public emotionsInvolved: Array<string>;
+    public context: string | null;
+    public timestamp: number;
+
+    constructor(
+        conflictType: ConflictType,
+        severity: ConflictSeverity,
+        description: string
+    ) {
+        super(`conflict_${Date.now()}`, {}, {});
+        this.conflictId = this.id;
+        this.conflictType = conflictType;
+        this.severity = severity;
+        this.description = description;
+        this.parties = [];
+        this.rootCauses = [];
+        this.emotionsInvolved = [];
+        this.context = null;
+        this.timestamp = Date.now();
+    }
+
+    /**
+     * إضافة طرف
+     */
+    public addParty(party: string): void {
+        if (!this.parties.includes(party)) {
+            this.parties.push(party);
+        }
+    }
+
+    /**
+     * إضافة سبب جذري
+     */
+    public addRootCause(cause: string): void {
+        if (!this.rootCauses.includes(cause)) {
+            this.rootCauses.push(cause);
+        }
+    }
+
+    /**
+     * إضافة مشاعر متورطة
+     */
+    public addEmotion(emotion: string): void {
+        if (!this.emotionsInvolved.includes(emotion)) {
+            this.emotionsInvolved.push(emotion);
+        }
+    }
+
+    /**
+     * حساب درجة تعقيد النزاع
+     */
+    public getComplexityScore(): number {
+        let base = 0.3;
+
+        // عدد الأطراف
+        let partiesScore = Math.min(0.3, this.parties.length * 0.1);
+
+        // الشدة
+        let severityMap = new Map<ConflictSeverity, number>([
+            [ConflictSeverity.MINOR, 0.1],
+            [ConflictSeverity.MODERATE, 0.2],
+            [ConflictSeverity.SERIOUS, 0.3],
+            [ConflictSeverity.CRITICAL, 0.4]
+        ]);
+        let severityScore = severityMap.get(this.severity) || 0.2;
+
+        // المشاعر المتورطة
+        let emotionsScore = Math.min(0.2, this.emotionsInvolved.length * 0.05);
+
+        return Math.min(1.0, base + partiesScore + severityScore + emotionsScore);
+    }
+
+    /**
+     * الحصول على وصف النزاع
+     */
+    public getDescription(): string {
+        let desc = `نزاع: ${this.conflictType}\n`;
+        desc += `الشدة: ${this.severity}\n`;
+        desc += `الوصف: ${this.description}\n`;
+        desc += `درجة التعقيد: ${(this.getComplexityScore() * 100).toFixed(0)}%\n`;
+        desc += `عدد الأطراف: ${this.parties.length}\n`;
+
+        if (this.parties.length > 0) {
+            desc += `الأطراف: ${this.parties.join(", ")}\n`;
+        }
+
+        if (this.rootCauses.length > 0) {
+            desc += `\nالأسباب الجذرية:\n`;
+            this.rootCauses.forEach((cause, i) => {
+                desc += `  ${i + 1}. ${cause}\n`;
+            });
+        }
+
+        if (this.emotionsInvolved.length > 0) {
+            desc += `\nالمشاعر المتورطة: ${this.emotionsInvolved.join(", ")}\n`;
+        }
+
+        return desc;
+    }
+}
+
+/**
+ * خطة حل
+ * Resolution Plan
+ */
+export class ResolutionPlan extends MotherEquation {
+    public planId: string;
+    public conflictId: string;
+    public strategy: ResolutionStrategy;
+    public steps: Array<string>;
+    public expectedOutcome: ResolutionOutcome;
+    public successProbability: number; // 0.0 - 1.0
+    public estimatedTime: number; // بالساعات
+    public resourcesNeeded: Array<string>;
+    public timestamp: number;
+
+    constructor(
+        conflictId: string,
+        strategy: ResolutionStrategy,
+        expectedOutcome: ResolutionOutcome = ResolutionOutcome.WIN_WIN
+    ) {
+        super(`resolution_plan_${Date.now()}`, {}, {});
+        this.planId = this.id;
+        this.conflictId = conflictId;
+        this.strategy = strategy;
+        this.expectedOutcome = expectedOutcome;
+        this.steps = [];
+        this.successProbability = 0.5;
+        this.estimatedTime = 1.0;
+        this.resourcesNeeded = [];
+        this.timestamp = Date.now();
+    }
+
+    /**
+     * إضافة خطوة
+     */
+    public addStep(step: string): void {
+        this.steps.push(step);
+    }
+
+    /**
+     * إضافة مورد مطلوب
+     */
+    public addResource(resource: string): void {
+        if (!this.resourcesNeeded.includes(resource)) {
+            this.resourcesNeeded.push(resource);
+        }
+    }
+
+    /**
+     * تطبيق الاستراتيجية
+     */
+    public applyStrategy(): void {
+        this.steps = [];
+
+        switch (this.strategy) {
+            case ResolutionStrategy.COLLABORATION:
+                this.steps.push("تحديد المصالح المشتركة");
+                this.steps.push("البحث عن حلول مبتكرة");
+                this.steps.push("العمل معاً لتحقيق أهداف الجميع");
+                this.successProbability = 0.8;
+                this.estimatedTime = 3.0;
+                break;
+
+            case ResolutionStrategy.COMPROMISE:
+                this.steps.push("تحديد نقاط التفاوض");
+                this.steps.push("إيجاد حل وسط");
+                this.steps.push("التنازل المتبادل");
+                this.successProbability = 0.7;
+                this.estimatedTime = 2.0;
+                break;
+
+            case ResolutionStrategy.ACCOMMODATION:
+                this.steps.push("فهم احتياجات الطرف الآخر");
+                this.steps.push("التكيف مع متطلباته");
+                this.steps.push("الحفاظ على العلاقة");
+                this.successProbability = 0.6;
+                this.estimatedTime = 1.0;
+                break;
+
+            case ResolutionStrategy.AVOIDANCE:
+                this.steps.push("تأجيل المواجهة");
+                this.steps.push("إعطاء وقت للتهدئة");
+                this.steps.push("إعادة النظر لاحقاً");
+                this.successProbability = 0.4;
+                this.estimatedTime = 0.5;
+                break;
+
+            case ResolutionStrategy.COMPETITION:
+                this.steps.push("تحديد الموقف بوضوح");
+                this.steps.push("الدفاع عن المصالح");
+                this.steps.push("السعي للفوز");
+                this.successProbability = 0.5;
+                this.estimatedTime = 1.5;
+                break;
+
+            case ResolutionStrategy.MEDIATION:
+                this.steps.push("إشراك طرف ثالث محايد");
+                this.steps.push("تسهيل الحوار");
+                this.steps.push("الوصول إلى اتفاق");
+                this.successProbability = 0.75;
+                this.estimatedTime = 2.5;
+                this.addResource("وسيط محايد");
+                break;
+
+            case ResolutionStrategy.NEGOTIATION:
+                this.steps.push("تحديد المواقف والمصالح");
+                this.steps.push("تبادل العروض");
+                this.steps.push("الوصول إلى اتفاق");
+                this.successProbability = 0.7;
+                this.estimatedTime = 2.0;
+                break;
+        }
+    }
+
+    /**
+     * الحصول على تقرير الخطة
+     */
+    public getReport(): string {
+        let report = `خطة حل النزاع\n`;
+        report += `${"=".repeat(40)}\n\n`;
+        report += `الاستراتيجية: ${this.strategy}\n`;
+        report += `النتيجة المتوقعة: ${this.expectedOutcome}\n`;
+        report += `احتمال النجاح: ${(this.successProbability * 100).toFixed(0)}%\n`;
+        report += `الوقت المقدر: ${this.estimatedTime.toFixed(1)} ساعة\n\n`;
+
+        if (this.steps.length > 0) {
+            report += `الخطوات:\n`;
+            this.steps.forEach((step, i) => {
+                report += `  ${i + 1}. ${step}\n`;
+            });
+        }
+
+        if (this.resourcesNeeded.length > 0) {
+            report += `\nالموارد المطلوبة:\n`;
+            this.resourcesNeeded.forEach((resource, i) => {
+                report += `  ${i + 1}. ${resource}\n`;
+            });
+        }
+
+        return report;
+    }
+}
+
+/**
+ * نظام حل النزاعات
+ * Conflict Resolution System
+ */
+export class ConflictResolutionSystem extends MotherEquation {
+    public conflicts: Map<string, Conflict>;
+    public resolutionPlans: Map<string, ResolutionPlan>;
+    public resolvedConflicts: Array<{ conflict: Conflict; plan: ResolutionPlan; outcome: ResolutionOutcome }>;
+    public maxHistorySize: number;
+
+    constructor() {
+        super("conflict_resolution_system", {}, {});
+        this.conflicts = new Map();
+        this.resolutionPlans = new Map();
+        this.resolvedConflicts = [];
+        this.maxHistorySize = 100;
+    }
+
+    /**
+     * تسجيل نزاع جديد
+     */
+    public registerConflict(conflict: Conflict): void {
+        this.conflicts.set(conflict.conflictId, conflict);
+        console.log(`⚠️ تم تسجيل نزاع جديد: ${conflict.conflictType} (${conflict.severity})`);
+    }
+
+    /**
+     * اقتراح استراتيجية حل
+     */
+    public suggestStrategy(conflict: Conflict): ResolutionStrategy {
+        // اختيار الاستراتيجية بناءً على نوع وشدة النزاع
+
+        // النزاعات الحرجة تحتاج وساطة
+        if (conflict.severity === ConflictSeverity.CRITICAL) {
+            return ResolutionStrategy.MEDIATION;
+        }
+
+        // النزاعات القيمية تحتاج تعاون
+        if (conflict.conflictType === ConflictType.VALUE_BASED) {
+            return ResolutionStrategy.COLLABORATION;
+        }
+
+        // النزاعات البسيطة يمكن تجنبها
+        if (conflict.severity === ConflictSeverity.MINOR) {
+            return ResolutionStrategy.AVOIDANCE;
+        }
+
+        // النزاعات المتعلقة بالمهام تحتاج تفاوض
+        if (conflict.conflictType === ConflictType.TASK_BASED) {
+            return ResolutionStrategy.NEGOTIATION;
+        }
+
+        // النزاعات المتعلقة بالموارد تحتاج تسوية
+        if (conflict.conflictType === ConflictType.RESOURCE_BASED) {
+            return ResolutionStrategy.COMPROMISE;
+        }
+
+        // سوء التواصل يحتاج تعاون
+        if (conflict.conflictType === ConflictType.COMMUNICATION) {
+            return ResolutionStrategy.COLLABORATION;
+        }
+
+        // الافتراضي: التفاوض
+        return ResolutionStrategy.NEGOTIATION;
+    }
+
+    /**
+     * إنشاء خطة حل
+     */
+    public createResolutionPlan(
+        conflict: Conflict,
+        strategy?: ResolutionStrategy
+    ): ResolutionPlan {
+        // اختيار الاستراتيجية إذا لم تُحدد
+        if (!strategy) {
+            strategy = this.suggestStrategy(conflict);
+        }
+
+        // تحديد النتيجة المتوقعة
+        let expectedOutcome = ResolutionOutcome.WIN_WIN;
+        if (strategy === ResolutionStrategy.COMPETITION) {
+            expectedOutcome = ResolutionOutcome.WIN_LOSE;
+        } else if (strategy === ResolutionStrategy.AVOIDANCE) {
+            expectedOutcome = ResolutionOutcome.PARTIAL;
+        } else if (strategy === ResolutionStrategy.COMPROMISE) {
+            expectedOutcome = ResolutionOutcome.WIN_WIN;
+        }
+
+        // إنشاء الخطة
+        let plan = new ResolutionPlan(conflict.conflictId, strategy, expectedOutcome);
+        plan.applyStrategy();
+
+        // تعديل احتمال النجاح بناءً على التعقيد
+        let complexity = conflict.getComplexityScore();
+        plan.successProbability *= (1.0 - complexity * 0.3);
+
+        // حفظ الخطة
+        this.resolutionPlans.set(plan.planId, plan);
+
+        console.log(`✅ تم إنشاء خطة حل: ${strategy}`);
+        console.log(`   احتمال النجاح: ${(plan.successProbability * 100).toFixed(0)}%`);
+
+        return plan;
+    }
+
+    /**
+     * تنفيذ خطة الحل
+     */
+    public executePlan(planId: string, actualOutcome: ResolutionOutcome): void {
+        let plan = this.resolutionPlans.get(planId);
+        if (!plan) {
+            console.error(`❌ خطة غير موجودة: ${planId}`);
+            return;
+        }
+
+        let conflict = this.conflicts.get(plan.conflictId);
+        if (!conflict) {
+            console.error(`❌ نزاع غير موجود: ${plan.conflictId}`);
+            return;
+        }
+
+        // نقل إلى المحلولة
+        this.resolvedConflicts.push({ conflict, plan, outcome: actualOutcome });
+
+        // إزالة من النشطة
+        this.conflicts.delete(conflict.conflictId);
+
+        // تنظيف السجل
+        if (this.resolvedConflicts.length > this.maxHistorySize) {
+            this.resolvedConflicts.shift();
+        }
+
+        console.log(`✅ تم حل النزاع: ${conflict.conflictType}`);
+        console.log(`   النتيجة: ${actualOutcome}`);
+    }
+
+    /**
+     * الحصول على النزاعات النشطة
+     */
+    public getActiveConflicts(): Array<Conflict> {
+        return Array.from(this.conflicts.values());
+    }
+
+    /**
+     * الحصول على النزاعات حسب الشدة
+     */
+    public getConflictsBySeverity(severity: ConflictSeverity): Array<Conflict> {
+        return this.getActiveConflicts().filter(c => c.severity === severity);
+    }
+
+    /**
+     * الحصول على إحصائيات
+     */
+    public getStatistics(): any {
+        let totalActive = this.conflicts.size;
+        let totalResolved = this.resolvedConflicts.length;
+        let totalPlans = this.resolutionPlans.size;
+
+        // توزيع الشدة
+        let severityDistribution = new Map<ConflictSeverity, number>();
+        this.conflicts.forEach(conflict => {
+            let count = severityDistribution.get(conflict.severity) || 0;
+            severityDistribution.set(conflict.severity, count + 1);
+        });
+
+        // توزيع النوع
+        let typeDistribution = new Map<ConflictType, number>();
+        this.conflicts.forEach(conflict => {
+            let count = typeDistribution.get(conflict.conflictType) || 0;
+            typeDistribution.set(conflict.conflictType, count + 1);
+        });
+
+        // معدل النجاح
+        let successfulResolutions = this.resolvedConflicts.filter(
+            r => r.outcome === ResolutionOutcome.WIN_WIN || r.outcome === ResolutionOutcome.PARTIAL
+        ).length;
+        let successRate = totalResolved > 0 ? successfulResolutions / totalResolved : 0;
+
+        return {
+            totalActiveConflicts: totalActive,
+            totalResolvedConflicts: totalResolved,
+            totalPlans: totalPlans,
+            successRate: successRate,
+            severityDistribution: Object.fromEntries(severityDistribution),
+            typeDistribution: Object.fromEntries(typeDistribution)
+        };
+    }
+
+    /**
+     * الحصول على تقرير شامل
+     */
+    public getComprehensiveReport(): string {
+        let stats = this.getStatistics();
+        let report = `📊 تقرير نظام حل النزاعات\n`;
+        report += `${"=".repeat(50)}\n\n`;
+
+        report += `النزاعات النشطة: ${stats.totalActiveConflicts}\n`;
+        report += `النزاعات المحلولة: ${stats.totalResolvedConflicts}\n`;
+        report += `معدل النجاح: ${(stats.successRate * 100).toFixed(0)}%\n\n`;
+
+        // النزاعات الحرجة
+        let critical = this.getConflictsBySeverity(ConflictSeverity.CRITICAL);
+        if (critical.length > 0) {
+            report += `⚠️ نزاعات حرجة (${critical.length}):\n`;
+            critical.forEach((c, i) => {
+                report += `  ${i + 1}. ${c.description}\n`;
+            });
+            report += `\n`;
+        }
+
+        // النزاعات الخطيرة
+        let serious = this.getConflictsBySeverity(ConflictSeverity.SERIOUS);
+        if (serious.length > 0) {
+            report += `⚠️ نزاعات خطيرة (${serious.length}):\n`;
+            serious.forEach((c, i) => {
+                report += `  ${i + 1}. ${c.description}\n`;
+            });
+        }
+
+        return report;
+    }
+}
+

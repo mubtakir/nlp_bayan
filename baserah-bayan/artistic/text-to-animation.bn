@@ -1,0 +1,581 @@
+// ============================================================================
+// text-to-animation.bn
+// نظام تحويل النص إلى تحريك
+// 
+// هذا النظام يحول النص المكتوب إلى مشاهد متحركة:
+// - تحليل النص وفهم السياق
+// - استخراج الشخصيات والأحداث
+// - توليد المشاهد تلقائياً
+// - تحديد الحركات والتعبيرات
+// - إنشاء التسلسل الزمني
+// ============================================================================
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { Vector2D } from "./physics-based-animation.bn";
+import { Scene, SceneSequencer, Camera, Light, SceneLayer, LayerType } from "./scene-animator.bn";
+import { CharacterAnimator, Skeleton, AnimationClip, AnimationType, FacialExpression } from "./character-animation.bn";
+
+// ============================================================================
+// التعدادات (Enums)
+// ============================================================================
+
+enum ActionType {
+    MOVE = "move",
+    SPEAK = "speak",
+    INTERACT = "interact",
+    EMOTE = "emote",
+    APPEAR = "appear",
+    DISAPPEAR = "disappear",
+    TRANSFORM = "transform"
+}
+
+enum SceneType {
+    DIALOGUE = "dialogue",
+    ACTION = "action",
+    TRANSITION = "transition",
+    ESTABLISHING = "establishing"
+}
+
+enum CharacterRole {
+    PROTAGONIST = "protagonist",
+    ANTAGONIST = "antagonist",
+    SUPPORTING = "supporting",
+    BACKGROUND = "background"
+}
+
+// ============================================================================
+// StoryCharacter - شخصية قصصية
+// ============================================================================
+
+class StoryCharacter extends MotherEquation {
+    public characterId: string;
+    public characterName: string;
+    public role: CharacterRole;
+    public description: string;
+    public appearance: object;
+    public personality: object;
+    public animator: CharacterAnimator;
+    public currentEmotion: FacialExpression;
+
+    constructor(characterId: string, characterName: string, role: CharacterRole) {
+        super(characterId);
+        
+        this.characterId = characterId;
+        this.characterName = characterName;
+        this.role = role;
+        this.description = "";
+        this.appearance = {
+            height: 170,
+            build: "average",
+            hairColor: "brown",
+            eyeColor: "brown",
+            clothing: "casual"
+        };
+        this.personality = {
+            traits: [],
+            mood: "neutral"
+        };
+        this.animator = null;
+        this.currentEmotion = FacialExpression.NEUTRAL;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            characterId: characterId,
+            characterName: characterName,
+            role: role
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            currentEmotion: this.currentEmotion,
+            mood: this.personality.mood
+        };
+    }
+
+    // تعيين المحرك
+    public setAnimator(animator: CharacterAnimator): void {
+        this.animator = animator;
+    }
+
+    // تعيين العاطفة
+    public setEmotion(emotion: FacialExpression): void {
+        this.currentEmotion = emotion;
+        if (this.animator && this.animator.facialAnimator) {
+            this.animator.facialAnimator.setExpression(emotion);
+        }
+        this.dynamicStates.currentEmotion = emotion;
+    }
+}
+
+// ============================================================================
+// StoryAction - حدث قصصي
+// ============================================================================
+
+class StoryAction extends MotherEquation {
+    public actionId: string;
+    public actionType: ActionType;
+    public characterId: string;
+    public description: string;
+    public startTime: number;
+    public duration: number;
+    public parameters: object;
+
+    constructor(actionId: string, actionType: ActionType, characterId: string, description: string) {
+        super(actionId);
+        
+        this.actionId = actionId;
+        this.actionType = actionType;
+        this.characterId = characterId;
+        this.description = description;
+        this.startTime = 0;
+        this.duration = 1.0;
+        this.parameters = {};
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            actionId: actionId,
+            actionType: actionType,
+            characterId: characterId,
+            description: description
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            startTime: this.startTime,
+            duration: this.duration,
+            parameters: this.parameters
+        };
+    }
+
+    // تعيين التوقيت
+    public setTiming(startTime: number, duration: number): void {
+        this.startTime = startTime;
+        this.duration = duration;
+        this.dynamicStates.startTime = startTime;
+        this.dynamicStates.duration = duration;
+    }
+
+    // تعيين المعاملات
+    public setParameters(params: object): void {
+        this.parameters = params;
+        this.dynamicStates.parameters = params;
+    }
+}
+
+// ============================================================================
+// StoryScene - مشهد قصصي
+// ============================================================================
+
+class StoryScene extends MotherEquation {
+    public sceneId: string;
+    public sceneType: SceneType;
+    public description: string;
+    public location: string;
+    public timeOfDay: string;
+    public characters: array<string>;
+    public actions: array<StoryAction>;
+    public dialogue: array<object>;
+    public duration: number;
+
+    constructor(sceneId: string, sceneType: SceneType, description: string) {
+        super(sceneId);
+        
+        this.sceneId = sceneId;
+        this.sceneType = sceneType;
+        this.description = description;
+        this.location = "unknown";
+        this.timeOfDay = "day";
+        this.characters = [];
+        this.actions = [];
+        this.dialogue = [];
+        this.duration = 5.0;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            sceneId: sceneId,
+            sceneType: sceneType,
+            description: description
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            characterCount: 0,
+            actionCount: 0,
+            dialogueCount: 0,
+            duration: this.duration
+        };
+    }
+
+    // إضافة شخصية
+    public addCharacter(characterId: string): void {
+        if (!this.characters.includes(characterId)) {
+            this.characters.push(characterId);
+            this.dynamicStates.characterCount = this.characters.length;
+        }
+    }
+
+    // إضافة حدث
+    public addAction(action: StoryAction): void {
+        this.actions.push(action);
+        this.actions.sort((a, b) => a.startTime - b.startTime);
+        this.dynamicStates.actionCount = this.actions.length;
+    }
+
+    // إضافة حوار
+    public addDialogue(characterId: string, text: string, startTime: number): void {
+        this.dialogue.push({
+            characterId: characterId,
+            text: text,
+            startTime: startTime
+        });
+        this.dialogue.sort((a, b) => a.startTime - b.startTime);
+        this.dynamicStates.dialogueCount = this.dialogue.length;
+    }
+}
+
+// ============================================================================
+// TextAnalyzer - محلل النص
+// ============================================================================
+
+class TextAnalyzer extends MotherEquation {
+    public analyzerId: string;
+
+    constructor(analyzerId: string) {
+        super(analyzerId);
+        this.analyzerId = analyzerId;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            analyzerId: analyzerId,
+            capabilities: ["character_extraction", "action_detection", "emotion_analysis"]
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            lastAnalysis: null,
+            analysisCount: 0
+        };
+    }
+
+    // تحليل النص
+    public analyze(text: string): object {
+        let result = {
+            characters: this.extractCharacters(text),
+            scenes: this.extractScenes(text),
+            actions: this.extractActions(text),
+            emotions: this.detectEmotions(text),
+            timeline: this.buildTimeline(text)
+        };
+
+        this.dynamicStates.lastAnalysis = Date.now();
+        this.dynamicStates.analysisCount++;
+
+        return result;
+    }
+
+    // استخراج الشخصيات
+    private extractCharacters(text: string): array<object> {
+        let characters = [];
+        
+        // بحث عن أسماء الشخصيات (كلمات تبدأ بحرف كبير)
+        let words = text.split(/\s+/);
+        let names = new Set();
+        
+        for (let i = 0; i < words.length; i++) {
+            let word = words[i].replace(/[.,!?;:]/g, '');
+            if (word.length > 0 && word[0] === word[0].toUpperCase()) {
+                names.add(word);
+            }
+        }
+
+        names.forEach(name => {
+            characters.push({
+                name: name,
+                role: CharacterRole.SUPPORTING
+            });
+        });
+
+        return characters;
+    }
+
+    // استخراج المشاهد
+    private extractScenes(text: string): array<object> {
+        let scenes = [];
+        
+        // تقسيم النص إلى فقرات
+        let paragraphs = text.split(/\n\n+/);
+        
+        for (let i = 0; i < paragraphs.length; i++) {
+            if (paragraphs[i].trim().length > 0) {
+                scenes.push({
+                    index: i,
+                    text: paragraphs[i].trim(),
+                    type: this.detectSceneType(paragraphs[i])
+                });
+            }
+        }
+
+        return scenes;
+    }
+
+    // كشف نوع المشهد
+    private detectSceneType(text: string): SceneType {
+        if (text.includes('"') || text.includes('قال') || text.includes('said')) {
+            return SceneType.DIALOGUE;
+        } else if (text.includes('ركض') || text.includes('قفز') || text.includes('run') || text.includes('jump')) {
+            return SceneType.ACTION;
+        } else {
+            return SceneType.ESTABLISHING;
+        }
+    }
+
+    // استخراج الأحداث
+    private extractActions(text: string): array<object> {
+        let actions = [];
+        
+        // كلمات مفتاحية للأفعال
+        let actionKeywords = {
+            'ركض': ActionType.MOVE,
+            'مشى': ActionType.MOVE,
+            'قفز': ActionType.MOVE,
+            'قال': ActionType.SPEAK,
+            'صرخ': ActionType.SPEAK,
+            'ابتسم': ActionType.EMOTE,
+            'بكى': ActionType.EMOTE,
+            'run': ActionType.MOVE,
+            'walk': ActionType.MOVE,
+            'said': ActionType.SPEAK,
+            'smiled': ActionType.EMOTE
+        };
+
+        for (let keyword in actionKeywords) {
+            if (text.includes(keyword)) {
+                actions.push({
+                    type: actionKeywords[keyword],
+                    keyword: keyword
+                });
+            }
+        }
+
+        return actions;
+    }
+
+    // كشف العواطف
+    private detectEmotions(text: string): array<object> {
+        let emotions = [];
+        
+        let emotionKeywords = {
+            'سعيد': FacialExpression.HAPPY,
+            'حزين': FacialExpression.SAD,
+            'غاضب': FacialExpression.ANGRY,
+            'متفاجئ': FacialExpression.SURPRISED,
+            'happy': FacialExpression.HAPPY,
+            'sad': FacialExpression.SAD,
+            'angry': FacialExpression.ANGRY,
+            'surprised': FacialExpression.SURPRISED
+        };
+
+        for (let keyword in emotionKeywords) {
+            if (text.includes(keyword)) {
+                emotions.push({
+                    emotion: emotionKeywords[keyword],
+                    keyword: keyword
+                });
+            }
+        }
+
+        return emotions;
+    }
+
+    // بناء الجدول الزمني
+    private buildTimeline(text: string): array<object> {
+        return [
+            { time: 0, event: "start" },
+            { time: 1, event: "middle" },
+            { time: 2, event: "end" }
+        ];
+    }
+}
+
+// ============================================================================
+// AnimationGenerator - مولد التحريك
+// ============================================================================
+
+class AnimationGenerator extends MotherEquation {
+    public generatorId: string;
+    public textAnalyzer: TextAnalyzer;
+    public characters: object;
+    public scenes: array<StoryScene>;
+
+    constructor(generatorId: string) {
+        super(generatorId);
+
+        this.generatorId = generatorId;
+        this.textAnalyzer = new TextAnalyzer("analyzer_" + generatorId);
+        this.characters = {};
+        this.scenes = [];
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            generatorId: generatorId
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            characterCount: 0,
+            sceneCount: 0,
+            lastGeneration: null
+        };
+    }
+
+    // توليد التحريك من النص
+    public generateFromText(text: string): SceneSequencer {
+        // 1. تحليل النص
+        let analysis = this.textAnalyzer.analyze(text);
+
+        // 2. إنشاء الشخصيات
+        this.createCharacters(analysis.characters);
+
+        // 3. إنشاء المشاهد
+        this.createScenes(analysis.scenes, analysis.actions, analysis.emotions);
+
+        // 4. بناء المنسق
+        let sequencer = this.buildSequencer();
+
+        this.dynamicStates.lastGeneration = Date.now();
+
+        return sequencer;
+    }
+
+    // إنشاء الشخصيات
+    private createCharacters(characterData: array<object>): void {
+        for (let i = 0; i < characterData.length; i++) {
+            let data = characterData[i];
+            let charId = "char_" + i;
+
+            let character = new StoryCharacter(charId, data.name, data.role);
+
+            // إنشاء هيكل عظمي بسيط
+            let skeleton = this.createSimpleSkeleton(charId);
+            let animator = new CharacterAnimator("animator_" + charId, skeleton);
+            character.setAnimator(animator);
+
+            this.characters[charId] = character;
+        }
+
+        this.dynamicStates.characterCount = Object.keys(this.characters).length;
+    }
+
+    // إنشاء هيكل عظمي بسيط
+    private createSimpleSkeleton(characterId: string): Skeleton {
+        let skeleton = new Skeleton("skeleton_" + characterId, characterId + "_skeleton");
+
+        // هيكل بسيط: جذر، جسم، رأس، ذراعين، رجلين
+        let root = new Bone("root", "Root", BoneType.ROOT, 0);
+        let spine = new Bone("spine", "Spine", BoneType.SPINE, 50);
+        let head = new Bone("head", "Head", BoneType.HEAD, 30);
+
+        skeleton.addBone(root, null);
+        skeleton.addBone(spine, "root");
+        skeleton.addBone(head, "spine");
+
+        return skeleton;
+    }
+
+    // إنشاء المشاهد
+    private createScenes(sceneData: array<object>, actions: array<object>, emotions: array<object>): void {
+        for (let i = 0; i < sceneData.length; i++) {
+            let data = sceneData[i];
+            let sceneId = "scene_" + i;
+
+            let storyScene = new StoryScene(sceneId, data.type, data.text);
+            storyScene.duration = 5.0 + i * 2; // مدة متزايدة
+
+            // إضافة الشخصيات
+            for (let charId in this.characters) {
+                storyScene.addCharacter(charId);
+            }
+
+            // إضافة الأحداث
+            for (let j = 0; j < actions.length; j++) {
+                let action = new StoryAction(
+                    "action_" + i + "_" + j,
+                    actions[j].type,
+                    "char_0",
+                    actions[j].keyword
+                );
+                action.setTiming(j * 1.0, 1.0);
+                storyScene.addAction(action);
+            }
+
+            this.scenes.push(storyScene);
+        }
+
+        this.dynamicStates.sceneCount = this.scenes.length;
+    }
+
+    // بناء المنسق
+    private buildSequencer(): SceneSequencer {
+        let sequencer = new SceneSequencer("sequencer_" + this.generatorId);
+
+        for (let i = 0; i < this.scenes.length; i++) {
+            let storyScene = this.scenes[i];
+
+            // إنشاء مشهد تحريك
+            let scene = new Scene(
+                storyScene.sceneId,
+                storyScene.description.substring(0, 30),
+                storyScene.duration
+            );
+
+            // إضافة الكاميرا
+            scene.camera.position = new Vector2D(400, 300);
+
+            // إضافة إضاءة
+            let light = new Light("light_" + i, LightingType.AMBIENT, new Vector2D(400, 200));
+            light.intensity = 0.8;
+            scene.addLight(light);
+
+            // إضافة طبقات
+            let bgLayer = new SceneLayer("bg_" + i, "Background", LayerType.BACKGROUND, 0);
+            let fgLayer = new SceneLayer("fg_" + i, "Foreground", LayerType.FOREGROUND, 100);
+            scene.addLayer(bgLayer);
+            scene.addLayer(fgLayer);
+
+            // إضافة الشخصيات
+            for (let j = 0; j < storyScene.characters.length; j++) {
+                let charId = storyScene.characters[j];
+                let character = this.characters[charId];
+                if (character && character.animator) {
+                    scene.addCharacter(character.animator);
+                }
+            }
+
+            sequencer.addScene(scene);
+        }
+
+        return sequencer;
+    }
+
+    // الحصول على إحصائيات
+    public getStatistics(): object {
+        return {
+            characterCount: this.dynamicStates.characterCount,
+            sceneCount: this.dynamicStates.sceneCount,
+            lastGeneration: this.dynamicStates.lastGeneration,
+            characters: Object.keys(this.characters).map(id => this.characters[id].characterName)
+        };
+    }
+}
+
+export {
+    StoryCharacter,
+    StoryAction,
+    StoryScene,
+    TextAnalyzer,
+    AnimationGenerator,
+    ActionType,
+    SceneType,
+    CharacterRole
+};
+

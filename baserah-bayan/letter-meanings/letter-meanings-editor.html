@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر معاني الحروف - بصيرة AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .letters-list {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .letters-list h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .letter-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .letter-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .letter-item.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.05);
+        }
+
+        .letter-char {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .letter-name {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .letter-meanings-count {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .editor-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .editor-panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .meanings-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .meanings-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .meaning-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .meaning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .meaning-text {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .meaning-source {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+
+        .meaning-details {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .strength-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .add-meaning-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 2px dashed #667eea;
+        }
+
+        .log-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-panel h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .log-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .log-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .log-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔤 محرر معاني الحروف</h1>
+            <p>نظام شامل لإدارة معاني الحروف العربية والإنجليزية - بصيرة AI</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalLetters">0</div>
+                <div class="stat-label">إجمالي الحروف</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="arabicLetters">0</div>
+                <div class="stat-label">حروف عربية</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalMeanings">0</div>
+                <div class="stat-label">إجمالي المعاني</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="developerMeanings">0</div>
+                <div class="stat-label">معاني المطور</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="inferredMeanings">0</div>
+                <div class="stat-label">معاني مستنبطة</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="letters-list">
+                <h2>📋 قائمة الحروف</h2>
+                <div id="lettersList"></div>
+            </div>
+
+            <div class="editor-panel">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('view')">📖 عرض</div>
+                    <div class="tab" onclick="switchTab('edit')">✏️ تحرير</div>
+                    <div class="tab" onclick="switchTab('analyze')">🔍 تحليل</div>
+                </div>
+
+                <div id="viewTab" class="tab-content active">
+                    <h2 id="currentLetterTitle">اختر حرفاً من القائمة</h2>
+                    <div id="letterDetails"></div>
+                </div>
+
+                <div id="editTab" class="tab-content">
+                    <h2>✏️ تحرير معاني الحرف</h2>
+                    <div id="editForm"></div>
+                </div>
+
+                <div id="analyzeTab" class="tab-content">
+                    <h2>🔍 تحليل كلمة</h2>
+                    <div class="form-group">
+                        <label>أدخل كلمة للتحليل:</label>
+                        <input type="text" id="wordInput" placeholder="مثال: كتاب">
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeWord()">تحليل</button>
+                    <div id="analysisResult" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+        // عرض قائمة الحروف
+        function renderLettersList() {
+            if (!letterSystem) return;
+
+            let html = '';
+            for (let letter in letterSystem.letters) {
+                let letterData = letterSystem.letters[letter];
+                let totalMeanings = (letterData.developer_meanings || []).length +
+                                   (letterData.inferred_meanings || []).length;
+
+                html += `
+                    <div class="letter-item" onclick="selectLetter('${letter}')">
+                        <div class="letter-char">${letter}</div>
+                        <div class="letter-name">${letterData.name}</div>
+                        <div class="letter-meanings-count">${totalMeanings} معنى</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('lettersList').innerHTML = html;
+        }
+
+        // اختيار حرف
+        function selectLetter(letter) {
+            currentLetter = letter;
+
+            // تحديث الحرف النشط
+            document.querySelectorAll('.letter-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.letter-item').classList.add('active');
+
+            // عرض تفاصيل الحرف
+            displayLetterDetails(letter);
+            logMessage(`تم اختيار الحرف: ${letter}`, 'info');
+        }
+
+        // عرض تفاصيل الحرف
+        function displayLetterDetails(letter) {
+            let letterData = letterSystem.letters[letter];
+            if (!letterData) return;
+
+            document.getElementById('currentLetterTitle').textContent =
+                `${letterData.letter} - ${letterData.name}`;
+
+            let html = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">المعلومات الأساسية</h3>
+                    <p><strong>المخرج:</strong> ${letterData.articulation_point}</p>
+                    <p><strong>نوع المعنى:</strong> ${letterData.meaning_type}</p>
+                    <p><strong>القوة الانفعالية:</strong> ${(letterData.emotional_strength * 100).toFixed(0)}%</p>
+                    <p><strong>القوة المادية:</strong> ${(letterData.physical_strength * 100).toFixed(0)}%</p>
+                </div>
+
+                <div class="meanings-section">
+                    <h3>📝 معاني المطور (${(letterData.developer_meanings || []).length})</h3>
+                    ${renderMeanings(letterData.developer_meanings || [], 'developer')}
+                </div>
+
+                <div class="meanings-section">
+                    <h3>🔍 معاني مستنبطة (${(letterData.inferred_meanings || []).length})</h3>
+                    ${renderMeanings(letterData.inferred_meanings || [], 'inferred')}
+                </div>
+            `;
+
+            document.getElementById('letterDetails').innerHTML = html;
+        }
+
+        // عرض المعاني
+        function renderMeanings(meanings, type) {
+            if (!meanings || meanings.length === 0) {
+                return '<p style="color: #999;">لا توجد معاني</p>';
+            }
+
+            let html = '';
+            meanings.forEach((meaning, index) => {
+                let strength = meaning.strength || meaning.confidence || 1.0;
+                let source = meaning.source || type;
+
+                html += `
+                    <div class="meaning-item">
+                        <div class="meaning-header">
+                            <span class="meaning-text">${meaning.meaning}</span>
+                            <span class="meaning-source">${source}</span>
+                        </div>
+                        ${meaning.opposite ? `<div class="meaning-details">الضد: ${meaning.opposite}</div>` : ''}
+                        ${meaning.words_count ? `<div class="meaning-details">عدد الكلمات: ${meaning.words_count}</div>` : ''}
+                        ${meaning.examples && meaning.examples.length > 0 ?
+                            `<div class="meaning-details">أمثلة: ${meaning.examples.join(', ')}</div>` : ''}
+                        <div class="strength-bar">
+                            <div class="strength-fill" style="width: ${strength * 100}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            return html;
+        }
+
+        // تبديل التبويبات
+        function switchTab(tabName) {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // إظهار التبويب المحدد
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // تحميل محتوى التبويب
+            if (tabName === 'edit' && currentLetter) {
+                loadEditForm();
+            }
+        }
+
+        // تحميل نموذج التحرير
+        function loadEditForm() {
+            if (!currentLetter) {
+                document.getElementById('editForm').innerHTML =
+                    '<p style="color: #999;">اختر حرفاً من القائمة أولاً</p>';
+                return;
+            }
+
+            let letterData = letterSystem.letters[currentLetter];
+
+            let html = `
+                <div class="form-group">
+                    <label>الحرف:</label>
+                    <input type="text" value="${letterData.letter}" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>اسم الحرف:</label>
+                    <input type="text" id="letterName" value="${letterData.name}">
+                </div>
+
+                <div class="form-group">
+                    <label>المخرج:</label>
+                    <select id="articulationPoint">
+                        <option value="حلقي" ${letterData.articulation_point === 'حلقي' ? 'selected' : ''}>حلقي</option>
+                        <option value="بلعومي" ${letterData.articulation_point === 'بلعومي' ? 'selected' : ''}>بلعومي</option>
+                        <option value="حنكي" ${letterData.articulation_point === 'حنكي' ? 'selected' : ''}>حنكي</option>
+                        <option value="لثوي" ${letterData.articulation_point === 'لثوي' ? 'selected' : ''}>لثوي</option>
+                        <option value="أسناني" ${letterData.articulation_point === 'أسناني' ? 'selected' : ''}>أسناني</option>
+                        <option value="شفوي" ${letterData.articulation_point === 'شفوي' ? 'selected' : ''}>شفوي</option>
+                    </select>
+                </div>
+
+                <div class="add-meaning-form">
+                    <h4 style="color: #667eea; margin-bottom: 15px;">➕ إضافة معنى جديد</h4>
+
+                    <div class="form-group">
+                        <label>المعنى:</label>
+                        <input type="text" id="newMeaning" placeholder="مثال: القوة والشدة">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الضد (اختياري):</label>
+                        <input type="text" id="newOpposite" placeholder="مثال: الضعف">
+                    </div>
+
+                    <div class="form-group">
+                        <label>أمثلة (افصل بفاصلة):</label>
+                        <input type="text" id="newExamples" placeholder="مثال: قوة، قوي، أقوى">
+                    </div>
+
+                    <div class="form-group">
+                        <label>قوة المعنى (0-1):</label>
+                        <input type="number" id="newStrength" min="0" max="1" step="0.1" value="1.0">
+                    </div>
+
+                    <button class="btn btn-success" onclick="addNewMeaning()">إضافة المعنى</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="saveLetterChanges()">💾 حفظ التغييرات</button>
+                    <button class="btn btn-secondary" onclick="switchTab('view')">إلغاء</button>
+                </div>
+            `;
+
+            document.getElementById('editForm').innerHTML = html;
+        }
+
+        // إضافة معنى جديد
+        function addNewMeaning() {
+            let meaning = document.getElementById('newMeaning').value.trim();
+            if (!meaning) {
+                logMessage('يرجى إدخال المعنى', 'error');
+                return;
+            }
+
+            let opposite = document.getElementById('newOpposite').value.trim() || null;
+            let examples = document.getElementById('newExamples').value.split(',').map(e => e.trim()).filter(e => e);
+            let strength = parseFloat(document.getElementById('newStrength').value);
+
+            let letterData = letterSystem.letters[currentLetter];
+            if (!letterData.developer_meanings) {
+                letterData.developer_meanings = [];
+            }
+
+            letterData.developer_meanings.push({
+                meaning: meaning,
+                opposite: opposite,
+                examples: examples,
+                strength: strength
+            });
+
+            logMessage(`تمت إضافة المعنى: ${meaning}`, 'success');
+
+            // تحديث العرض
+            updateStatistics();
+            displayLetterDetails(currentLetter);
+            loadEditForm();
+
+            // مسح الحقول
+            document.getElementById('newMeaning').value = '';
+            document.getElementById('newOpposite').value = '';
+            document.getElementById('newExamples').value = '';
+            document.getElementById('newStrength').value = '1.0';
+        }
+
+        // حفظ تغييرات الحرف
+        function saveLetterChanges() {
+            logMessage('تم حفظ التغييرات بنجاح', 'success');
+            switchTab('view');
+        }
+
+        // تحليل كلمة
+        function analyzeWord() {
+            let word = document.getElementById('wordInput').value.trim();
+            if (!word) {
+                logMessage('يرجى إدخال كلمة', 'error');
+                return;
+            }
+
+            let analysis = {
+                word: word,
+                letters: [],
+                totalEmotional: 0,
+                totalPhysical: 0
+            };
+
+            for (let i = 0; i < word.length; i++) {
+                let letter = word[i];
+                let letterData = letterSystem.letters[letter];
+
+                if (letterData) {
+                    let primaryMeaning = letterData.developer_meanings && letterData.developer_meanings.length > 0 ?
+                        letterData.developer_meanings[0].meaning : 'غير محدد';
+
+                    analysis.letters.push({
+                        letter: letter,
+                        name: letterData.name,
+                        meaning: primaryMeaning,
+                        emotional: letterData.emotional_strength,
+                        physical: letterData.physical_strength
+                    });
+
+                    analysis.totalEmotional += letterData.emotional_strength;
+                    analysis.totalPhysical += letterData.physical_strength;
+                }
+            }
+
+            let avgEmotional = analysis.totalEmotional / analysis.letters.length;
+            let avgPhysical = analysis.totalPhysical / analysis.letters.length;
+
+            let html = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h3 style="color: #667eea;">نتيجة التحليل: ${word}</h3>
+
+                    <div style="margin: 20px 0;">
+                        <p><strong>عدد الحروف:</strong> ${analysis.letters.length}</p>
+                        <p><strong>القوة الانفعالية:</strong> ${(avgEmotional * 100).toFixed(0)}%</p>
+                        <p><strong>القوة المادية:</strong> ${(avgPhysical * 100).toFixed(0)}%</p>
+                        <p><strong>النوع المهيمن:</strong> ${avgEmotional > avgPhysical ? 'نفسي/انفعالي' : 'مادي/واقعي'}</p>
+                    </div>
+
+                    <h4 style="color: #667eea; margin-top: 20px;">تحليل الحروف:</h4>
+                    ${analysis.letters.map(l => `
+                        <div class="meaning-item">
+                            <div class="meaning-header">
+                                <span class="meaning-text">${l.letter} - ${l.name}</span>
+                            </div>
+                            <div class="meaning-details">المعنى: ${l.meaning}</div>
+                            <div class="meaning-details">انفعالي: ${(l.emotional * 100).toFixed(0)}% | مادي: ${(l.physical * 100).toFixed(0)}%</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('analysisResult').innerHTML = html;
+            logMessage(`تم تحليل الكلمة: ${word}`, 'success');
+        }
+
+        // تسجيل رسالة
+        function logMessage(message, type = 'info') {
+            let logDiv = document.getElementById('logEntries');
+            let entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString('ar-SA')}] ${message}`;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+
+            // الاحتفاظ بآخر 20 رسالة فقط
+            while (logDiv.children.length > 20) {
+                logDiv.removeChild(logDiv.lastChild);
+            }
+        }
+
+        // تهيئة عند التحميل
+        window.onload = initialize;
+    </script>
+</body>
+</html>
+
+        // تهيئة النظام
+        function initialize() {
+            logMessage('جاري تحميل قاعدة بيانات معاني الحروف...', 'info');
+
+            // محاكاة تحميل البيانات
+            fetch('unified_letters_database.json')
+                .then(response => response.json())
+                .then(data => {
+                    loadLettersData(data);
+                    logMessage(`تم تحميل ${data.metadata.letters_count} حرف بنجاح`, 'success');
+                })
+                .catch(error => {
+                    logMessage('خطأ في تحميل البيانات: ' + error.message, 'error');
+                    // تحميل بيانات تجريبية
+                    loadSampleData();
+                });
+        }
+
+        // تحميل بيانات الحروف
+        function loadLettersData(data) {
+            letterSystem = data;
+            updateStatistics();
+            renderLettersList();
+        }
+
+        // تحميل بيانات تجريبية
+        function loadSampleData() {
+            letterSystem = {
+                metadata: {
+                    version: "1.0",
+                    letters_count: 5
+                },
+                letters: {
+                    "ا": {
+                        letter: "ا",
+                        name: "الألف",
+                        articulation_point: "حلقي",
+                        meaning_type: "نفسي/انفعالي",
+                        emotional_strength: 0.9,
+                        physical_strength: 0.3,
+                        developer_meanings: [
+                            { meaning: "الوحدة والبداية", strength: 1.0, examples: [] }
+                        ],
+                        inferred_meanings: [
+                            { meaning: "الأساس", source: "dictionary_extraction", confidence: 0.9, words_count: 100 }
+                        ]
+                    }
+                }
+            };
+            updateStatistics();
+            renderLettersList();
+            logMessage('تم تحميل بيانات تجريبية', 'info');
+        }
+
+        // تحديث الإحصائيات
+        function updateStatistics() {
+            if (!letterSystem) return;
+
+            let totalLetters = letterSystem.metadata.letters_count || Object.keys(letterSystem.letters).length;
+            let arabicCount = 0;
+            let totalDevMeanings = 0;
+            let totalInfMeanings = 0;
+
+            for (let letter in letterSystem.letters) {
+                if (/[\u0600-\u06FF]/.test(letter)) arabicCount++;
+                let letterData = letterSystem.letters[letter];
+                totalDevMeanings += (letterData.developer_meanings || []).length;
+                totalInfMeanings += (letterData.inferred_meanings || []).length;
+            }
+
+            document.getElementById('totalLetters').textContent = totalLetters;
+            document.getElementById('arabicLetters').textContent = arabicCount;
+            document.getElementById('totalMeanings').textContent = totalDevMeanings + totalInfMeanings;
+            document.getElementById('developerMeanings').textContent = totalDevMeanings;
+            document.getElementById('inferredMeanings').textContent = totalInfMeanings;
+        }
+

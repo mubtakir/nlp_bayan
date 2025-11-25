@@ -1,0 +1,536 @@
+#!/usr/bin/env bayan
+/**
+ * نظام إدارة قاعدة بيانات المعجم - Dictionary Database Manager
+ * نظام بصيرة الثوري
+ * 
+ * 💾 إدارة قاعدة بيانات المعجم الرقمي
+ * 🔍 البحث والاستعلام المتقدم
+ * 📊 الإحصائيات والتقارير
+ * 🔄 التحديث والحذف
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { LexiconEntry, LexiconSource } from "./digital-lexicon-loader.bn";
+import { CharacterAnalysis } from "./character-meaning-extractor.bn";
+
+// ==================== التعدادات ====================
+
+enum DatabaseOperation {
+    INSERT = "إدراج",
+    UPDATE = "تحديث",
+    DELETE = "حذف",
+    SELECT = "استعلام",
+    SEARCH = "بحث"
+}
+
+enum SearchType {
+    EXACT = "مطابق_تماماً",
+    CONTAINS = "يحتوي",
+    STARTS_WITH = "يبدأ_بـ",
+    ENDS_WITH = "ينتهي_بـ",
+    PATTERN = "نمط",
+    REGEX = "تعبير_نمطي"
+}
+
+enum SortOrder {
+    ASC = "تصاعدي",
+    DESC = "تنازلي"
+}
+
+// ==================== الفئات ====================
+
+class DatabaseEntry extends MotherEquation {
+    public id: number;
+    public word: string;
+    public meaning: string;
+    public sharedLetters: Array<string>;
+    public generalMeanings: object;
+    public source: string;
+    public timestamp: number;
+    
+    constructor(
+        id: number,
+        word: string,
+        meaning: string,
+        source: string = "manual",
+        sharedLetters: Array<string> = [],
+        generalMeanings: object = {}
+    ) {
+        super(`db_entry_${id}`);
+        
+        this.id = id;
+        this.word = word;
+        this.meaning = meaning;
+        this.sharedLetters = sharedLetters;
+        this.generalMeanings = generalMeanings;
+        this.source = source;
+        this.timestamp = Date.now();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            id: id,
+            word: word,
+            source: source
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            meaning: meaning,
+            timestamp: this.timestamp
+        };
+    }
+    
+    public updateMeaning(newMeaning: string): void {
+        this.meaning = newMeaning;
+        this.timestamp = Date.now();
+        this.dynamicStates.meaning = newMeaning;
+        this.dynamicStates.timestamp = this.timestamp;
+    }
+    
+    public addSharedLetter(letter: string): void {
+        if (!this.sharedLetters.includes(letter)) {
+            this.sharedLetters.push(letter);
+        }
+    }
+    
+    public addGeneralMeaning(letter: string, meaning: string): void {
+        this.generalMeanings[letter] = meaning;
+    }
+}
+
+class SearchQuery extends MotherEquation {
+    public searchTerm: string;
+    public searchType: SearchType;
+    public filters: object;
+    public sortBy: string;
+    public sortOrder: SortOrder;
+    public limit: number;
+    public offset: number;
+    
+    constructor(
+        searchTerm: string,
+        searchType: SearchType = SearchType.CONTAINS
+    ) {
+        super(`search_query_${Date.now()}`);
+        
+        this.searchTerm = searchTerm;
+        this.searchType = searchType;
+        this.filters = {};
+        this.sortBy = "word";
+        this.sortOrder = SortOrder.ASC;
+        this.limit = 100;
+        this.offset = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            searchTerm: searchTerm,
+            searchType: searchType
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            limit: 100,
+            offset: 0
+        };
+    }
+    
+    public addFilter(key: string, value: any): void {
+        this.filters[key] = value;
+    }
+    
+    public setSort(sortBy: string, sortOrder: SortOrder = SortOrder.ASC): void {
+        this.sortBy = sortBy;
+        this.sortOrder = sortOrder;
+    }
+    
+    public setPagination(limit: number, offset: number = 0): void {
+        this.limit = limit;
+        this.offset = offset;
+        this.dynamicStates.limit = limit;
+        this.dynamicStates.offset = offset;
+    }
+}
+
+class DatabaseStatistics extends MotherEquation {
+    public totalWords: number;
+    public totalCharacters: number;
+    public totalSources: number;
+    public averageWordLength: number;
+    public mostCommonCharacters: Array<{char: string, count: number}>;
+    public sourceDistribution: object;
+    
+    constructor() {
+        super(`db_stats_${Date.now()}`);
+        
+        this.totalWords = 0;
+        this.totalCharacters = 0;
+        this.totalSources = 0;
+        this.averageWordLength = 0;
+        this.mostCommonCharacters = [];
+        this.sourceDistribution = {};
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalWords: 0,
+            totalCharacters: 0,
+            lastUpdated: Date.now()
+        };
+    }
+    
+    public update(data: object): void {
+        for (let key in data) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = data[key];
+            }
+        }
+        this.dynamicStates.lastUpdated = Date.now();
+    }
+}
+
+class DictionaryDatabaseManager extends MotherEquation {
+    public dbPath: string;
+    public entries: Map<number, DatabaseEntry>;
+    public wordIndex: Map<string, number>;
+    public characterIndex: Map<string, Array<number>>;
+    public statistics: DatabaseStatistics;
+    public lastOperation: DatabaseOperation | null;
+    
+    constructor(dbPath: string = "databases/digital_dictionary.db") {
+        super("dict_db_manager");
+        
+        this.dbPath = dbPath;
+        this.entries = new Map();
+        this.wordIndex = new Map();
+        this.characterIndex = new Map();
+        this.statistics = new DatabaseStatistics();
+        this.lastOperation = null;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            dbPath: dbPath,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalEntries: 0,
+            lastOperation: null,
+            lastUpdate: Date.now()
+        };
+    }
+    
+    public insertWord(
+        word: string,
+        meaning: string,
+        source: string = "manual",
+        sharedLetters: Array<string> = [],
+        generalMeanings: object = {}
+    ): number {
+        // التحقق من وجود الكلمة
+        if (this.wordIndex.has(word)) {
+            return -1; // الكلمة موجودة بالفعل
+        }
+        
+        let id = this.entries.size + 1;
+        let entry = new DatabaseEntry(id, word, meaning, source, sharedLetters, generalMeanings);
+        
+        this.entries.set(id, entry);
+        this.wordIndex.set(word, id);
+        
+        // تحديث فهرس الحروف
+        let uniqueChars = new Set(word.split(''));
+        for (let char of uniqueChars) {
+            if (!this.characterIndex.has(char)) {
+                this.characterIndex.set(char, []);
+            }
+            this.characterIndex.get(char).push(id);
+        }
+        
+        this.lastOperation = DatabaseOperation.INSERT;
+        this.dynamicStates.totalEntries = this.entries.size;
+        this.dynamicStates.lastOperation = DatabaseOperation.INSERT;
+        this.dynamicStates.lastUpdate = Date.now();
+        
+        return id;
+    }
+    
+    public searchWord(word: string): DatabaseEntry | null {
+        let id = this.wordIndex.get(word);
+        if (id === undefined) {
+            return null;
+        }
+        
+        this.lastOperation = DatabaseOperation.SELECT;
+        this.dynamicStates.lastOperation = DatabaseOperation.SELECT;
+        
+        return this.entries.get(id) || null;
+    }
+    
+    public searchByPattern(pattern: string, searchType: SearchType = SearchType.CONTAINS): Array<DatabaseEntry> {
+        let results = [];
+        
+        for (let [word, id] of this.wordIndex) {
+            let match = false;
+            
+            switch (searchType) {
+                case SearchType.EXACT:
+                    match = word === pattern;
+                    break;
+                case SearchType.CONTAINS:
+                    match = word.includes(pattern);
+                    break;
+                case SearchType.STARTS_WITH:
+                    match = word.startsWith(pattern);
+                    break;
+                case SearchType.ENDS_WITH:
+                    match = word.endsWith(pattern);
+                    break;
+                case SearchType.PATTERN:
+                    // نمط بسيط: % = أي شيء، _ = حرف واحد
+                    let regex = pattern.replace(/%/g, '.*').replace(/_/g, '.');
+                    match = new RegExp(`^${regex}$`).test(word);
+                    break;
+            }
+            
+            if (match) {
+                let entry = this.entries.get(id);
+                if (entry) {
+                    results.push(entry);
+                }
+            }
+        }
+        
+        this.lastOperation = DatabaseOperation.SEARCH;
+        this.dynamicStates.lastOperation = DatabaseOperation.SEARCH;
+        
+        return results;
+    }
+
+    public searchByCharacter(char: string): Array<DatabaseEntry> {
+        let results = [];
+        let ids = this.characterIndex.get(char) || [];
+
+        for (let id of ids) {
+            let entry = this.entries.get(id);
+            if (entry) {
+                results.push(entry);
+            }
+        }
+
+        this.lastOperation = DatabaseOperation.SEARCH;
+        this.dynamicStates.lastOperation = DatabaseOperation.SEARCH;
+
+        return results;
+    }
+
+    public searchBySharedCharacters(chars: Array<string>): Array<DatabaseEntry> {
+        if (chars.length === 0) {
+            return [];
+        }
+
+        // البحث عن الكلمات التي تحتوي على جميع الحروف
+        let firstChar = chars[0];
+        let candidates = this.searchByCharacter(firstChar);
+
+        let results = candidates.filter(entry => {
+            for (let char of chars) {
+                if (!entry.word.includes(char)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return results;
+    }
+
+    public updateWord(word: string, newMeaning: string): boolean {
+        let id = this.wordIndex.get(word);
+        if (id === undefined) {
+            return false;
+        }
+
+        let entry = this.entries.get(id);
+        if (entry) {
+            entry.updateMeaning(newMeaning);
+            this.lastOperation = DatabaseOperation.UPDATE;
+            this.dynamicStates.lastOperation = DatabaseOperation.UPDATE;
+            this.dynamicStates.lastUpdate = Date.now();
+            return true;
+        }
+
+        return false;
+    }
+
+    public deleteWord(word: string): boolean {
+        let id = this.wordIndex.get(word);
+        if (id === undefined) {
+            return false;
+        }
+
+        let entry = this.entries.get(id);
+        if (entry) {
+            // حذف من الفهارس
+            this.entries.delete(id);
+            this.wordIndex.delete(word);
+
+            // حذف من فهرس الحروف
+            let uniqueChars = new Set(word.split(''));
+            for (let char of uniqueChars) {
+                let ids = this.characterIndex.get(char) || [];
+                this.characterIndex.set(char, ids.filter(i => i !== id));
+            }
+
+            this.lastOperation = DatabaseOperation.DELETE;
+            this.dynamicStates.totalEntries = this.entries.size;
+            this.dynamicStates.lastOperation = DatabaseOperation.DELETE;
+            this.dynamicStates.lastUpdate = Date.now();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public calculateStatistics(): DatabaseStatistics {
+        this.statistics.totalWords = this.entries.size;
+        this.statistics.totalCharacters = this.characterIndex.size;
+
+        // حساب متوسط طول الكلمة
+        let totalLength = 0;
+        let sources = new Map();
+
+        for (let [id, entry] of this.entries) {
+            totalLength += entry.word.length;
+            sources.set(entry.source, (sources.get(entry.source) || 0) + 1);
+        }
+
+        this.statistics.averageWordLength = this.entries.size > 0
+            ? totalLength / this.entries.size
+            : 0;
+
+        this.statistics.totalSources = sources.size;
+        this.statistics.sourceDistribution = Object.fromEntries(sources);
+
+        // أكثر الحروف شيوعاً
+        let charCounts = [];
+        for (let [char, ids] of this.characterIndex) {
+            charCounts.push({ char, count: ids.length });
+        }
+        charCounts.sort((a, b) => b.count - a.count);
+        this.statistics.mostCommonCharacters = charCounts.slice(0, 10);
+
+        this.statistics.update({
+            totalWords: this.statistics.totalWords,
+            totalCharacters: this.statistics.totalCharacters
+        });
+
+        return this.statistics;
+    }
+
+    public getStatistics(): object {
+        return {
+            totalWords: this.entries.size,
+            totalCharacters: this.characterIndex.size,
+            totalSources: this.statistics.totalSources,
+            averageWordLength: this.statistics.averageWordLength,
+            mostCommonCharacters: this.statistics.mostCommonCharacters.slice(0, 5),
+            sourceDistribution: this.statistics.sourceDistribution
+        };
+    }
+
+    public exportToJSON(): object {
+        let data = {};
+        for (let [id, entry] of this.entries) {
+            data[entry.word] = {
+                meaning: entry.meaning,
+                source: entry.source,
+                sharedLetters: entry.sharedLetters,
+                generalMeanings: entry.generalMeanings,
+                timestamp: entry.timestamp
+            };
+        }
+        return data;
+    }
+
+    public importFromJSON(data: object): number {
+        let count = 0;
+        for (let word in data) {
+            let item = data[word];
+            let id = this.insertWord(
+                word,
+                item.meaning || "",
+                item.source || "imported",
+                item.sharedLetters || [],
+                item.generalMeanings || {}
+            );
+            if (id > 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public clear(): void {
+        this.entries.clear();
+        this.wordIndex.clear();
+        this.characterIndex.clear();
+        this.statistics = new DatabaseStatistics();
+        this.lastOperation = null;
+        this.dynamicStates.totalEntries = 0;
+        this.dynamicStates.lastOperation = null;
+        this.dynamicStates.lastUpdate = Date.now();
+    }
+
+    public executeQuery(query: SearchQuery): Array<DatabaseEntry> {
+        let results = this.searchByPattern(query.searchTerm, query.searchType);
+
+        // تطبيق الفلاتر
+        if (Object.keys(query.filters).length > 0) {
+            results = results.filter(entry => {
+                for (let key in query.filters) {
+                    if (entry[key] !== query.filters[key]) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        // الترتيب
+        if (query.sortBy) {
+            results.sort((a, b) => {
+                let aVal = a[query.sortBy];
+                let bVal = b[query.sortBy];
+
+                if (query.sortOrder === SortOrder.ASC) {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+        }
+
+        // التقسيم إلى صفحات
+        return results.slice(query.offset, query.offset + query.limit);
+    }
+}
+
+export {
+    DatabaseOperation,
+    SearchType,
+    SortOrder,
+    DatabaseEntry,
+    SearchQuery,
+    DatabaseStatistics,
+    DictionaryDatabaseManager
+};
+

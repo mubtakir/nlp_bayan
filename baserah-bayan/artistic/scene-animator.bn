@@ -1,0 +1,561 @@
+// ============================================================================
+// scene-animator.bn
+// نظام تحريك المشاهد الكاملة
+// 
+// هذا النظام يوفر:
+// - إدارة المشاهد (Scene Management)
+// - تحريك الكاميرا (Camera Animation)
+// - تحريك الإضاءة (Lighting Animation)
+// - تحريك الخلفيات (Background Animation)
+// - تأثيرات بصرية (Visual Effects)
+// - تسلسل المشاهد (Scene Sequencing)
+// ============================================================================
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { Vector2D } from "./physics-based-animation.bn";
+import { CharacterAnimator, Skeleton } from "./character-animation.bn";
+
+// ============================================================================
+// التعدادات (Enums)
+// ============================================================================
+
+enum CameraMovement {
+    STATIC = "static",
+    PAN = "pan",
+    ZOOM = "zoom",
+    FOLLOW = "follow",
+    SHAKE = "shake",
+    CUSTOM = "custom"
+}
+
+enum LightingType {
+    AMBIENT = "ambient",
+    DIRECTIONAL = "directional",
+    POINT = "point",
+    SPOTLIGHT = "spotlight"
+}
+
+enum SceneTransition {
+    CUT = "cut",
+    FADE = "fade",
+    DISSOLVE = "dissolve",
+    WIPE = "wipe",
+    SLIDE = "slide"
+}
+
+enum LayerType {
+    BACKGROUND = "background",
+    MIDGROUND = "midground",
+    FOREGROUND = "foreground",
+    UI = "ui"
+}
+
+// ============================================================================
+// Camera - كاميرا
+// ============================================================================
+
+class Camera extends MotherEquation {
+    public cameraId: string;
+    public position: Vector2D;
+    public zoom: number;
+    public rotation: number;
+    public movement: CameraMovement;
+    public target: Vector2D;
+    public followSpeed: number;
+    public shakeIntensity: number;
+    public shakeDuration: number;
+    public shakeTime: number;
+
+    constructor(cameraId: string, position: Vector2D) {
+        super(cameraId);
+        
+        this.cameraId = cameraId;
+        this.position = position;
+        this.zoom = 1.0;
+        this.rotation = 0;
+        this.movement = CameraMovement.STATIC;
+        this.target = position.clone();
+        this.followSpeed = 5.0;
+        this.shakeIntensity = 0;
+        this.shakeDuration = 0;
+        this.shakeTime = 0;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            cameraId: cameraId
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            position: this.position,
+            zoom: this.zoom,
+            rotation: this.rotation,
+            movement: this.movement
+        };
+    }
+
+    // تعيين الهدف
+    public setTarget(target: Vector2D): void {
+        this.target = target;
+        this.movement = CameraMovement.FOLLOW;
+    }
+
+    // بدء الاهتزاز
+    public shake(intensity: number, duration: number): void {
+        this.shakeIntensity = intensity;
+        this.shakeDuration = duration;
+        this.shakeTime = 0;
+        this.movement = CameraMovement.SHAKE;
+    }
+
+    // تحديث الكاميرا
+    public update(deltaTime: number): void {
+        if (this.movement === CameraMovement.FOLLOW) {
+            // متابعة الهدف بسلاسة
+            let diff = this.target.subtract(this.position);
+            this.position = this.position.add(diff.multiply(this.followSpeed * deltaTime));
+        } else if (this.movement === CameraMovement.SHAKE) {
+            // اهتزاز الكاميرا
+            this.shakeTime += deltaTime;
+            
+            if (this.shakeTime < this.shakeDuration) {
+                let offsetX = (Math.random() - 0.5) * this.shakeIntensity;
+                let offsetY = (Math.random() - 0.5) * this.shakeIntensity;
+                this.position.x += offsetX;
+                this.position.y += offsetY;
+            } else {
+                this.movement = CameraMovement.STATIC;
+                this.shakeIntensity = 0;
+            }
+        }
+
+        this.dynamicStates.position = this.position;
+        this.dynamicStates.zoom = this.zoom;
+        this.dynamicStates.rotation = this.rotation;
+    }
+
+    // تطبيق التحويل على نقطة
+    public worldToScreen(worldPos: Vector2D, screenWidth: number, screenHeight: number): Vector2D {
+        let relativePos = worldPos.subtract(this.position);
+        let rotated = this.rotatePoint(relativePos, -this.rotation);
+        let scaled = rotated.multiply(this.zoom);
+        
+        return new Vector2D(
+            scaled.x + screenWidth / 2,
+            scaled.y + screenHeight / 2
+        );
+    }
+
+    // تدوير نقطة
+    private rotatePoint(point: Vector2D, angle: number): Vector2D {
+        let cos = Math.cos(angle);
+        let sin = Math.sin(angle);
+        return new Vector2D(
+            point.x * cos - point.y * sin,
+            point.x * sin + point.y * cos
+        );
+    }
+}
+
+// ============================================================================
+// Light - إضاءة
+// ============================================================================
+
+class Light extends MotherEquation {
+    public lightId: string;
+    public lightType: LightingType;
+    public position: Vector2D;
+    public color: string;
+    public intensity: number;
+    public range: number;
+    public isAnimated: boolean;
+    public animationTime: number;
+
+    constructor(lightId: string, lightType: LightingType, position: Vector2D) {
+        super(lightId);
+        
+        this.lightId = lightId;
+        this.lightType = lightType;
+        this.position = position;
+        this.color = "#ffffff";
+        this.intensity = 1.0;
+        this.range = 300;
+        this.isAnimated = false;
+        this.animationTime = 0;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            lightId: lightId,
+            lightType: lightType
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            position: this.position,
+            color: this.color,
+            intensity: this.intensity,
+            range: this.range
+        };
+    }
+
+    // تحديث الإضاءة
+    public update(deltaTime: number): void {
+        if (this.isAnimated) {
+            this.animationTime += deltaTime;
+            
+            // تأثير وميض
+            this.intensity = 0.8 + Math.sin(this.animationTime * 5) * 0.2;
+            
+            this.dynamicStates.intensity = this.intensity;
+        }
+    }
+
+    // تفعيل التحريك
+    public enableAnimation(): void {
+        this.isAnimated = true;
+    }
+
+    // تعطيل التحريك
+    public disableAnimation(): void {
+        this.isAnimated = false;
+        this.intensity = 1.0;
+    }
+}
+
+// ============================================================================
+// SceneLayer - طبقة مشهد
+// ============================================================================
+
+class SceneLayer extends MotherEquation {
+    public layerId: string;
+    public layerName: string;
+    public layerType: LayerType;
+    public depth: number;
+    public opacity: number;
+    public isVisible: boolean;
+    public parallaxFactor: number;
+    public elements: array<object>;
+
+    constructor(layerId: string, layerName: string, layerType: LayerType, depth: number) {
+        super(layerId);
+        
+        this.layerId = layerId;
+        this.layerName = layerName;
+        this.layerType = layerType;
+        this.depth = depth;
+        this.opacity = 1.0;
+        this.isVisible = true;
+        this.parallaxFactor = 1.0;
+        this.elements = [];
+
+        // تعيين عامل المنظور حسب نوع الطبقة
+        if (layerType === LayerType.BACKGROUND) {
+            this.parallaxFactor = 0.3;
+        } else if (layerType === LayerType.MIDGROUND) {
+            this.parallaxFactor = 0.7;
+        } else if (layerType === LayerType.FOREGROUND) {
+            this.parallaxFactor = 1.5;
+        }
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            layerId: layerId,
+            layerName: layerName,
+            layerType: layerType,
+            depth: depth
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            opacity: this.opacity,
+            isVisible: this.isVisible,
+            elementCount: 0
+        };
+    }
+
+    // إضافة عنصر
+    public addElement(element: object): void {
+        this.elements.push(element);
+        this.dynamicStates.elementCount = this.elements.length;
+    }
+
+    // إزالة عنصر
+    public removeElement(elementId: string): void {
+        this.elements = this.elements.filter(e => e.id !== elementId);
+        this.dynamicStates.elementCount = this.elements.length;
+    }
+
+    // إظهار/إخفاء
+    public setVisible(visible: boolean): void {
+        this.isVisible = visible;
+        this.dynamicStates.isVisible = visible;
+    }
+
+    // تعيين الشفافية
+    public setOpacity(opacity: number): void {
+        this.opacity = Math.max(0, Math.min(1, opacity));
+        this.dynamicStates.opacity = this.opacity;
+    }
+}
+
+// ============================================================================
+// Scene - مشهد
+// ============================================================================
+
+class Scene extends MotherEquation {
+    public sceneId: string;
+    public sceneName: string;
+    public camera: Camera;
+    public lights: array<Light>;
+    public layers: array<SceneLayer>;
+    public characters: array<CharacterAnimator>;
+    public duration: number;
+    public currentTime: number;
+    public backgroundColor: string;
+    public isActive: boolean;
+
+    constructor(sceneId: string, sceneName: string, duration: number) {
+        super(sceneId);
+
+        this.sceneId = sceneId;
+        this.sceneName = sceneName;
+        this.camera = new Camera("camera_" + sceneId, new Vector2D(0, 0));
+        this.lights = [];
+        this.layers = [];
+        this.characters = [];
+        this.duration = duration;
+        this.currentTime = 0;
+        this.backgroundColor = "#87CEEB"; // سماء زرقاء
+        this.isActive = false;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            sceneId: sceneId,
+            sceneName: sceneName,
+            duration: duration
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            currentTime: this.currentTime,
+            isActive: this.isActive,
+            lightCount: 0,
+            layerCount: 0,
+            characterCount: 0
+        };
+    }
+
+    // إضافة إضاءة
+    public addLight(light: Light): void {
+        this.lights.push(light);
+        this.dynamicStates.lightCount = this.lights.length;
+    }
+
+    // إضافة طبقة
+    public addLayer(layer: SceneLayer): void {
+        this.layers.push(layer);
+        this.layers.sort((a, b) => a.depth - b.depth);
+        this.dynamicStates.layerCount = this.layers.length;
+    }
+
+    // إضافة شخصية
+    public addCharacter(character: CharacterAnimator): void {
+        this.characters.push(character);
+        this.dynamicStates.characterCount = this.characters.length;
+    }
+
+    // تفعيل المشهد
+    public activate(): void {
+        this.isActive = true;
+        this.currentTime = 0;
+        this.dynamicStates.isActive = true;
+    }
+
+    // إلغاء تفعيل المشهد
+    public deactivate(): void {
+        this.isActive = false;
+        this.dynamicStates.isActive = false;
+    }
+
+    // تحديث المشهد
+    public update(deltaTime: number): void {
+        if (!this.isActive) return;
+
+        this.currentTime += deltaTime;
+
+        // تحديث الكاميرا
+        this.camera.update(deltaTime);
+
+        // تحديث الإضاءة
+        for (let i = 0; i < this.lights.length; i++) {
+            this.lights[i].update(deltaTime);
+        }
+
+        // تحديث الشخصيات
+        for (let i = 0; i < this.characters.length; i++) {
+            this.characters[i].update(deltaTime);
+        }
+
+        this.dynamicStates.currentTime = this.currentTime;
+
+        // إنهاء المشهد إذا انتهى الوقت
+        if (this.currentTime >= this.duration) {
+            this.deactivate();
+        }
+    }
+
+    // الحصول على التقدم (0-1)
+    public getProgress(): number {
+        return this.currentTime / this.duration;
+    }
+}
+
+// ============================================================================
+// SceneSequencer - منسق المشاهد
+// ============================================================================
+
+class SceneSequencer extends MotherEquation {
+    public sequencerId: string;
+    public scenes: array<Scene>;
+    public currentSceneIndex: number;
+    public currentScene: Scene;
+    public transition: SceneTransition;
+    public transitionDuration: number;
+    public isTransitioning: boolean;
+    public transitionTime: number;
+    public isPlaying: boolean;
+
+    constructor(sequencerId: string) {
+        super(sequencerId);
+
+        this.sequencerId = sequencerId;
+        this.scenes = [];
+        this.currentSceneIndex = -1;
+        this.currentScene = null;
+        this.transition = SceneTransition.FADE;
+        this.transitionDuration = 1.0;
+        this.isTransitioning = false;
+        this.transitionTime = 0;
+        this.isPlaying = false;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            sequencerId: sequencerId
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            sceneCount: 0,
+            currentSceneIndex: this.currentSceneIndex,
+            isPlaying: this.isPlaying,
+            isTransitioning: this.isTransitioning
+        };
+    }
+
+    // إضافة مشهد
+    public addScene(scene: Scene): void {
+        this.scenes.push(scene);
+        this.dynamicStates.sceneCount = this.scenes.length;
+    }
+
+    // تشغيل التسلسل
+    public play(): void {
+        if (this.scenes.length === 0) return;
+
+        this.isPlaying = true;
+        this.currentSceneIndex = 0;
+        this.currentScene = this.scenes[0];
+        this.currentScene.activate();
+
+        this.dynamicStates.isPlaying = true;
+        this.dynamicStates.currentSceneIndex = this.currentSceneIndex;
+    }
+
+    // إيقاف
+    public stop(): void {
+        this.isPlaying = false;
+        if (this.currentScene) {
+            this.currentScene.deactivate();
+        }
+        this.dynamicStates.isPlaying = false;
+    }
+
+    // الانتقال إلى المشهد التالي
+    public nextScene(): void {
+        if (this.currentSceneIndex >= this.scenes.length - 1) {
+            this.stop();
+            return;
+        }
+
+        this.isTransitioning = true;
+        this.transitionTime = 0;
+
+        // إلغاء تفعيل المشهد الحالي
+        if (this.currentScene) {
+            this.currentScene.deactivate();
+        }
+
+        // الانتقال إلى المشهد التالي
+        this.currentSceneIndex++;
+        this.currentScene = this.scenes[this.currentSceneIndex];
+
+        this.dynamicStates.currentSceneIndex = this.currentSceneIndex;
+        this.dynamicStates.isTransitioning = true;
+    }
+
+    // تحديث المنسق
+    public update(deltaTime: number): void {
+        if (!this.isPlaying) return;
+
+        // تحديث الانتقال
+        if (this.isTransitioning) {
+            this.transitionTime += deltaTime;
+
+            if (this.transitionTime >= this.transitionDuration) {
+                this.isTransitioning = false;
+                this.currentScene.activate();
+                this.dynamicStates.isTransitioning = false;
+            }
+            return;
+        }
+
+        // تحديث المشهد الحالي
+        if (this.currentScene) {
+            this.currentScene.update(deltaTime);
+
+            // التحقق من انتهاء المشهد
+            if (!this.currentScene.isActive) {
+                this.nextScene();
+            }
+        }
+    }
+
+    // الحصول على تقدم الانتقال (0-1)
+    public getTransitionProgress(): number {
+        if (!this.isTransitioning) return 1;
+        return this.transitionTime / this.transitionDuration;
+    }
+
+    // الحصول على التقدم الكلي (0-1)
+    public getTotalProgress(): number {
+        if (this.scenes.length === 0) return 0;
+
+        let completedScenes = this.currentSceneIndex;
+        let currentProgress = this.currentScene ? this.currentScene.getProgress() : 0;
+
+        return (completedScenes + currentProgress) / this.scenes.length;
+    }
+}
+
+export {
+    Camera,
+    Light,
+    SceneLayer,
+    Scene,
+    SceneSequencer,
+    CameraMovement,
+    LightingType,
+    SceneTransition,
+    LayerType
+};
+

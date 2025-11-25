@@ -1,0 +1,358 @@
+#!/usr/bin/env bayan
+/**
+ * نظام تحميل المعاجم الرقمية - Digital Lexicon Loader
+ * نظام بصيرة الثوري
+ * 
+ * 📚 تحميل المعاجم الرقمية من مصادر مختلفة
+ * 🔍 استخراج الكلمات والمعاني
+ * 🧠 تكامل مع نظام سيماء الحروف
+ * ⚡ دعم لغات متعددة
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+// ==================== التعدادات ====================
+
+enum LexiconSource {
+    MANUAL = "يدوي",           // إدخال يدوي
+    FILE = "ملف",              // من ملف
+    DATABASE = "قاعدة_بيانات",  // من قاعدة بيانات
+    INTERNET = "إنترنت",        // من الإنترنت
+    EXTRACTED = "مستخرج",       // مستخرج من نصوص
+    ARRAMOOZ = "الراموز"        // معجم الراموز
+}
+
+enum PartOfSpeech {
+    NOUN = "اسم",
+    VERB = "فعل",
+    ADJECTIVE = "صفة",
+    ADVERB = "ظرف",
+    PRONOUN = "ضمير",
+    PREPOSITION = "حرف_جر",
+    CONJUNCTION = "حرف_عطف",
+    PARTICLE = "أداة",
+    UNKNOWN = "غير_معروف"
+}
+
+enum Language {
+    ARABIC = "ar",
+    ENGLISH = "en",
+    FRENCH = "fr",
+    SPANISH = "es",
+    GERMAN = "de",
+    MIXED = "mixed"
+}
+
+// ==================== الفئات ====================
+
+class LexiconEntry extends MotherEquation {
+    public word: string;
+    public meaning: string;
+    public partOfSpeech: PartOfSpeech;
+    public root: string;
+    public frequency: number;
+    public source: LexiconSource;
+    public language: Language;
+    public metadata: object;
+    
+    constructor(
+        word: string,
+        meaning: string,
+        partOfSpeech: PartOfSpeech = PartOfSpeech.UNKNOWN,
+        root: string = "",
+        source: LexiconSource = LexiconSource.MANUAL,
+        language: Language = Language.ARABIC
+    ) {
+        super(`lexicon_entry_${word}`);
+        
+        this.word = word;
+        this.meaning = meaning;
+        this.partOfSpeech = partOfSpeech;
+        this.root = root;
+        this.frequency = 1;
+        this.source = source;
+        this.language = language;
+        this.metadata = {};
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            word: word,
+            root: root,
+            language: language,
+            source: source
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            meaning: meaning,
+            frequency: 1,
+            partOfSpeech: partOfSpeech,
+            lastAccessed: Date.now()
+        };
+    }
+    
+    public incrementFrequency(): void {
+        this.frequency++;
+        this.dynamicStates.frequency = this.frequency;
+        this.dynamicStates.lastAccessed = Date.now();
+    }
+    
+    public updateMeaning(newMeaning: string): void {
+        this.meaning = newMeaning;
+        this.dynamicStates.meaning = newMeaning;
+    }
+    
+    public addMetadata(key: string, value: any): void {
+        this.metadata[key] = value;
+    }
+    
+    public toJSON(): object {
+        return {
+            word: this.word,
+            meaning: this.meaning,
+            partOfSpeech: this.partOfSpeech,
+            root: this.root,
+            frequency: this.frequency,
+            source: this.source,
+            language: this.language,
+            metadata: this.metadata
+        };
+    }
+}
+
+class CharacterMeaning extends MotherEquation {
+    public character: string;
+    public meanings: Array<{meaning: string, strength: number}>;
+    public relatedWords: Array<string>;
+    public frequency: number;
+    public confidence: number;
+    
+    constructor(character: string) {
+        super(`char_meaning_${character}`);
+        
+        this.character = character;
+        this.meanings = [];
+        this.relatedWords = [];
+        this.frequency = 0;
+        this.confidence = 0.0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            character: character
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            meanings: [],
+            frequency: 0,
+            confidence: 0.0,
+            lastUpdated: Date.now()
+        };
+    }
+    
+    public addMeaning(meaning: string, strength: number): void {
+        this.meanings.push({ meaning, strength });
+        this.dynamicStates.meanings = this.meanings;
+        this.dynamicStates.lastUpdated = Date.now();
+    }
+    
+    public addRelatedWord(word: string): void {
+        if (!this.relatedWords.includes(word)) {
+            this.relatedWords.push(word);
+        }
+    }
+    
+    public updateConfidence(confidence: number): void {
+        this.confidence = confidence;
+        this.dynamicStates.confidence = confidence;
+    }
+    
+    public getTopMeanings(topN: number = 5): Array<{meaning: string, strength: number}> {
+        return this.meanings
+            .sort((a, b) => b.strength - a.strength)
+            .slice(0, topN);
+    }
+}
+
+class DigitalLexiconLoader extends MotherEquation {
+    public lexicon: Map<string, LexiconEntry>;
+    public characterMeanings: Map<string, CharacterMeaning>;
+    public wordGroups: Map<string, Array<string>>;
+    public statistics: object;
+    
+    constructor(loaderId: string = "lexicon_loader_1") {
+        super(loaderId);
+        
+        this.lexicon = new Map();
+        this.characterMeanings = new Map();
+        this.wordGroups = new Map();
+        this.statistics = {
+            totalWords: 0,
+            totalCharacters: 0,
+            languages: new Set(),
+            sources: {}
+        };
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            loaderId: loaderId,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalWords: 0,
+            totalCharacters: 0,
+            lastUpdate: Date.now()
+        };
+    }
+    
+    public addWord(
+        word: string,
+        meaning: string,
+        partOfSpeech: PartOfSpeech = PartOfSpeech.UNKNOWN,
+        root: string = "",
+        source: LexiconSource = LexiconSource.MANUAL,
+        language: Language = Language.ARABIC,
+        metadata: object = {}
+    ): boolean {
+        // تجاهل الكلمات القصيرة جداً
+        if (!word || word.length < 1) {
+            return false;
+        }
+        
+        // إذا كانت الكلمة موجودة، زيادة التكرار
+        if (this.lexicon.has(word)) {
+            this.lexicon.get(word).incrementFrequency();
+            return false;
+        }
+        
+        // إنشاء مدخل جديد
+        let entry = new LexiconEntry(word, meaning, partOfSpeech, root, source, language);
+        
+        // إضافة البيانات الوصفية
+        for (let key in metadata) {
+            entry.addMetadata(key, metadata[key]);
+        }
+        
+        this.lexicon.set(word, entry);
+        
+        // تحديث الإحصائيات
+        this.statistics.totalWords++;
+        this.statistics.languages.add(language);
+        
+        if (!this.statistics.sources[source]) {
+            this.statistics.sources[source] = 0;
+        }
+        this.statistics.sources[source]++;
+        
+        this.dynamicStates.totalWords = this.statistics.totalWords;
+        this.dynamicStates.lastUpdate = Date.now();
+        
+        return true;
+    }
+    
+    public loadFromDict(
+        data: object,
+        source: LexiconSource = LexiconSource.MANUAL,
+        language: Language = Language.ARABIC
+    ): number {
+        let count = 0;
+        for (let word in data) {
+            if (this.addWord(word, data[word], PartOfSpeech.UNKNOWN, "", source, language)) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    public getWord(word: string): LexiconEntry | null {
+        return this.lexicon.get(word) || null;
+    }
+    
+    public searchWords(pattern: string): Array<string> {
+        let results = [];
+        for (let [word, entry] of this.lexicon) {
+            if (word.includes(pattern)) {
+                results.push(word);
+            }
+        }
+        return results;
+    }
+    
+    public getWordsByCharacter(char: string): Array<string> {
+        let results = [];
+        for (let [word, entry] of this.lexicon) {
+            if (word.includes(char)) {
+                results.push(word);
+            }
+        }
+        return results;
+    }
+    
+    public getCharacterFrequency(): Map<string, number> {
+        let freq = new Map();
+        for (let [word, entry] of this.lexicon) {
+            let uniqueChars = new Set(word.split(''));
+            for (let char of uniqueChars) {
+                freq.set(char, (freq.get(char) || 0) + 1);
+            }
+        }
+        return freq;
+    }
+    
+    public getStatistics(): object {
+        let avgWordLength = 0;
+        if (this.lexicon.size > 0) {
+            let totalLength = 0;
+            for (let [word, entry] of this.lexicon) {
+                totalLength += word.length;
+            }
+            avgWordLength = totalLength / this.lexicon.size;
+        }
+        
+        return {
+            totalWords: this.statistics.totalWords,
+            totalCharacters: this.characterMeanings.size,
+            languages: Array.from(this.statistics.languages),
+            sources: this.statistics.sources,
+            averageWordLength: avgWordLength
+        };
+    }
+    
+    public exportToJSON(): object {
+        let data = {};
+        for (let [word, entry] of this.lexicon) {
+            data[word] = entry.meaning;
+        }
+        return data;
+    }
+    
+    public clear(): void {
+        this.lexicon.clear();
+        this.characterMeanings.clear();
+        this.wordGroups.clear();
+        this.statistics = {
+            totalWords: 0,
+            totalCharacters: 0,
+            languages: new Set(),
+            sources: {}
+        };
+        this.dynamicStates.totalWords = 0;
+        this.dynamicStates.totalCharacters = 0;
+        this.dynamicStates.lastUpdate = Date.now();
+    }
+}
+
+export { 
+    LexiconSource, 
+    PartOfSpeech, 
+    Language,
+    LexiconEntry, 
+    CharacterMeaning, 
+    DigitalLexiconLoader 
+};
+

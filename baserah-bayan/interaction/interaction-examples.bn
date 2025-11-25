@@ -1,0 +1,456 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 📚 أمثلة أنظمة التفاعل - Interaction Systems Examples
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * أمثلة عملية شاملة لاستخدام أنظمة التفاعل
+ * 
+ * @author Al-Mubtakir
+ * @version 1.0.0
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+import {
+    DialogueManager,
+    DialogueStrategy,
+    DialogueState,
+    TurnType
+} from "./dialogue-manager.bn";
+
+import {
+    ResponseGenerator,
+    ResponseType,
+    ResponseStyle,
+    DetailLevel
+} from "./response-generator.bn";
+
+import {
+    UserModelingSystem,
+    ExpertiseLevel,
+    InteractionPattern,
+    SatisfactionLevel
+} from "./user-modeling.bn";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 1: إدارة حوار بسيط
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example1_BasicDialogue(): void {
+    console.log("═══ المثال 1: إدارة حوار بسيط ═══\n");
+    
+    // إنشاء مدير الحوار
+    let manager = new DialogueManager("dialogue_manager_1");
+    
+    // بدء حوار جديد
+    let context = manager.startDialogue("session_001", DialogueStrategy.ADAPTIVE);
+    console.log(`✓ بدء حوار جديد: ${context.id}`);
+    console.log(`  الاستراتيجية: ${manager.currentStrategy}`);
+    
+    // معالجة دور المستخدم
+    let userTurn = manager.processUserTurn(
+        "مرحباً، أريد معرفة المزيد عن الذكاء الاصطناعي",
+        "greeting",
+        { topic: "AI" }
+    );
+    console.log(`\n👤 المستخدم: ${userTurn.utterance}`);
+    console.log(`  النية: ${userTurn.intent}`);
+    console.log(`  الثقة: ${userTurn.confidence}`);
+    
+    // توليد رد النظام
+    let systemTurn = manager.generateSystemTurn(
+        "أهلاً وسهلاً! سأساعدك في فهم الذكاء الاصطناعي.",
+        "greeting_response"
+    );
+    console.log(`\n🤖 النظام: ${systemTurn.utterance}`);
+    console.log(`  نوع الدور: ${systemTurn.turnType}`);
+    
+    // عرض ملخص الحوار
+    let summary = manager.getDialogueSummary();
+    console.log(`\n📊 ملخص الحوار:`);
+    console.log(`  الحالة: ${summary.currentState}`);
+    console.log(`  عدد الأدوار: ${summary.turnCount}`);
+    console.log(`  المواضيع النشطة: ${summary.activeTopics.join(", ") || "لا يوجد"}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 2: توليد ردود متنوعة
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example2_ResponseGeneration(): void {
+    console.log("\n═══ المثال 2: توليد ردود متنوعة ═══\n");
+    
+    // إنشاء مولد الردود
+    let generator = new ResponseGenerator("response_gen_1");
+    
+    // توليد تحية
+    let greeting = generator.generateGreeting();
+    console.log(`✓ تحية: ${greeting.text}`);
+    console.log(`  النوع: ${greeting.responseType}`);
+    console.log(`  الأسلوب: ${greeting.style}`);
+    
+    // توليد رد توضيحي
+    let clarification = generator.generateClarification("الذكاء الاصطناعي");
+    console.log(`\n✓ توضيح: ${clarification.text}`);
+    console.log(`  البدائل: ${clarification.alternatives.length}`);
+    
+    // توليد رد تأكيدي
+    let confirmation = generator.generateConfirmation("البحث عن معلومات");
+    console.log(`\n✓ تأكيد: ${confirmation.text}`);
+    
+    // توليد وداع
+    let farewell = generator.generateFarewell();
+    console.log(`\n✓ وداع: ${farewell.text}`);
+    
+    // عرض الإحصائيات
+    let stats = generator.getStatistics();
+    console.log(`\n📊 إحصائيات المولد:`);
+    console.log(`  إجمالي الردود: ${stats.totalGenerated}`);
+    console.log(`  عدد القوالب: ${stats.templateCount}`);
+    console.log(`  متوسط الثقة: ${stats.averageConfidence.toFixed(2)}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 3: نمذجة المستخدم
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example3_UserModeling(): void {
+    console.log("\n═══ المثال 3: نمذجة المستخدم ═══\n");
+    
+    // إنشاء نظام نمذجة المستخدم
+    let modelingSystem = new UserModelingSystem("user_modeling_1");
+    
+    // إنشاء ملف مستخدم
+    let profile = modelingSystem.createProfile("user_001", "أحمد");
+    console.log(`✓ إنشاء ملف المستخدم: ${profile.name}`);
+    console.log(`  المعرف: ${profile.userId}`);
+    console.log(`  مستوى الخبرة: ${profile.expertiseLevel}`);
+    
+    // تحديث التفضيلات
+    profile.preferences.updateResponseStyle(ResponseStyle.FRIENDLY);
+    profile.preferences.updateDetailLevel(DetailLevel.DETAILED);
+    profile.preferences.addPreferredTopic("الذكاء الاصطناعي");
+    profile.preferences.addPreferredTopic("التعلم الآلي");
+    
+    console.log(`\n✓ تحديث التفضيلات:`);
+    console.log(`  الأسلوب: ${profile.preferences.responseStyle}`);
+    console.log(`  مستوى التفصيل: ${profile.preferences.detailLevel}`);
+    console.log(`  المواضيع المفضلة: ${profile.preferences.topics.join(", ")}`);
+    
+    // إضافة أهداف وإنجازات
+    profile.addGoal("تعلم أساسيات الذكاء الاصطناعي");
+    profile.addGoal("فهم الشبكات العصبية");
+    profile.addAchievement("أكمل الدرس الأول");
+    
+    console.log(`\n✓ الأهداف والإنجازات:`);
+    console.log(`  الأهداف: ${profile.goals.length}`);
+    console.log(`  الإنجازات: ${profile.achievements.length}`);
+    
+    // تفعيل المستخدم
+    modelingSystem.activateUser("user_001");
+    
+    // عرض الإحصائيات
+    let stats = modelingSystem.getStatistics();
+    console.log(`\n📊 إحصائيات النظام:`);
+    console.log(`  إجمالي المستخدمين: ${stats.totalUsers}`);
+    console.log(`  المستخدمون النشطون: ${stats.activeUsers}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 4: حوار متعدد الأدوار
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example4_MultiTurnDialogue(): void {
+    console.log("\n═══ المثال 4: حوار متعدد الأدوار ═══\n");
+    
+    let manager = new DialogueManager("dialogue_manager_2");
+    let generator = new ResponseGenerator("response_gen_2");
+    
+    // بدء حوار
+    let context = manager.startDialogue("session_002", DialogueStrategy.COLLABORATIVE);
+    
+    // الدور 1: تحية
+    let turn1 = manager.processUserTurn("السلام عليكم", "greeting", {});
+    console.log(`👤 الدور 1: ${turn1.utterance}`);
+    
+    let response1 = generator.generateGreeting();
+    manager.generateSystemTurn(response1.text, "greeting_response");
+    console.log(`🤖 الرد 1: ${response1.text}`);
+    
+    // الدور 2: سؤال
+    let turn2 = manager.processUserTurn(
+        "ما هي المعادلة الأم؟",
+        "query",
+        { topic: "mother_equation" }
+    );
+    console.log(`\n👤 الدور 2: ${turn2.utterance}`);
+    
+    let response2 = generator.generate(
+        context,
+        ResponseType.INFORMATIVE,
+        {
+            context: "نظام بصيرة",
+            answer: "المعادلة الأم هي O = (id, Φ, Ψ(t), Γ)"
+        }
+    );
+    manager.generateSystemTurn(response2.text, "answer");
+    console.log(`🤖 الرد 2: ${response2.text}`);
+    
+    // الدور 3: طلب توضيح
+    let turn3 = manager.processUserTurn("ما معنى Φ؟", "clarify", { symbol: "Φ" });
+    console.log(`\n👤 الدور 3: ${turn3.utterance}`);
+    
+    let response3 = generator.generate(
+        context,
+        ResponseType.CLARIFYING,
+        {
+            topic: "Φ (Phi)",
+            explanation: "Φ تمثل الخصائص الثابتة مثل الكتلة والكثافة"
+        }
+    );
+    manager.generateSystemTurn(response3.text, "clarification");
+    console.log(`🤖 الرد 3: ${response3.text}`);
+    
+    // عرض ملخص
+    let summary = manager.getDialogueSummary();
+    console.log(`\n📊 ملخص الحوار:`);
+    console.log(`  عدد الأدوار: ${summary.turnCount}`);
+    console.log(`  الحالة: ${summary.currentState}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 5: تخصيص الردود
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example5_ResponsePersonalization(): void {
+    console.log("\n═══ المثال 5: تخصيص الردود ═══\n");
+    
+    let generator = new ResponseGenerator("response_gen_3");
+    let modelingSystem = new UserModelingSystem("user_modeling_2");
+    
+    // إنشاء ملفين مختلفين
+    let profile1 = modelingSystem.createProfile("user_002", "فاطمة");
+    profile1.preferences.updateResponseStyle(ResponseStyle.FORMAL);
+    profile1.preferences.updateDetailLevel(DetailLevel.BRIEF);
+    
+    let profile2 = modelingSystem.createProfile("user_003", "محمد");
+    profile2.preferences.updateResponseStyle(ResponseStyle.CASUAL);
+    profile2.preferences.updateDetailLevel(DetailLevel.DETAILED);
+    
+    console.log(`✓ إنشاء ملفين مختلفين:`);
+    console.log(`  ${profile1.name}: ${profile1.preferences.responseStyle}, ${profile1.preferences.detailLevel}`);
+    console.log(`  ${profile2.name}: ${profile2.preferences.responseStyle}, ${profile2.preferences.detailLevel}`);
+    
+    // تخصيص الأساليب
+    generator.setDefaultStyle(ResponseStyle.FORMAL);
+    let response1 = generator.generateGreeting();
+    console.log(`\n✓ رد رسمي: ${response1.text}`);
+    
+    generator.setDefaultStyle(ResponseStyle.CASUAL);
+    let response2 = generator.generateGreeting();
+    console.log(`✓ رد غير رسمي: ${response2.text}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 6: استراتيجيات الحوار المختلفة
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example6_DialogueStrategies(): void {
+    console.log("\n═══ المثال 6: استراتيجيات الحوار المختلفة ═══\n");
+
+    let manager = new DialogueManager("dialogue_manager_3");
+
+    // استراتيجية مباشرة
+    manager.startDialogue("session_003", DialogueStrategy.DIRECT);
+    console.log(`✓ استراتيجية مباشرة: ${manager.currentStrategy}`);
+
+    // استراتيجية موجهة
+    manager.changeStrategy(DialogueStrategy.GUIDED);
+    console.log(`✓ استراتيجية موجهة: ${manager.currentStrategy}`);
+
+    // استراتيجية تكيفية
+    manager.changeStrategy(DialogueStrategy.ADAPTIVE);
+    console.log(`✓ استراتيجية تكيفية: ${manager.currentStrategy}`);
+
+    // استراتيجية تعاونية
+    manager.changeStrategy(DialogueStrategy.COLLABORATIVE);
+    console.log(`✓ استراتيجية تعاونية: ${manager.currentStrategy}`);
+
+    // اختبار طلب التوضيح
+    let turn = manager.processUserTurn("شيء ما...", "unclear", {});
+    turn.updateConfidence(0.4);
+
+    let shouldClarify = manager.shouldClarify(turn);
+    console.log(`\n✓ هل يجب طلب توضيح؟ ${shouldClarify ? "نعم" : "لا"}`);
+    console.log(`  الثقة: ${turn.confidence}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 7: تتبع سلوك المستخدم
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example7_BehaviorTracking(): void {
+    console.log("\n═══ المثال 7: تتبع سلوك المستخدم ═══\n");
+
+    let modelingSystem = new UserModelingSystem("user_modeling_3");
+    let profile = modelingSystem.createProfile("user_004", "سارة");
+
+    // تسجيل استعلامات
+    profile.behavior.recordQuery("ما هو الذكاء الاصطناعي؟");
+    profile.behavior.recordQuery("كيف يعمل التعلم الآلي؟");
+    profile.behavior.recordQuery("ما هو الذكاء الاصطناعي؟");
+    profile.behavior.recordQuery("شرح الشبكات العصبية");
+    profile.behavior.recordQuery("ما هو الذكاء الاصطناعي؟");
+
+    console.log(`✓ تسجيل ${profile.behavior.commonQueries.length} استعلام`);
+
+    // الحصول على الاستعلامات الأكثر شيوعاً
+    let topQueries = profile.behavior.getMostCommonQueries(3);
+    console.log(`\n✓ الاستعلامات الأكثر شيوعاً:`);
+    for (let item of topQueries) {
+        console.log(`  - "${item.query}" (${item.count} مرات)`);
+    }
+
+    // تحديث نمط التفاعل
+    profile.behavior.updateInteractionPattern(InteractionPattern.GOAL_ORIENTED);
+    console.log(`\n✓ نمط التفاعل: ${profile.behavior.interactionPattern}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📖 المثال 8: نظام تفاعل متكامل
+// ═══════════════════════════════════════════════════════════════════════════
+
+function example8_IntegratedInteraction(): void {
+    console.log("\n═══ المثال 8: نظام تفاعل متكامل ═══\n");
+
+    // إنشاء جميع المكونات
+    let dialogueManager = new DialogueManager("integrated_dialogue");
+    let responseGenerator = new ResponseGenerator("integrated_response");
+    let userModeling = new UserModelingSystem("integrated_modeling");
+
+    // إنشاء ملف مستخدم
+    let profile = userModeling.createProfile("user_005", "خالد");
+    profile.preferences.updateResponseStyle(ResponseStyle.PROFESSIONAL);
+    profile.preferences.addPreferredTopic("الرياضيات");
+
+    console.log(`✓ إنشاء نظام متكامل للمستخدم: ${profile.name}`);
+
+    // بدء حوار
+    let context = dialogueManager.startDialogue("integrated_session", DialogueStrategy.ADAPTIVE);
+    userModeling.activateUser("user_005");
+
+    // محاكاة حوار كامل
+    console.log(`\n📝 محاكاة حوار:`);
+
+    // الدور 1
+    let turn1 = dialogueManager.processUserTurn(
+        "أريد تعلم المعادلات الرياضية",
+        "request_info",
+        { topic: "mathematics" }
+    );
+    userModeling.updateFromTurn("user_005", turn1);
+    console.log(`👤 ${turn1.utterance}`);
+
+    let response1 = responseGenerator.generate(
+        context,
+        ResponseType.INFORMATIVE,
+        {
+            context: "تعليم الرياضيات",
+            answer: "سأساعدك في تعلم المعادلات الرياضية"
+        }
+    );
+    dialogueManager.generateSystemTurn(response1.text, "info_response");
+    console.log(`🤖 ${response1.text}`);
+
+    // الدور 2
+    let turn2 = dialogueManager.processUserTurn(
+        "ابدأ بالمعادلات الخطية",
+        "execute",
+        { topic: "linear_equations" }
+    );
+    userModeling.updateFromTurn("user_005", turn2);
+    console.log(`\n👤 ${turn2.utterance}`);
+
+    let response2 = responseGenerator.generate(
+        context,
+        ResponseType.DIRECTIVE,
+        {
+            action: "شرح المعادلات الخطية",
+            message: "المعادلة الخطية هي ax + b = 0"
+        }
+    );
+    dialogueManager.generateSystemTurn(response2.text, "directive");
+    console.log(`🤖 ${response2.text}`);
+
+    // تحديث السياق
+    userModeling.updateFromContext("user_005", context);
+
+    // تقييم مستوى الرضا
+    let satisfaction = userModeling.assessSatisfaction("user_005", context);
+    console.log(`\n✓ مستوى الرضا: ${satisfaction}`);
+
+    // التنبؤ بالتفضيلات
+    let predictions = userModeling.predictPreferences("user_005");
+    console.log(`\n✓ التنبؤات:`);
+    console.log(`  الموضوع التالي: ${predictions.nextTopic}`);
+    console.log(`  الأسلوب المفضل: ${predictions.preferredStyle}`);
+
+    // عرض الإحصائيات الشاملة
+    console.log(`\n📊 إحصائيات شاملة:`);
+
+    let dialogueStats = dialogueManager.getDialogueSummary();
+    console.log(`  الحوار - الأدوار: ${dialogueStats.turnCount}, الحالة: ${dialogueStats.currentState}`);
+
+    let responseStats = responseGenerator.getStatistics();
+    console.log(`  الردود - المولدة: ${responseStats.totalGenerated}, الثقة: ${responseStats.averageConfidence.toFixed(2)}`);
+
+    let userStats = userModeling.getStatistics();
+    console.log(`  المستخدمون - الإجمالي: ${userStats.totalUsers}, النشطون: ${userStats.activeUsers}`);
+
+    // إنهاء
+    userModeling.deactivateUser("user_005");
+    dialogueManager.endDialogue("integrated_session");
+    console.log(`\n✓ تم إنهاء الجلسة بنجاح`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🚀 تشغيل جميع الأمثلة
+// ═══════════════════════════════════════════════════════════════════════════
+
+function runAllExamples(): void {
+    console.log("╔═══════════════════════════════════════════════════════════════╗");
+    console.log("║         🗣️ أمثلة أنظمة التفاعل - Interaction Systems        ║");
+    console.log("╚═══════════════════════════════════════════════════════════════╝\n");
+
+    example1_BasicDialogue();
+    example2_ResponseGeneration();
+    example3_UserModeling();
+    example4_MultiTurnDialogue();
+    example5_ResponsePersonalization();
+    example6_DialogueStrategies();
+    example7_BehaviorTracking();
+    example8_IntegratedInteraction();
+
+    console.log("\n╔═══════════════════════════════════════════════════════════════╗");
+    console.log("║                    ✅ اكتملت جميع الأمثلة                     ║");
+    console.log("╚═══════════════════════════════════════════════════════════════╝");
+}
+
+// تشغيل الأمثلة
+runAllExamples();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📤 التصدير - Exports
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+    example1_BasicDialogue,
+    example2_ResponseGeneration,
+    example3_UserModeling,
+    example4_MultiTurnDialogue,
+    example5_ResponsePersonalization,
+    example6_DialogueStrategies,
+    example7_BehaviorTracking,
+    example8_IntegratedInteraction,
+    runAllExamples
+};
+

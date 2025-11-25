@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الذاكرة المتكامل - Integrated Memory System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.3em;
+        }
+
+        .memory-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-right: 4px solid #667eea;
+        }
+
+        .memory-item:hover {
+            background: #e9ecef;
+            transform: translateX(-5px);
+            transition: all 0.3s;
+        }
+
+        .memory-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .memory-content {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .memory-meta {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .input-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-left: 5px;
+            margin-bottom: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .context-info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .context-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .context-value {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 نظام الذاكرة المتكامل</h1>
+            <p class="subtitle">Integrated Memory System - Baserah AI</p>
+        </header>
+
+        <!-- قسم الإدخال -->
+        <div class="input-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">💬 إضافة حوار جديد</h2>
+            <div class="input-group">
+                <label>مدخل المستخدم:</label>
+                <input type="text" id="userInput" placeholder="اكتب سؤالك هنا...">
+            </div>
+            <div class="input-group">
+                <label>رد النظام:</label>
+                <textarea id="botResponse" placeholder="رد النظام..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>الموضوع:</label>
+                <input type="text" id="topic" placeholder="مثال: بصيرة، برمجة، ذكاء اصطناعي">
+            </div>
+            <button onclick="addDialogue()">➕ إضافة إلى الذاكرة</button>
+            <button onclick="clearMemory()" style="background: #dc3545; margin-right: 10px;">🗑️ مسح الذاكرة</button>
+        </div>
+
+        <!-- الإحصائيات -->
+        <div class="card">
+            <h2><span class="icon">📊</span> الإحصائيات</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalEpisodes">0</div>
+                    <div class="stat-label">الأحداث</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalFacts">0</div>
+                    <div class="stat-label">الحقائق</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalConcepts">0</div>
+                    <div class="stat-label">المفاهيم</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="workingSize">0</div>
+                    <div class="stat-label">الذاكرة العاملة</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- الذاكرة الحدثية -->
+            <div class="card">
+                <h2><span class="icon">📝</span> الذاكرة الحدثية</h2>
+                <div id="episodicMemory"></div>
+            </div>
+
+            <!-- الذاكرة الدلالية -->
+            <div class="card">
+                <h2><span class="icon">📚</span> الذاكرة الدلالية</h2>
+                <div id="semanticMemory"></div>
+            </div>
+
+            <!-- السياق الحالي -->
+            <div class="card">
+                <h2><span class="icon">🎯</span> السياق الحالي</h2>
+                <div id="currentContext"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // محاكاة نظام الذاكرة (في التطبيق الحقيقي، سيتم استيراد من ملفات .bn)
+        let memoryData = {
+            episodes: [],
+            facts: [],
+            concepts: [],
+            context: {
+                currentTurn: 0,
+                activeTopics: [],
+                currentFocus: null
+            }
+        };
+
+        function addDialogue() {
+            const userInput = document.getElementById('userInput').value;
+            const botResponse = document.getElementById('botResponse').value;
+            const topic = document.getElementById('topic').value;
+
+            if (!userInput || !botResponse) {
+                alert('الرجاء إدخال السؤال والإجابة');
+                return;
+            }
+
+            // إضافة إلى الذاكرة الحدثية
+            memoryData.episodes.push({
+                userInput,
+                botResponse,
+                topic,
+                timestamp: new Date().toLocaleString('ar-SA')
+            });
+
+            // إضافة حقيقة إلى الذاكرة الدلالية
+            if (topic) {
+                memoryData.facts.push({
+                    subject: topic,
+                    predicate: "تم الحديث عنه",
+                    object: "في الحوار",
+                    timestamp: new Date().toLocaleString('ar-SA')
+                });
+
+                // تحديث السياق
+                if (!memoryData.context.activeTopics.includes(topic)) {
+                    memoryData.context.activeTopics.push(topic);
+                }
+                memoryData.context.currentFocus = topic;
+            }
+
+            memoryData.context.currentTurn++;
+
+            // مسح الحقول
+            document.getElementById('userInput').value = '';
+            document.getElementById('botResponse').value = '';
+            document.getElementById('topic').value = '';
+
+            updateDisplay();
+        }
+
+        function clearMemory() {
+            if (confirm('هل أنت متأكد من مسح جميع الذاكرة؟')) {
+                memoryData = {
+                    episodes: [],
+                    facts: [],
+                    concepts: [],
+                    context: {
+                        currentTurn: 0,
+                        activeTopics: [],
+                        currentFocus: null
+                    }
+                };
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            // تحديث الإحصائيات
+            document.getElementById('totalEpisodes').textContent = memoryData.episodes.length;
+            document.getElementById('totalFacts').textContent = memoryData.facts.length;
+            document.getElementById('totalConcepts').textContent = memoryData.concepts.length;
+            document.getElementById('workingSize').textContent = memoryData.context.activeTopics.length;
+
+            // تحديث الذاكرة الحدثية
+            const episodicDiv = document.getElementById('episodicMemory');
+            if (memoryData.episodes.length === 0) {
+                episodicDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>لا توجد أحداث محفوظة</p></div>';
+            } else {
+                episodicDiv.innerHTML = memoryData.episodes.slice(-5).reverse().map(ep => `
+                    <div class="memory-item">
+                        <div class="memory-title">👤 ${ep.userInput}</div>
+                        <div class="memory-content">🤖 ${ep.botResponse}</div>
+                        <div class="memory-meta">
+                            ${ep.topic ? `<span class="tag">${ep.topic}</span>` : ''}
+                            <span>${ep.timestamp}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // تحديث الذاكرة الدلالية
+            const semanticDiv = document.getElementById('semanticMemory');
+            if (memoryData.facts.length === 0) {
+                semanticDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><p>لا توجد حقائق محفوظة</p></div>';
+            } else {
+                semanticDiv.innerHTML = memoryData.facts.slice(-5).reverse().map(fact => `
+                    <div class="memory-item">
+                        <div class="memory-content">${fact.subject} ${fact.predicate} ${fact.object}</div>
+                        <div class="memory-meta">${fact.timestamp}</div>
+                    </div>
+                `).join('');
+            }
+
+            // تحديث السياق
+            const contextDiv = document.getElementById('currentContext');
+            contextDiv.innerHTML = `
+                <div class="context-info">
+                    <div class="context-label">الدور الحالي:</div>
+                    <div class="context-value">${memoryData.context.currentTurn}</div>
+                </div>
+                <div class="context-info">
+                    <div class="context-label">المواضيع النشطة:</div>
+                    <div class="context-value">
+                        ${memoryData.context.activeTopics.length > 0 
+                            ? memoryData.context.activeTopics.map(t => `<span class="tag">${t}</span>`).join('') 
+                            : 'لا توجد مواضيع نشطة'}
+                    </div>
+                </div>
+                <div class="context-info">
+                    <div class="context-label">التركيز الحالي:</div>
+                    <div class="context-value">${memoryData.context.currentFocus || 'لا يوجد'}</div>
+                </div>
+            `;
+        }
+
+        // تحديث العرض عند التحميل
+        updateDisplay();
+
+        // جعل الدوال متاحة عالمياً
+        window.addDialogue = addDialogue;
+        window.clearMemory = clearMemory;
+    </script>
+</body>
+</html>

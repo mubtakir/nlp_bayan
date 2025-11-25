@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 محرك الرسم بالسيغمويد - Sigmoid Drawing Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .canvas-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        canvas {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            width: 100%;
+            background: #f8fafc;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .example-btn {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .equation-display {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #1e293b;
+            max-height: 200px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .theory-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .badge-zero {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-perpendicular {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-filament {
+            background: #dcfce7;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- العنوان -->
+        <div class="header">
+            <h1>🌊 محرك الرسم بالسيغمويد</h1>
+            <p>النظام الثوري للرسم باستخدام دوال سيغمويد المعممة والمكونات الخطية</p>
+            <div style="margin-top: 15px;">
+                <span class="theory-badge badge-zero">⚖️ ثنائية الصفر</span>
+                <span class="theory-badge badge-perpendicular">⊥ تعامد الأضداد</span>
+                <span class="theory-badge badge-filament">🧵 نظرية الفتائل</span>
+            </div>
+        </div>
+
+        <!-- الشبكة الرئيسية -->
+        <div class="main-grid">
+            <!-- اللوحة اليمنى: التحكم -->
+            <div class="panel">
+                <h2>⚙️ التحكم</h2>
+                
+                <div class="control-group">
+                    <label>معامل التحجيم (α)</label>
+                    <span class="value-display" id="scaleValue">1.0</span>
+                    <input type="range" id="scaleSlider" min="0.1" max="5" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <label>معامل الحدة (k)</label>
+                    <span class="value-display" id="sharpnessValue">5.0</span>
+                    <input type="range" id="sharpnessSlider" min="0.1" max="20" step="0.1" value="5.0">
+                </div>
+
+                <div class="control-group">
+                    <label>نقطة المنتصف (x₀)</label>
+                    <span class="value-display" id="centerValue">0.0</span>
+                    <input type="range" id="centerSlider" min="-5" max="5" step="0.1" value="0.0">
+                </div>
+
+                <div class="control-group">
+                    <label>معامل التقطيع (n)</label>
+                    <span class="value-display" id="cutoffValue">1</span>
+                    <input type="range" id="cutoffSlider" min="1" max="5" step="1" value="1">
+                </div>
+
+                <div class="control-group">
+                    <label>الميل (β)</label>
+                    <span class="value-display" id="slopeValue">0.0</span>
+                    <input type="range" id="slopeSlider" min="-2" max="2" step="0.1" value="0.0">
+                </div>
+
+                <button class="btn btn-primary" onclick="addSigmoidTerm()">➕ إضافة حد سيغمويد</button>
+                <button class="btn btn-secondary" onclick="drawEquation()">🎨 رسم</button>
+                <button class="btn btn-danger" onclick="clearCanvas()">🗑️ مسح</button>
+            </div>
+
+            <!-- اللوحة الوسطى: الرسم -->
+            <div class="canvas-container">
+                <h2 style="color: #667eea; margin-bottom: 15px;">📊 لوحة الرسم</h2>
+                <canvas id="sigmoidCanvas" width="800" height="600"></canvas>
+                
+                <div class="equation-display" id="equationDisplay">
+                    f̂(x) = 0
+                </div>
+            </div>
+
+            <!-- اللوحة اليسرى: الأمثلة والإحصائيات -->
+            <div class="panel">
+                <h2>📚 الأمثلة</h2>
+                
+                <button class="example-btn" onclick="loadExample(1)">
+                    <strong>1. دالة الخطوة</strong><br>
+                    <small>Step Function</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(2)">
+                    <strong>2. دالة البوابة</strong><br>
+                    <small>Gate Function</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(3)">
+                    <strong>3. موجة سلسة</strong><br>
+                    <small>Smooth Wave</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(4)">
+                    <strong>4. منحنى S</strong><br>
+                    <small>S-Curve</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(5)">
+                    <strong>5. نبضة</strong><br>
+                    <small>Pulse</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(6)">
+                    <strong>6. سلم</strong><br>
+                    <small>Staircase</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(7)">
+                    <strong>7. شكل معقد</strong><br>
+                    <small>Complex Shape</small>
+                </button>
+                
+                <button class="example-btn" onclick="loadExample(8)">
+                    <strong>8. عرض الحدود</strong><br>
+                    <small>Visualize Terms</small>
+                </button>
+
+                <h2 style="margin-top: 30px;">📊 الإحصائيات</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-value" id="termCount">0</span>
+                        <span class="stat-label">عدد الحدود</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="pointCount">0</span>
+                        <span class="stat-label">عدد النقاط</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // محرك الرسم بالسيغمويد - JavaScript Implementation
+        // ═══════════════════════════════════════════════════════════════
+
+        const canvas = document.getElementById('sigmoidCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let sigmoidTerms = [];
+        let linearSlope = 0.0;
+        let linearIntercept = 0.0;
+
+        // إعدادات الرسم
+        const scaleX = 50;
+        const scaleY = 50;
+        const offsetX = canvas.width / 2;
+        const offsetY = canvas.height / 2;
+        const resolution = 500;
+        const range = [-8, 8];
+
+        // تحديث القيم المعروضة
+        document.getElementById('scaleSlider').oninput = function() {
+            document.getElementById('scaleValue').textContent = this.value;
+        };
+        document.getElementById('sharpnessSlider').oninput = function() {
+            document.getElementById('sharpnessValue').textContent = this.value;
+        };
+        document.getElementById('centerSlider').oninput = function() {
+            document.getElementById('centerValue').textContent = this.value;
+        };
+        document.getElementById('cutoffSlider').oninput = function() {
+            document.getElementById('cutoffValue').textContent = this.value;
+        };
+        document.getElementById('slopeSlider').oninput = function() {
+            document.getElementById('slopeValue').textContent = this.value;
+            linearSlope = parseFloat(this.value);
+        };
+
+        // دالة سيغمويد المعممة
+        function generalizedSigmoid(x, scale, sharpness, center, cutoff) {
+            try {
+                const xShifted = x - center;
+                const xPowered = Math.pow(xShifted, cutoff);
+                const expValue = Math.exp(-sharpness * xPowered);
+                return scale / (1.0 + expValue);
+            } catch (e) {
+                return x > center ? scale : 0;
+            }
+        }
+
+        // المكون الخطي
+        function linearComponent(x) {
+            return linearSlope * x + linearIntercept;
+        }
+
+        // تقييم المعادلة الكاملة
+        function evaluateEquation(x) {
+            let result = linearComponent(x);
+            for (let term of sigmoidTerms) {
+                result += term.weight * generalizedSigmoid(
+                    x, term.scale, term.sharpness, term.center, term.cutoff
+                );
+            }
+            return result;
+        }
+
+        // تحويل الإحداثيات
+        function toCanvasX(x) {
+            return offsetX + x * scaleX;
+        }
+
+        function toCanvasY(y) {
+            return offsetY - y * scaleY;
+        }
+
+        // رسم المحاور والشبكة
+        function drawAxes() {
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1;
+
+            // الشبكة
+            for (let x = range[0]; x <= range[1]; x++) {
+                ctx.beginPath();
+                ctx.moveTo(toCanvasX(x), 0);
+                ctx.lineTo(toCanvasX(x), canvas.height);
+                ctx.stroke();
+            }
+
+            for (let y = range[0]; y <= range[1]; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, toCanvasY(y));
+                ctx.lineTo(canvas.width, toCanvasY(y));
+                ctx.stroke();
+            }
+
+            // المحاور
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, offsetY);
+            ctx.lineTo(canvas.width, offsetY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(offsetX, 0);
+            ctx.lineTo(offsetX, canvas.height);
+            ctx.stroke();
+        }
+
+        // رسم المعادلة
+        function drawEquation() {
+            clearCanvas();
+            drawAxes();
+
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const step = (range[1] - range[0]) / resolution;
+            let pointCount = 0;
+
+            for (let i = 0; i <= resolution; i++) {
+                const x = range[0] + i * step;
+                const y = evaluateEquation(x);
+                const canvasX = toCanvasX(x);
+                const canvasY = toCanvasY(y);
+
+                if (i === 0) {
+                    ctx.moveTo(canvasX, canvasY);
+                } else {
+                    ctx.lineTo(canvasX, canvasY);
+                }
+                pointCount++;
+            }
+
+            ctx.stroke();
+
+            // تحديث الإحصائيات
+            document.getElementById('termCount').textContent = sigmoidTerms.length;
+            document.getElementById('pointCount').textContent = pointCount;
+
+            updateEquationDisplay();
+        }
+
+        // مسح اللوحة
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // إضافة حد سيغمويد
+        function addSigmoidTerm() {
+            const scale = parseFloat(document.getElementById('scaleSlider').value);
+            const sharpness = parseFloat(document.getElementById('sharpnessSlider').value);
+            const center = parseFloat(document.getElementById('centerSlider').value);
+            const cutoff = parseInt(document.getElementById('cutoffSlider').value);
+
+            sigmoidTerms.push({
+                scale: scale,
+                sharpness: sharpness,
+                center: center,
+                cutoff: cutoff,
+                weight: 1.0
+            });
+
+            console.log(`✓ تم إضافة حد: α=${scale}, k=${sharpness}, x₀=${center}, n=${cutoff}`);
+            drawEquation();
+        }
+
+        // تحديث عرض المعادلة
+        function updateEquationDisplay() {
+            let equation = `f̂(x) = (${linearSlope.toFixed(2)}x + ${linearIntercept.toFixed(2)})`;
+
+            for (let i = 0; i < sigmoidTerms.length; i++) {
+                const term = sigmoidTerms[i];
+                equation += ` + ${term.scale.toFixed(2)} * σ(x; k=${term.sharpness.toFixed(1)}, x₀=${term.center.toFixed(1)}, n=${term.cutoff})`;
+            }
+
+            document.getElementById('equationDisplay').textContent = equation;
+        }
+
+        // تحميل الأمثلة
+        function loadExample(num) {
+            sigmoidTerms = [];
+            linearSlope = 0.0;
+            linearIntercept = 0.0;
+
+            switch(num) {
+                case 1: // دالة الخطوة
+                    sigmoidTerms.push({scale: 1.0, sharpness: 10.0, center: 0.0, cutoff: 1, weight: 1.0});
+                    break;
+                case 2: // دالة البوابة
+                    sigmoidTerms.push({scale: 1.0, sharpness: 15.0, center: -2.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: -1.0, sharpness: 15.0, center: 2.0, cutoff: 1, weight: 1.0});
+                    break;
+                case 3: // موجة سلسة
+                    linearIntercept = 0.5;
+                    sigmoidTerms.push({scale: 1.0, sharpness: 2.0, center: -3.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: -1.0, sharpness: 2.0, center: -1.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: 1.0, sharpness: 2.0, center: 1.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: -1.0, sharpness: 2.0, center: 3.0, cutoff: 1, weight: 1.0});
+                    break;
+                case 4: // منحنى S
+                    linearIntercept = -1.0;
+                    sigmoidTerms.push({scale: 2.0, sharpness: 2.0, center: 0.0, cutoff: 1, weight: 1.0});
+                    break;
+                case 5: // نبضة
+                    sigmoidTerms.push({scale: 1.0, sharpness: 5.0, center: 0.0, cutoff: 2, weight: 1.0});
+                    break;
+                case 6: // سلم
+                    for (let i = 0; i < 5; i++) {
+                        sigmoidTerms.push({scale: 0.5, sharpness: 15.0, center: -4.0 + i * 2.0, cutoff: 1, weight: 1.0});
+                    }
+                    break;
+                case 7: // شكل معقد
+                    linearSlope = 0.1;
+                    sigmoidTerms.push({scale: 1.0, sharpness: 10.0, center: -5.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: -1.0, sharpness: 10.0, center: -3.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: 1.5, sharpness: 3.0, center: -1.0, cutoff: 1, weight: 1.0});
+                    sigmoidTerms.push({scale: 0.8, sharpness: 5.0, center: 1.0, cutoff: 2, weight: 1.0});
+                    sigmoidTerms.push({scale: -1.0, sharpness: 15.0, center: 3.5, cutoff: 3, weight: 1.0});
+                    break;
+                case 8: // عرض الحدود
+                    visualizeTerms();
+                    return;
+            }
+
+            drawEquation();
+        }
+
+        // عرض الحدود منفصلة
+        function visualizeTerms() {
+            if (sigmoidTerms.length === 0) {
+                alert('الرجاء إضافة حدود أولاً!');
+                return;
+            }
+
+            clearCanvas();
+            drawAxes();
+
+            const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
+
+            // رسم كل حد
+            for (let t = 0; t < sigmoidTerms.length; t++) {
+                const term = sigmoidTerms[t];
+                ctx.strokeStyle = colors[t % colors.length];
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                const step = (range[1] - range[0]) / resolution;
+                for (let i = 0; i <= resolution; i++) {
+                    const x = range[0] + i * step;
+                    const y = term.weight * generalizedSigmoid(x, term.scale, term.sharpness, term.center, term.cutoff);
+                    const canvasX = toCanvasX(x);
+                    const canvasY = toCanvasY(y);
+
+                    if (i === 0) {
+                        ctx.moveTo(canvasX, canvasY);
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            // رسم المعادلة الكاملة
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const step = (range[1] - range[0]) / resolution;
+            for (let i = 0; i <= resolution; i++) {
+                const x = range[0] + i * step;
+                const y = evaluateEquation(x);
+                const canvasX = toCanvasX(x);
+                const canvasY = toCanvasY(y);
+
+                if (i === 0) {
+                    ctx.moveTo(canvasX, canvasY);
+                } else {
+                    ctx.lineTo(canvasX, canvasY);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // التهيئة الأولية
+        drawAxes();
+        console.log("🌊 محرك الرسم بالسيغمويد جاهز!");
+    </script>
+</body>
+</html>
+

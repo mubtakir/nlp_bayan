@@ -1,0 +1,319 @@
+/**
+ * نظام التكامل المعرفي - Knowledge Integration System
+ * 
+ * 🔗 دمج جميع مكونات نظام المعرفة
+ * 🧠 واجهة موحدة للوصول إلى المعرفة
+ * 🔄 تكامل مع نظام الذاكرة وطبقات التفكير
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { KnowledgeBase, KnowledgeRelation, KnowledgeCluster, RelationType } from "./knowledge-base.bn";
+import { KnowledgeFeedingSystem, KnowledgeItem, KnowledgeCategory, KnowledgeLevel, FileType, DataSource } from "./knowledge-feeding-system.bn";
+import { KnowledgeQueryEngine, QueryResult, QueryType, SortMethod } from "./knowledge-query-engine.bn";
+
+/**
+ * فئة نظام التكامل المعرفي - IntegratedKnowledgeSystem
+ */
+class IntegratedKnowledgeSystem {
+    private knowledgeBase: KnowledgeBase;
+    private feedingSystem: KnowledgeFeedingSystem;
+    private queryEngine: KnowledgeQueryEngine;
+    private creationTime: Date;
+    private lastUpdate: Date;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(knowledgeBasePath: string = "knowledge_base") {
+        console.log("\n🧠📚 تهيئة نظام التكامل المعرفي...");
+        
+        // إنشاء المكونات الأساسية
+        this.knowledgeBase = new KnowledgeBase();
+        this.feedingSystem = new KnowledgeFeedingSystem(knowledgeBasePath);
+        this.queryEngine = new KnowledgeQueryEngine(this.knowledgeBase);
+        
+        this.creationTime = new Date();
+        this.lastUpdate = new Date();
+        
+        console.log("✅ تم تهيئة نظام التكامل المعرفي بنجاح!");
+        console.log(`   📅 وقت الإنشاء: ${this.creationTime.toLocaleString('ar-SA')}`);
+    }
+    
+    // ==================== تغذية المعرفة ====================
+    
+    /**
+     * تغذية المعرفة من ملف
+     */
+    public feedFromFile(
+        filePath: string,
+        fileContent: string,
+        category: KnowledgeCategory = KnowledgeCategory.GENERAL,
+        metadata: object = {}
+    ): object {
+        console.log(`\n📥 تغذية المعرفة من ملف: ${filePath}`);
+        
+        // معالجة الملف
+        let result = this.feedingSystem.processFile(filePath, fileContent, category, metadata);
+        
+        if (result.success) {
+            // نقل العناصر المعرفية إلى قاعدة المعرفة
+            let items = this.feedingSystem.search("", category);
+            
+            for (let item of items) {
+                this.knowledgeBase.addItem(item);
+            }
+            
+            this.lastUpdate = new Date();
+            
+            console.log(`✅ تم تغذية ${result.itemsSaved} عنصر معرفي`);
+        } else {
+            console.log(`❌ فشلت عملية التغذية: ${result.errors.join(', ')}`);
+        }
+        
+        return {
+            success: result.success,
+            filePath: result.filePath,
+            itemsAdded: result.itemsSaved,
+            errors: result.errors
+        };
+    }
+    
+    /**
+     * تغذية المعرفة من نص
+     */
+    public feedFromText(
+        title: string,
+        content: string,
+        category: KnowledgeCategory = KnowledgeCategory.GENERAL,
+        level: KnowledgeLevel = KnowledgeLevel.BASIC
+    ): string {
+        console.log(`\n📝 تغذية المعرفة من نص: ${title}`);
+        
+        let item = new KnowledgeItem(title, content, category, level);
+        item.sourceType = DataSource.MANUAL_INPUT;
+        
+        let itemId = this.knowledgeBase.addItem(item);
+        this.lastUpdate = new Date();
+        
+        console.log(`✅ تم إضافة عنصر معرفي: ${itemId}`);
+        
+        return itemId;
+    }
+    
+    /**
+     * تغذية المعرفة من كائن JSON
+     */
+    public feedFromJSON(
+        data: object,
+        category: KnowledgeCategory = KnowledgeCategory.GENERAL
+    ): number {
+        console.log(`\n📊 تغذية المعرفة من JSON`);
+        
+        let jsonString = JSON.stringify(data);
+        let result = this.feedingSystem.processFile(
+            "data.json",
+            jsonString,
+            category,
+            {}
+        );
+        
+        if (result.success) {
+            let items = this.feedingSystem.search("", category);
+            
+            for (let item of items) {
+                this.knowledgeBase.addItem(item);
+            }
+            
+            this.lastUpdate = new Date();
+            
+            console.log(`✅ تم تغذية ${result.itemsSaved} عنصر معرفي`);
+            return result.itemsSaved;
+        }
+        
+        return 0;
+    }
+    
+    // ==================== الاستعلام والبحث ====================
+    
+    /**
+     * بحث بسيط
+     */
+    public search(query: string, maxResults: number = 10): array<QueryResult> {
+        console.log(`\n🔍 بحث: "${query}"`);
+        
+        let results = this.queryEngine.simpleQuery(query, maxResults);
+        
+        console.log(`   📊 النتائج: ${results.length}`);
+        
+        return results;
+    }
+    
+    /**
+     * بحث دلالي
+     */
+    public semanticSearch(query: string, maxResults: number = 10): array<QueryResult> {
+        console.log(`\n🧠 بحث دلالي: "${query}"`);
+        
+        let results = this.queryEngine.semanticQuery(query, maxResults);
+        
+        console.log(`   📊 النتائج: ${results.length}`);
+        
+        return results;
+    }
+    
+    /**
+     * بحث متقدم
+     */
+    public advancedSearch(criteria: {
+        query?: string,
+        category?: KnowledgeCategory,
+        level?: KnowledgeLevel,
+        tags?: array<string>,
+        minConfidence?: number,
+        sortBy?: SortMethod,
+        maxResults?: number
+    }): array<QueryResult> {
+        console.log(`\n🔬 بحث متقدم`);
+        
+        let results = this.queryEngine.advancedQuery(criteria);
+        
+        console.log(`   📊 النتائج: ${results.length}`);
+        
+        return results;
+    }
+    
+    /**
+     * البحث حسب الفئة
+     */
+    public searchByCategory(category: KnowledgeCategory, maxResults: number = 10): array<QueryResult> {
+        return this.queryEngine.queryByCategory(category, maxResults);
+    }
+    
+    /**
+     * البحث حسب العلامة
+     */
+    public searchByTag(tag: string, maxResults: number = 10): array<QueryResult> {
+        return this.queryEngine.queryByTag(tag, maxResults);
+    }
+    
+    /**
+     * البحث الغامض
+     */
+    public fuzzySearch(query: string, maxResults: number = 10, threshold: number = 0.6): array<QueryResult> {
+        return this.queryEngine.fuzzyQuery(query, maxResults, threshold);
+    }
+    
+    // ==================== إدارة العلاقات ====================
+    
+    /**
+     * ربط عنصرين معرفيين
+     */
+    public linkItems(
+        sourceItemId: string,
+        targetItemId: string,
+        relationType: RelationType,
+        strength: number = 1.0,
+        bidirectional: boolean = false
+    ): string {
+        console.log(`\n🔗 ربط عناصر: ${sourceItemId} -> ${targetItemId}`);
+        
+        let relation = new KnowledgeRelation(sourceItemId, targetItemId, relationType, strength);
+        relation.bidirectional = bidirectional;
+        
+        let relationId = this.knowledgeBase.addRelation(relation);
+        this.lastUpdate = new Date();
+        
+        console.log(`✅ تم إنشاء علاقة: ${relationId}`);
+        
+        return relationId;
+    }
+    
+    /**
+     * الحصول على العناصر المرتبطة
+     */
+    public getRelatedItems(itemId: string, maxDepth: number = 1): array<KnowledgeItem> {
+        return this.knowledgeBase.getRelatedItems(itemId, maxDepth);
+    }
+    
+    /**
+     * البحث العلائقي
+     */
+    public relationalSearch(itemId: string, relationType: RelationType | null = null, maxDepth: number = 2): array<QueryResult> {
+        return this.queryEngine.relationalQuery(itemId, relationType, maxDepth);
+    }
+    
+    // ==================== إدارة المجموعات ====================
+    
+    /**
+     * إنشاء مجموعة معرفية
+     */
+    public createCluster(name: string, category: KnowledgeCategory): string {
+        let clusterId = this.knowledgeBase.createCluster(name, category);
+        this.lastUpdate = new Date();
+        return clusterId;
+    }
+    
+    /**
+     * إضافة عنصر لمجموعة
+     */
+    public addToCluster(itemId: string, clusterId: string): boolean {
+        let success = this.knowledgeBase.addItemToCluster(itemId, clusterId);
+        if (success) {
+            this.lastUpdate = new Date();
+        }
+        return success;
+    }
+    
+    /**
+     * الحصول على عناصر مجموعة
+     */
+    public getClusterItems(clusterId: string): array<KnowledgeItem> {
+        return this.knowledgeBase.getClusterItems(clusterId);
+    }
+    
+    // ==================== الإحصائيات والتقارير ====================
+    
+    /**
+     * الحصول على الإحصائيات الشاملة
+     */
+    public getStatistics(): object {
+        let kbStats = this.knowledgeBase.getStatistics();
+        let feedingStats = this.feedingSystem.getStatistics();
+        let queryStats = this.queryEngine.getStatistics();
+        
+        return {
+            knowledgeBase: kbStats,
+            feeding: feedingStats,
+            queries: queryStats,
+            system: {
+                creationTime: this.creationTime,
+                lastUpdate: this.lastUpdate,
+                uptime: Date.now() - this.creationTime.getTime()
+            }
+        };
+    }
+    
+    /**
+     * تصدير قاعدة المعرفة
+     */
+    public exportKnowledgeBase(): string {
+        return this.knowledgeBase.exportToJSON();
+    }
+    
+    /**
+     * مسح جميع البيانات
+     */
+    public clearAll(): void {
+        this.knowledgeBase.clear();
+        this.feedingSystem.clearAll();
+        this.queryEngine.clearHistory();
+        
+        console.log("🧹 تم مسح جميع البيانات");
+    }
+}
+
+// تصدير الفئة
+export { IntegratedKnowledgeSystem };

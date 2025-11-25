@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيئة التطوير المتكاملة لبصيرة-البيان | Baserah-Bayan IDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Arabic Typesetting';
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            padding: 20px;
+        }
+
+        .sidebar h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .file-tree {
+            list-style: none;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .file-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .file-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .editor-area {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .editor {
+            flex: 1;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            background: #282c34;
+            color: #abb2bf;
+            overflow: auto;
+        }
+
+        #codeEditor {
+            width: 100%;
+            min-height: 400px;
+            background: #282c34;
+            color: #abb2bf;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            resize: vertical;
+            border-radius: 8px;
+        }
+
+        .right-panel {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+        }
+
+        .panel-section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .diagnostic-item {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-right: 4px solid;
+        }
+
+        .diagnostic-error {
+            background: #ffe6e6;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .diagnostic-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .diagnostic-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-value {
+            color: #333;
+        }
+
+        .output-area {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .status-bar {
+            background: #343a40;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .completion-popup {
+            position: absolute;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .completion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .completion-item:hover {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar, .right-panel {
+                border: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 بيئة التطوير المتكاملة لبصيرة-البيان</h1>
+            <p>Baserah-Bayan Integrated Development Environment</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">لغة برمجة ذكية تتعلم وتطور نفسها 🧠✨</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h3>📁 الملفات</h3>
+                <ul class="file-tree" id="fileTree">
+                    <li class="file-item active" data-file="example.bn">📄 example.bn</li>
+                    <li class="file-item" data-file="test.bn">📄 test.bn</li>
+                    <li class="file-item" data-file="new">➕ ملف جديد</li>
+                </ul>
+
+                <h3 style="margin-top: 30px;">🎨 القوالب</h3>
+                <ul class="file-tree" id="templates">
+                    <li class="file-item" data-template="class">🏛️ فئة</li>
+                    <li class="file-item" data-template="function">⚡ دالة</li>
+                    <li class="file-item" data-template="module">📦 وحدة</li>
+                </ul>
+            </div>
+
+            <!-- Editor Area -->
+            <div class="editor-area">
+                <div class="toolbar">
+                    <button class="btn btn-primary" id="btnCompile">
+                        🔨 ترجمة
+                    </button>
+                    <button class="btn btn-success" id="btnRun">
+                        ▶️ تشغيل
+                    </button>
+                    <button class="btn btn-info" id="btnGenerate">
+                        🤖 توليد كود ذكي
+                    </button>
+                    <button class="btn btn-warning" id="btnAutoFix">
+                        🔧 إصلاح تلقائي
+                    </button>
+                    <button class="btn btn-primary" id="btnSelfImprove">
+                        🔄 تحسين ذاتي
+                    </button>
+                    <button class="btn btn-success" id="btnSave">
+                        💾 حفظ
+                    </button>
+                </div>
+
+                <div class="editor">
+                    <textarea id="codeEditor" placeholder="اكتب كود البيان هنا...">/**
+ * مثال على كود البيان
+ */
+export class ExampleClass extends MotherEquation {
+    public name: string;
+    public value: number;
+
+    constructor(name: string, value: number) {
+        super();
+        this.name = name;
+        this.value = value;
+    }
+
+    public execute(): void {
+        console.log(`تنفيذ: ${this.name} = ${this.value}`);
+    }
+}</textarea>
+                </div>
+
+                <div class="output-area" id="output">
+                    مرحباً بك في بيئة التطوير المتكاملة لبصيرة-البيان! 🚀
+                    النظام جاهز للاستخدام...
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="panel-section">
+                    <h3>🔍 التشخيصات</h3>
+                    <div id="diagnostics">
+                        <div class="diagnostic-info">
+                            ✅ لا توجد مشاكل
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>📊 الإحصائيات</h3>
+                    <div id="statistics">
+                        <div class="stat-item">
+                            <span class="stat-label">الأسطر:</span>
+                            <span class="stat-value" id="statLines">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">الترجمات:</span>
+                            <span class="stat-value" id="statCompilations">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">معدل النجاح:</span>
+                            <span class="stat-value" id="statSuccessRate">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">الدروس:</span>
+                            <span class="stat-value" id="statLessons">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">التحسين:</span>
+                            <span class="stat-value" id="statImprovement">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>💡 اقتراحات ذكية</h3>
+                    <div id="suggestions">
+                        <div class="diagnostic-info">
+                            💡 جرب توليد كود ذكي!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span id="statusText">جاهز</span>
+            </div>
+            <div class="status-item">
+                <span>لغة البيان | Bayan Language</span>
+            </div>
+            <div class="status-item">
+                <span id="cursorPosition">السطر 1، العمود 1</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // محاكاة النظام
+        let compilationCount = 0;
+        let successCount = 0;
+        let lessonCount = 0;
+
+        const editor = document.getElementById('codeEditor');
+        const output = document.getElementById('output');
+        const diagnostics = document.getElementById('diagnostics');
+
+        // تحديث عدد الأسطر
+        function updateLineCount() {
+            const lines = editor.value.split('\n').length;
+            document.getElementById('statLines').textContent = lines;
+        }
+
+        editor.addEventListener('input', updateLineCount);
+        updateLineCount();
+
+        // ترجمة
+        document.getElementById('btnCompile').addEventListener('click', () => {
+            output.textContent = '🔨 جاري الترجمة...\n';
+            compilationCount++;
+            
+            setTimeout(() => {
+                const hasErrors = Math.random() > 0.7;
+                
+                if (hasErrors) {
+                    output.textContent += '❌ فشلت الترجمة\n';
+                    output.textContent += 'خطأ في السطر 5: قوس غير مغلق\n';
+                    diagnostics.innerHTML = '<div class="diagnostic-error">❌ خطأ في السطر 5: قوس غير مغلق</div>';
+                } else {
+                    output.textContent += '✅ نجحت الترجمة!\n';
+                    output.textContent += 'تم توليد: output.js\n';
+                    diagnostics.innerHTML = '<div class="diagnostic-info">✅ لا توجد مشاكل</div>';
+                    successCount++;
+                }
+                
+                document.getElementById('statCompilations').textContent = compilationCount;
+                document.getElementById('statSuccessRate').textContent = 
+                    ((successCount / compilationCount) * 100).toFixed(0) + '%';
+            }, 1000);
+        });
+
+        // تشغيل
+        document.getElementById('btnRun').addEventListener('click', () => {
+            output.textContent = '▶️ جاري التشغيل...\n';
+            setTimeout(() => {
+                output.textContent += 'تنفيذ: ExampleClass = 42\n';
+                output.textContent += '✅ اكتمل التنفيذ\n';
+            }, 500);
+        });
+
+        // توليد كود ذكي
+        document.getElementById('btnGenerate').addEventListener('click', () => {
+            const description = prompt('صف الكود الذي تريد توليده:');
+            if (description) {
+                output.textContent = `🤖 توليد كود: ${description}\n`;
+                setTimeout(() => {
+                    const generatedCode = `\n\n/**\n * ${description}\n */\nexport class GeneratedClass extends MotherEquation {\n    // TODO: Implement\n}\n`;
+                    editor.value += generatedCode;
+                    output.textContent += '✅ تم توليد الكود!\n';
+                    updateLineCount();
+                }, 1000);
+            }
+        });
+
+        // إصلاح تلقائي
+        document.getElementById('btnAutoFix').addEventListener('click', () => {
+            output.textContent = '🔧 جاري الإصلاح التلقائي...\n';
+            setTimeout(() => {
+                output.textContent += '✅ تم إصلاح 2 من 3 أخطاء\n';
+                diagnostics.innerHTML = '<div class="diagnostic-warning">⚠️ تحذير: متغير غير مستخدم</div>';
+                lessonCount += 2;
+                document.getElementById('statLessons').textContent = lessonCount;
+            }, 1500);
+        });
+
+        // تحسين ذاتي
+        document.getElementById('btnSelfImprove').addEventListener('click', () => {
+            output.textContent = '🔄 بدء التحسين الذاتي...\n';
+            setTimeout(() => {
+                output.textContent += '📚 تحليل الأنماط...\n';
+                output.textContent += '🧠 التعلم من الأخطاء...\n';
+                output.textContent += '✅ اكتمل التحسين الذاتي\n';
+                const improvement = Math.min(100, Math.random() * 30 + 70);
+                document.getElementById('statImprovement').textContent = improvement.toFixed(0) + '%';
+            }, 2000);
+        });
+
+        // حفظ
+        document.getElementById('btnSave').addEventListener('click', () => {
+            output.textContent = '💾 جاري الحفظ...\n';
+            setTimeout(() => {
+                output.textContent += '✅ تم الحفظ بنجاح!\n';
+            }, 300);
+        });
+
+        console.log('🚀 بيئة التطوير المتكاملة لبصيرة-البيان جاهزة!');
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النواة التفكيرية متعددة الطبقات - بصيرة AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-area {
+            grid-column: 1 / -1;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .layer-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .layer-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .layer-checkbox:hover {
+            background: #e8eaf6;
+            transform: translateY(-2px);
+        }
+
+        .layer-checkbox input {
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .layer-checkbox label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-process {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-process:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .results {
+            grid-column: 1 / -1;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .result-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .sync-matrix {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .sync-matrix table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sync-matrix th,
+        .sync-matrix td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .sync-matrix th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .sync-level-high {
+            background: #4caf50;
+            color: white;
+        }
+
+        .sync-level-medium {
+            background: #ff9800;
+            color: white;
+        }
+
+        .sync-level-low {
+            background: #f44336;
+            color: white;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .insights {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .insights h3 {
+            color: #d84315;
+            margin-bottom: 15px;
+        }
+
+        .insight-item {
+            background: white;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #d84315;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .layer-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 النواة التفكيرية متعددة الطبقات</h1>
+            <p>نظام بصيرة AI الثوري - 8 طبقات تفكير متكاملة</p>
+        </div>
+
+        <div class="main-content">
+            <!-- منطقة الإدخال -->
+            <div class="section input-area">
+                <h2>📝 إدخال النص للتحليل</h2>
+                <textarea id="inputText" placeholder="أدخل النص هنا للتحليل بواسطة الطبقات الثمانية...
+
+مثال: الرياضيات هي لغة الكون والفيزياء تفسر الوجود بينما الرموز تحمل المعاني العميقة"></textarea>
+
+                <h3 style="margin-top: 20px; color: #667eea;">اختر الطبقات للمعالجة:</h3>
+                <div class="layer-selector">
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-mathematical" value="mathematical" checked>
+                        <label for="layer-mathematical">🔢 رياضية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-logical" value="logical" checked>
+                        <label for="layer-logical">🧩 منطقية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-interpretive" value="interpretive" checked>
+                        <label for="layer-interpretive">🔮 تفسيرية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-physical" value="physical" checked>
+                        <label for="layer-physical">⚛️ فيزيائية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-linguistic" value="linguistic" checked>
+                        <label for="layer-linguistic">📚 لغوية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-symbolic" value="symbolic" checked>
+                        <label for="layer-symbolic">🌟 رمزية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-visual" value="visual" checked>
+                        <label for="layer-visual">👁️ بصرية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-semantic" value="semantic" checked>
+                        <label for="layer-semantic">💭 دلالية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-event-action" value="event_action" checked>
+                        <label for="layer-event-action">⚡ أحداث وتأثيرات</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-emotional-state" value="emotional_state" checked>
+                        <label for="layer-emotional-state">😊 حالات عاطفية</label>
+                    </div>
+                    <div class="layer-checkbox">
+                        <input type="checkbox" id="layer-property-change" value="property_change" checked>
+                        <label for="layer-property-change">📈 تغير الخصائص</label>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-process" onclick="processInput()">🚀 معالجة بالطبقات</button>
+                    <button class="btn-reset" onclick="resetCore()">🔄 إعادة تعيين النواة</button>
+                    <button class="btn-clear" onclick="clearResults()">🗑️ مسح النتائج</button>
+                </div>
+            </div>
+
+            <!-- منطقة التحميل -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>جاري المعالجة بالطبقات الثمانية...</p>
+            </div>
+
+            <!-- الإحصائيات -->
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>📊 إحصائيات النواة</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">إجمالي المعالجات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-success">0%</div>
+                        <div class="stat-label">نسبة النجاح</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-sync">0.00</div>
+                        <div class="stat-label">متوسط التزامن</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-layers">8</div>
+                        <div class="stat-label">الطبقات النشطة</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- النتائج -->
+            <div class="section results" id="results">
+                <h2>🎯 نتائج المعالجة</h2>
+                <div id="resultsContainer">
+                    <p style="text-align: center; color: #999; padding: 40px;">
+                        لا توجد نتائج بعد. قم بإدخال نص واضغط على "معالجة بالطبقات"
+                    </p>
+                </div>
+            </div>
+
+            <!-- مصفوفة التزامن -->
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>🔗 مصفوفة التزامن بين الطبقات</h2>
+                <div class="sync-matrix" id="syncMatrix">
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        سيتم عرض مصفوفة التزامن بعد المعالجة
+                    </p>
+                </div>
+            </div>
+
+            <!-- الرؤى المتكاملة -->
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>💡 التحليل المتكامل والرؤى الثورية</h2>
+                <div id="integratedInsights">
+                    <p style="text-align: center; color: #999; padding: 20px;">
+                        سيتم عرض التحليل المتكامل بعد المعالجة
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { MultiLayerThinkingCore } from './multi-layer-thinking-core.bn';
+        import {
+            EventActionThinkingLayer,
+            EmotionalStateThinkingLayer,
+            PropertyChangeThinkingLayer
+        } from './additional-thinking-layers.bn';
+
+        // إنشاء النواة التفكيرية (11 طبقة: 8 أساسية + 3 إضافية)
+        let thinkingCore = null;
+
+        // تهيئة النواة عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                thinkingCore = new MultiLayerThinkingCore("DemoCore");
+                console.log("✅ تم تهيئة النواة التفكيرية بنجاح");
+                updateCoreStats();
+            } catch (e) {
+                console.error("❌ خطأ في تهيئة النواة:", e);
+                alert("خطأ في تهيئة النواة التفكيرية. تأكد من تجميع ملفات Bayan أولاً.");
+            }
+        });
+
+        // معالجة الإدخال
+        window.processInput = async function() {
+            const inputText = document.getElementById('inputText').value.trim();
+
+            if (!inputText) {
+                alert("الرجاء إدخال نص للتحليل");
+                return;
+            }
+
+            if (!thinkingCore) {
+                alert("النواة التفكيرية غير جاهزة");
+                return;
+            }
+
+            // الحصول على الطبقات المختارة
+            const selectedLayers = [];
+            document.querySelectorAll('.layer-checkbox input:checked').forEach(checkbox => {
+                selectedLayers.push(checkbox.value);
+            });
+
+            if (selectedLayers.length === 0) {
+                alert("الرجاء اختيار طبقة واحدة على الأقل");
+                return;
+            }
+
+            // عرض التحميل
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('resultsContainer').innerHTML = '';
+
+            try {
+                // المعالجة
+                const result = thinkingCore.comprehensiveProcessing(inputText, selectedLayers);
+
+                // إخفاء التحميل
+                document.getElementById('loading').classList.remove('active');
+
+                // عرض النتائج
+                displayResults(result);
+
+                // تحديث الإحصائيات
+                updateCoreStats();
+
+                // عرض مصفوفة التزامن
+                displaySyncMatrix(result.synchronizationLevel);
+
+                // عرض الرؤى المتكاملة
+                displayIntegratedInsights(result.integratedAnalysis);
+
+            } catch (e) {
+                document.getElementById('loading').classList.remove('active');
+                console.error("خطأ في المعالجة:", e);
+                alert("حدث خطأ أثناء المعالجة: " + e);
+            }
+        };
+
+        // عرض النتائج
+        function displayResults(result) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            if (!result.success) {
+                container.innerHTML = `
+                    <div class="result-item" style="border-left-color: #f44336;">
+                        <h3>❌ خطأ في المعالجة</h3>
+                        <div class="result-content">${result.error || 'خطأ غير معروف'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // عرض نتائج كل طبقة
+            for (let layerName in result.layerResults) {
+                const layerResult = result.layerResults[layerName];
+                const layerIcons = {
+                    mathematical: '🔢',
+                    logical: '🧩',
+                    interpretive: '🔮',
+                    physical: '⚛️',
+                    linguistic: '📚',
+                    symbolic: '🌟',
+                    visual: '👁️',
+                    semantic: '💭'
+                };
+
+                const icon = layerIcons[layerName] || '🔹';
+
+                container.innerHTML += `
+                    <div class="result-item">
+                        <h3>${icon} نتيجة الطبقة ${getLayerNameArabic(layerName)}</h3>
+                        <div class="result-content">${JSON.stringify(layerResult, null, 2)}</div>
+                    </div>
+                `;
+            }
+
+            // معلومات المعالجة
+            container.innerHTML += `
+                <div class="result-item" style="border-left-color: #4caf50;">
+                    <h3>⏱️ معلومات المعالجة</h3>
+                    <div class="result-content">
+الطبقات المستخدمة: ${result.processingLayers.join(', ')}
+مستوى التزامن: ${result.synchronizationLevel.toFixed(3)}
+وقت المعالجة: ${result.processingTime.toFixed(3)} ثانية
+الوقت: ${new Date(result.timestamp).toLocaleString('ar-SA')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // عرض مصفوفة التزامن
+        function displaySyncMatrix(syncLevel) {
+            const container = document.getElementById('syncMatrix');
+            const matrix = thinkingCore.getSynchronizationMatrix();
+
+            let html = '<table><thead><tr><th>الطبقة</th>';
+
+            const layers = Object.keys(matrix);
+            layers.forEach(layer => {
+                html += `<th>${getLayerNameArabic(layer)}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            layers.forEach(layer1 => {
+                html += `<tr><th>${getLayerNameArabic(layer1)}</th>`;
+                layers.forEach(layer2 => {
+                    if (layer1 === layer2) {
+                        html += '<td>-</td>';
+                    } else {
+                        const value = matrix[layer1][layer2] || 0;
+                        const className = value > 0.7 ? 'sync-level-high' :
+                                        value > 0.4 ? 'sync-level-medium' : 'sync-level-low';
+                        html += `<td class="${className}">${value.toFixed(2)}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // عرض الرؤى المتكاملة
+        function displayIntegratedInsights(analysis) {
+            const container = document.getElementById('integratedInsights');
+
+            let html = `
+                <div class="insights">
+                    <h3>🎯 التحليل المتكامل</h3>
+                    <div class="insight-item">
+                        <strong>إجمالي الطبقات:</strong> ${analysis.totalLayers}
+                    </div>
+                    <div class="insight-item">
+                        <strong>الطبقات الناجحة:</strong> ${analysis.successfulLayers}
+                    </div>
+                    <div class="insight-item">
+                        <strong>متوسط الثقة:</strong> ${(analysis.averageConfidence * 100).toFixed(1)}%
+                    </div>
+                    <div class="insight-item">
+                        <strong>المواضيع المهيمنة:</strong> ${analysis.dominantThemes.join(', ')}
+                    </div>
+                </div>
+
+                <div class="insights" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                    <h3>🌟 الرؤى المتقاطعة</h3>
+                    ${analysis.crossLayerInsights.map(insight =>
+                        `<div class="insight-item">${insight}</div>`
+                    ).join('')}
+                </div>
+
+                <div class="insights" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                    <h3>🚀 التركيب الثوري</h3>
+                    <div class="insight-item">
+                        <strong>ثنائية الصفر:</strong> ${analysis.revolutionarySynthesis.zeroDualityManifestation}
+                    </div>
+                    <div class="insight-item">
+                        <strong>التكامل بالتعامد:</strong> ${analysis.revolutionarySynthesis.perpendicularIntegration}
+                    </div>
+                    <div class="insight-item">
+                        <strong>بناء الفتائل:</strong> ${analysis.revolutionarySynthesis.filamentConstruction}
+                    </div>
+                    <div class="insight-item">
+                        <strong>الفهم الموحد:</strong> ${analysis.revolutionarySynthesis.unifiedUnderstanding}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // تحديث إحصائيات النواة
+        function updateCoreStats() {
+            if (!thinkingCore) return;
+
+            const status = thinkingCore.getCoreStatus();
+
+            document.getElementById('stat-total').textContent = status.totalProcessed;
+            document.getElementById('stat-success').textContent = (status.successRate * 100).toFixed(1) + '%';
+            document.getElementById('stat-sync').textContent = status.averageSyncLevel.toFixed(2);
+            document.getElementById('stat-layers').textContent = status.activeLayers;
+        }
+
+        // إعادة تعيين النواة
+        window.resetCore = function() {
+            if (!thinkingCore) return;
+
+            if (confirm('هل تريد إعادة تعيين جميع الطبقات؟')) {
+                thinkingCore.resetAllLayers();
+                updateCoreStats();
+                alert('✅ تم إعادة تعيين النواة بنجاح');
+            }
+        };
+
+        // مسح النتائج
+        window.clearResults = function() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <p style="text-align: center; color: #999; padding: 40px;">
+                    لا توجد نتائج بعد. قم بإدخال نص واضغط على "معالجة بالطبقات"
+                </p>
+            `;
+            document.getElementById('syncMatrix').innerHTML = `
+                <p style="text-align: center; color: #999; padding: 20px;">
+                    سيتم عرض مصفوفة التزامن بعد المعالجة
+                </p>
+            `;
+            document.getElementById('integratedInsights').innerHTML = `
+                <p style="text-align: center; color: #999; padding: 20px;">
+                    سيتم عرض التحليل المتكامل بعد المعالجة
+                </p>
+            `;
+        };
+
+        // الحصول على اسم الطبقة بالعربية
+        function getLayerNameArabic(layerName) {
+            const names = {
+                mathematical: 'الرياضية',
+                logical: 'المنطقية',
+                interpretive: 'التفسيرية',
+                physical: 'الفيزيائية',
+                linguistic: 'اللغوية',
+                symbolic: 'الرمزية',
+                visual: 'البصرية',
+                semantic: 'الدلالية',
+                event_action: 'الأحداث والتأثيرات',
+                emotional_state: 'الحالات العاطفية',
+                property_change: 'تغير الخصائص'
+            };
+            return names[layerName] || layerName;
+        }
+    </script>
+</body>
+</html>
+

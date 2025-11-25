@@ -1,0 +1,521 @@
+/**
+ * نظام تتبع السياق المتقدم - Advanced Context Tracking System
+ * 
+ * يتتبع السياق الحالي للحوار بما في ذلك:
+ * - المواضيع النشطة
+ * - الكيانات المذكورة
+ * - العلاقات بين الكيانات
+ * - التحولات في المواضيع
+ * - الأهداف الحالية
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+/**
+ * حالة الموضوع
+ */
+enum TopicStatus {
+    ACTIVE = "active",
+    BACKGROUND = "background",
+    CLOSED = "closed"
+}
+
+/**
+ * مدى صلة الكيان
+ */
+enum EntityRelevance {
+    HIGH = "high",
+    MEDIUM = "medium",
+    LOW = "low"
+}
+
+/**
+ * فئة الموضوع - Topic
+ */
+class Topic extends MotherEquation {
+    public topicId: string;
+    public name: string;
+    public keywords: array<string>;
+    public status: TopicStatus;
+    public startTurn: number;
+    public lastMentionedTurn: number;
+    public mentionCount: number;
+    public relatedEntities: Set<string>;
+    public subtopics: array<string>;
+    public confidence: number;
+    
+    constructor(name: string, startTurn: number) {
+        super(`topic_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.topicId = this.id;
+        this.name = name;
+        this.keywords = [name];
+        this.status = TopicStatus.ACTIVE;
+        this.startTurn = startTurn;
+        this.lastMentionedTurn = startTurn;
+        this.mentionCount = 1;
+        this.relatedEntities = new Set();
+        this.subtopics = [];
+        this.confidence = 1.0;
+    }
+}
+
+/**
+ * فئة الكيان السياقي - ContextualEntity
+ */
+class ContextualEntity extends MotherEquation {
+    public entityId: string;
+    public text: string;
+    public entityType: string;
+    public relevance: EntityRelevance;
+    public firstMentionedTurn: number;
+    public lastMentionedTurn: number;
+    public mentionCount: number;
+    public properties: object;
+    public relatedTopics: Set<string>;
+    public relations: array<object>;
+    
+    constructor(text: string, entityType: string, turn: number) {
+        super(`entity_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.entityId = this.id;
+        this.text = text;
+        this.entityType = entityType;
+        this.relevance = EntityRelevance.MEDIUM;
+        this.firstMentionedTurn = turn;
+        this.lastMentionedTurn = turn;
+        this.mentionCount = 1;
+        this.properties = {};
+        this.relatedTopics = new Set();
+        this.relations = [];
+    }
+}
+
+/**
+ * فئة الهدف - Goal
+ */
+class Goal extends MotherEquation {
+    public goalId: string;
+    public description: string;
+    public goalType: string;
+    public status: string;
+    public createdTurn: number;
+    public updatedTurn: number;
+    public subGoals: array<string>;
+    public progress: number;
+    
+    constructor(description: string, goalType: string, turn: number) {
+        super(`goal_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.goalId = this.id;
+        this.description = description;
+        this.goalType = goalType;
+        this.status = "active";
+        this.createdTurn = turn;
+        this.updatedTurn = turn;
+        this.subGoals = [];
+        this.progress = 0.0;
+    }
+}
+
+/**
+ * فئة انتقال الموضوع - TopicTransition
+ */
+class TopicTransition {
+    public fromTopic: string;
+    public toTopic: string;
+    public turnNumber: number;
+    public transitionType: string;
+    public timestamp: Date;
+    
+    constructor(fromTopic: string, toTopic: string, turnNumber: number, transitionType: string = "natural") {
+        this.fromTopic = fromTopic;
+        this.toTopic = toTopic;
+        this.turnNumber = turnNumber;
+        this.transitionType = transitionType;
+        this.timestamp = new Date();
+    }
+}
+
+/**
+ * فئة نظام تتبع السياق المتقدم - AdvancedContextTracker
+ */
+class AdvancedContextTracker {
+    // الإعدادات
+    private maxActiveTopics: number;
+    private maxEntities: number;
+    
+    // المواضيع
+    private topics: Map<string, Topic>;
+    private activeTopics: array<string>;
+    
+    // الكيانات
+    private entities: Map<string, ContextualEntity>;
+    
+    // الأهداف
+    private goals: Map<string, Goal>;
+    private activeGoals: array<string>;
+    
+    // التحولات
+    private topicTransitions: array<TopicTransition>;
+    
+    // السياق الحالي
+    private currentTurn: number;
+    private currentFocus: string | null;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(maxActiveTopics: number = 3, maxEntities: number = 50) {
+        this.maxActiveTopics = maxActiveTopics;
+        this.maxEntities = maxEntities;
+        
+        this.topics = new Map();
+        this.activeTopics = [];
+        
+        this.entities = new Map();
+        
+        this.goals = new Map();
+        this.activeGoals = [];
+        
+        this.topicTransitions = [];
+        
+        this.currentTurn = 0;
+        this.currentFocus = null;
+        
+        console.log("✅ تم تهيئة نظام تتبع السياق المتقدم");
+    }
+    
+    /**
+     * تحديث السياق بناءً على دور جديد
+     */
+    public updateContext(turnNumber: number, userInput: string, entities: array<object> = []): object {
+        this.currentTurn = turnNumber;
+        
+        // استخراج المواضيع من الكيانات
+        let newTopics = this.extractTopics(entities);
+        
+        // تحديث الكيانات
+        this.updateEntities(entities, turnNumber);
+        
+        // تحديث المواضيع
+        this.updateTopics(newTopics, turnNumber);
+        
+        // تنظيف السياق
+        this.cleanupContext();
+        
+        return this.getCurrentContext();
+    }
+    
+    /**
+     * استخراج المواضيع من الكيانات
+     */
+    private extractTopics(entities: array<object>): array<string> {
+        let topics: array<string> = [];
+        
+        for (let entity of entities) {
+            if (entity.text && entity.entityType) {
+                // الكيانات الرئيسية تصبح مواضيع
+                if (entity.entityType === "concept" || entity.entityType === "thing") {
+                    topics.push(entity.text);
+                }
+            }
+        }
+        
+        return topics;
+    }
+    
+    /**
+     * تحديث الكيانات
+     */
+    private updateEntities(entities: array<object>, turnNumber: number): void {
+        for (let entity of entities) {
+            if (!entity.text) continue;
+            
+            let entityText = entity.text;
+            
+            if (this.entities.has(entityText)) {
+                // تحديث كيان موجود
+                let ctxEntity = this.entities.get(entityText);
+                ctxEntity.lastMentionedTurn = turnNumber;
+                ctxEntity.mentionCount += 1;
+                
+                // تحديث مدى الصلة بناءً على التكرار
+                if (ctxEntity.mentionCount > 5) {
+                    ctxEntity.relevance = EntityRelevance.HIGH;
+                } else if (ctxEntity.mentionCount > 2) {
+                    ctxEntity.relevance = EntityRelevance.MEDIUM;
+                }
+            } else {
+                // إنشاء كيان جديد
+                let ctxEntity = new ContextualEntity(
+                    entityText,
+                    entity.entityType || "unknown",
+                    turnNumber
+                );
+                this.entities.set(entityText, ctxEntity);
+            }
+        }
+        
+        // تنظيف الكيانات القديمة
+        if (this.entities.size > this.maxEntities) {
+            this.cleanupEntities();
+        }
+    }
+    
+    /**
+     * تحديث المواضيع
+     */
+    private updateTopics(newTopics: array<string>, turnNumber: number): void {
+        for (let topicName of newTopics) {
+            if (this.topics.has(topicName)) {
+                // تحديث موضوع موجود
+                let topic = this.topics.get(topicName);
+                topic.lastMentionedTurn = turnNumber;
+                topic.mentionCount += 1;
+                topic.status = TopicStatus.ACTIVE;
+                
+                // إضافة للمواضيع النشطة إذا لم يكن موجوداً
+                if (!this.activeTopics.includes(topic.topicId)) {
+                    this.activateTopic(topic.topicId);
+                }
+            } else {
+                // إنشاء موضوع جديد
+                let topic = new Topic(topicName, turnNumber);
+                this.topics.set(topicName, topic);
+                this.activateTopic(topic.topicId);
+            }
+        }
+        
+        // تحديث حالة المواضيع غير النشطة
+        this.updateTopicStatuses(turnNumber);
+    }
+
+    /**
+     * تفعيل موضوع
+     */
+    private activateTopic(topicId: string): void {
+        // إذا كان عدد المواضيع النشطة أكثر من الحد الأقصى
+        if (this.activeTopics.length >= this.maxActiveTopics) {
+            // نقل الموضوع الأقدم إلى الخلفية
+            let oldTopicId = this.activeTopics.shift();
+
+            for (let [name, topic] of this.topics) {
+                if (topic.topicId === oldTopicId) {
+                    topic.status = TopicStatus.BACKGROUND;
+                    break;
+                }
+            }
+        }
+
+        // إضافة الموضوع الجديد
+        if (!this.activeTopics.includes(topicId)) {
+            this.activeTopics.push(topicId);
+
+            // تسجيل الانتقال
+            if (this.currentFocus !== null && this.currentFocus !== topicId) {
+                this.topicTransitions.push(new TopicTransition(
+                    this.currentFocus,
+                    topicId,
+                    this.currentTurn
+                ));
+            }
+
+            this.currentFocus = topicId;
+        }
+    }
+
+    /**
+     * تحديث حالة المواضيع
+     */
+    private updateTopicStatuses(turnNumber: number): void {
+        for (let [name, topic] of this.topics) {
+            // إذا لم يُذكر الموضوع منذ 5 أدوار، انقله للخلفية
+            if (turnNumber - topic.lastMentionedTurn > 5) {
+                if (topic.status === TopicStatus.ACTIVE) {
+                    topic.status = TopicStatus.BACKGROUND;
+                    let index = this.activeTopics.indexOf(topic.topicId);
+                    if (index > -1) {
+                        this.activeTopics.splice(index, 1);
+                    }
+                }
+            }
+
+            // إذا لم يُذكر منذ 10 أدوار، أغلقه
+            if (turnNumber - topic.lastMentionedTurn > 10) {
+                topic.status = TopicStatus.CLOSED;
+            }
+        }
+    }
+
+    /**
+     * تنظيف الكيانات القديمة
+     */
+    private cleanupEntities(): void {
+        // ترتيب الكيانات حسب الصلة والتكرار
+        let sortedEntities: array<{text: string, entity: ContextualEntity}> = [];
+        for (let [text, entity] of this.entities) {
+            sortedEntities.push({text: text, entity: entity});
+        }
+
+        sortedEntities.sort((a, b) => {
+            // الأولوية للصلة ثم التكرار
+            let relevanceOrder = {high: 3, medium: 2, low: 1};
+            let aScore = relevanceOrder[a.entity.relevance] * 100 + a.entity.mentionCount;
+            let bScore = relevanceOrder[b.entity.relevance] * 100 + b.entity.mentionCount;
+            return bScore - aScore;
+        });
+
+        // الاحتفاظ بأهم الكيانات فقط
+        this.entities.clear();
+        for (let i = 0; i < Math.min(this.maxEntities, sortedEntities.length); i++) {
+            this.entities.set(sortedEntities[i].text, sortedEntities[i].entity);
+        }
+    }
+
+    /**
+     * تنظيف السياق
+     */
+    private cleanupContext(): void {
+        // إزالة المواضيع المغلقة القديمة جداً
+        let topicsToRemove: array<string> = [];
+
+        for (let [name, topic] of this.topics) {
+            if (topic.status === TopicStatus.CLOSED &&
+                this.currentTurn - topic.lastMentionedTurn > 20) {
+                topicsToRemove.push(name);
+            }
+        }
+
+        for (let name of topicsToRemove) {
+            this.topics.delete(name);
+        }
+    }
+
+    /**
+     * الحصول على السياق الحالي
+     */
+    public getCurrentContext(): object {
+        let activeTopicNames: array<string> = [];
+        for (let [name, topic] of this.topics) {
+            if (this.activeTopics.includes(topic.topicId)) {
+                activeTopicNames.push(topic.name);
+            }
+        }
+
+        let activeEntityTexts: array<string> = [];
+        for (let [text, entity] of this.entities) {
+            if (entity.relevance === EntityRelevance.HIGH) {
+                activeEntityTexts.push(entity.text);
+            }
+        }
+
+        let activeGoalDescriptions: array<string> = [];
+        for (let goalId of this.activeGoals) {
+            if (this.goals.has(goalId)) {
+                activeGoalDescriptions.push(this.goals.get(goalId).description);
+            }
+        }
+
+        return {
+            currentTurn: this.currentTurn,
+            activeTopics: activeTopicNames,
+            currentFocus: this.getTopicName(this.currentFocus),
+            activeEntities: activeEntityTexts,
+            activeGoals: activeGoalDescriptions,
+            topicCount: this.topics.size,
+            entityCount: this.entities.size
+        };
+    }
+
+    /**
+     * الحصول على اسم الموضوع من معرفه
+     */
+    private getTopicName(topicId: string | null): string | null {
+        if (topicId === null) return null;
+
+        for (let [name, topic] of this.topics) {
+            if (topic.topicId === topicId) {
+                return topic.name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * الحصول على تاريخ المواضيع
+     */
+    public getTopicHistory(): array<object> {
+        return this.topicTransitions.map(trans => ({
+            from: trans.fromTopic,
+            to: trans.toTopic,
+            turn: trans.turnNumber,
+            type: trans.transitionType
+        }));
+    }
+
+    /**
+     * إضافة هدف
+     */
+    public addGoal(description: string, goalType: string = "information_seeking"): string {
+        let goal = new Goal(description, goalType, this.currentTurn);
+        this.goals.set(goal.goalId, goal);
+        this.activeGoals.push(goal.goalId);
+        return goal.goalId;
+    }
+
+    /**
+     * تحديث تقدم الهدف
+     */
+    public updateGoalProgress(goalId: string, progress: number): boolean {
+        if (!this.goals.has(goalId)) {
+            return false;
+        }
+
+        let goal = this.goals.get(goalId);
+        goal.progress = progress;
+        goal.updatedTurn = this.currentTurn;
+
+        // إذا اكتمل الهدف
+        if (progress >= 1.0) {
+            goal.status = "achieved";
+            let index = this.activeGoals.indexOf(goalId);
+            if (index > -1) {
+                this.activeGoals.splice(index, 1);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * الحصول على إحصائيات السياق
+     */
+    public getStatistics(): object {
+        return {
+            totalTopics: this.topics.size,
+            activeTopics: this.activeTopics.length,
+            totalEntities: this.entities.size,
+            totalGoals: this.goals.size,
+            activeGoals: this.activeGoals.length,
+            transitions: this.topicTransitions.length,
+            currentTurn: this.currentTurn
+        };
+    }
+}
+
+// تصدير الفئات
+export {
+    Topic,
+    ContextualEntity,
+    Goal,
+    TopicTransition,
+    AdvancedContextTracker,
+    TopicStatus,
+    EntityRelevance
+};
+

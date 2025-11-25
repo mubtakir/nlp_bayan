@@ -1,0 +1,716 @@
+/**
+ * نظام التعلم التكيفي
+ * Adaptive Learning System
+ * 
+ * نظام ذكي يتكيف مع التغذية الراجعة ويحسّن الإجابات
+ * يستخدم استراتيجيات متعددة للتحسين المستمر
+ * 
+ * @author Basel Yahya Abdullah
+ * @version 1.0.0
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+import { LearningPattern, LearningType } from './learning-engine.bn';
+
+// ============================================================================
+// التعدادات (Enums)
+// ============================================================================
+
+/**
+ * استراتيجيات التحسين
+ */
+enum ImprovementStrategy {
+    EXPAND = "expand",                  // توسيع الإجابة
+    SIMPLIFY = "simplify",              // تبسيط الإجابة
+    ADD_EXAMPLES = "add_examples",      // إضافة أمثلة
+    RESTRUCTURE = "restructure",        // إعادة هيكلة
+    CHANGE_STYLE = "change_style",      // تغيير الأسلوب
+    ADD_CONTEXT = "add_context",        // إضافة سياق
+    ENHANCE_CLARITY = "enhance_clarity" // تحسين الوضوح
+}
+
+/**
+ * مستوى التحسين
+ */
+enum ImprovementLevel {
+    MINOR = "minor",                    // تحسين طفيف
+    MODERATE = "moderate",              // تحسين متوسط
+    MAJOR = "major",                    // تحسين كبير
+    COMPLETE_REWRITE = "complete_rewrite" // إعادة كتابة كاملة
+}
+
+// ============================================================================
+// الفئات الأساسية (Core Classes)
+// ============================================================================
+
+/**
+ * قاعدة التحسين
+ * تمثل قاعدة لتحسين الإجابات
+ */
+class ImprovementRule extends MotherEquation {
+    public ruleId: string;
+    public name: string;
+    public description: string;
+    public strategy: ImprovementStrategy;
+    public conditions: object;              // متى تطبق القاعدة
+    public transformations: object;         // كيف تحسّن الإجابة
+    public priority: number;                // 1-10
+    public successRate: number;             // 0.0 - 1.0
+    public usageCount: number;
+    public enabled: boolean;
+    
+    /**
+     * المنشئ
+     */
+    constructor(
+        ruleId: string,
+        name: string,
+        description: string,
+        strategy: ImprovementStrategy,
+        conditions: object,
+        transformations: object,
+        priority: number = 5
+    ) {
+        super(ruleId);
+        
+        this.ruleId = ruleId;
+        this.name = name;
+        this.description = description;
+        this.strategy = strategy;
+        this.conditions = conditions;
+        this.transformations = transformations;
+        this.priority = priority;
+        this.successRate = 0.5;
+        this.usageCount = 0;
+        this.enabled = true;
+        
+        // تحديث المعادلة الأم
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * تحديث المعادلة الأم
+     */
+    private updateMotherEquation(): void {
+        // Φ (Phi) - الخصائص الثابتة
+        this.staticProperties = {
+            ruleId: this.ruleId,
+            name: this.name,
+            description: this.description,
+            strategy: this.strategy
+        };
+        
+        // Ψ(t) (Psi) - الخصائص الديناميكية
+        this.dynamicProperties = {
+            priority: this.priority,
+            successRate: this.successRate,
+            usageCount: this.usageCount,
+            enabled: this.enabled
+        };
+        
+        // Γ (Gamma) - دالة الشكل
+        this.shapeFunction = (t: number) => {
+            return this.successRate * this.priority * Math.exp(-0.01 * t);
+        };
+    }
+    
+    /**
+     * التحقق من تطابق الشروط
+     */
+    public matchesConditions(
+        response: string,
+        context: object,
+        performanceScores: object | null
+    ): boolean {
+        const responseLength = response.length;
+        
+        // التحقق من الطول
+        if (this.conditions['minLength'] !== undefined) {
+            if (responseLength < this.conditions['minLength']) {
+                return false;
+            }
+        }
+        
+        if (this.conditions['maxLength'] !== undefined) {
+            if (responseLength > this.conditions['maxLength']) {
+                return false;
+            }
+        }
+        
+        // التحقق من نقاط الأداء
+        if (performanceScores) {
+            if (this.conditions['completenessScore']) {
+                const compScore = performanceScores['completeness'] || 1.0;
+                const maxScore = this.conditions['completenessScore']['max'];
+                if (maxScore !== undefined && compScore > maxScore) {
+                    return false;
+                }
+            }
+            
+            if (this.conditions['clarityScore']) {
+                const clarityScore = performanceScores['clarity'] || 1.0;
+                const maxScore = this.conditions['clarityScore']['max'];
+                if (maxScore !== undefined && clarityScore > maxScore) {
+                    return false;
+                }
+            }
+        }
+        
+        // التحقق من تفضيلات المستخدم
+        if (this.conditions['userPreference']) {
+            if (this.conditions['userPreference']['exists'] && !context['userPreferences']) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * تسجيل استخدام ناجح
+     */
+    public recordSuccess(): void {
+        this.usageCount++;
+        this.successRate = (this.successRate * (this.usageCount - 1) + 1.0) / this.usageCount;
+        this.priority = Math.min(10, this.priority + 0.5);
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * تسجيل استخدام فاشل
+     */
+    public recordFailure(): void {
+        this.usageCount++;
+        this.successRate = (this.successRate * (this.usageCount - 1) + 0.0) / this.usageCount;
+        this.priority = Math.max(1, this.priority - 0.5);
+        this.updateMotherEquation();
+    }
+    
+    /**
+     * تحويل إلى JSON
+     */
+    public toJSON(): object {
+        return {
+            ruleId: this.ruleId,
+            name: this.name,
+            description: this.description,
+            strategy: this.strategy,
+            priority: this.priority,
+            successRate: this.successRate,
+            usageCount: this.usageCount,
+            enabled: this.enabled
+        };
+    }
+}
+
+/**
+ * إجابة محسّنة
+ * تمثل نتيجة تحسين إجابة
+ */
+class ImprovedResponse {
+    public originalResponse: string;
+    public improvedResponse: string;
+    public appliedRules: array<string>;
+    public improvementScore: number;        // 0.0 - 1.0
+    public improvementLevel: ImprovementLevel;
+    public explanation: string;
+    public suggestions: array<string>;
+    
+    constructor(
+        originalResponse: string,
+        improvedResponse: string,
+        appliedRules: array<string>,
+        improvementScore: number,
+        explanation: string
+    ) {
+        this.originalResponse = originalResponse;
+        this.improvedResponse = improvedResponse;
+        this.appliedRules = appliedRules;
+        this.improvementScore = improvementScore;
+        this.explanation = explanation;
+        this.suggestions = [];
+        
+        // تحديد مستوى التحسين
+        this.improvementLevel = this.determineImprovementLevel();
+    }
+    
+    /**
+     * تحديد مستوى التحسين
+     */
+    private determineImprovementLevel(): ImprovementLevel {
+        if (this.improvementScore < 0.2) {
+            return ImprovementLevel.MINOR;
+        } else if (this.improvementScore < 0.5) {
+            return ImprovementLevel.MODERATE;
+        } else if (this.improvementScore < 0.8) {
+            return ImprovementLevel.MAJOR;
+        } else {
+            return ImprovementLevel.COMPLETE_REWRITE;
+        }
+    }
+    
+    /**
+     * إضافة اقتراح
+     */
+    public addSuggestion(suggestion: string): void {
+        this.suggestions.push(suggestion);
+    }
+    
+    /**
+     * تحويل إلى JSON
+     */
+    public toJSON(): object {
+        return {
+            originalResponse: this.originalResponse,
+            improvedResponse: this.improvedResponse,
+            appliedRules: this.appliedRules,
+            improvementScore: this.improvementScore,
+            improvementLevel: this.improvementLevel,
+            explanation: this.explanation,
+            suggestions: this.suggestions
+        };
+    }
+}
+
+/**
+ * نظام التعلم التكيفي
+ * النظام الرئيسي للتحسين التكيفي
+ */
+class AdaptiveLearningSystem extends MotherEquation {
+    private rules: Map<string, ImprovementRule>;
+    private improvementHistory: array<object>;
+    private rulesByStrategy: Map<ImprovementStrategy, Set<string>>;
+    
+    // إحصائيات
+    private totalImprovements: number;
+    private successfulImprovements: number;
+    
+    /**
+     * المنشئ
+     */
+    constructor() {
+        super("adaptive-learning-system");
+        
+        this.rules = new Map();
+        this.improvementHistory = [];
+        this.rulesByStrategy = new Map();
+        
+        // تهيئة الفهارس
+        for (const strategy of Object.values(ImprovementStrategy)) {
+            this.rulesByStrategy.set(strategy as ImprovementStrategy, new Set());
+        }
+        
+        // إحصائيات
+        this.totalImprovements = 0;
+        this.successfulImprovements = 0;
+        
+        // تحميل القواعد الافتراضية
+        this.loadDefaultRules();
+        
+        console.log("✅ تم تهيئة نظام التعلم التكيفي");
+    }
+    
+    /**
+     * تحميل القواعد الافتراضية
+     */
+    private loadDefaultRules(): void {
+        // قاعدة 1: إضافة أمثلة للإجابات القصيرة
+        this.addRule(new ImprovementRule(
+            "add_examples_short",
+            "إضافة أمثلة للإجابات القصيرة",
+            "إذا كانت الإجابة قصيرة، أضف أمثلة",
+            ImprovementStrategy.ADD_EXAMPLES,
+            {
+                minLength: 0,
+                maxLength: 100,
+                completenessScore: { max: 0.6 }
+            },
+            {
+                addPrefix: "\n\nمثال: ",
+                addSuffix: ""
+            },
+            7
+        ));
+        
+        // قاعدة 2: تبسيط الإجابات الطويلة المعقدة
+        this.addRule(new ImprovementRule(
+            "simplify_long",
+            "تبسيط الإجابات الطويلة",
+            "إذا كانت الإجابة طويلة ومعقدة، بسّطها",
+            ImprovementStrategy.SIMPLIFY,
+            {
+                minLength: 300,
+                clarityScore: { max: 0.6 }
+            },
+            {
+                splitSentences: true,
+                useBulletPoints: true
+            },
+            8
+        ));
+        
+        // قاعدة 3: توسيع الإجابات غير المكتملة
+        this.addRule(new ImprovementRule(
+            "expand_incomplete",
+            "توسيع الإجابات غير المكتملة",
+            "إذا كانت الإجابة غير مكتملة، وسّعها",
+            ImprovementStrategy.EXPAND,
+            {
+                completenessScore: { max: 0.6 }
+            },
+            {
+                addDetails: true,
+                addExplanation: true
+            },
+            6
+        ));
+        
+        // قاعدة 4: تغيير الأسلوب حسب التفضيل
+        this.addRule(new ImprovementRule(
+            "adapt_style",
+            "تكييف الأسلوب",
+            "تغيير الأسلوب حسب تفضيلات المستخدم",
+            ImprovementStrategy.CHANGE_STYLE,
+            {
+                userPreference: { exists: true }
+            },
+            {
+                applyPreferredStyle: true
+            },
+            9
+        ));
+        
+        // قاعدة 5: تحسين الوضوح
+        this.addRule(new ImprovementRule(
+            "enhance_clarity",
+            "تحسين الوضوح",
+            "تحسين وضوح الإجابة",
+            ImprovementStrategy.ENHANCE_CLARITY,
+            {
+                clarityScore: { max: 0.7 }
+            },
+            {
+                useSimpleWords: true,
+                addStructure: true
+            },
+            7
+        ));
+        
+        // قاعدة 6: إضافة سياق
+        this.addRule(new ImprovementRule(
+            "add_context",
+            "إضافة سياق",
+            "إضافة سياق للإجابة",
+            ImprovementStrategy.ADD_CONTEXT,
+            {
+                minLength: 50,
+                maxLength: 150
+            },
+            {
+                addBackground: true,
+                addRelevance: true
+            },
+            6
+        ));
+    }
+    
+    /**
+     * إضافة قاعدة تحسين
+     */
+    public addRule(rule: ImprovementRule): void {
+        this.rules.set(rule.ruleId, rule);
+        this.rulesByStrategy.get(rule.strategy)!.add(rule.ruleId);
+    }
+    
+    /**
+     * تحسين إجابة
+     */
+    public improveResponse(
+        originalResponse: string,
+        context: object,
+        performanceScores: object | null = null,
+        userPreferences: object | null = null
+    ): ImprovedResponse {
+        this.totalImprovements++;
+        
+        // دمج تفضيلات المستخدم في السياق
+        if (userPreferences) {
+            context['userPreferences'] = userPreferences;
+        }
+        
+        // تحديد القواعد المطبقة
+        const applicableRules = this.findApplicableRules(
+            originalResponse,
+            context,
+            performanceScores
+        );
+        
+        if (applicableRules.length === 0) {
+            // لا توجد قواعد مطبقة
+            return new ImprovedResponse(
+                originalResponse,
+                originalResponse,
+                [],
+                0.0,
+                "لا توجد تحسينات مطلوبة"
+            );
+        }
+        
+        // ترتيب القواعد حسب الأولوية
+        applicableRules.sort((a, b) => b.priority - a.priority);
+        
+        // تطبيق القواعد
+        let improvedResponse = originalResponse;
+        const appliedRules: array<string> = [];
+        
+        for (const rule of applicableRules.slice(0, 3)) {  // أفضل 3 قواعد
+            improvedResponse = this.applyRule(improvedResponse, rule, context);
+            appliedRules.push(rule.ruleId);
+        }
+        
+        // حساب نقاط التحسين
+        const improvementScore = this.calculateImprovementScore(
+            originalResponse,
+            improvedResponse,
+            performanceScores
+        );
+        
+        const result = new ImprovedResponse(
+            originalResponse,
+            improvedResponse,
+            appliedRules,
+            improvementScore,
+            `تم تطبيق ${appliedRules.length} قاعدة تحسين`
+        );
+        
+        // حفظ في السجل
+        this.improvementHistory.push({
+            timestamp: new Date(),
+            original: originalResponse,
+            improved: improvedResponse,
+            rules: appliedRules,
+            score: improvementScore
+        });
+        
+        // الاحتفاظ بآخر 100 تحسين
+        if (this.improvementHistory.length > 100) {
+            this.improvementHistory.shift();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * إيجاد القواعد المطبقة
+     */
+    private findApplicableRules(
+        response: string,
+        context: object,
+        performanceScores: object | null
+    ): array<ImprovementRule> {
+        const applicable: array<ImprovementRule> = [];
+        
+        for (const rule of this.rules.values()) {
+            if (!rule.enabled) {
+                continue;
+            }
+            
+            if (rule.matchesConditions(response, context, performanceScores)) {
+                applicable.push(rule);
+            }
+        }
+        
+        return applicable;
+    }
+    
+    /**
+     * تطبيق قاعدة تحسين
+     */
+    private applyRule(
+        response: string,
+        rule: ImprovementRule,
+        context: object
+    ): string {
+        let improved = response;
+        
+        switch (rule.strategy) {
+            case ImprovementStrategy.ADD_EXAMPLES:
+                improved = this.addExamples(response, rule);
+                break;
+            
+            case ImprovementStrategy.SIMPLIFY:
+                improved = this.simplifyResponse(response, rule);
+                break;
+            
+            case ImprovementStrategy.EXPAND:
+                improved = this.expandResponse(response, rule, context);
+                break;
+            
+            case ImprovementStrategy.CHANGE_STYLE:
+                improved = this.changeStyle(response, rule, context);
+                break;
+            
+            case ImprovementStrategy.ENHANCE_CLARITY:
+                improved = this.enhanceClarity(response, rule);
+                break;
+            
+            case ImprovementStrategy.ADD_CONTEXT:
+                improved = this.addContext(response, rule, context);
+                break;
+        }
+        
+        return improved;
+    }
+    
+    /**
+     * إضافة أمثلة
+     */
+    private addExamples(response: string, rule: ImprovementRule): string {
+        const prefix = rule.transformations['addPrefix'] || "\n\nمثال: ";
+        return response + prefix + "...";
+    }
+    
+    /**
+     * تبسيط الإجابة
+     */
+    private simplifyResponse(response: string, rule: ImprovementRule): string {
+        if (rule.transformations['splitSentences']) {
+            const sentences = response.split('.');
+            return sentences.map(s => s.trim()).filter(s => s).join('.\n');
+        }
+        return response;
+    }
+    
+    /**
+     * توسيع الإجابة
+     */
+    private expandResponse(response: string, rule: ImprovementRule, context: object): string {
+        if (rule.transformations['addDetails']) {
+            return response + "\n\nللمزيد من التفاصيل: ...";
+        }
+        return response;
+    }
+    
+    /**
+     * تغيير الأسلوب
+     */
+    private changeStyle(response: string, rule: ImprovementRule, context: object): string {
+        // يمكن تحسين هذا بتطبيق أنماط مختلفة
+        return response;
+    }
+    
+    /**
+     * تحسين الوضوح
+     */
+    private enhanceClarity(response: string, rule: ImprovementRule): string {
+        if (rule.transformations['addStructure']) {
+            return "الخلاصة:\n" + response;
+        }
+        return response;
+    }
+    
+    /**
+     * إضافة سياق
+     */
+    private addContext(response: string, rule: ImprovementRule, context: object): string {
+        if (rule.transformations['addBackground']) {
+            return "السياق: ...\n\n" + response;
+        }
+        return response;
+    }
+    
+    /**
+     * حساب نقاط التحسين
+     */
+    private calculateImprovementScore(
+        original: string,
+        improved: string,
+        performanceScores: object | null
+    ): number {
+        if (original === improved) {
+            return 0.0;
+        }
+        
+        const lengthDiff = Math.abs(improved.length - original.length) / Math.max(original.length, 1);
+        const baseScore = 0.5;
+        const improvementScore = baseScore + Math.min(0.5, lengthDiff);
+        
+        return Math.min(1.0, improvementScore);
+    }
+    
+    /**
+     * التعلم من التغذية الراجعة
+     */
+    public learnFromFeedback(ruleId: string, success: boolean): void {
+        if (!this.rules.has(ruleId)) {
+            return;
+        }
+        
+        const rule = this.rules.get(ruleId)!;
+        
+        if (success) {
+            rule.recordSuccess();
+            this.successfulImprovements++;
+        } else {
+            rule.recordFailure();
+        }
+    }
+    
+    /**
+     * الحصول على إحصائيات
+     */
+    public getStatistics(): object {
+        const rulesByStrategy: object = {};
+        for (const [strategy, ids] of this.rulesByStrategy.entries()) {
+            rulesByStrategy[strategy] = ids.size;
+        }
+        
+        return {
+            totalImprovements: this.totalImprovements,
+            successfulImprovements: this.successfulImprovements,
+            successRate: this.totalImprovements > 0 
+                ? this.successfulImprovements / this.totalImprovements 
+                : 0,
+            totalRules: this.rules.size,
+            rulesByStrategy: rulesByStrategy,
+            historySize: this.improvementHistory.length
+        };
+    }
+    
+    /**
+     * الحصول على أفضل القواعد
+     */
+    public getBestRules(count: number = 5): array<ImprovementRule> {
+        const allRules = Array.from(this.rules.values());
+        allRules.sort((a, b) => {
+            if (b.successRate !== a.successRate) {
+                return b.successRate - a.successRate;
+            }
+            return b.priority - a.priority;
+        });
+        
+        return allRules.slice(0, count);
+    }
+    
+    /**
+     * مسح جميع البيانات
+     */
+    public clearAll(): void {
+        this.improvementHistory = [];
+        this.totalImprovements = 0;
+        this.successfulImprovements = 0;
+    }
+}
+
+// ============================================================================
+// تصدير
+// ============================================================================
+
+export {
+    ImprovementStrategy,
+    ImprovementLevel,
+    ImprovementRule,
+    ImprovedResponse,
+    AdaptiveLearningSystem
+};
+

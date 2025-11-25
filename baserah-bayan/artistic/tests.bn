@@ -1,0 +1,459 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * اختبارات الوحدة الفنية - Artistic Unit Tests
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * اختبارات شاملة للوحدة الفنية
+ * Comprehensive tests for Artistic Unit
+ * 
+ * @author Baserah AI System
+ * @version 1.0.0
+ * @date 2025-10-26
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+import { 
+    GeneralShapeEquation, 
+    ShapeType, 
+    Color,
+    StyleProperties,
+    LineStyle,
+    FillType,
+    MathematicalTerm
+} from "./general-shape-equation.bn";
+
+import { ClassicDrawingEngine } from "./classic-drawing-engine.bn";
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 1: إنشاء معادلة شكل بسيطة
+// Test 1: Create Simple Shape Equation
+// ═══════════════════════════════════════════════════════════════════════
+
+function test1_CreateSimpleEquation(): boolean {
+    console.log("\n🧪 اختبار 1: إنشاء معادلة شكل بسيطة");
+    
+    try {
+        let shape = new GeneralShapeEquation("دائرة بسيطة", ShapeType.CIRCLE);
+        
+        // التحقق من الخصائص الأساسية
+        if (shape.shapeName != "دائرة بسيطة") {
+            throw new Error("اسم الشكل غير صحيح");
+        }
+        
+        if (shape.shapeType != ShapeType.CIRCLE) {
+            throw new Error("نوع الشكل غير صحيح");
+        }
+        
+        if (shape.mathematicalTerms.length != 0) {
+            throw new Error("يجب أن تكون قائمة الحدود فارغة في البداية");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 2: إضافة حدود رياضية
+// Test 2: Add Mathematical Terms
+// ═══════════════════════════════════════════════════════════════════════
+
+function test2_AddMathematicalTerms(): boolean {
+    console.log("\n🧪 اختبار 2: إضافة حدود رياضية");
+    
+    try {
+        let shape = new GeneralShapeEquation("شكل مركب", ShapeType.COMPOSITE);
+        
+        // إضافة خط
+        let lineId = shape.addLineTerm(0, 0, 100, 100);
+        if (!lineId) {
+            throw new Error("فشل إضافة خط");
+        }
+        
+        // إضافة دائرة
+        let circleId = shape.addCircleTerm(50, 50, 25);
+        if (!circleId) {
+            throw new Error("فشل إضافة دائرة");
+        }
+        
+        // التحقق من عدد الحدود
+        if (shape.mathematicalTerms.length != 2) {
+            throw new Error(`عدد الحدود غير صحيح: ${shape.mathematicalTerms.length}`);
+        }
+        
+        // التحقق من أنواع الحدود
+        if (shape.mathematicalTerms[0].termType != "line") {
+            throw new Error("نوع الحد الأول غير صحيح");
+        }
+        
+        if (shape.mathematicalTerms[1].termType != "circle") {
+            throw new Error("نوع الحد الثاني غير صحيح");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 3: تعيين الأنماط
+// Test 3: Set Styles
+// ═══════════════════════════════════════════════════════════════════════
+
+function test3_SetStyles(): boolean {
+    console.log("\n🧪 اختبار 3: تعيين الأنماط");
+    
+    try {
+        let shape = new GeneralShapeEquation("شكل ملون", ShapeType.CIRCLE);
+        
+        // تعيين لون الخط
+        shape.setStrokeColor(255, 0, 0, 1);
+        if (shape.globalStyle.strokeColor.r != 255) {
+            throw new Error("لون الخط غير صحيح");
+        }
+        
+        // تعيين لون التعبئة
+        shape.setFillColor(0, 255, 0, 0.5);
+        if (shape.globalStyle.fillColor.g != 255) {
+            throw new Error("لون التعبئة غير صحيح");
+        }
+        
+        // تعيين سمك الخط
+        shape.setLineWidth(5);
+        if (shape.globalStyle.lineWidth != 5) {
+            throw new Error("سمك الخط غير صحيح");
+        }
+        
+        // تعيين نمط الخط
+        shape.setLineStyle(LineStyle.DASHED);
+        if (shape.globalStyle.lineStyle != LineStyle.DASHED) {
+            throw new Error("نمط الخط غير صحيح");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 4: تحويل الألوان
+// Test 4: Color Conversion
+// ═══════════════════════════════════════════════════════════════════════
+
+function test4_ColorConversion(): boolean {
+    console.log("\n🧪 اختبار 4: تحويل الألوان");
+    
+    try {
+        let color = new Color(255, 128, 64, 1.0);
+        
+        // تحويل إلى Hex
+        let hex = color.toHex();
+        if (hex != "#ff8040") {
+            throw new Error(`تحويل Hex غير صحيح: ${hex}`);
+        }
+        
+        // تحويل إلى RGBA
+        let rgba = color.toRGBA();
+        if (rgba != "rgba(255, 128, 64, 1)") {
+            throw new Error(`تحويل RGBA غير صحيح: ${rgba}`);
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 5: تحويل المعادلة إلى نص
+// Test 5: Equation to String
+// ═══════════════════════════════════════════════════════════════════════
+
+function test5_EquationToString(): boolean {
+    console.log("\n🧪 اختبار 5: تحويل المعادلة إلى نص");
+    
+    try {
+        let shape = new GeneralShapeEquation("اختبار", ShapeType.COMPOSITE);
+        
+        shape.addLineTerm(0, 0, 100, 100);
+        shape.addCircleTerm(50, 50, 25);
+        
+        let equationStr = shape.toEquationString();
+        
+        // التحقق من وجود اسم الشكل
+        if (!equationStr.includes("اختبار")) {
+            throw new Error("المعادلة لا تحتوي على اسم الشكل");
+        }
+        
+        // التحقق من وجود الحدود
+        if (!equationStr.includes("line")) {
+            throw new Error("المعادلة لا تحتوي على حد الخط");
+        }
+        
+        if (!equationStr.includes("circle")) {
+            throw new Error("المعادلة لا تحتوي على حد الدائرة");
+        }
+        
+        console.log(`   المعادلة: ${equationStr}`);
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 6: الحالات والوسوم
+// Test 6: States and Tags
+// ═══════════════════════════════════════════════════════════════════════
+
+function test6_StatesAndTags(): boolean {
+    console.log("\n🧪 اختبار 6: الحالات والوسوم");
+    
+    try {
+        let shape = new GeneralShapeEquation("شكل مع حالات", ShapeType.CIRCLE);
+        
+        // تعيين حالة
+        shape.setState("color", "red");
+        if (shape.getState("color") != "red") {
+            throw new Error("فشل تعيين/قراءة الحالة");
+        }
+        
+        // إضافة وسوم
+        shape.tags = ["geometric", "simple", "test"];
+        if (shape.tags.length != 3) {
+            throw new Error("عدد الوسوم غير صحيح");
+        }
+        
+        // تعيين الفئة
+        shape.category = "shapes";
+        if (shape.category != "shapes") {
+            throw new Error("الفئة غير صحيحة");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 7: منحنى بيزيه
+// Test 7: Bezier Curve
+// ═══════════════════════════════════════════════════════════════════════
+
+function test7_BezierCurve(): boolean {
+    console.log("\n🧪 اختبار 7: منحنى بيزيه");
+    
+    try {
+        let shape = new GeneralShapeEquation("منحنى", ShapeType.BEZIER);
+        
+        let controlPoints = [
+            [0, 0],
+            [50, 100],
+            [100, 100],
+            [150, 0]
+        ];
+        
+        let bezierId = shape.addBezierTerm(controlPoints);
+        if (!bezierId) {
+            throw new Error("فشل إضافة منحنى بيزيه");
+        }
+        
+        let term = shape.mathematicalTerms[0];
+        if (term.parameters.controlPoints.length != 4) {
+            throw new Error("عدد نقاط التحكم غير صحيح");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 8: موجة جيبية
+// Test 8: Sine Wave
+// ═══════════════════════════════════════════════════════════════════════
+
+function test8_SineWave(): boolean {
+    console.log("\n🧪 اختبار 8: موجة جيبية");
+    
+    try {
+        let shape = new GeneralShapeEquation("موجة", ShapeType.SINE_WAVE);
+        
+        let waveId = shape.addSineWaveTerm(50, 1, 0);
+        if (!waveId) {
+            throw new Error("فشل إضافة موجة جيبية");
+        }
+        
+        let term = shape.mathematicalTerms[0];
+        if (term.parameters.amplitude != 50) {
+            throw new Error("السعة غير صحيحة");
+        }
+        
+        if (term.parameters.frequency != 1) {
+            throw new Error("التردد غير صحيح");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 9: معادلة بارامترية
+// Test 9: Parametric Equation
+// ═══════════════════════════════════════════════════════════════════════
+
+function test9_ParametricEquation(): boolean {
+    console.log("\n🧪 اختبار 9: معادلة بارامترية");
+    
+    try {
+        let shape = new GeneralShapeEquation("حلزون", ShapeType.PARAMETRIC);
+        
+        let paramId = shape.addParametricTerm(
+            "t * Math.cos(t)",
+            "t * Math.sin(t)",
+            [0, 10]
+        );
+        
+        if (!paramId) {
+            throw new Error("فشل إضافة معادلة بارامترية");
+        }
+        
+        let term = shape.mathematicalTerms[0];
+        if (!term.parameters.xFunction) {
+            throw new Error("دالة x غير موجودة");
+        }
+        
+        if (!term.parameters.yFunction) {
+            throw new Error("دالة y غير موجودة");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// اختبار 10: أنماط الحدود الفردية
+// Test 10: Individual Term Styles
+// ═══════════════════════════════════════════════════════════════════════
+
+function test10_IndividualTermStyles(): boolean {
+    console.log("\n🧪 اختبار 10: أنماط الحدود الفردية");
+    
+    try {
+        let shape = new GeneralShapeEquation("شكل متعدد الألوان", ShapeType.COMPOSITE);
+        
+        // إضافة خط أحمر
+        let lineId = shape.addLineTerm(0, 0, 100, 100);
+        let redStyle = new StyleProperties();
+        redStyle.strokeColor = new Color(255, 0, 0, 1);
+        redStyle.lineWidth = 3;
+        shape.setTermStyle(lineId, redStyle);
+        
+        // إضافة دائرة زرقاء
+        let circleId = shape.addCircleTerm(50, 50, 25);
+        let blueStyle = new StyleProperties();
+        blueStyle.strokeColor = new Color(0, 0, 255, 1);
+        blueStyle.lineWidth = 2;
+        shape.setTermStyle(circleId, blueStyle);
+        
+        // التحقق
+        let lineTerm = shape.mathematicalTerms[0];
+        if (lineTerm.style.strokeColor.r != 255) {
+            throw new Error("لون الخط غير صحيح");
+        }
+        
+        let circleTerm = shape.mathematicalTerms[1];
+        if (circleTerm.style.strokeColor.b != 255) {
+            throw new Error("لون الدائرة غير صحيح");
+        }
+        
+        console.log("   ✅ نجح الاختبار");
+        return true;
+        
+    } catch (e) {
+        console.log(`   ❌ فشل الاختبار: ${e}`);
+        return false;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// تشغيل جميع الاختبارات
+// Run All Tests
+// ═══════════════════════════════════════════════════════════════════════
+
+function runAllTests(): void {
+    console.log("\n");
+    console.log("═".repeat(70));
+    console.log("🧪 اختبارات الوحدة الفنية - Artistic Unit Tests");
+    console.log("═".repeat(70));
+    
+    let results = [];
+    
+    results.push(test1_CreateSimpleEquation());
+    results.push(test2_AddMathematicalTerms());
+    results.push(test3_SetStyles());
+    results.push(test4_ColorConversion());
+    results.push(test5_EquationToString());
+    results.push(test6_StatesAndTags());
+    results.push(test7_BezierCurve());
+    results.push(test8_SineWave());
+    results.push(test9_ParametricEquation());
+    results.push(test10_IndividualTermStyles());
+    
+    console.log("\n");
+    console.log("═".repeat(70));
+    
+    let passed = results.filter(r => r).length;
+    let failed = results.filter(r => !r).length;
+    let total = results.length;
+    
+    console.log(`📊 النتائج: ${passed}/${total} نجح، ${failed} فشل`);
+    
+    if (failed == 0) {
+        console.log("✅ جميع الاختبارات نجحت!");
+    } else {
+        console.log(`⚠️ ${failed} اختبار(ات) فشلت`);
+    }
+    
+    console.log("═".repeat(70));
+    console.log("\n");
+}
+
+export { runAllTests };
+

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 الرسم الموجه بالخبير - Expert-Guided Drawing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .canvas-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #drawingCanvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            max-width: 100%;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-expert {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .btn-explorer {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .btn-clear {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .theory-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-right: 4px solid #667eea;
+        }
+        
+        .theory-box h3 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .slider-group {
+            margin: 15px 0;
+        }
+        
+        .slider-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .slider-group input[type="range"] {
+            width: 100%;
+        }
+        
+        .slider-value {
+            color: #667eea;
+            font-weight: bold;
+            float: left;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            color: #667eea;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .log-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        
+        .log-expert {
+            background: #ffe0f0;
+            border-right: 3px solid #f5576c;
+        }
+        
+        .log-explorer {
+            background: #e0f7ff;
+            border-right: 3px solid #00f2fe;
+        }
+        
+        .log-theory {
+            background: #f0e0ff;
+            border-right: 3px solid #764ba2;
+        }
+        
+        .expertise-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .badge-novice { background: #ffd700; color: #333; }
+        .badge-intermediate { background: #ff8c00; color: white; }
+        .badge-expert { background: #dc143c; color: white; }
+        .badge-master { background: #8b008b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 الرسم الموجه بالخبير</h1>
+            <p>Expert-Guided Drawing System - Baserah AI</p>
+            <p style="margin-top: 10px; color: #666;">
+                الوحدة الفنية + دماغ النظام (الخبير/المستكشف) + النظريات الثلاث
+            </p>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Left Panel: Expert Controls -->
+            <div class="card">
+                <h2>🎓 الخبير</h2>
+                
+                <div class="theory-box">
+                    <h3>🔬 النظريات الثورية</h3>
+                    
+                    <div class="slider-group">
+                        <label>ثنائية الصفر:</label>
+                        <input type="range" id="zeroDuality" min="0" max="100" value="70" 
+                               oninput="updateTheory('zero', this.value)">
+                        <span class="slider-value" id="zeroValue">0.70</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label>تعامد الأضداد:</label>
+                        <input type="range" id="perpendicular" min="0" max="100" value="60" 
+                               oninput="updateTheory('perp', this.value)">
+                        <span class="slider-value" id="perpValue">0.60</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <label>عدد الفتائل:</label>
+                        <input type="range" id="filaments" min="0" max="10" value="3" 
+                               oninput="updateTheory('fil', this.value)">
+                        <span class="slider-value" id="filValue">3</span>
+                    </div>
+                </div>
+                
+                <div class="theory-box">
+                    <h3>📊 مستوى الخبرة</h3>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <span class="expertise-badge badge-novice" id="expertiseBadge">مبتدئ</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-expert" onclick="expertDraw()">
+                    🎓 رسم بقيادة الخبير
+                </button>
+                
+                <button class="btn btn-expert" onclick="adaptiveLearn()">
+                    📚 تعلم تكيفي
+                </button>
+            </div>
+            
+            <!-- Center Panel: Canvas -->
+            <div class="card">
+                <h2>🖼️ لوحة الرسم</h2>
+                <div class="canvas-container">
+                    <canvas id="drawingCanvas" width="700" height="500"></canvas>
+                </div>
+                
+                <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <button class="btn" onclick="drawSimple()">⭕ بسيط</button>
+                    <button class="btn" onclick="drawComplex()">🌟 معقد</button>
+                    <button class="btn btn-clear" onclick="clearCanvas()">🗑️ مسح</button>
+                </div>
+                
+                <!-- Log -->
+                <div class="log-box" id="logBox">
+                    <div class="log-entry">جاهز للرسم...</div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Explorer Controls -->
+            <div class="card">
+                <h2>🔍 المستكشف</h2>
+                
+                <div class="theory-box">
+                    <h3>🎯 استراتيجية الاستكشاف</h3>
+                    <select id="explorationStrategy" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <option value="balanced">متوازن</option>
+                        <option value="aggressive">عدواني</option>
+                        <option value="conservative">محافظ</option>
+                        <option value="creative">إبداعي</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-explorer" onclick="explorerDraw()">
+                    🔍 رسم استكشافي
+                </button>
+                
+                <button class="btn btn-explorer" onclick="discoverPatterns()">
+                    🌈 اكتشاف أنماط
+                </button>
+                
+                <!-- Statistics -->
+                <div class="theory-box">
+                    <h3>📊 الإحصائيات</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">الأشكال</div>
+                            <div class="stat-value" id="shapeCount">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">الاكتشافات</div>
+                            <div class="stat-value" id="discoveryCount">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">القرارات</div>
+                            <div class="stat-value" id="decisionCount">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">التعلم</div>
+                            <div class="stat-value" id="learningCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // محاكاة النظام
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const logBox = document.getElementById('logBox');
+        
+        let stats = {
+            shapes: 0,
+            discoveries: 0,
+            decisions: 0,
+            learning: 0
+        };
+        
+        let theories = {
+            zeroDuality: 0.70,
+            perpendicular: 0.60,
+            filaments: 3
+        };
+        
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        function updateTheory(type, value) {
+            if (type === 'zero') {
+                theories.zeroDuality = value / 100;
+                document.getElementById('zeroValue').textContent = (value / 100).toFixed(2);
+            } else if (type === 'perp') {
+                theories.perpendicular = value / 100;
+                document.getElementById('perpValue').textContent = (value / 100).toFixed(2);
+            } else if (type === 'fil') {
+                theories.filaments = parseInt(value);
+                document.getElementById('filValue').textContent = value;
+            }
+            log(`تم تحديث النظرية: ${type} = ${value}`, 'theory');
+        }
+        
+        function expertDraw() {
+            log('🎓 الخبير يتخذ قرار الرسم...', 'expert');
+            stats.decisions++;
+            
+            ctx.strokeStyle = '#f5576c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(350, 250, 100, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // تطبيق النظريات
+            if (theories.zeroDuality > 0.5) {
+                log('   ✓ تطبيق ثنائية الصفر', 'theory');
+                ctx.beginPath();
+                ctx.arc(350, 250, 50, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
+            if (theories.perpendicular > 0.5) {
+                log('   ✓ تطبيق تعامد الأضداد', 'theory');
+                ctx.beginPath();
+                ctx.moveTo(250, 250);
+                ctx.lineTo(450, 250);
+                ctx.moveTo(350, 150);
+                ctx.lineTo(350, 350);
+                ctx.stroke();
+            }
+            
+            stats.shapes++;
+            updateStats();
+            log('✅ تم الرسم بنجاح', 'expert');
+        }
+        
+        function explorerDraw() {
+            log('🔍 المستكشف يكتشف شكلاً جديداً...', 'explorer');
+            stats.discoveries++;
+            
+            const centerX = 350;
+            const centerY = 250;
+            const rays = 5 + Math.floor(Math.random() * 5);
+            
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i < rays; i++) {
+                const angle = (i * 2 * Math.PI) / rays;
+                const x = centerX + 100 * Math.cos(angle);
+                const y = centerY + 100 * Math.sin(angle);
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            
+            stats.shapes++;
+            updateStats();
+            log(`✅ تم اكتشاف شكل بـ ${rays} أشعة`, 'explorer');
+        }
+        
+        function drawSimple() {
+            log('⭕ رسم شكل بسيط', 'info');
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(350, 250, 80, 0, 2 * Math.PI);
+            ctx.stroke();
+            stats.shapes++;
+            updateStats();
+        }
+        
+        function drawComplex() {
+            log('🌟 رسم شكل معقد', 'info');
+            expertDraw();
+            setTimeout(() => {
+                explorerDraw();
+            }, 500);
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            log('🗑️ تم مسح اللوحة', 'info');
+        }
+        
+        function adaptiveLearn() {
+            log('📚 بدء التعلم التكيفي...', 'expert');
+            stats.learning++;
+            updateStats();
+            
+            setTimeout(() => {
+                log('   ✓ تحليل الأنماط السابقة', 'expert');
+            }, 500);
+            
+            setTimeout(() => {
+                log('   ✓ تحديث قاعدة المعرفة', 'expert');
+            }, 1000);
+            
+            setTimeout(() => {
+                log('✅ اكتمل التعلم - تحسن مستوى الخبرة', 'expert');
+                updateExpertise();
+            }, 1500);
+        }
+        
+        function discoverPatterns() {
+            log('🌈 بدء اكتشاف الأنماط...', 'explorer');
+            stats.discoveries++;
+            updateStats();
+            
+            setTimeout(() => {
+                log(`   ✓ تم اكتشاف ${Math.floor(Math.random() * 5) + 1} أنماط جديدة`, 'explorer');
+            }, 800);
+        }
+        
+        function updateStats() {
+            document.getElementById('shapeCount').textContent = stats.shapes;
+            document.getElementById('discoveryCount').textContent = stats.discoveries;
+            document.getElementById('decisionCount').textContent = stats.decisions;
+            document.getElementById('learningCount').textContent = stats.learning;
+        }
+        
+        function updateExpertise() {
+            const badge = document.getElementById('expertiseBadge');
+            const levels = ['مبتدئ', 'متوسط', 'خبير', 'ماهر'];
+            const classes = ['badge-novice', 'badge-intermediate', 'badge-expert', 'badge-master'];
+            
+            const level = Math.min(Math.floor(stats.learning / 2), 3);
+            badge.textContent = levels[level];
+            badge.className = `expertise-badge ${classes[level]}`;
+        }
+        
+        log('✅ النظام جاهز - الخبير والمستكشف في الخدمة', 'info');
+    </script>
+</body>
+</html>
+

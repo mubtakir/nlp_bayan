@@ -1,0 +1,276 @@
+/*
+ * أمثلة عملية على الطبقة الفيزيائية المحدثة
+ * Physical Thinking Layer - Practical Examples
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع: باسل يحيى عبدالله
+ */
+
+import { PhysicalThinkingLayer } from "./eight-thinking-layers.bn";
+
+// ==================== مثال 1: طلب رسم كرة تسقط ====================
+
+function example1_FallingBall(): void {
+    console.log("\n========== مثال 1: طلب رسم كرة تسقط ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "ارسم كرة تسقط من ارتفاع 10 متر على الأرض";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    console.log("\n🔍 تحليل المشهد:");
+    console.log(JSON.stringify(result.sceneAnalysis, null, 2));
+    
+    console.log("\n⚙️ الكيانات الفيزيائية:");
+    console.log(JSON.stringify(result.physicalEntities, null, 2));
+    
+    console.log("\n🎯 القيود المطلوبة:");
+    console.log(JSON.stringify(result.requiredConstraints, null, 2));
+    
+    console.log("\n📡 إشارات لوحدة الرسم:");
+    console.log(JSON.stringify(result.renderingSignals.toDrawingUnit, null, 2));
+    
+    console.log("\n📡 إشارات لوحدة التحريك:");
+    console.log(JSON.stringify(result.renderingSignals.toAnimationUnit, null, 2));
+    
+    console.log("\n✅ التحقق من الواقعية:");
+    console.log(JSON.stringify(result.realismCheck, null, 2));
+}
+
+// ==================== مثال 2: طلب رسم سيارة تنعطف ====================
+
+function example2_CarTurning(): void {
+    console.log("\n========== مثال 2: طلب رسم سيارة تنعطف ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "ارسم سيارة تنعطف بسرعة على طريق مبلل بالمطر";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    console.log("\n🔍 تحليل المشهد:");
+    console.log("  - البيئة:", result.sceneAnalysis.environment);
+    console.log("  - الطقس:", result.sceneAnalysis.weather);
+    console.log("  - الإضاءة:", result.sceneAnalysis.lighting);
+    
+    console.log("\n⚙️ الكيانات الفيزيائية:");
+    for (let entity of result.physicalEntities) {
+        console.log("  - النوع:", entity.type);
+        console.log("    الخصائص:", JSON.stringify(entity.properties));
+    }
+    
+    console.log("\n🎯 القيود المطلوبة:");
+    console.log("  - الجاذبية:", result.requiredConstraints.gravity);
+    console.log("  - الاحتكاك:", result.requiredConstraints.friction, "(مهم جداً للطريق المبلل!)");
+    console.log("  - الاصطدام:", result.requiredConstraints.collision);
+    
+    console.log("\n📡 إشارات لوحدة التحريك:");
+    console.log("  - الفيزياء:");
+    if (result.renderingSignals.toAnimationUnit.physics.friction) {
+        console.log("    * الاحتكاك: سطح مبلل (معامل احتكاك منخفض)");
+    }
+    console.log("    * الجاذبية:", result.renderingSignals.toAnimationUnit.physics.gravity ? "مفعلة" : "معطلة");
+    
+    console.log("\n⚠️ تحذيرات الواقعية:");
+    if (result.realismCheck.warnings.length > 0) {
+        for (let warning of result.realismCheck.warnings) {
+            console.log("  -", warning);
+        }
+    } else {
+        console.log("  - لا توجد تحذيرات");
+    }
+}
+
+// ==================== مثال 3: طلب رسم طائر في الفضاء (خطأ فيزيائي!) ====================
+
+function example3_BirdInSpace(): void {
+    console.log("\n========== مثال 3: طلب رسم طائر في الفضاء (خطأ فيزيائي!) ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "ارسم طائر يطير في الفضاء بين النجوم";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    console.log("\n🔍 تحليل المشهد:");
+    console.log("  - البيئة:", result.sceneAnalysis.environment);
+    console.log("  - الجاذبية:", result.sceneAnalysis.gravity ? "موجودة" : "معدومة");
+    console.log("  - الغلاف الجوي:", result.sceneAnalysis.atmosphere);
+    
+    console.log("\n⚙️ الكيانات الفيزيائية:");
+    for (let entity of result.physicalEntities) {
+        console.log("  - النوع:", entity.type);
+    }
+    
+    console.log("\n❌ مشاكل الواقعية:");
+    console.log("  - النتيجة واقعية؟", result.realismCheck.isRealistic ? "نعم ✅" : "لا ❌");
+    console.log("  - درجة الواقعية:", result.realismCheck.score);
+    
+    if (result.realismCheck.issues.length > 0) {
+        console.log("\n  المشاكل المكتشفة:");
+        for (let issue of result.realismCheck.issues) {
+            console.log("    ⚠️", issue);
+        }
+    }
+    
+    console.log("\n💡 الحل المقترح:");
+    console.log("  - إما تغيير البيئة إلى 'أرض' أو 'سماء'");
+    console.log("  - أو تغيير الكيان إلى 'مركبة فضائية' بدلاً من 'طائر'");
+}
+
+// ==================== مثال 4: طلب فيديو لشخص يقفز ====================
+
+function example4_PersonJumping(): void {
+    console.log("\n========== مثال 4: طلب فيديو لشخص يقفز ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "اصنع فيديو لشخص يقفز عالياً في النهار";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    console.log("\n🔍 تحليل المشهد:");
+    console.log(JSON.stringify(result.sceneAnalysis, null, 2));
+    
+    console.log("\n📡 إشارات لوحدة الفيديو:");
+    console.log(JSON.stringify(result.renderingSignals.toVideoUnit, null, 2));
+    
+    console.log("\n🎬 تفاصيل محاكاة الفيزياء:");
+    console.log("  - معدل الإطارات:", result.renderingSignals.toVideoUnit.frameRate, "fps");
+    console.log("  - ضبابية الحركة:", result.renderingSignals.toVideoUnit.motionBlur ? "مفعلة" : "معطلة");
+    console.log("  - خطوة زمنية:", result.renderingSignals.toVideoUnit.physicsSimulation.timestep, "ثانية");
+    console.log("  - عدد التكرارات:", result.renderingSignals.toVideoUnit.physicsSimulation.iterations);
+    
+    console.log("\n🌟 تطبيق النظريات الثورية:");
+    let revolutionary = physicalLayer.applyRevolutionaryPhysics(
+        result.sceneAnalysis,
+        result.physicalEntities
+    );
+    
+    console.log("\n  1️⃣ ثنائية الصفر:");
+    console.log("     -", revolutionary.zeroDuality.principle);
+    console.log("     - التطبيق:", revolutionary.zeroDuality.application);
+    console.log("     - مثال:", revolutionary.zeroDuality.examples[0]);
+    
+    console.log("\n  2️⃣ تعامد الأضداد:");
+    console.log("     -", revolutionary.perpendicularity.principle);
+    console.log("     - التطبيق:", revolutionary.perpendicularity.application);
+    
+    console.log("\n  3️⃣ نظرية الفتائل:");
+    console.log("     -", revolutionary.filament.principle);
+    console.log("     - التطبيق:", revolutionary.filament.application);
+}
+
+// ==================== مثال 5: طلب رسم تحت الماء ====================
+
+function example5_Underwater(): void {
+    console.log("\n========== مثال 5: طلب رسم تحت الماء ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "ارسم شخص يسبح تحت الماء في البحر مع إضاءة ساطعة";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    console.log("\n🔍 تحليل المشهد:");
+    console.log("  - البيئة:", result.sceneAnalysis.environment);
+    console.log("  - الغلاف الجوي:", result.sceneAnalysis.atmosphere);
+    console.log("  - الإضاءة:", result.sceneAnalysis.lighting);
+    
+    console.log("\n⚠️ تحذيرات الواقعية:");
+    if (result.realismCheck.warnings.length > 0) {
+        for (let warning of result.realismCheck.warnings) {
+            console.log("  ⚠️", warning);
+        }
+    }
+    
+    console.log("\n💡 اقتراحات التحسين:");
+    console.log("  - تغيير الإضاءة إلى 'خافتة' أو 'متوسطة' لتكون أكثر واقعية");
+    console.log("  - إضافة تأثيرات الماء: الانكسار، التشتت، الفقاعات");
+    console.log("  - مراعاة مقاومة الماء للحركة (أبطأ من الهواء)");
+}
+
+// ==================== مثال 6: سيناريو متكامل - كرة تصطدم بحائط ====================
+
+function example6_BallHittingWall(): void {
+    console.log("\n========== مثال 6: سيناريو متكامل - كرة تصطدم بحائط ==========\n");
+    
+    let physicalLayer = new PhysicalThinkingLayer();
+    
+    let userRequest = "اصنع فيديو لكرة تُرمى بقوة نحو حائط وترتد";
+    
+    let result = physicalLayer.processInput(userRequest);
+    
+    console.log("📝 طلب المستخدم:", userRequest);
+    
+    console.log("\n⚙️ الكيانات المكتشفة:");
+    for (let entity of result.physicalEntities) {
+        console.log("  - النوع:", entity.type);
+        console.log("    الخصائص:", JSON.stringify(entity.properties));
+        
+        // الحصول على القيود الخاصة بهذا الكيان
+        let constraints = physicalLayer.getEntityConstraints(entity);
+        console.log("    القيود:");
+        console.log("      * متأثر بالجاذبية:", constraints.affectedByGravity);
+        console.log("      * متأثر بالرياح:", constraints.affectedByWind);
+        console.log("      * يمكنه المشي:", constraints.canWalk);
+    }
+    
+    console.log("\n🎯 القيود الفيزيائية المطلوبة:");
+    console.log("  - الجاذبية:", result.requiredConstraints.gravity ? "✅" : "❌");
+    console.log("  - الاصطدام:", result.requiredConstraints.collision ? "✅" : "❌");
+    console.log("  - الظلال:", result.requiredConstraints.shadows ? "✅" : "❌");
+    
+    console.log("\n📡 إشارات لوحدة التحريك:");
+    console.log("  الفيزياء المطلوبة:");
+    console.log("    - الجاذبية:", result.renderingSignals.toAnimationUnit.physics.gravity);
+    console.log("    - الاصطدام:", result.renderingSignals.toAnimationUnit.physics.collision ? "مفعل" : "معطل");
+    
+    console.log("\n🌟 تطبيق نظرية الفتائل:");
+    console.log("  حركة الكرة = فتيلة أفقية + فتيلة عمودية + فتيلة دورانية");
+    console.log("  عند الارتداد:");
+    console.log("    - الفتيلة الأفقية: تنعكس (ثنائية الصفر)");
+    console.log("    - الفتيلة العمودية: تستمر (تعامد الأضداد)");
+    console.log("    - الفتيلة الدورانية: تتأثر بالاحتكاك");
+}
+
+// ==================== تشغيل جميع الأمثلة ====================
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("═══════════════════════════════════════════════════════════");
+    console.log("  أمثلة الطبقة الفيزيائية - معالجة الواقعية الفيزيائية");
+    console.log("  Physical Thinking Layer - Physical Realism Processing");
+    console.log("═══════════════════════════════════════════════════════════");
+    
+    example1_FallingBall();
+    example2_CarTurning();
+    example3_BirdInSpace();
+    example4_PersonJumping();
+    example5_Underwater();
+    example6_BallHittingWall();
+    
+    console.log("\n");
+    console.log("═══════════════════════════════════════════════════════════");
+    console.log("  ✅ تم تشغيل جميع الأمثلة بنجاح!");
+    console.log("═══════════════════════════════════════════════════════════");
+    console.log("\n");
+}
+
+// تصدير الدوال
+export {
+    example1_FallingBall,
+    example2_CarTurning,
+    example3_BirdInSpace,
+    example4_PersonJumping,
+    example5_Underwater,
+    example6_BallHittingWall,
+    runAllExamples
+};
+

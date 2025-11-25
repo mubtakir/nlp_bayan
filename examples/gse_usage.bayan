@@ -1,0 +1,45 @@
+# GSE Model Usage Example in Bayan
+# مثال على استخدام نموذج الشكل العام في لغة بيان
+
+# 1. Using the Python-wrapped functions directly
+# استخدام الدوال المغلفة مباشرة
+
+print("--- GSE Demo in Bayan ---")
+
+# Create a GSE Model instance
+# إنشاء نموذج
+model = GSEModel(0.5, 1.0) # beta=0.5, gamma=1.0
+print("Created GSE Model with beta=0.5, gamma=1.0")
+
+# Add a sigmoid component
+# إضافة مكون سيغمويد
+# alpha=2.0, n=3, k=10.0, x0=0.0
+model.add_sigmoid(2.0, 3, 10.0, 0.0)
+print("Added sigmoid component")
+
+# Evaluate at a point
+# تقييم عند نقطة
+val = model.evaluate([0.5])
+print("Value at x=0.5: " + str(val))
+
+# 2. Using Arabic Aliases
+# استخدام الأسماء العربية
+
+print("\n--- تجربة باللغة العربية ---")
+
+# إنشاء نموذج جديد
+نموذج = نموذج_الشكل_العام(0.0, 0.0)
+
+# إضافة بوابة تقريبية (تتكون من دالتي سيغمويد)
+# approximate_gate(x, a, b, n, k)
+# سنحسب القيمة يدوياً لأن add_sigmoid تضيف مكوناً واحداً
+# لكن يمكننا استخدام الدالة المساعدة مباشرة
+
+x = 0.5
+بوابة = بوابة_تقريبية([x], 0.0, 1.0, 3, 20.0)
+print("قيمة البوابة عند 0.5: " + str(بوابة))
+
+# حساب سيغمويد مفرد
+# generalized_sigmoid(x, n, k, x0)
+س = سيغمويد_معمم([0.0], 1, 10.0, 0.0)
+print("قيمة السيغمويد عند الصفر: " + str(س))

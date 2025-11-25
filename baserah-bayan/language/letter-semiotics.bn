@@ -1,0 +1,342 @@
+/**
+ * نظام سيماء الحروف
+ * Letter Semiotics System
+ * 
+ * الفلسفة:
+ * - كل حرف عربي له معنى أساسي
+ * - المعنى يُستنبط من الكلمات المشتركة في الحرف
+ * - الحروف المتجاورة تُشكل معاني مركبة
+ * 
+ * مثال:
+ * حرف "ق" = القوة والشدة
+ * حرف "ط" = الامتلاء والاحتواء
+ * "قط" = قوة + امتلاء = القطع الحاسم
+ * 
+ * @author Basel Yahya Abdullah
+ * @version 1.0.0
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+
+// ============================================================================
+// التعدادات الأساسية
+// ============================================================================
+
+enum LetterPosition {
+    BEGINNING = "beginning",      // أول الكلمة
+    MIDDLE = "middle",            // وسط الكلمة
+    END = "end",                  // آخر الكلمة
+    STANDALONE = "standalone"     // منفرد
+}
+
+enum MeaningCategory {
+    MOVEMENT = "movement",        // الحركة والانتقال
+    FORCE = "force",              // القوة والشدة
+    CONTAINMENT = "containment",  // الاحتواء والامتلاء
+    EMPTINESS = "emptiness",      // الفراغ والخلو
+    ELEVATION = "elevation",      // الارتفاع والعلو
+    DESCENT = "descent",          // الانخفاض والهبوط
+    TAKING = "taking",            // الأخذ والسلب
+    GIVING = "giving",            // الإعطاء والمنح
+    SOUND = "sound",              // الصوت والنطق
+    SHAPE = "shape"               // الشكل والهيئة
+}
+
+// ============================================================================
+// معنى الحرف (LetterMeaning)
+// ============================================================================
+
+class LetterMeaning extends MotherEquation {
+    public letter: string;
+    public primaryMeaning: string;
+    public secondaryMeanings: array<string>;
+    public category: MeaningCategory;
+    public confidence: number;
+    public examples: array<string>;
+    public inferredFrom: array<string>;
+    
+    constructor(
+        letter: string,
+        primaryMeaning: string,
+        category: MeaningCategory,
+        confidence: number = 0.5
+    ) {
+        super(`letter_${letter}`);
+        this.letter = letter;
+        this.primaryMeaning = primaryMeaning;
+        this.secondaryMeanings = [];
+        this.category = category;
+        this.confidence = confidence;
+        this.examples = [];
+        this.inferredFrom = [];
+        
+        // تعيين Φ (الخصائص الثابتة)
+        this.Phi = {
+            letter: letter,
+            category: category
+        };
+        
+        // تعيين Ψ (الحالات المتغيرة)
+        this.Psi = {
+            primaryMeaning: primaryMeaning,
+            confidence: confidence,
+            exampleCount: 0,
+            lastUpdate: new Date()
+        };
+    }
+    
+    public addSecondaryMeaning(meaning: string): void {
+        /**
+         * إضافة معنى ثانوي
+         */
+        if (!this.secondaryMeanings.includes(meaning)) {
+            this.secondaryMeanings.push(meaning);
+        }
+    }
+    
+    public addExample(word: string): void {
+        /**
+         * إضافة مثال
+         */
+        if (!this.examples.includes(word)) {
+            this.examples.push(word);
+            this.Psi.exampleCount = this.examples.length;
+            this.Psi.lastUpdate = new Date();
+        }
+    }
+    
+    public addInferredFrom(word: string): void {
+        /**
+         * إضافة كلمة استُنبط منها المعنى
+         */
+        if (!this.inferredFrom.includes(word)) {
+            this.inferredFrom.push(word);
+        }
+    }
+    
+    public updateConfidence(newConfidence: number): void {
+        /**
+         * تحديث مستوى الثقة
+         */
+        this.confidence = Math.max(0, Math.min(1, newConfidence));
+        this.Psi.confidence = this.confidence;
+        this.Psi.lastUpdate = new Date();
+    }
+}
+
+// ============================================================================
+// معنى حرفين (TwoLetterMeaning)
+// ============================================================================
+
+class TwoLetterMeaning extends MotherEquation {
+    public letter1: string;
+    public letter2: string;
+    public consecutive: boolean;
+    public combinedMeaning: string;
+    public confidence: number;
+    public examples: array<string>;
+    
+    constructor(
+        letter1: string,
+        letter2: string,
+        consecutive: boolean,
+        combinedMeaning: string,
+        confidence: number = 0.5
+    ) {
+        super(`two_letters_${letter1}_${letter2}`);
+        this.letter1 = letter1;
+        this.letter2 = letter2;
+        this.consecutive = consecutive;
+        this.combinedMeaning = combinedMeaning;
+        this.confidence = confidence;
+        this.examples = [];
+        
+        // تعيين Φ (الخصائص الثابتة)
+        this.Phi = {
+            letter1: letter1,
+            letter2: letter2,
+            consecutive: consecutive
+        };
+        
+        // تعيين Ψ (الحالات المتغيرة)
+        this.Psi = {
+            combinedMeaning: combinedMeaning,
+            confidence: confidence,
+            exampleCount: 0,
+            lastUpdate: new Date()
+        };
+    }
+    
+    public addExample(word: string): void {
+        /**
+         * إضافة مثال
+         */
+        if (!this.examples.includes(word)) {
+            this.examples.push(word);
+            this.Psi.exampleCount = this.examples.length;
+            this.Psi.lastUpdate = new Date();
+        }
+    }
+}
+
+// ============================================================================
+// نظام سيماء الحروف (LetterSemioticsSystem)
+// ============================================================================
+
+class LetterSemioticsSystem extends MotherEquation {
+    public letterMeanings: object;
+    public twoLetterMeanings: array<TwoLetterMeaning>;
+    
+    constructor() {
+        super("letter_semiotics_system");
+        this.letterMeanings = {};
+        this.twoLetterMeanings = [];
+        
+        // تعيين Φ (الخصائص الثابتة)
+        this.Phi = {
+            type: "letter_semiotics",
+            language: "arabic",
+            createdAt: new Date()
+        };
+        
+        // تعيين Ψ (الحالات المتغيرة)
+        this.Psi = {
+            letterCount: 0,
+            twoLetterCount: 0,
+            lastUpdate: new Date()
+        };
+        
+        // تهيئة المعاني الأساسية للحروف العربية
+        this.initializeBasicMeanings();
+    }
+    
+    private initializeBasicMeanings(): void {
+        /**
+         * تهيئة المعاني الأساسية للحروف العربية
+         */
+        
+        // حروف القوة والشدة
+        this.addLetterMeaning(new LetterMeaning("ق", "القوة والشدة", MeaningCategory.FORCE, 0.8));
+        this.addLetterMeaning(new LetterMeaning("ك", "القوة والتمكن", MeaningCategory.FORCE, 0.7));
+        this.addLetterMeaning(new LetterMeaning("ص", "الصلابة والقوة", MeaningCategory.FORCE, 0.7));
+        
+        // حروف الحركة والانتقال
+        this.addLetterMeaning(new LetterMeaning("ن", "النقل والانتقال", MeaningCategory.MOVEMENT, 0.8));
+        this.addLetterMeaning(new LetterMeaning("ج", "الحركة والجريان", MeaningCategory.MOVEMENT, 0.7));
+        this.addLetterMeaning(new LetterMeaning("س", "السير والانسياب", MeaningCategory.MOVEMENT, 0.7));
+        
+        // حروف الامتلاء والاحتواء
+        this.addLetterMeaning(new LetterMeaning("ط", "الامتلاء والاحتواء", MeaningCategory.CONTAINMENT, 0.8));
+        this.addLetterMeaning(new LetterMeaning("م", "الامتلاء والجمع", MeaningCategory.CONTAINMENT, 0.7));
+        
+        // حروف الفراغ والخلو
+        this.addLetterMeaning(new LetterMeaning("خ", "الخواء والفراغ", MeaningCategory.EMPTINESS, 0.8));
+        this.addLetterMeaning(new LetterMeaning("ف", "الفراغ والانفصال", MeaningCategory.EMPTINESS, 0.7));
+        
+        // حروف الارتفاع والعلو
+        this.addLetterMeaning(new LetterMeaning("ع", "العلو والارتفاع", MeaningCategory.ELEVATION, 0.8));
+        this.addLetterMeaning(new LetterMeaning("ر", "الارتفاع والرفع", MeaningCategory.ELEVATION, 0.7));
+        
+        // حروف الانخفاض والهبوط
+        this.addLetterMeaning(new LetterMeaning("ه", "الهبوط والانخفاض", MeaningCategory.DESCENT, 0.8));
+        this.addLetterMeaning(new LetterMeaning("و", "الوقوع والهبوط", MeaningCategory.DESCENT, 0.6));
+        
+        // حروف الأخذ والسلب
+        this.addLetterMeaning(new LetterMeaning("أ", "الأخذ والاستيلاء", MeaningCategory.TAKING, 0.7));
+        this.addLetterMeaning(new LetterMeaning("ل", "اللقط والأخذ", MeaningCategory.TAKING, 0.6));
+        
+        // حروف الإعطاء والمنح
+        this.addLetterMeaning(new LetterMeaning("ب", "البذل والإعطاء", MeaningCategory.GIVING, 0.6));
+        this.addLetterMeaning(new LetterMeaning("د", "الدفع والإعطاء", MeaningCategory.GIVING, 0.6));
+        
+        this.Psi.letterCount = Object.keys(this.letterMeanings).length;
+        this.Psi.lastUpdate = new Date();
+    }
+    
+    public addLetterMeaning(meaning: LetterMeaning): void {
+        /**
+         * إضافة معنى حرف
+         */
+        this.letterMeanings[meaning.letter] = meaning;
+        this.Psi.letterCount = Object.keys(this.letterMeanings).length;
+        this.Psi.lastUpdate = new Date();
+    }
+    
+    public getLetterMeaning(letter: string): LetterMeaning | null {
+        /**
+         * الحصول على معنى حرف
+         */
+        return this.letterMeanings[letter] || null;
+    }
+    
+    public addTwoLetterMeaning(meaning: TwoLetterMeaning): void {
+        /**
+         * إضافة معنى حرفين
+         */
+        this.twoLetterMeanings.push(meaning);
+        this.Psi.twoLetterCount = this.twoLetterMeanings.length;
+        this.Psi.lastUpdate = new Date();
+    }
+    
+    public analyzeWord(word: string): object {
+        /**
+         * تحليل كلمة لاستخراج معاني حروفها
+         */
+        const letters = word.split('');
+        const analysis = {
+            word: word,
+            letterMeanings: [],
+            combinedMeaning: "",
+            confidence: 0
+        };
+        
+        let totalConfidence = 0;
+        let count = 0;
+        
+        for (const letter of letters) {
+            const meaning = this.getLetterMeaning(letter);
+            if (meaning) {
+                analysis.letterMeanings.push({
+                    letter: letter,
+                    meaning: meaning.primaryMeaning,
+                    confidence: meaning.confidence
+                });
+                totalConfidence += meaning.confidence;
+                count++;
+            }
+        }
+        
+        if (count > 0) {
+            analysis.confidence = totalConfidence / count;
+        }
+        
+        return analysis;
+    }
+    
+    public getAllLetterMeanings(): array<LetterMeaning> {
+        /**
+         * الحصول على جميع معاني الحروف
+         */
+        return Object.values(this.letterMeanings);
+    }
+    
+    public getStatistics(): object {
+        /**
+         * الحصول على الإحصائيات
+         */
+        return {
+            totalLetters: this.Psi.letterCount,
+            totalTwoLetters: this.Psi.twoLetterCount,
+            lastUpdate: this.Psi.lastUpdate
+        };
+    }
+}
+
+export {
+    LetterPosition,
+    MeaningCategory,
+    LetterMeaning,
+    TwoLetterMeaning,
+    LetterSemioticsSystem
+};
+

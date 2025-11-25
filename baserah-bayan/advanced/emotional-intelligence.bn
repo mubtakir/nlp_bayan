@@ -1,0 +1,724 @@
+/**
+ * الذكاء العاطفي - Emotional Intelligence System
+ * نظام بصيرة AI
+ * 
+ * 💖 نظام الذكاء العاطفي المتكامل
+ * 🎭 4 مكونات: التعرف، الفهم، الإدارة، التعاطف
+ * ⚡ يعتمد على النظريات الثلاث الثورية
+ * 
+ * المطور: باسل يحيى عبدالله
+ * جميع الأفكار والنظريات من إبداع باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+
+// ==================== التعدادات ====================
+
+enum EmotionType {
+    JOY = "joy",
+    SADNESS = "sadness",
+    ANGER = "anger",
+    FEAR = "fear",
+    SURPRISE = "surprise",
+    DISGUST = "disgust",
+    LOVE = "love",
+    HOPE = "hope",
+    ANXIETY = "anxiety",
+    NEUTRAL = "neutral"
+}
+
+enum EmotionIntensity {
+    VERY_LOW = "very_low",
+    LOW = "low",
+    MEDIUM = "medium",
+    HIGH = "high",
+    VERY_HIGH = "very_high"
+}
+
+enum EmpathyLevel {
+    NONE = "none",
+    MINIMAL = "minimal",
+    MODERATE = "moderate",
+    HIGH = "high",
+    VERY_HIGH = "very_high"
+}
+
+enum EmotionalState {
+    STABLE = "stable",
+    UNSTABLE = "unstable",
+    IMPROVING = "improving",
+    DECLINING = "declining"
+}
+
+// ==================== الفئات الأساسية ====================
+
+/**
+ * عاطفة
+ */
+class Emotion extends MotherEquation {
+    public emotionId: string;
+    public type: EmotionType;
+    public intensity: number;  // 0-1
+    public intensityLevel: EmotionIntensity;
+    public trigger: string;
+    public timestamp: Date;
+    public duration: number;  // بالثواني
+    
+    constructor(type: EmotionType, intensity: number, trigger: string = "") {
+        super(`emotion_${Date.now()}`, {}, {}, null);
+        
+        this.emotionId = `emotion_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        this.type = type;
+        this.intensity = Math.max(0, Math.min(1, intensity));
+        this.intensityLevel = this.calculateIntensityLevel(this.intensity);
+        this.trigger = trigger;
+        this.timestamp = new Date();
+        this.duration = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            emotionId: this.emotionId,
+            type: this.type,
+            trigger: this.trigger,
+            createdAt: this.timestamp
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            intensity: this.intensity,
+            intensityLevel: this.intensityLevel,
+            duration: this.duration
+        };
+    }
+    
+    private calculateIntensityLevel(intensity: number): EmotionIntensity {
+        if (intensity < 0.2) return EmotionIntensity.VERY_LOW;
+        if (intensity < 0.4) return EmotionIntensity.LOW;
+        if (intensity < 0.6) return EmotionIntensity.MEDIUM;
+        if (intensity < 0.8) return EmotionIntensity.HIGH;
+        return EmotionIntensity.VERY_HIGH;
+    }
+    
+    public decay(decayRate: number = 0.1): void {
+        this.intensity = Math.max(0, this.intensity - decayRate);
+        this.intensityLevel = this.calculateIntensityLevel(this.intensity);
+        this.dynamicStates.intensity = this.intensity;
+        this.dynamicStates.intensityLevel = this.intensityLevel;
+    }
+    
+    public amplify(amplification: number = 0.1): void {
+        this.intensity = Math.min(1, this.intensity + amplification);
+        this.intensityLevel = this.calculateIntensityLevel(this.intensity);
+        this.dynamicStates.intensity = this.intensity;
+        this.dynamicStates.intensityLevel = this.intensityLevel;
+    }
+}
+
+/**
+ * نظام التعرف على المشاعر
+ */
+class EmotionRecognitionSystem extends MotherEquation {
+    public recognizedEmotions: array<Emotion>;
+    public emotionPatterns: object;
+    public totalRecognitions: number;
+    
+    constructor() {
+        super("EmotionRecognition", {}, {}, null);
+        
+        this.recognizedEmotions = [];
+        this.emotionPatterns = {};
+        this.totalRecognitions = 0;
+        
+        this.initializeEmotionPatterns();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: new Date()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalRecognitions: 0,
+            currentEmotions: 0
+        };
+    }
+    
+    private initializeEmotionPatterns(): void {
+        // أنماط الكلمات المرتبطة بالمشاعر
+        this.emotionPatterns = {
+            joy: ["سعيد", "فرح", "مبسوط", "رائع", "ممتاز", "جميل", "happy", "joy", "great"],
+            sadness: ["حزين", "مكتئب", "تعيس", "sad", "depressed", "unhappy"],
+            anger: ["غاضب", "زعلان", "منزعج", "angry", "mad", "furious"],
+            fear: ["خائف", "قلق", "متوتر", "afraid", "scared", "anxious"],
+            love: ["حب", "أحب", "عشق", "love", "adore"],
+            hope: ["أمل", "متفائل", "hope", "optimistic"]
+        };
+    }
+    
+    public recognizeFromText(text: string): Emotion {
+        let detectedType = EmotionType.NEUTRAL;
+        let maxScore = 0;
+        
+        // البحث عن الأنماط
+        for (let emotionKey in this.emotionPatterns) {
+            let patterns = this.emotionPatterns[emotionKey];
+            let score = 0;
+            
+            for (let pattern of patterns) {
+                if (text.toLowerCase().includes(pattern.toLowerCase())) {
+                    score++;
+                }
+            }
+            
+            if (score > maxScore) {
+                maxScore = score;
+                detectedType = emotionKey as EmotionType;
+            }
+        }
+        
+        let intensity = Math.min(maxScore / 3, 1.0);
+        let emotion = new Emotion(detectedType, intensity, text);
+        
+        this.recognizedEmotions.push(emotion);
+        this.totalRecognitions++;
+        this.dynamicStates.totalRecognitions = this.totalRecognitions;
+        this.dynamicStates.currentEmotions = this.recognizedEmotions.length;
+        
+        return emotion;
+    }
+    
+    public recognizeFromFeatures(features: object): Emotion {
+        // التعرف من ميزات (مثل نبرة الصوت، تعبيرات الوجه، إلخ)
+        let type = features.dominantEmotion || EmotionType.NEUTRAL;
+        let intensity = features.intensity || 0.5;
+        
+        let emotion = new Emotion(type, intensity, "features");
+        this.recognizedEmotions.push(emotion);
+        this.totalRecognitions++;
+        this.dynamicStates.totalRecognitions = this.totalRecognitions;
+        
+        return emotion;
+    }
+}
+
+/**
+ * نظام فهم المشاعر
+ */
+class EmotionUnderstandingSystem extends MotherEquation {
+    public emotionHistory: array<Emotion>;
+    public emotionCauses: object;
+    public emotionEffects: object;
+    
+    constructor() {
+        super("EmotionUnderstanding", {}, {}, null);
+        
+        this.emotionHistory = [];
+        this.emotionCauses = {};
+        this.emotionEffects = {};
+        
+        this.initializeEmotionKnowledge();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: new Date()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalEmotionsAnalyzed: 0
+        };
+    }
+    
+    private initializeEmotionKnowledge(): void {
+        // أسباب المشاعر
+        this.emotionCauses = {
+            joy: ["نجاح", "إنجاز", "مفاجأة سارة", "لقاء محبوب"],
+            sadness: ["فقدان", "فشل", "خيبة أمل", "فراق"],
+            anger: ["ظلم", "إحباط", "خيانة", "عدم احترام"],
+            fear: ["تهديد", "خطر", "مجهول", "عدم يقين"]
+        };
+        
+        // تأثيرات المشاعر
+        this.emotionEffects = {
+            joy: ["طاقة إيجابية", "إبداع", "تفاؤل", "نشاط"],
+            sadness: ["انسحاب", "تأمل", "بطء", "تعب"],
+            anger: ["عدوانية", "تسرع", "قرارات متهورة"],
+            fear: ["حذر", "تجنب", "قلق", "توتر"]
+        };
+    }
+    
+    public analyzeEmotion(emotion: Emotion): object {
+        this.emotionHistory.push(emotion);
+        this.dynamicStates.totalEmotionsAnalyzed = this.emotionHistory.length;
+        
+        let causes = this.emotionCauses[emotion.type] || [];
+        let effects = this.emotionEffects[emotion.type] || [];
+        
+        return {
+            emotion: emotion,
+            possibleCauses: causes,
+            expectedEffects: effects,
+            intensity: emotion.intensity,
+            recommendation: this.getRecommendation(emotion)
+        };
+    }
+    
+    private getRecommendation(emotion: Emotion): string {
+        if (emotion.type === EmotionType.SADNESS && emotion.intensity > 0.7) {
+            return "يُنصح بالتحدث مع شخص موثوق أو ممارسة نشاط محبب";
+        } else if (emotion.type === EmotionType.ANGER && emotion.intensity > 0.7) {
+            return "يُنصح بأخذ نفس عميق والابتعاد عن مصدر الغضب مؤقتاً";
+        } else if (emotion.type === EmotionType.JOY) {
+            return "استمتع باللحظة وشارك فرحتك مع الآخرين";
+        }
+        return "حافظ على توازنك العاطفي";
+    }
+    
+    public detectEmotionalPattern(): object {
+        if (this.emotionHistory.length < 3) {
+            return { pattern: "insufficient_data" };
+        }
+        
+        // تحليل الأنماط
+        let recentEmotions = this.emotionHistory.slice(-5);
+        let dominantType = this.findDominantEmotion(recentEmotions);
+        let averageIntensity = recentEmotions.reduce((sum, e) => sum + e.intensity, 0) / recentEmotions.length;
+        
+        return {
+            pattern: "detected",
+            dominantEmotion: dominantType,
+            averageIntensity: averageIntensity,
+            emotionalState: this.determineEmotionalState(recentEmotions)
+        };
+    }
+    
+    private findDominantEmotion(emotions: array<Emotion>): EmotionType {
+        let counts = {};
+        for (let emotion of emotions) {
+            counts[emotion.type] = (counts[emotion.type] || 0) + 1;
+        }
+        
+        let maxCount = 0;
+        let dominant = EmotionType.NEUTRAL;
+        for (let type in counts) {
+            if (counts[type] > maxCount) {
+                maxCount = counts[type];
+                dominant = type as EmotionType;
+            }
+        }
+        
+        return dominant;
+    }
+    
+    private determineEmotionalState(emotions: array<Emotion>): EmotionalState {
+        if (emotions.length < 2) return EmotionalState.STABLE;
+
+        let intensities = emotions.map(e => e.intensity);
+        let trend = intensities[intensities.length - 1] - intensities[0];
+
+        if (Math.abs(trend) < 0.1) return EmotionalState.STABLE;
+        if (trend > 0) return EmotionalState.IMPROVING;
+        return EmotionalState.DECLINING;
+    }
+}
+
+/**
+ * نظام إدارة المشاعر
+ */
+class EmotionManagementSystem extends MotherEquation {
+    public managementStrategies: object;
+    public appliedStrategies: array<object>;
+    public successRate: number;
+
+    constructor() {
+        super("EmotionManagement", {}, {}, null);
+
+        this.managementStrategies = {};
+        this.appliedStrategies = [];
+        this.successRate = 0;
+
+        this.initializeManagementStrategies();
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: new Date()
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalStrategiesApplied: 0,
+            successRate: 0
+        };
+    }
+
+    private initializeManagementStrategies(): void {
+        this.managementStrategies = {
+            sadness: [
+                { name: "التنفس العميق", effectiveness: 0.7 },
+                { name: "التحدث مع صديق", effectiveness: 0.8 },
+                { name: "ممارسة الرياضة", effectiveness: 0.75 },
+                { name: "الاستماع للموسيقى", effectiveness: 0.65 }
+            ],
+            anger: [
+                { name: "العد إلى 10", effectiveness: 0.6 },
+                { name: "الابتعاد عن الموقف", effectiveness: 0.8 },
+                { name: "التنفس العميق", effectiveness: 0.7 },
+                { name: "كتابة المشاعر", effectiveness: 0.65 }
+            ],
+            fear: [
+                { name: "مواجهة الخوف تدريجياً", effectiveness: 0.75 },
+                { name: "التحدث عن المخاوف", effectiveness: 0.7 },
+                { name: "تقنيات الاسترخاء", effectiveness: 0.8 }
+            ],
+            anxiety: [
+                { name: "التأمل", effectiveness: 0.8 },
+                { name: "التنفس العميق", effectiveness: 0.75 },
+                { name: "التركيز على الحاضر", effectiveness: 0.7 }
+            ]
+        };
+    }
+
+    public manageEmotion(emotion: Emotion): object {
+        let strategies = this.managementStrategies[emotion.type] || [];
+
+        if (strategies.length === 0) {
+            return {
+                success: false,
+                reason: "لا توجد استراتيجيات متاحة لهذه المشاعر"
+            };
+        }
+
+        // اختيار أفضل استراتيجية
+        let bestStrategy = strategies.reduce((best, current) =>
+            current.effectiveness > best.effectiveness ? current : best
+        );
+
+        // تطبيق الاستراتيجية
+        let result = this.applyStrategy(emotion, bestStrategy);
+
+        this.appliedStrategies.push({
+            emotion: emotion,
+            strategy: bestStrategy,
+            result: result,
+            timestamp: new Date()
+        });
+
+        this.updateSuccessRate();
+        this.dynamicStates.totalStrategiesApplied = this.appliedStrategies.length;
+
+        return result;
+    }
+
+    private applyStrategy(emotion: Emotion, strategy: object): object {
+        // محاكاة تطبيق الاستراتيجية
+        let reduction = strategy.effectiveness * emotion.intensity;
+        let newIntensity = Math.max(0, emotion.intensity - reduction);
+
+        emotion.intensity = newIntensity;
+        emotion.intensityLevel = emotion.calculateIntensityLevel(newIntensity);
+
+        return {
+            success: true,
+            strategy: strategy.name,
+            originalIntensity: emotion.intensity + reduction,
+            newIntensity: newIntensity,
+            reduction: reduction,
+            effectiveness: strategy.effectiveness
+        };
+    }
+
+    private updateSuccessRate(): void {
+        if (this.appliedStrategies.length === 0) {
+            this.successRate = 0;
+            return;
+        }
+
+        let successCount = this.appliedStrategies.filter(s => s.result.success).length;
+        this.successRate = successCount / this.appliedStrategies.length;
+        this.dynamicStates.successRate = this.successRate;
+    }
+
+    public addCustomStrategy(emotionType: EmotionType, strategyName: string, effectiveness: number): void {
+        if (!this.managementStrategies[emotionType]) {
+            this.managementStrategies[emotionType] = [];
+        }
+
+        this.managementStrategies[emotionType].push({
+            name: strategyName,
+            effectiveness: Math.max(0, Math.min(1, effectiveness))
+        });
+    }
+}
+
+/**
+ * نظام التعاطف
+ */
+class EmpathySystem extends MotherEquation {
+    public empathyLevel: EmpathyLevel;
+    public empathyScore: number;  // 0-1
+    public empathyHistory: array<object>;
+
+    constructor() {
+        super("EmpathySystem", {}, {}, null);
+
+        this.empathyLevel = EmpathyLevel.MODERATE;
+        this.empathyScore = 0.5;
+        this.empathyHistory = [];
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            createdAt: new Date()
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            empathyScore: this.empathyScore,
+            empathyLevel: this.empathyLevel,
+            totalEmpathyInteractions: 0
+        };
+    }
+
+    public empathizeWithEmotion(emotion: Emotion): object {
+        // حساب مستوى التعاطف بناءً على نوع وشدة المشاعر
+        let empathyResponse = this.generateEmpathyResponse(emotion);
+
+        this.empathyHistory.push({
+            emotion: emotion,
+            response: empathyResponse,
+            timestamp: new Date()
+        });
+
+        this.dynamicStates.totalEmpathyInteractions = this.empathyHistory.length;
+
+        return empathyResponse;
+    }
+
+    private generateEmpathyResponse(emotion: Emotion): object {
+        let responses = {
+            joy: [
+                "أنا سعيد لسعادتك!",
+                "يبدو أنك في حالة رائعة!",
+                "فرحتك تبعث على السرور"
+            ],
+            sadness: [
+                "أتفهم شعورك، الأمور ستتحسن",
+                "أنا هنا إذا احتجت للحديث",
+                "من الطبيعي أن تشعر بالحزن أحياناً"
+            ],
+            anger: [
+                "أفهم أنك منزعج، دعنا نحاول حل المشكلة",
+                "غضبك مبرر، لكن دعنا نفكر بهدوء",
+                "أتفهم إحباطك"
+            ],
+            fear: [
+                "مخاوفك مفهومة، دعني أساعدك",
+                "أنت لست وحدك في هذا",
+                "سنواجه هذا معاً"
+            ],
+            love: [
+                "الحب شعور جميل",
+                "أتمنى لك السعادة",
+                "هذا رائع!"
+            ]
+        };
+
+        let responseList = responses[emotion.type] || ["أتفهم مشاعرك"];
+        let selectedResponse = responseList[Math.floor(Math.random() * responseList.length)];
+
+        // حساب مستوى التعاطف بناءً على شدة المشاعر
+        let empathyIntensity = this.calculateEmpathyIntensity(emotion);
+
+        return {
+            message: selectedResponse,
+            empathyIntensity: empathyIntensity,
+            emotionType: emotion.type,
+            supportLevel: this.determineSupportLevel(emotion)
+        };
+    }
+
+    private calculateEmpathyIntensity(emotion: Emotion): number {
+        // المشاعر السلبية القوية تتطلب تعاطف أكبر
+        let negativeEmotions = [EmotionType.SADNESS, EmotionType.ANGER, EmotionType.FEAR, EmotionType.ANXIETY];
+
+        if (negativeEmotions.includes(emotion.type)) {
+            return Math.min(1.0, this.empathyScore + emotion.intensity * 0.3);
+        }
+
+        return this.empathyScore;
+    }
+
+    private determineSupportLevel(emotion: Emotion): string {
+        if (emotion.intensity > 0.8) return "high";
+        if (emotion.intensity > 0.5) return "medium";
+        return "low";
+    }
+
+    public adjustEmpathyLevel(newLevel: EmpathyLevel): void {
+        this.empathyLevel = newLevel;
+
+        // تحديث درجة التعاطف بناءً على المستوى
+        switch (newLevel) {
+            case EmpathyLevel.NONE:
+                this.empathyScore = 0;
+                break;
+            case EmpathyLevel.MINIMAL:
+                this.empathyScore = 0.25;
+                break;
+            case EmpathyLevel.MODERATE:
+                this.empathyScore = 0.5;
+                break;
+            case EmpathyLevel.HIGH:
+                this.empathyScore = 0.75;
+                break;
+            case EmpathyLevel.VERY_HIGH:
+                this.empathyScore = 1.0;
+                break;
+        }
+
+        this.dynamicStates.empathyScore = this.empathyScore;
+        this.dynamicStates.empathyLevel = this.empathyLevel;
+    }
+}
+
+/**
+ * نظام الذكاء العاطفي المتكامل
+ */
+class EmotionalIntelligenceSystem extends MotherEquation {
+    public name: string;
+    public recognitionSystem: EmotionRecognitionSystem;
+    public understandingSystem: EmotionUnderstandingSystem;
+    public managementSystem: EmotionManagementSystem;
+    public empathySystem: EmpathySystem;
+
+    public totalInteractions: number;
+    public overallScore: number;
+
+    constructor(name: string = "EmotionalIntelligence") {
+        super(name, {}, {}, null);
+
+        this.name = name;
+
+        // تهيئة جميع الأنظمة الفرعية
+        this.recognitionSystem = new EmotionRecognitionSystem();
+        this.understandingSystem = new EmotionUnderstandingSystem();
+        this.managementSystem = new EmotionManagementSystem();
+        this.empathySystem = new EmpathySystem();
+
+        this.totalInteractions = 0;
+        this.overallScore = 0;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: this.name,
+            components: 4,
+            createdAt: new Date()
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalInteractions: 0,
+            overallScore: 0
+        };
+    }
+
+    public processEmotionalInput(text: string): object {
+        // 1. التعرف على المشاعر
+        let emotion = this.recognitionSystem.recognizeFromText(text);
+
+        // 2. فهم المشاعر
+        let understanding = this.understandingSystem.analyzeEmotion(emotion);
+
+        // 3. إدارة المشاعر (إذا كانت سلبية وقوية)
+        let management = null;
+        if (emotion.intensity > 0.6 && this.isNegativeEmotion(emotion.type)) {
+            management = this.managementSystem.manageEmotion(emotion);
+        }
+
+        // 4. التعاطف
+        let empathy = this.empathySystem.empathizeWithEmotion(emotion);
+
+        this.totalInteractions++;
+        this.updateOverallScore();
+        this.dynamicStates.totalInteractions = this.totalInteractions;
+
+        return {
+            input: text,
+            recognizedEmotion: emotion,
+            understanding: understanding,
+            management: management,
+            empathyResponse: empathy,
+            overallScore: this.overallScore
+        };
+    }
+
+    private isNegativeEmotion(type: EmotionType): boolean {
+        return [EmotionType.SADNESS, EmotionType.ANGER, EmotionType.FEAR, EmotionType.ANXIETY, EmotionType.DISGUST].includes(type);
+    }
+
+    private updateOverallScore(): void {
+        // حساب الدرجة الإجمالية للذكاء العاطفي
+        let recognitionScore = Math.min(this.recognitionSystem.totalRecognitions / 100, 1.0);
+        let understandingScore = Math.min(this.understandingSystem.emotionHistory.length / 100, 1.0);
+        let managementScore = this.managementSystem.successRate;
+        let empathyScore = this.empathySystem.empathyScore;
+
+        this.overallScore = (recognitionScore + understandingScore + managementScore + empathyScore) / 4;
+        this.dynamicStates.overallScore = this.overallScore;
+    }
+
+    public getStatistics(): object {
+        return {
+            totalInteractions: this.totalInteractions,
+            overallScore: this.overallScore,
+            recognition: {
+                totalRecognitions: this.recognitionSystem.totalRecognitions,
+                currentEmotions: this.recognitionSystem.recognizedEmotions.length
+            },
+            understanding: {
+                totalAnalyzed: this.understandingSystem.emotionHistory.length,
+                emotionalPattern: this.understandingSystem.detectEmotionalPattern()
+            },
+            management: {
+                totalStrategiesApplied: this.managementSystem.appliedStrategies.length,
+                successRate: this.managementSystem.successRate
+            },
+            empathy: {
+                empathyLevel: this.empathySystem.empathyLevel,
+                empathyScore: this.empathySystem.empathyScore,
+                totalInteractions: this.empathySystem.empathyHistory.length
+            }
+        };
+    }
+
+    public quickExample(): object {
+        // مثال 1: نص حزين
+        let sadExample = this.processEmotionalInput("أنا حزين جداً اليوم");
+
+        // مثال 2: نص سعيد
+        let joyExample = this.processEmotionalInput("أنا سعيد ومبسوط جداً!");
+
+        // إحصائيات
+        let stats = this.getStatistics();
+
+        return {
+            sadnessExample: sadExample,
+            joyExample: joyExample,
+            statistics: stats
+        };
+    }
+}
+
+// ==================== التصدير ====================
+
+export {
+    EmotionType,
+    EmotionIntensity,
+    EmpathyLevel,
+    EmotionalState,
+    Emotion,
+    EmotionRecognitionSystem,
+    EmotionUnderstandingSystem,
+    EmotionManagementSystem,
+    EmpathySystem,
+    EmotionalIntelligenceSystem
+};

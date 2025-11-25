@@ -1,0 +1,532 @@
+/**
+ * نظام التعلم من الحوار - Conversational Learning System
+ * 
+ * يتعلم من المحادثات
+ * يحسن الاستجابات بناءً على ردود الفعل
+ * يبني معرفة جديدة من الحوار
+ * 
+ * @version 1.0.0
+ * @author Baserah AI Team
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { IntentType } from "./intent-analyzer.bn";
+import { ResponseType } from "./text-generator.bn";
+
+// ═══════════════════════════════════════════════════════════════
+// التعدادات - Enumerations
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * نوع ردة الفعل
+ */
+export enum FeedbackType {
+    POSITIVE = "POSITIVE",          // إيجابي
+    NEGATIVE = "NEGATIVE",          // سلبي
+    NEUTRAL = "NEUTRAL",            // محايد
+    CORRECTION = "CORRECTION",      // تصحيح
+    CLARIFICATION = "CLARIFICATION" // توضيح
+}
+
+/**
+ * مصدر التعلم
+ */
+export enum LearningSource {
+    USER_FEEDBACK = "USER_FEEDBACK",        // ردود فعل المستخدم
+    CONVERSATION_PATTERN = "CONVERSATION_PATTERN", // أنماط الحوار
+    ERROR_CORRECTION = "ERROR_CORRECTION",  // تصحيح الأخطاء
+    CONTEXT_INFERENCE = "CONTEXT_INFERENCE" // استنتاج من السياق
+}
+
+// ═══════════════════════════════════════════════════════════════
+// الفئات - Classes
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * رسالة في المحادثة
+ */
+export class ConversationMessage extends MotherEquation {
+    speaker: string; // "user" أو "system"
+    text: string;
+    timestamp: number;
+    intentType: IntentType | null;
+    responseType: ResponseType | null;
+    metadata: Map<string, any>;
+
+    constructor(id: string, speaker: string, text: string) {
+        super(id);
+        this.speaker = speaker;
+        this.text = text;
+        this.timestamp = Date.now();
+        this.intentType = null;
+        this.responseType = null;
+        this.metadata = new Map();
+    }
+}
+
+/**
+ * محادثة كاملة
+ */
+export class Conversation extends MotherEquation {
+    messages: ConversationMessage[];
+    startTime: number;
+    endTime: number | null;
+    topic: string;
+    isActive: boolean;
+    satisfactionScore: number; // 0-1
+
+    constructor(id: string, topic: string = "general") {
+        super(id);
+        this.messages = [];
+        this.startTime = Date.now();
+        this.endTime = null;
+        this.topic = topic;
+        this.isActive = true;
+        this.satisfactionScore = 0.5; // افتراضي
+    }
+
+    /**
+     * إضافة رسالة
+     */
+    addMessage(message: ConversationMessage): void {
+        this.messages.push(message);
+    }
+
+    /**
+     * إنهاء المحادثة
+     */
+    end(): void {
+        this.isActive = false;
+        this.endTime = Date.now();
+    }
+
+    /**
+     * الحصول على مدة المحادثة
+     */
+    getDuration(): number {
+        let end = this.endTime || Date.now();
+        return end - this.startTime;
+    }
+
+    /**
+     * الحصول على عدد الرسائل
+     */
+    getMessageCount(): number {
+        return this.messages.length;
+    }
+}
+
+/**
+ * ردة فعل على استجابة
+ */
+export class ResponseFeedback extends MotherEquation {
+    conversationId: string;
+    messageId: string;
+    feedbackType: FeedbackType;
+    score: number; // 0-1
+    comment: string;
+    timestamp: number;
+
+    constructor(
+        id: string,
+        conversationId: string,
+        messageId: string,
+        feedbackType: FeedbackType,
+        score: number
+    ) {
+        super(id);
+        this.conversationId = conversationId;
+        this.messageId = messageId;
+        this.feedbackType = feedbackType;
+        this.score = score;
+        this.comment = "";
+        this.timestamp = Date.now();
+    }
+}
+
+/**
+ * نمط محادثة مكتشف
+ */
+export class ConversationPattern extends MotherEquation {
+    name: string;
+    description: string;
+    userInputPattern: string;
+    expectedResponsePattern: string;
+    occurrenceCount: number;
+    successRate: number;
+    examples: string[];
+
+    constructor(id: string, name: string) {
+        super(id);
+        this.name = name;
+        this.description = "";
+        this.userInputPattern = "";
+        this.expectedResponsePattern = "";
+        this.occurrenceCount = 0;
+        this.successRate = 0;
+        this.examples = [];
+    }
+
+    /**
+     * إضافة مثال
+     */
+    addExample(example: string): void {
+        if (this.examples.length < 10) { // حد أقصى 10 أمثلة
+            this.examples.push(example);
+        }
+    }
+
+    /**
+     * تحديث معدل النجاح
+     */
+    updateSuccessRate(wasSuccessful: boolean): void {
+        let totalSuccess = this.successRate * this.occurrenceCount;
+        this.occurrenceCount++;
+        
+        if (wasSuccessful) {
+            totalSuccess++;
+        }
+        
+        this.successRate = totalSuccess / this.occurrenceCount;
+    }
+}
+
+/**
+ * معرفة مكتسبة
+ */
+export class LearnedKnowledge extends MotherEquation {
+    topic: string;
+    content: string;
+    source: LearningSource;
+    confidence: number;
+    timestamp: number;
+    usageCount: number;
+    verificationCount: number;
+
+    constructor(id: string, topic: string, content: string, source: LearningSource) {
+        super(id);
+        this.topic = topic;
+        this.content = content;
+        this.source = source;
+        this.confidence = 0.5; // افتراضي
+        this.timestamp = Date.now();
+        this.usageCount = 0;
+        this.verificationCount = 0;
+    }
+
+    /**
+     * استخدام المعرفة
+     */
+    use(): void {
+        this.usageCount++;
+    }
+
+    /**
+     * التحقق من المعرفة
+     */
+    verify(isCorrect: boolean): void {
+        this.verificationCount++;
+        
+        if (isCorrect) {
+            this.confidence = Math.min(this.confidence + 0.1, 1.0);
+        } else {
+            this.confidence = Math.max(this.confidence - 0.2, 0.0);
+        }
+    }
+}
+
+/**
+ * نظام التعلم من الحوار - Conversational Learning System
+ */
+export class ConversationalLearningSystem extends MotherEquation {
+    // المحادثات المسجلة
+    private conversations: Map<string, Conversation>;
+    
+    // المحادثة النشطة الحالية
+    private activeConversation: Conversation | null;
+    
+    // ردود الفعل
+    private feedbacks: ResponseFeedback[];
+    
+    // الأنماط المكتشفة
+    private patterns: Map<string, ConversationPattern>;
+    
+    // المعرفة المكتسبة
+    private learnedKnowledge: Map<string, LearnedKnowledge>;
+    
+    // إحصائيات
+    private stats: {
+        totalConversations: number;
+        totalMessages: number;
+        averageSatisfaction: number;
+        totalPatterns: number;
+        totalKnowledge: number;
+    };
+
+    constructor(id: string = "conversational-learning-001") {
+        super(id);
+        this.conversations = new Map();
+        this.activeConversation = null;
+        this.feedbacks = [];
+        this.patterns = new Map();
+        this.learnedKnowledge = new Map();
+        this.stats = {
+            totalConversations: 0,
+            totalMessages: 0,
+            averageSatisfaction: 0,
+            totalPatterns: 0,
+            totalKnowledge: 0
+        };
+    }
+
+    /**
+     * بدء محادثة جديدة
+     */
+    startConversation(topic: string = "general"): Conversation {
+        // إنهاء المحادثة النشطة إن وجدت
+        if (this.activeConversation && this.activeConversation.isActive) {
+            this.endConversation();
+        }
+
+        let conversation = new Conversation(
+            `conversation-${Date.now()}`,
+            topic
+        );
+
+        this.activeConversation = conversation;
+        this.conversations.set(conversation.id, conversation);
+        this.stats.totalConversations++;
+
+        return conversation;
+    }
+
+    /**
+     * إضافة رسالة للمحادثة النشطة
+     */
+    addMessage(speaker: string, text: string): ConversationMessage | null {
+        if (!this.activeConversation) {
+            return null;
+        }
+
+        let message = new ConversationMessage(
+            `message-${Date.now()}`,
+            speaker,
+            text
+        );
+
+        this.activeConversation.addMessage(message);
+        this.stats.totalMessages++;
+
+        // محاولة اكتشاف أنماط
+        if (speaker === "user") {
+            this.detectPatterns(message);
+        }
+
+        return message;
+    }
+
+    /**
+     * إنهاء المحادثة النشطة
+     */
+    endConversation(): void {
+        if (this.activeConversation) {
+            this.activeConversation.end();
+            
+            // تحديث متوسط الرضا
+            this.updateAverageSatisfaction(this.activeConversation.satisfactionScore);
+            
+            this.activeConversation = null;
+        }
+    }
+
+    /**
+     * إضافة ردة فعل
+     */
+    addFeedback(
+        messageId: string,
+        feedbackType: FeedbackType,
+        score: number,
+        comment: string = ""
+    ): void {
+        if (!this.activeConversation) {
+            return;
+        }
+
+        let feedback = new ResponseFeedback(
+            `feedback-${Date.now()}`,
+            this.activeConversation.id,
+            messageId,
+            feedbackType,
+            score
+        );
+        feedback.comment = comment;
+
+        this.feedbacks.push(feedback);
+
+        // التعلم من ردة الفعل
+        this.learnFromFeedback(feedback);
+
+        // تحديث درجة رضا المحادثة
+        this.updateConversationSatisfaction(score);
+    }
+
+    /**
+     * كشف الأنماط
+     */
+    private detectPatterns(message: ConversationMessage): void {
+        // منطق بسيط لكشف الأنماط
+        // يمكن تطويره لاحقاً
+        
+        let text = message.text.toLowerCase();
+        
+        // مثال: نمط السؤال عن الوقت
+        if (text.includes("كم الساعة") || text.includes("ما الوقت")) {
+            this.recordPattern("time_question", "سؤال عن الوقت", text);
+        }
+        
+        // مثال: نمط طلب المساعدة
+        if (text.includes("ساعدني") || text.includes("أحتاج مساعدة")) {
+            this.recordPattern("help_request", "طلب مساعدة", text);
+        }
+    }
+
+    /**
+     * تسجيل نمط
+     */
+    private recordPattern(patternId: string, name: string, example: string): void {
+        if (!this.patterns.has(patternId)) {
+            let pattern = new ConversationPattern(patternId, name);
+            this.patterns.set(patternId, pattern);
+            this.stats.totalPatterns++;
+        }
+
+        let pattern = this.patterns.get(patternId);
+        pattern.addExample(example);
+        pattern.occurrenceCount++;
+    }
+
+    /**
+     * التعلم من ردة الفعل
+     */
+    private learnFromFeedback(feedback: ResponseFeedback): void {
+        // إذا كانت ردة الفعل إيجابية، نعزز الاستجابة
+        if (feedback.feedbackType === FeedbackType.POSITIVE && feedback.score > 0.7) {
+            // يمكن تسجيل هذا كمعرفة ناجحة
+        }
+        
+        // إذا كانت ردة الفعل سلبية، نتعلم من الخطأ
+        if (feedback.feedbackType === FeedbackType.NEGATIVE && feedback.score < 0.3) {
+            // يمكن تسجيل هذا كخطأ يجب تجنبه
+        }
+        
+        // إذا كانت تصحيح، نتعلم المعلومة الصحيحة
+        if (feedback.feedbackType === FeedbackType.CORRECTION && feedback.comment) {
+            this.learnFromCorrection(feedback.comment);
+        }
+    }
+
+    /**
+     * التعلم من التصحيح
+     */
+    private learnFromCorrection(correction: string): void {
+        let knowledge = new LearnedKnowledge(
+            `knowledge-${Date.now()}`,
+            "correction",
+            correction,
+            LearningSource.ERROR_CORRECTION
+        );
+        knowledge.confidence = 0.8; // التصحيحات لها ثقة عالية
+
+        this.learnedKnowledge.set(knowledge.id, knowledge);
+        this.stats.totalKnowledge++;
+    }
+
+    /**
+     * تحديث درجة رضا المحادثة
+     */
+    private updateConversationSatisfaction(score: number): void {
+        if (!this.activeConversation) {
+            return;
+        }
+
+        // متوسط متحرك
+        let currentScore = this.activeConversation.satisfactionScore;
+        let messageCount = this.activeConversation.getMessageCount();
+        
+        this.activeConversation.satisfactionScore = 
+            (currentScore * (messageCount - 1) + score) / messageCount;
+    }
+
+    /**
+     * تحديث متوسط الرضا العام
+     */
+    private updateAverageSatisfaction(score: number): void {
+        let total = this.stats.averageSatisfaction * (this.stats.totalConversations - 1);
+        total += score;
+        this.stats.averageSatisfaction = total / this.stats.totalConversations;
+    }
+
+    /**
+     * الحصول على الأنماط المكتشفة
+     */
+    getPatterns(): ConversationPattern[] {
+        return Array.from(this.patterns.values());
+    }
+
+    /**
+     * الحصول على المعرفة المكتسبة
+     */
+    getLearnedKnowledge(): LearnedKnowledge[] {
+        return Array.from(this.learnedKnowledge.values());
+    }
+
+    /**
+     * الحصول على الإحصائيات
+     */
+    getStats(): any {
+        return {
+            totalConversations: this.stats.totalConversations,
+            totalMessages: this.stats.totalMessages,
+            averageMessagesPerConversation: this.stats.totalConversations > 0
+                ? (this.stats.totalMessages / this.stats.totalConversations).toFixed(1)
+                : "0",
+            averageSatisfaction: (this.stats.averageSatisfaction * 100).toFixed(1) + "%",
+            totalPatterns: this.stats.totalPatterns,
+            totalKnowledge: this.stats.totalKnowledge
+        };
+    }
+
+    /**
+     * توليد تقرير التعلم
+     */
+    generateLearningReport(): string {
+        let report = "═══════════════════════════════════════\n";
+        report += "📚 تقرير التعلم من الحوار\n";
+        report += "═══════════════════════════════════════\n\n";
+
+        report += `💬 إجمالي المحادثات: ${this.stats.totalConversations}\n`;
+        report += `📨 إجمالي الرسائل: ${this.stats.totalMessages}\n`;
+        report += `😊 متوسط الرضا: ${(this.stats.averageSatisfaction * 100).toFixed(1)}%\n\n`;
+
+        if (this.stats.totalPatterns > 0) {
+            report += `🔍 الأنماط المكتشفة (${this.stats.totalPatterns}):\n`;
+            for (let pattern of this.patterns.values()) {
+                report += `   - ${pattern.name}: ${pattern.occurrenceCount} مرة\n`;
+            }
+            report += "\n";
+        }
+
+        if (this.stats.totalKnowledge > 0) {
+            report += `🧠 المعرفة المكتسبة (${this.stats.totalKnowledge}):\n`;
+            let knowledgeList = Array.from(this.learnedKnowledge.values());
+            for (let i = 0; i < Math.min(5, knowledgeList.length); i++) {
+                let k = knowledgeList[i];
+                report += `   - ${k.topic}: ${k.content.substring(0, 50)}...\n`;
+                report += `     الثقة: ${(k.confidence * 100).toFixed(0)}%, الاستخدام: ${k.usageCount} مرة\n`;
+            }
+        }
+
+        return report;
+    }
+}
+

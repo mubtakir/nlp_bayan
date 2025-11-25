@@ -1,0 +1,522 @@
+/**
+ * نظام قواعد البيانات الموحد لطبقات التفكير - Unified Layer Databases System
+ * 
+ * 🗄️ إدارة موحدة لجميع قواعد بيانات طبقات التفكير
+ * 🔗 تكامل بين الطبقات المختلفة
+ * 🔍 بحث شامل عبر جميع الطبقات
+ * 📊 إحصائيات موحدة
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-28
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+import { 
+    LayerType, 
+    SearchType, 
+    ConfidenceLevel, 
+    KnowledgeStatus,
+    KnowledgeEntry, 
+    DatabaseQuery, 
+    LayerDatabaseManager 
+} from "./layer-database-manager.bn";
+
+// ==================== التعدادات ====================
+
+/**
+ * استراتيجية البحث الموحد
+ */
+enum UnifiedSearchStrategy {
+    SEQUENTIAL = "تسلسلي",           // البحث في كل طبقة على حدة
+    PARALLEL = "متوازي",             // البحث في جميع الطبقات معاً
+    PRIORITY = "أولوية",             // البحث حسب الأولوية
+    INTELLIGENT = "ذكي"              // البحث الذكي حسب السياق
+}
+
+/**
+ * وضع التكامل
+ */
+enum IntegrationMode {
+    STANDALONE = "مستقل",            // كل طبقة مستقلة
+    LINKED = "مرتبط",                // الطبقات مرتبطة
+    SYNCHRONIZED = "متزامن",         // الطبقات متزامنة
+    UNIFIED = "موحد"                 // نظام موحد كامل
+}
+
+// ==================== الفئات ====================
+
+/**
+ * نتيجة بحث موحدة
+ */
+class UnifiedSearchResult extends MotherEquation {
+    public query: string;
+    public totalResults: number;
+    public resultsByLayer: Map<LayerType, Array<KnowledgeEntry>>;
+    public topResults: Array<KnowledgeEntry>;
+    public searchTime: number;
+    public layersSearched: number;
+    
+    constructor(query: string) {
+        super("unified_search_result");
+        
+        this.query = query;
+        this.totalResults = 0;
+        this.resultsByLayer = new Map();
+        this.topResults = [];
+        this.searchTime = 0;
+        this.layersSearched = 0;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            query: query,
+            timestamp: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalResults: 0,
+            searchTime: 0
+        };
+    }
+    
+    public addLayerResults(layerType: LayerType, results: Array<KnowledgeEntry>): void {
+        this.resultsByLayer.set(layerType, results);
+        this.totalResults += results.length;
+        this.layersSearched++;
+        
+        this.dynamicStates.totalResults = this.totalResults;
+    }
+    
+    public computeTopResults(limit: number = 10): void {
+        let allResults: Array<KnowledgeEntry> = [];
+        
+        for (let [layerType, results] of this.resultsByLayer) {
+            allResults = allResults.concat(results);
+        }
+        
+        // ترتيب حسب الثقة
+        allResults.sort((a, b) => b.confidence - a.confidence);
+        
+        this.topResults = allResults.slice(0, limit);
+    }
+}
+
+/**
+ * نظام قواعد البيانات الموحد
+ */
+class UnifiedLayerDatabasesSystem extends MotherEquation {
+    public name: string;
+    public databasesPath: string;
+    public integrationMode: IntegrationMode;
+    
+    // مديرو قواعد البيانات لكل طبقة
+    public mathematicalDB: LayerDatabaseManager;
+    public logicalDB: LayerDatabaseManager;
+    public interpretiveDB: LayerDatabaseManager;
+    public physicalDB: LayerDatabaseManager;
+    public linguisticDB: LayerDatabaseManager;
+    public symbolicDB: LayerDatabaseManager;
+    public visualDB: LayerDatabaseManager;
+    public semanticDB: LayerDatabaseManager;
+    
+    // قاموس للوصول السريع
+    public layerDatabases: Map<LayerType, LayerDatabaseManager>;
+    
+    // إحصائيات موحدة
+    public totalEntries: number;
+    public totalQueries: number;
+    public totalLayers: number;
+    
+    constructor(
+        name: string = "UnifiedLayerDatabases",
+        databasesPath: string = "databases/"
+    ) {
+        super(name);
+        
+        this.name = name;
+        this.databasesPath = databasesPath;
+        this.integrationMode = IntegrationMode.UNIFIED;
+        
+        // تهيئة قواعد البيانات
+        this.mathematicalDB = new LayerDatabaseManager(
+            LayerType.MATHEMATICAL,
+            `${databasesPath}mathematical_knowledge.db`
+        );
+        
+        this.logicalDB = new LayerDatabaseManager(
+            LayerType.LOGICAL,
+            `${databasesPath}logical_knowledge.db`
+        );
+        
+        this.interpretiveDB = new LayerDatabaseManager(
+            LayerType.INTERPRETIVE,
+            `${databasesPath}interpretive_knowledge.db`
+        );
+        
+        this.physicalDB = new LayerDatabaseManager(
+            LayerType.PHYSICAL,
+            `${databasesPath}physical_knowledge.db`
+        );
+        
+        this.linguisticDB = new LayerDatabaseManager(
+            LayerType.LINGUISTIC,
+            `${databasesPath}linguistic_knowledge.db`
+        );
+        
+        this.symbolicDB = new LayerDatabaseManager(
+            LayerType.SYMBOLIC,
+            `${databasesPath}symbolic_knowledge.db`
+        );
+        
+        this.visualDB = new LayerDatabaseManager(
+            LayerType.VISUAL,
+            `${databasesPath}visual_knowledge.db`
+        );
+        
+        this.semanticDB = new LayerDatabaseManager(
+            LayerType.SEMANTIC,
+            `${databasesPath}semantic_knowledge.db`
+        );
+        
+        // إنشاء القاموس
+        this.layerDatabases = new Map();
+        this.layerDatabases.set(LayerType.MATHEMATICAL, this.mathematicalDB);
+        this.layerDatabases.set(LayerType.LOGICAL, this.logicalDB);
+        this.layerDatabases.set(LayerType.INTERPRETIVE, this.interpretiveDB);
+        this.layerDatabases.set(LayerType.PHYSICAL, this.physicalDB);
+        this.layerDatabases.set(LayerType.LINGUISTIC, this.linguisticDB);
+        this.layerDatabases.set(LayerType.SYMBOLIC, this.symbolicDB);
+        this.layerDatabases.set(LayerType.VISUAL, this.visualDB);
+        this.layerDatabases.set(LayerType.SEMANTIC, this.semanticDB);
+        
+        this.totalEntries = 0;
+        this.totalQueries = 0;
+        this.totalLayers = 8;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: name,
+            databasesPath: databasesPath,
+            totalLayers: this.totalLayers,
+            createdAt: Date.now()
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            totalEntries: 0,
+            totalQueries: 0,
+            integrationMode: this.integrationMode
+        };
+        
+        console.log(`\n🗄️ تهيئة نظام قواعد البيانات الموحد...`);
+        console.log(`   📂 المسار: ${databasesPath}`);
+        console.log(`   🔢 عدد الطبقات: ${this.totalLayers}`);
+        console.log(`   🔗 وضع التكامل: ${this.integrationMode}`);
+        
+        this._updateTotalEntries();
+    }
+    
+    /**
+     * إضافة عنصر معرفي إلى طبقة محددة
+     */
+    public addEntry(
+        layerType: LayerType,
+        key: string,
+        value: string,
+        metadata: object = {},
+        confidence: number = 0.8
+    ): number {
+        let db = this.layerDatabases.get(layerType);
+        if (!db) {
+            console.error(`❌ طبقة غير موجودة: ${layerType}`);
+            return -1;
+        }
+        
+        let id = db.addEntry(key, value, metadata, confidence);
+        this._updateTotalEntries();
+        
+        return id;
+    }
+    
+    /**
+     * البحث في طبقة محددة
+     */
+    public searchInLayer(
+        layerType: LayerType,
+        searchTerm: string,
+        searchType: SearchType = SearchType.CONTAINS
+    ): Array<KnowledgeEntry> {
+        let db = this.layerDatabases.get(layerType);
+        if (!db) {
+            console.error(`❌ طبقة غير موجودة: ${layerType}`);
+            return [];
+        }
+        
+        let query = new DatabaseQuery(searchTerm, searchType, layerType);
+        return db.search(query);
+    }
+    
+    /**
+     * البحث الموحد عبر جميع الطبقات
+     */
+    public unifiedSearch(
+        searchTerm: string,
+        searchType: SearchType = SearchType.CONTAINS,
+        strategy: UnifiedSearchStrategy = UnifiedSearchStrategy.PARALLEL,
+        maxResultsPerLayer: number = 10
+    ): UnifiedSearchResult {
+        let startTime = Date.now();
+        let result = new UnifiedSearchResult(searchTerm);
+        
+        this.totalQueries++;
+        this.dynamicStates.totalQueries = this.totalQueries;
+        
+        // البحث في جميع الطبقات
+        for (let [layerType, db] of this.layerDatabases) {
+            let query = new DatabaseQuery(searchTerm, searchType, layerType);
+            query.setMaxResults(maxResultsPerLayer);
+            
+            let layerResults = db.search(query);
+            result.addLayerResults(layerType, layerResults);
+        }
+        
+        // حساب أفضل النتائج
+        result.computeTopResults(20);
+        
+        result.searchTime = Date.now() - startTime;
+        result.dynamicStates.searchTime = result.searchTime;
+        
+        console.log(`🔍 بحث موحد: "${searchTerm}"`);
+        console.log(`   📊 النتائج: ${result.totalResults} من ${result.layersSearched} طبقات`);
+        console.log(`   ⏱️ الوقت: ${result.searchTime}ms`);
+        
+        return result;
+    }
+
+    /**
+     * البحث الذكي - يختار الطبقات المناسبة حسب السياق
+     */
+    public intelligentSearch(
+        searchTerm: string,
+        context: string = ""
+    ): UnifiedSearchResult {
+        // تحديد الطبقات المناسبة حسب السياق
+        let relevantLayers = this._determineRelevantLayers(searchTerm, context);
+
+        let startTime = Date.now();
+        let result = new UnifiedSearchResult(searchTerm);
+
+        // البحث في الطبقات المحددة فقط
+        for (let layerType of relevantLayers) {
+            let db = this.layerDatabases.get(layerType);
+            if (db) {
+                let query = new DatabaseQuery(searchTerm, SearchType.CONTAINS, layerType);
+                let layerResults = db.search(query);
+                result.addLayerResults(layerType, layerResults);
+            }
+        }
+
+        result.computeTopResults(20);
+        result.searchTime = Date.now() - startTime;
+
+        return result;
+    }
+
+    /**
+     * تحديد الطبقات المناسبة حسب السياق
+     */
+    private _determineRelevantLayers(searchTerm: string, context: string): Array<LayerType> {
+        let layers: Array<LayerType> = [];
+
+        // كلمات مفتاحية لكل طبقة
+        let keywords = {
+            [LayerType.MATHEMATICAL]: ["رقم", "عدد", "حساب", "معادلة", "جمع", "طرح", "ضرب", "قسمة"],
+            [LayerType.LOGICAL]: ["منطق", "استنتاج", "برهان", "صحيح", "خطأ", "إذا", "لأن"],
+            [LayerType.PHYSICAL]: ["فيزياء", "قوة", "طاقة", "حركة", "سرعة", "كتلة", "جاذبية"],
+            [LayerType.LINGUISTIC]: ["لغة", "كلمة", "جملة", "نحو", "صرف", "معنى", "حرف"],
+            [LayerType.SEMANTIC]: ["دلالة", "معنى", "مفهوم", "علاقة", "سياق"],
+            [LayerType.SYMBOLIC]: ["رمز", "إشارة", "علامة", "دلالة_رمزية"],
+            [LayerType.VISUAL]: ["صورة", "شكل", "لون", "رؤية", "بصري"],
+            [LayerType.INTERPRETIVE]: ["تفسير", "شرح", "توضيح", "فهم"]
+        };
+
+        let combinedText = `${searchTerm} ${context}`.toLowerCase();
+
+        for (let [layerType, words] of Object.entries(keywords)) {
+            for (let word of words) {
+                if (combinedText.includes(word)) {
+                    layers.push(layerType as LayerType);
+                    break;
+                }
+            }
+        }
+
+        // إذا لم نجد طبقات محددة، نبحث في جميع الطبقات
+        if (layers.length === 0) {
+            layers = Array.from(this.layerDatabases.keys());
+        }
+
+        return layers;
+    }
+
+    /**
+     * الحصول على إحصائيات طبقة محددة
+     */
+    public getLayerStatistics(layerType: LayerType): object | null {
+        let db = this.layerDatabases.get(layerType);
+        if (!db) {
+            return null;
+        }
+
+        return db.getStatistics();
+    }
+
+    /**
+     * الحصول على الإحصائيات الموحدة
+     */
+    public getUnifiedStatistics(): object {
+        let layerStats = {};
+
+        for (let [layerType, db] of this.layerDatabases) {
+            layerStats[layerType] = db.getStatistics();
+        }
+
+        return {
+            totalLayers: this.totalLayers,
+            totalEntries: this.totalEntries,
+            totalQueries: this.totalQueries,
+            integrationMode: this.integrationMode,
+            layerStatistics: layerStats,
+            averageEntriesPerLayer: this.totalEntries / this.totalLayers,
+            mostActiveLayer: this._getMostActiveLayer(),
+            leastActiveLayer: this._getLeastActiveLayer()
+        };
+    }
+
+    /**
+     * تحديث إجمالي العناصر
+     */
+    private _updateTotalEntries(): void {
+        this.totalEntries = 0;
+
+        for (let [layerType, db] of this.layerDatabases) {
+            this.totalEntries += db.totalEntries;
+        }
+
+        this.dynamicStates.totalEntries = this.totalEntries;
+    }
+
+    /**
+     * الحصول على الطبقة الأكثر نشاطاً
+     */
+    private _getMostActiveLayer(): string {
+        let maxEntries = 0;
+        let mostActive = LayerType.MATHEMATICAL;
+
+        for (let [layerType, db] of this.layerDatabases) {
+            if (db.totalEntries > maxEntries) {
+                maxEntries = db.totalEntries;
+                mostActive = layerType;
+            }
+        }
+
+        return mostActive;
+    }
+
+    /**
+     * الحصول على الطبقة الأقل نشاطاً
+     */
+    private _getLeastActiveLayer(): string {
+        let minEntries = Infinity;
+        let leastActive = LayerType.MATHEMATICAL;
+
+        for (let [layerType, db] of this.layerDatabases) {
+            if (db.totalEntries < minEntries) {
+                minEntries = db.totalEntries;
+                leastActive = layerType;
+            }
+        }
+
+        return leastActive;
+    }
+
+    /**
+     * تصدير جميع البيانات
+     */
+    public exportAllData(): object {
+        let allData = {
+            system: {
+                name: this.name,
+                totalLayers: this.totalLayers,
+                totalEntries: this.totalEntries,
+                integrationMode: this.integrationMode,
+                exportedAt: new Date().toISOString()
+            },
+            layers: {}
+        };
+
+        for (let [layerType, db] of this.layerDatabases) {
+            allData.layers[layerType] = JSON.parse(db.exportToJSON());
+        }
+
+        return allData;
+    }
+
+    /**
+     * استيراد جميع البيانات
+     */
+    public importAllData(data: object): number {
+        let totalImported = 0;
+
+        for (let [layerType, layerData] of Object.entries(data.layers || {})) {
+            let db = this.layerDatabases.get(layerType as LayerType);
+            if (db) {
+                let imported = db.importFromJSON(JSON.stringify(layerData));
+                totalImported += imported;
+            }
+        }
+
+        this._updateTotalEntries();
+
+        console.log(`✅ تم استيراد ${totalImported} عنصر معرفي من جميع الطبقات`);
+        return totalImported;
+    }
+
+    /**
+     * مثال سريع
+     */
+    public quickExample(): object {
+        // إضافة بعض الأمثلة
+        this.addEntry(LayerType.MATHEMATICAL, "فيثاغورس", "a² + b² = c²", { type: "theorem" }, 1.0);
+        this.addEntry(LayerType.LOGICAL, "قانون_الهوية", "A = A", { type: "axiom" }, 1.0);
+        this.addEntry(LayerType.PHYSICAL, "نيوتن_الثاني", "F = ma", { type: "law" }, 1.0);
+        this.addEntry(LayerType.LINGUISTIC, "الفاعل", "من قام بالفعل", { type: "grammar" }, 0.9);
+
+        // بحث موحد
+        let searchResult = this.unifiedSearch("قانون", SearchType.CONTAINS);
+
+        // إحصائيات
+        let stats = this.getUnifiedStatistics();
+
+        return {
+            entriesAdded: 4,
+            searchResults: {
+                query: searchResult.query,
+                totalResults: searchResult.totalResults,
+                layersSearched: searchResult.layersSearched,
+                topResults: searchResult.topResults.slice(0, 3)
+            },
+            statistics: stats
+        };
+    }
+}
+
+// ==================== التصدير ====================
+
+export {
+    UnifiedSearchStrategy,
+    IntegrationMode,
+    UnifiedSearchResult,
+    UnifiedLayerDatabasesSystem
+};

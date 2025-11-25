@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بصيرة AI - نظام الذكاء الحواري الحقيقي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .settings-group select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .checkbox-label input {
+            margin-left: 10px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-right: auto;
+        }
+
+        .message.system {
+            background: white;
+            color: #333;
+            margin-left: auto;
+            border: 2px solid #e0e0e0;
+        }
+
+        .message-meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .chat-input-container button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .chat-input-container button:hover {
+            background: #5568d3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .analysis-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .analysis-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .analysis-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .processing-indicator {
+            display: none;
+            padding: 10px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .processing-indicator.active {
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-buttons button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 بصيرة AI - نظام الذكاء الحواري الحقيقي</h1>
+            <p>نظام توليد لغوي ذكي بدون شبكات عصبية - يعمل بالمعادلات الرياضية المتكيفة</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Settings Panel -->
+            <div class="panel">
+                <h2>⚙️ الإعدادات</h2>
+                
+                <div class="settings-group">
+                    <label>أسلوب الكتابة:</label>
+                    <select id="writingStyle">
+                        <option value="FRIENDLY">ودي</option>
+                        <option value="FORMAL">رسمي</option>
+                        <option value="INFORMAL">غير رسمي</option>
+                        <option value="PROFESSIONAL">احترافي</option>
+                        <option value="CASUAL">عامي</option>
+                        <option value="TECHNICAL">تقني</option>
+                        <option value="SIMPLE">بسيط</option>
+                    </select>
+                </div>
+
+                <div class="settings-group">
+                    <label>مستوى التفاصيل:</label>
+                    <select id="detailLevel">
+                        <option value="MEDIUM">متوسط</option>
+                        <option value="MINIMAL">أدنى</option>
+                        <option value="BRIEF">موجز</option>
+                        <option value="DETAILED">مفصل</option>
+                        <option value="COMPREHENSIVE">شامل</option>
+                    </select>
+                </div>
+
+                <div class="settings-group">
+                    <label>المكونات النشطة:</label>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enableIntent" checked>
+                        <span>محلل النوايا</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enableUnderstanding" checked>
+                        <span>الفهم العميق</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enablePlanner" checked>
+                        <span>مخطط الاستجابة</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enableGenerator" checked>
+                        <span>مولد النصوص</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enableFluency" checked>
+                        <span>محسن الطلاقة</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <input type="checkbox" id="enableLearning" checked>
+                        <span>نظام التعلم</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="startConversation()">بدء محادثة</button>
+                    <button class="btn-danger" onclick="clearChat()">مسح</button>
+                </div>
+            </div>
+
+            <!-- Chat Panel -->
+            <div class="panel">
+                <h2>💬 الحوار</h2>
+                
+                <div class="processing-indicator" id="processingIndicator">
+                    ⏳ جاري المعالجة...
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message system">
+                            <div>مرحباً! أنا بصيرة AI، نظام ذكاء اصطناعي متقدم يعمل بالمعادلات الرياضية المتكيفة بدون شبكات عصبية. كيف يمكنني مساعدتك اليوم؟ 😊</div>
+                            <div class="message-meta">النظام • الآن</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <input 
+                            type="text" 
+                            id="userInput" 
+                            placeholder="اكتب رسالتك هنا..."
+                            onkeypress="handleKeyPress(event)"
+                        >
+                        <button onclick="sendMessage()">إرسال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="panel">
+                <h2>📊 الإحصائيات والتحليل</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMessages">0</div>
+                        <div class="stat-label">إجمالي الرسائل</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgTime">0ms</div>
+                        <div class="stat-label">متوسط الوقت</div>
+                    </div>
+                </div>
+
+                <div id="analysisContainer">
+                    <div class="analysis-section">
+                        <h3>🎯 آخر تحليل</h3>
+                        <div id="lastAnalysis">
+                            <p style="color: #999; text-align: center; font-size: 14px;">لا يوجد تحليل بعد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="conversational-ai-engine.js"></script>
+</body>
+</html>
+

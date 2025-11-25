@@ -1,0 +1,331 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * أمثلة استخلاص الخصائص المشتركة من الصور
+ * Image Common Features Extraction Examples
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * المطور: بصيرة AI
+ * التاريخ: 2025-10-29
+ */
+
+import {
+    ImageCommonFeaturesExtractor,
+    InputImage,
+    ExtractionSettings,
+    InvarianceOption,
+    FeatureType,
+    ConfidenceLevel
+} from "./image-common-features-extractor.bn";
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 1: استخلاص شكل قطة من صور متعددة
+// ═══════════════════════════════════════════════════════════════════════
+
+function example1_CatShapeExtraction(): void {
+    console.log("═══════════════════════════════════════════════");
+    console.log("مثال 1: استخلاص شكل قطة من صور متعددة");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    // إنشاء المستخلص
+    const extractor = new ImageCommonFeaturesExtractor("cat_extractor");
+    
+    // إعداد الإعدادات
+    extractor.settings.toleranceRate = 0.2;           // 20% سماح
+    extractor.settings.minOccurrenceRate = 0.7;       // 70% حد أدنى
+    
+    // تفعيل خيارات التجاوز
+    extractor.settings.enableInvariance(InvarianceOption.POSITION);     // تجاوز الموقع
+    extractor.settings.enableInvariance(InvarianceOption.SCALE);        // تجاوز الحجم
+    extractor.settings.enableInvariance(InvarianceOption.ROTATION);     // تجاوز الدوران
+    extractor.settings.enableInvariance(InvarianceOption.ILLUMINATION); // تجاوز الإضاءة
+    
+    // عدم تجاوز اللون (نريد قطة بيضاء فقط)
+    // extractor.settings.disableInvariance(InvarianceOption.COLOR);
+    
+    // إضافة صور القطط
+    console.log("📸 إضافة صور القطط...");
+    
+    const cat1 = new InputImage("cat_001", "image_data_1", 800, 600);
+    cat1.setMetadata("description", "قطة بيضاء في الحديقة");
+    cat1.setMetadata("background", "حديقة");
+    extractor.addImage(cat1);
+    
+    const cat2 = new InputImage("cat_002", "image_data_2", 1024, 768);
+    cat2.setMetadata("description", "قطة بيضاء على الأريكة");
+    cat2.setMetadata("background", "غرفة");
+    extractor.addImage(cat2);
+    
+    const cat3 = new InputImage("cat_003", "image_data_3", 640, 480);
+    cat3.setMetadata("description", "قطة بيضاء تلعب");
+    cat3.setMetadata("background", "أرضية");
+    extractor.addImage(cat3);
+    
+    const cat4 = new InputImage("cat_004", "image_data_4", 1280, 720);
+    cat4.setMetadata("description", "قطة بيضاء نائمة");
+    cat4.setMetadata("background", "سرير");
+    extractor.addImage(cat4);
+    
+    const cat5 = new InputImage("cat_005", "image_data_5", 800, 800);
+    cat5.setMetadata("description", "قطة بيضاء تنظر للكاميرا");
+    cat5.setMetadata("background", "حائط");
+    extractor.addImage(cat5);
+    
+    console.log(`✅ تم إضافة ${extractor.inputImages.length} صورة\n`);
+    
+    // استخلاص الخصائص المشتركة
+    const result = extractor.extract();
+    
+    // عرض النتائج
+    console.log(result.report);
+    
+    console.log("\n🎯 الميزات المشتركة عالية الثقة:");
+    result.commonFeatures
+        .filter(f => f.confidence === ConfidenceLevel.VERY_HIGH || f.confidence === ConfidenceLevel.HIGH)
+        .forEach(feature => {
+            console.log(`  ✓ ${feature.getDescription()}`);
+        });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 2: استخلاص شكل سيارة مع تجاوز اللون
+// ═══════════════════════════════════════════════════════════════════════
+
+function example2_CarShapeWithColorInvariance(): void {
+    console.log("\n═══════════════════════════════════════════════");
+    console.log("مثال 2: استخلاص شكل سيارة مع تجاوز اللون");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    const extractor = new ImageCommonFeaturesExtractor("car_extractor");
+    
+    // إعدادات مخصصة
+    extractor.settings.toleranceRate = 0.15;
+    extractor.settings.minOccurrenceRate = 0.6;
+    
+    // تفعيل جميع خيارات التجاوز (بما فيها اللون)
+    extractor.settings.enableInvariance(InvarianceOption.POSITION);
+    extractor.settings.enableInvariance(InvarianceOption.SCALE);
+    extractor.settings.enableInvariance(InvarianceOption.COLOR);        // تجاوز اللون
+    extractor.settings.enableInvariance(InvarianceOption.ROTATION);
+    extractor.settings.enableInvariance(InvarianceOption.ILLUMINATION);
+    
+    // إضافة صور سيارات بألوان مختلفة
+    console.log("📸 إضافة صور السيارات...");
+    
+    extractor.addImage(new InputImage("car_red", "car_data_1", 1920, 1080));
+    extractor.addImage(new InputImage("car_blue", "car_data_2", 1920, 1080));
+    extractor.addImage(new InputImage("car_black", "car_data_3", 1600, 900));
+    extractor.addImage(new InputImage("car_white", "car_data_4", 1920, 1080));
+    extractor.addImage(new InputImage("car_silver", "car_data_5", 1280, 720));
+    extractor.addImage(new InputImage("car_green", "car_data_6", 1920, 1080));
+    
+    console.log(`✅ تم إضافة ${extractor.inputImages.length} صورة\n`);
+    
+    const result = extractor.extract();
+    console.log(result.report);
+    
+    console.log("\n📊 إحصائيات المستخلص:");
+    const stats = extractor.getStatistics();
+    console.log(`  - معدل النجاح: ${(stats.successRate * 100).toFixed(1)}%`);
+    console.log(`  - متوسط الثقة: ${(stats.averageConfidence * 100).toFixed(1)}%`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 3: استخلاص شكل وجه إنسان
+// ═══════════════════════════════════════════════════════════════════════
+
+function example3_FaceShapeExtraction(): void {
+    console.log("\n═══════════════════════════════════════════════");
+    console.log("مثال 3: استخلاص شكل وجه إنسان");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    const extractor = new ImageCommonFeaturesExtractor("face_extractor");
+    
+    // إعدادات دقيقة للوجوه
+    extractor.settings.toleranceRate = 0.1;           // سماح قليل
+    extractor.settings.minOccurrenceRate = 0.8;       // حد أدنى عالي
+    
+    // تفعيل خيارات محددة
+    extractor.settings.enableInvariance(InvarianceOption.POSITION);
+    extractor.settings.enableInvariance(InvarianceOption.SCALE);
+    extractor.settings.enableInvariance(InvarianceOption.ILLUMINATION);
+    extractor.settings.enableInvariance(InvarianceOption.PERSPECTIVE);
+    
+    // التركيز على الميزات الهندسية والبنيوية
+    extractor.settings.featureTypes.clear();
+    extractor.settings.enableFeatureType(FeatureType.GEOMETRIC);
+    extractor.settings.enableFeatureType(FeatureType.STRUCTURAL);
+    extractor.settings.enableFeatureType(FeatureType.TOPOLOGICAL);
+    
+    // إضافة صور وجوه
+    console.log("📸 إضافة صور الوجوه...");
+    
+    for (let i = 1; i <= 10; i++) {
+        const face = new InputImage(`face_${i.toString().padStart(3, '0')}`, `face_data_${i}`, 512, 512);
+        face.setMetadata("angle", Math.random() * 60 - 30); // زاوية عشوائية
+        face.setMetadata("lighting", Math.random() > 0.5 ? "bright" : "dim");
+        extractor.addImage(face);
+    }
+    
+    console.log(`✅ تم إضافة ${extractor.inputImages.length} صورة\n`);
+    
+    const result = extractor.extract();
+    console.log(result.report);
+    
+    if (result.extractedShape) {
+        console.log("\n✅ تم استخلاص شكل الوجه بنجاح!");
+        console.log(`   الثقة الإجمالية: ${(result.overallConfidence * 100).toFixed(1)}%`);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 4: استخلاص شكل شجرة مع تجاوز الحجم
+// ═══════════════════════════════════════════════════════════════════════
+
+function example4_TreeShapeWithScaleInvariance(): void {
+    console.log("\n═══════════════════════════════════════════════");
+    console.log("مثال 4: استخلاص شكل شجرة مع تجاوز الحجم");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    const extractor = new ImageCommonFeaturesExtractor("tree_extractor");
+    
+    // تفعيل تجاوز الحجم بشكل خاص
+    extractor.settings.enableInvariance(InvarianceOption.SCALE);
+    extractor.settings.enableInvariance(InvarianceOption.POSITION);
+    
+    // إضافة صور أشجار بأحجام مختلفة
+    console.log("📸 إضافة صور الأشجار...");
+    
+    const sizes = [
+        { w: 400, h: 600 },   // شجرة صغيرة
+        { w: 800, h: 1200 },  // شجرة متوسطة
+        { w: 1600, h: 2400 }, // شجرة كبيرة
+        { w: 600, h: 900 },   // شجرة صغيرة-متوسطة
+        { w: 1200, h: 1800 }  // شجرة كبيرة-متوسطة
+    ];
+    
+    sizes.forEach((size, index) => {
+        const tree = new InputImage(`tree_${index + 1}`, `tree_data_${index + 1}`, size.w, size.h);
+        tree.setMetadata("size", size.w * size.h);
+        extractor.addImage(tree);
+    });
+    
+    console.log(`✅ تم إضافة ${extractor.inputImages.length} صورة بأحجام مختلفة\n`);
+    
+    const result = extractor.extract();
+    console.log(result.report);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 5: مقارنة بين إعدادات مختلفة
+// ═══════════════════════════════════════════════════════════════════════
+
+function example5_CompareSettings(): void {
+    console.log("\n═══════════════════════════════════════════════");
+    console.log("مثال 5: مقارنة بين إعدادات مختلفة");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    // إنشاء مجموعة صور مشتركة
+    const createImages = (extractor: ImageCommonFeaturesExtractor) => {
+        for (let i = 1; i <= 8; i++) {
+            extractor.addImage(new InputImage(`img_${i}`, `data_${i}`, 800, 600));
+        }
+    };
+    
+    // الإعداد 1: صارم (سماح قليل)
+    console.log("🔬 الإعداد 1: صارم (سماح قليل)");
+    const extractor1 = new ImageCommonFeaturesExtractor("strict_extractor");
+    extractor1.settings.toleranceRate = 0.05;
+    extractor1.settings.minOccurrenceRate = 0.9;
+    createImages(extractor1);
+    const result1 = extractor1.extract();
+    console.log(`  النتيجة: ${result1.commonFeatures.length} ميزة مشتركة (${(result1.overallConfidence * 100).toFixed(1)}%)\n`);
+    
+    // الإعداد 2: متوسط
+    console.log("⚖️ الإعداد 2: متوسط");
+    const extractor2 = new ImageCommonFeaturesExtractor("medium_extractor");
+    extractor2.settings.toleranceRate = 0.15;
+    extractor2.settings.minOccurrenceRate = 0.6;
+    createImages(extractor2);
+    const result2 = extractor2.extract();
+    console.log(`  النتيجة: ${result2.commonFeatures.length} ميزة مشتركة (${(result2.overallConfidence * 100).toFixed(1)}%)\n`);
+    
+    // الإعداد 3: متساهل (سماح كبير)
+    console.log("🔓 الإعداد 3: متساهل (سماح كبير)");
+    const extractor3 = new ImageCommonFeaturesExtractor("lenient_extractor");
+    extractor3.settings.toleranceRate = 0.3;
+    extractor3.settings.minOccurrenceRate = 0.4;
+    createImages(extractor3);
+    const result3 = extractor3.extract();
+    console.log(`  النتيجة: ${result3.commonFeatures.length} ميزة مشتركة (${(result3.overallConfidence * 100).toFixed(1)}%)\n`);
+    
+    // المقارنة
+    console.log("📊 المقارنة:");
+    console.log(`  الصارم:    ${result1.commonFeatures.length} ميزات - ثقة ${(result1.overallConfidence * 100).toFixed(1)}%`);
+    console.log(`  المتوسط:   ${result2.commonFeatures.length} ميزات - ثقة ${(result2.overallConfidence * 100).toFixed(1)}%`);
+    console.log(`  المتساهل:  ${result3.commonFeatures.length} ميزات - ثقة ${(result3.overallConfidence * 100).toFixed(1)}%`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 6: استخدام أنواع ميزات محددة
+// ═══════════════════════════════════════════════════════════════════════
+
+function example6_SpecificFeatureTypes(): void {
+    console.log("\n═══════════════════════════════════════════════");
+    console.log("مثال 6: استخدام أنواع ميزات محددة");
+    console.log("═══════════════════════════════════════════════\n");
+    
+    const extractor = new ImageCommonFeaturesExtractor("specific_features");
+    
+    // تفعيل أنواع ميزات محددة فقط
+    extractor.settings.featureTypes.clear();
+    extractor.settings.enableFeatureType(FeatureType.GEOMETRIC);
+    extractor.settings.enableFeatureType(FeatureType.TOPOLOGICAL);
+    
+    console.log("🎯 الميزات المفعلة:");
+    console.log("  ✓ الميزات الهندسية (GEOMETRIC)");
+    console.log("  ✓ الميزات الطوبولوجية (TOPOLOGICAL)\n");
+    
+    // إضافة صور
+    for (let i = 1; i <= 6; i++) {
+        extractor.addImage(new InputImage(`shape_${i}`, `shape_data_${i}`, 512, 512));
+    }
+    
+    const result = extractor.extract();
+    
+    console.log("\n📋 الميزات المستخلصة حسب النوع:");
+    const geometricFeatures = result.commonFeatures.filter(f => f.featureType === FeatureType.GEOMETRIC);
+    const topologicalFeatures = result.commonFeatures.filter(f => f.featureType === FeatureType.TOPOLOGICAL);
+    
+    console.log(`  الهندسية: ${geometricFeatures.length} ميزات`);
+    console.log(`  الطوبولوجية: ${topologicalFeatures.length} ميزات`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// تشغيل جميع الأمثلة
+// ═══════════════════════════════════════════════════════════════════════
+
+function runAllExamples(): void {
+    console.log("\n");
+    console.log("╔═══════════════════════════════════════════════════════════════╗");
+    console.log("║   أمثلة استخلاص الخصائص المشتركة من الصور                  ║");
+    console.log("║   Image Common Features Extraction Examples                  ║");
+    console.log("╚═══════════════════════════════════════════════════════════════╝");
+    console.log("\n");
+    
+    example1_CatShapeExtraction();
+    example2_CarShapeWithColorInvariance();
+    example3_FaceShapeExtraction();
+    example4_TreeShapeWithScaleInvariance();
+    example5_CompareSettings();
+    example6_SpecificFeatureTypes();
+    
+    console.log("\n");
+    console.log("╔═══════════════════════════════════════════════════════════════╗");
+    console.log("║   ✅ اكتملت جميع الأمثلة بنجاح!                             ║");
+    console.log("╚═══════════════════════════════════════════════════════════════╝");
+    console.log("\n");
+}
+
+// تشغيل
+runAllExamples();
+

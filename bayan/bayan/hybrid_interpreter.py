@@ -7,6 +7,7 @@ from .ast_nodes import *
 from .traditional_interpreter import TraditionalInterpreter
 from .logical_engine import LogicalEngine, Fact, Rule, Predicate, Term
 from .entity_engine import EntityEngine
+from .gse import GSEModel, generalized_sigmoid, linear_component, approximate_gate
 
 class HybridInterpreter:
     """Hybrid interpreter combining traditional and logical programming"""
@@ -25,6 +26,18 @@ class HybridInterpreter:
         env['Predicate'] = Predicate
         env['Term'] = Term
         env['logical'] = self.logical
+        
+        # Expose GSE Model
+        env['GSEModel'] = GSEModel
+        env['generalized_sigmoid'] = generalized_sigmoid
+        env['linear_component'] = linear_component
+        env['approximate_gate'] = approximate_gate
+        
+        # Arabic Aliases for GSE
+        env['نموذج_الشكل_العام'] = GSEModel
+        env['سيغمويد_معمم'] = generalized_sigmoid
+        env['مكون_خطي'] = linear_component
+        env['بوابة_تقريبية'] = approximate_gate
         # Share the class system and import system
         self.class_system = self.traditional.class_system
         self.import_system = self.traditional.import_system

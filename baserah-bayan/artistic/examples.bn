@@ -1,0 +1,351 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * أمثلة الوحدة الفنية - Artistic Unit Examples
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * أمثلة عملية لاستخدام الوحدة الفنية
+ * Practical examples for using the Artistic Unit
+ * 
+ * @author Baserah AI System
+ * @version 1.0.0
+ * @date 2025-10-26
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+import { 
+    GeneralShapeEquation, 
+    ShapeType, 
+    Color,
+    StyleProperties,
+    LineStyle,
+    FillType
+} from "./general-shape-equation.bn";
+
+import { ClassicDrawingEngine } from "./classic-drawing-engine.bn";
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 1: رسم وجه مبتسم
+// Example 1: Draw Smiley Face
+// ═══════════════════════════════════════════════════════════════════════
+
+function example1_SmileyFace(): GeneralShapeEquation {
+    /**
+     * رسم وجه مبتسم بسيط
+     * Draw simple smiley face
+     */
+    console.log("\n🎨 مثال 1: وجه مبتسم");
+    console.log("━".repeat(50));
+    
+    // إنشاء معادلة الشكل
+    let smiley = new GeneralShapeEquation("وجه مبتسم", ShapeType.COMPOSITE);
+    
+    // تعيين الأنماط العامة
+    smiley.setStrokeColor(0, 0, 0, 1);
+    smiley.setLineWidth(3);
+    
+    // الحد 1: دائرة الوجه
+    smiley.addCircleTerm(400, 300, 150);
+    
+    // الحد 2: العين اليسرى
+    smiley.addCircleTerm(350, 270, 15);
+    
+    // الحد 3: العين اليمنى
+    smiley.addCircleTerm(450, 270, 15);
+    
+    // الحد 4: الابتسامة (منحنى بيزيه)
+    smiley.addBezierTerm([
+        [320, 350],
+        [400, 400],
+        [480, 350]
+    ]);
+    
+    // تعيين الحالة
+    smiley.setState("mood", "happy");
+    smiley.setState("expression", "smiling");
+    
+    // إضافة وسوم
+    smiley.tags = ["face", "emoji", "happy"];
+    smiley.category = "faces";
+    
+    console.log(`✅ تم إنشاء: ${smiley.shapeName}`);
+    console.log(`   عدد الحدود: ${smiley.mathematicalTerms.length}`);
+    console.log(`   المعادلة: ${smiley.toEquationString()}`);
+    
+    return smiley;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 2: رسم منزل
+// Example 2: Draw House
+// ═══════════════════════════════════════════════════════════════════════
+
+function example2_House(): GeneralShapeEquation {
+    /**
+     * رسم منزل بسيط
+     * Draw simple house
+     */
+    console.log("\n🏠 مثال 2: منزل");
+    console.log("━".repeat(50));
+    
+    let house = new GeneralShapeEquation("منزل", ShapeType.COMPOSITE);
+    
+    // الأنماط
+    house.setStrokeColor(139, 69, 19, 1);  // بني
+    house.setFillColor(255, 228, 181, 0.5);  // بيج فاتح
+    house.setLineWidth(2);
+    
+    // الحد 1: جدار المنزل (مستطيل)
+    // نستخدم 4 خطوط لرسم مستطيل
+    house.addLineTerm(200, 250, 600, 250);  // أعلى
+    house.addLineTerm(600, 250, 600, 500);  // يمين
+    house.addLineTerm(600, 500, 200, 500);  // أسفل
+    house.addLineTerm(200, 500, 200, 250);  // يسار
+    
+    // الحد 2: السقف (مثلث)
+    house.addLineTerm(200, 250, 400, 150);  // يسار السقف
+    house.addLineTerm(400, 150, 600, 250);  // يمين السقف
+    
+    // الحد 3: الباب
+    house.addLineTerm(350, 400, 350, 500);  // يسار الباب
+    house.addLineTerm(350, 400, 450, 400);  // أعلى الباب
+    house.addLineTerm(450, 400, 450, 500);  // يمين الباب
+    
+    // الحد 4: النافذة
+    house.addCircleTerm(500, 330, 30);
+    
+    house.setState("type", "cottage");
+    house.tags = ["house", "building", "home"];
+    house.category = "architecture";
+    
+    console.log(`✅ تم إنشاء: ${house.shapeName}`);
+    console.log(`   عدد الحدود: ${house.mathematicalTerms.length}`);
+    
+    return house;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 3: رسم موجة جيبية ملونة
+// Example 3: Draw Colored Sine Wave
+// ═══════════════════════════════════════════════════════════════════════
+
+function example3_ColorfulWave(): GeneralShapeEquation {
+    /**
+     * رسم موجة جيبية ملونة
+     * Draw colorful sine wave
+     */
+    console.log("\n〰️ مثال 3: موجة ملونة");
+    console.log("━".repeat(50));
+    
+    let wave = new GeneralShapeEquation("موجة ملونة", ShapeType.SINE_WAVE);
+    
+    // موجة حمراء
+    let redWaveId = wave.addSineWaveTerm(50, 1, 0);
+    let redStyle = new StyleProperties();
+    redStyle.strokeColor = new Color(255, 0, 0, 1);
+    redStyle.lineWidth = 3;
+    wave.setTermStyle(redWaveId, redStyle);
+    
+    // موجة زرقاء (بتحويل طور)
+    let blueWaveId = wave.addSineWaveTerm(50, 1, Math.PI / 2);
+    let blueStyle = new StyleProperties();
+    blueStyle.strokeColor = new Color(0, 0, 255, 1);
+    blueStyle.lineWidth = 3;
+    wave.setTermStyle(blueWaveId, blueStyle);
+    
+    // موجة خضراء (بتحويل طور)
+    let greenWaveId = wave.addSineWaveTerm(50, 1, Math.PI);
+    let greenStyle = new StyleProperties();
+    greenStyle.strokeColor = new Color(0, 255, 0, 1);
+    greenStyle.lineWidth = 3;
+    wave.setTermStyle(greenWaveId, greenStyle);
+    
+    wave.setState("frequency", 1);
+    wave.setState("amplitude", 50);
+    wave.tags = ["wave", "sine", "colorful"];
+    wave.category = "mathematics";
+    
+    console.log(`✅ تم إنشاء: ${wave.shapeName}`);
+    console.log(`   عدد الموجات: ${wave.mathematicalTerms.length}`);
+    
+    return wave;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 4: رسم نجمة
+// Example 4: Draw Star
+// ═══════════════════════════════════════════════════════════════════════
+
+function example4_Star(): GeneralShapeEquation {
+    /**
+     * رسم نجمة خماسية
+     * Draw five-pointed star
+     */
+    console.log("\n⭐ مثال 4: نجمة");
+    console.log("━".repeat(50));
+    
+    let star = new GeneralShapeEquation("نجمة", ShapeType.POLYGON);
+    
+    // حساب نقاط النجمة
+    let centerX = 400;
+    let centerY = 300;
+    let outerRadius = 100;
+    let innerRadius = 40;
+    let points = 5;
+    
+    let starPoints = [];
+    for (let i = 0; i < points * 2; i++) {
+        let angle = (i * Math.PI) / points - Math.PI / 2;
+        let radius = i % 2 == 0 ? outerRadius : innerRadius;
+        let x = centerX + radius * Math.cos(angle);
+        let y = centerY + radius * Math.sin(angle);
+        starPoints.push([x, y]);
+    }
+    
+    // رسم خطوط النجمة
+    for (let i = 0; i < starPoints.length; i++) {
+        let nextI = (i + 1) % starPoints.length;
+        star.addLineTerm(
+            starPoints[i][0], starPoints[i][1],
+            starPoints[nextI][0], starPoints[nextI][1]
+        );
+    }
+    
+    // الأنماط
+    star.setStrokeColor(255, 215, 0, 1);  // ذهبي
+    star.setFillColor(255, 255, 0, 0.3);  // أصفر شفاف
+    star.setLineWidth(3);
+    
+    star.setState("points", points);
+    star.tags = ["star", "polygon", "geometric"];
+    star.category = "shapes";
+    
+    console.log(`✅ تم إنشاء: ${star.shapeName}`);
+    console.log(`   عدد الخطوط: ${star.mathematicalTerms.length}`);
+    
+    return star;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 5: رسم حلزون
+// Example 5: Draw Spiral
+// ═══════════════════════════════════════════════════════════════════════
+
+function example5_Spiral(): GeneralShapeEquation {
+    /**
+     * رسم حلزون بارامتري
+     * Draw parametric spiral
+     */
+    console.log("\n🌀 مثال 5: حلزون");
+    console.log("━".repeat(50));
+    
+    let spiral = new GeneralShapeEquation("حلزون", ShapeType.PARAMETRIC);
+    
+    // معادلة بارامترية للحلزون
+    // x(t) = t * cos(t)
+    // y(t) = t * sin(t)
+    spiral.addParametricTerm(
+        "400 + t * 5 * Math.cos(t)",
+        "300 + t * 5 * Math.sin(t)",
+        [0, 10 * Math.PI]
+    );
+    
+    // الأنماط
+    spiral.setStrokeColor(138, 43, 226, 1);  // بنفسجي
+    spiral.setLineWidth(2);
+    
+    spiral.setState("type", "archimedean");
+    spiral.tags = ["spiral", "parametric", "curve"];
+    spiral.category = "mathematics";
+    
+    console.log(`✅ تم إنشاء: ${spiral.shapeName}`);
+    
+    return spiral;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// مثال 6: استخدام محرك الرسم
+// Example 6: Using Drawing Engine
+// ═══════════════════════════════════════════════════════════════════════
+
+function example6_DrawingEngine(): void {
+    /**
+     * مثال على استخدام محرك الرسم
+     * Example of using drawing engine
+     */
+    console.log("\n🖼️ مثال 6: محرك الرسم");
+    console.log("━".repeat(50));
+    
+    // إنشاء محرك الرسم
+    let engine = new ClassicDrawingEngine("myCanvas", 800, 600);
+    
+    // تهيئة المحرك
+    if (engine.initialize()) {
+        console.log("✅ تم تهيئة محرك الرسم");
+        
+        // رسم وجه مبتسم
+        let smiley = example1_SmileyFace();
+        engine.drawEquation(smiley);
+        
+        // مسح اللوحة
+        // engine.clear();
+        
+        // رسم منزل
+        // let house = example2_House();
+        // engine.drawEquation(house);
+        
+    } else {
+        console.log("❌ فشل تهيئة محرك الرسم");
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// تشغيل الأمثلة
+// Run Examples
+// ═══════════════════════════════════════════════════════════════════════
+
+function runAllExamples(): void {
+    /**
+     * تشغيل جميع الأمثلة
+     * Run all examples
+     */
+    console.log("\n");
+    console.log("═".repeat(70));
+    console.log("🎨 أمثلة الوحدة الفنية - Artistic Unit Examples");
+    console.log("═".repeat(70));
+    
+    // تشغيل الأمثلة
+    let smiley = example1_SmileyFace();
+    let house = example2_House();
+    let wave = example3_ColorfulWave();
+    let star = example4_Star();
+    let spiral = example5_Spiral();
+    
+    console.log("\n");
+    console.log("═".repeat(70));
+    console.log("✅ تم تشغيل جميع الأمثلة بنجاح!");
+    console.log("═".repeat(70));
+    console.log("\n");
+    
+    // عرض ملخص
+    console.log("📊 ملخص الأشكال المنشأة:");
+    console.log(`   1. ${smiley.shapeName} - ${smiley.mathematicalTerms.length} حدود`);
+    console.log(`   2. ${house.shapeName} - ${house.mathematicalTerms.length} حدود`);
+    console.log(`   3. ${wave.shapeName} - ${wave.mathematicalTerms.length} حدود`);
+    console.log(`   4. ${star.shapeName} - ${star.mathematicalTerms.length} حدود`);
+    console.log(`   5. ${spiral.shapeName} - ${spiral.mathematicalTerms.length} حدود`);
+    
+    console.log("\n💡 لرسم الأشكال، استخدم محرك الرسم:");
+    console.log("   example6_DrawingEngine();");
+}
+
+// تصدير الدوال
+export {
+    example1_SmileyFace,
+    example2_House,
+    example3_ColorfulWave,
+    example4_Star,
+    example5_Spiral,
+    example6_DrawingEngine,
+    runAllExamples
+};
+

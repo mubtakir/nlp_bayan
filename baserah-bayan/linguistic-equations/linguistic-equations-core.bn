@@ -1,0 +1,594 @@
+/**
+ * نظام المعادلات اللغوية - Linguistic Equations System
+ * ======================================================
+ * 
+ * تحويل اللغة إلى معادلات رياضية لإنشاء وعي آلي
+ * 
+ * المفهوم الأساسي:
+ * - كل معلومة = فكرة
+ * - كل فكرة = (أشياء، حدث، نتيجة)
+ * - النتيجة = تغير حالات وخصائص الأشياء
+ * 
+ * أمثلة:
+ * - الحر = -البرد
+ * - أحمد ضرب الكرة = أحمد كان يلعب + الكرة تبتعد
+ * - زيد أكل تفاحة = زيد انتعش + الحقل نقص تفاحة + زيد شبع + التفاحة انتهت
+ * 
+ * @version 1.0
+ * @author باسل يحيى عبدالله
+ */
+
+import { MotherEquation } from '../core/mother-equation.bn';
+
+/**
+ * نوع العنصر في المعادلة اللغوية
+ */
+enum ElementType {
+    THING = "شيء",              // شيء/كائن
+    EVENT = "حدث",              // حدث/فعل
+    STATE = "حالة",             // حالة
+    PROPERTY = "خاصية",         // خاصية
+    RESULT = "نتيجة"            // نتيجة
+}
+
+/**
+ * الدور النحوي
+ */
+enum GrammaticalRole {
+    SUBJECT = "فاعل",           // الفاعل (من يقوم بالحدث)
+    OBJECT = "مفعول_به",        // المفعول به (من يقع عليه الحدث)
+    VERB = "فعل",               // الفعل/الحدث
+    COMPLEMENT = "مكمل",        // مكمل
+    MODIFIER = "صفة"            // صفة/نعت
+}
+
+/**
+ * نوع التغيير
+ */
+enum ChangeType {
+    INCREASE = "زيادة",         // زيادة (+)
+    DECREASE = "نقصان",         // نقصان (-)
+    TRANSFORM = "تحول",         // تحول
+    CREATE = "إنشاء",           // إنشاء
+    DESTROY = "إنهاء",          // إنهاء
+    MOVE = "حركة",              // حركة/انتقال
+    STAY = "ثبات"               // ثبات
+}
+
+/**
+ * مجال الخاصية
+ */
+enum PropertyDomain {
+    PHYSICAL = "فيزيائي",       // فيزيائي (موقع، سرعة، كتلة...)
+    PSYCHOLOGICAL = "نفسي",     // نفسي (غضب، فرح، حزن...)
+    SOCIAL = "اجتماعي",         // اجتماعي (علاقات، مكانة...)
+    BIOLOGICAL = "حيوي",        // حيوي (جوع، عطش، صحة...)
+    COGNITIVE = "معرفي",        // معرفي (معرفة، فهم...)
+    EMOTIONAL = "عاطفي",        // عاطفي (حب، كره...)
+    TEMPORAL = "زمني",          // زمني (وقت، مدة...)
+    SPATIAL = "مكاني"           // مكاني (مكان، موقع...)
+}
+
+/**
+ * خاصية أو حالة لشيء
+ */
+class PropertyState extends MotherEquation {
+    public name: string;                    // اسم الخاصية
+    public domain: PropertyDomain;          // المجال
+    public value: number;                   // القيمة الحالية
+    public minValue: number;                // القيمة الدنيا
+    public maxValue: number;                // القيمة القصوى
+    public unit: string;                    // الوحدة
+    public timestamp: number;               // الطابع الزمني
+    
+    constructor(
+        name: string,
+        domain: PropertyDomain,
+        value: number = 0,
+        minValue: number = -Infinity,
+        maxValue: number = Infinity,
+        unit: string = ""
+    ) {
+        super(`property_${name}`);
+        
+        this.name = name;
+        this.domain = domain;
+        this.value = value;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.unit = unit;
+        this.timestamp = Date.now();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: name,
+            domain: domain,
+            minValue: minValue,
+            maxValue: maxValue,
+            unit: unit
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            value: value,
+            timestamp: this.timestamp,
+            changeRate: 0
+        };
+    }
+    
+    /**
+     * تطبيق تغيير على الخاصية
+     */
+    public applyChange(changeType: ChangeType, amount: number): number {
+        let oldValue = this.value;
+        
+        switch (changeType) {
+            case ChangeType.INCREASE:
+                this.value = Math.min(this.maxValue, this.value + amount);
+                break;
+            case ChangeType.DECREASE:
+                this.value = Math.max(this.minValue, this.value - amount);
+                break;
+            case ChangeType.TRANSFORM:
+                this.value = Math.max(this.minValue, Math.min(this.maxValue, amount));
+                break;
+            default:
+                break;
+        }
+        
+        let change = this.value - oldValue;
+        this.timestamp = Date.now();
+        this.dynamicStates.value = this.value;
+        this.dynamicStates.timestamp = this.timestamp;
+        this.dynamicStates.changeRate = change;
+        
+        return change;
+    }
+    
+    /**
+     * الحصول على القيمة المعيارية (0-1)
+     */
+    public getNormalizedValue(): number {
+        if (this.maxValue === Infinity || this.minValue === -Infinity) {
+            return this.value;
+        }
+        return (this.value - this.minValue) / (this.maxValue - this.minValue);
+    }
+}
+
+/**
+ * شيء/كائن في المعادلة اللغوية
+ */
+class Thing extends MotherEquation {
+    public name: string;                                    // اسم الشيء
+    public type: string;                                    // نوع الشيء
+    public properties: Map<string, PropertyState>;          // الخصائص والحالات
+    public shapeEquation: any | null;                       // معادلة الشكل (Γ)
+    public exists: boolean;                                 // هل موجود؟
+    public creationTime: number;                            // وقت الإنشاء
+    
+    constructor(name: string, type: string = "عام") {
+        super(`thing_${name}`);
+        
+        this.name = name;
+        this.type = type;
+        this.properties = new Map();
+        this.shapeEquation = null;
+        this.exists = true;
+        this.creationTime = Date.now();
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: name,
+            type: type,
+            creationTime: this.creationTime
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            exists: true,
+            propertiesCount: 0,
+            lastModified: this.creationTime
+        };
+        
+        // Γ: معادلة الشكل (سيتم ربطها لاحقاً)
+        this.shapeFunction = null;
+    }
+    
+    /**
+     * إضافة خاصية
+     */
+    public addProperty(property: PropertyState): void {
+        this.properties.set(property.name, property);
+        this.dynamicStates.propertiesCount = this.properties.size;
+        this.dynamicStates.lastModified = Date.now();
+    }
+    
+    /**
+     * الحصول على خاصية
+     */
+    public getProperty(name: string): PropertyState | null {
+        return this.properties.get(name) || null;
+    }
+    
+    /**
+     * تحديث خاصية
+     */
+    public updateProperty(name: string, changeType: ChangeType, amount: number): number {
+        let property = this.properties.get(name);
+        if (property) {
+            let change = property.applyChange(changeType, amount);
+            this.dynamicStates.lastModified = Date.now();
+            return change;
+        }
+        return 0;
+    }
+    
+    /**
+     * إنهاء وجود الشيء
+     */
+    public destroy(): void {
+        this.exists = false;
+        this.dynamicStates.exists = false;
+        this.dynamicStates.lastModified = Date.now();
+    }
+    
+    /**
+     * الحصول على جميع الخصائص في مجال معين
+     */
+    public getPropertiesByDomain(domain: PropertyDomain): Array<PropertyState> {
+        let result: Array<PropertyState> = [];
+        this.properties.forEach(property => {
+            if (property.domain === domain) {
+                result.push(property);
+            }
+        });
+        return result;
+    }
+    
+    /**
+     * نسخ الشيء (Clone)
+     */
+    public clone(): Thing {
+        let newThing = new Thing(this.name, this.type);
+        this.properties.forEach((property, name) => {
+            let newProperty = new PropertyState(
+                property.name,
+                property.domain,
+                property.value,
+                property.minValue,
+                property.maxValue,
+                property.unit
+            );
+            newThing.addProperty(newProperty);
+        });
+        return newThing;
+    }
+}
+
+/**
+ * حدث/فعل في المعادلة اللغوية
+ */
+class Event extends MotherEquation {
+    public name: string;                                    // اسم الحدث
+    public verb: string;                                    // الفعل
+    public subject: Thing | null;                           // الفاعل
+    public object: Thing | null;                            // المفعول به
+    public effects: Array<Effect>;                          // التأثيرات/النتائج
+    public timestamp: number;                               // وقت الحدث
+    public duration: number;                                // مدة الحدث
+    public completed: boolean;                              // هل اكتمل؟
+    
+    constructor(name: string, verb: string) {
+        super(`event_${name}`);
+        
+        this.name = name;
+        this.verb = verb;
+        this.subject = null;
+        this.object = null;
+        this.effects = [];
+        this.timestamp = Date.now();
+        this.duration = 0;
+        this.completed = false;
+        
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            name: name,
+            verb: verb
+        };
+        
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            completed: false,
+            effectsCount: 0,
+            timestamp: this.timestamp
+        };
+    }
+    
+    /**
+     * تعيين الفاعل
+     */
+    public setSubject(subject: Thing): void {
+        this.subject = subject;
+    }
+    
+    /**
+     * تعيين المفعول به
+     */
+    public setObject(object: Thing): void {
+        this.object = object;
+    }
+    
+    /**
+     * إضافة تأثير/نتيجة
+     */
+    public addEffect(effect: Effect): void {
+        this.effects.push(effect);
+        this.dynamicStates.effectsCount = this.effects.length;
+    }
+    
+    /**
+     * تنفيذ الحدث
+     */
+    public execute(): Array<string> {
+        let results: Array<string> = [];
+
+        if (this.completed) {
+            return ["الحدث تم تنفيذه مسبقاً"];
+        }
+
+        // تطبيق جميع التأثيرات
+        for (let effect of this.effects) {
+            let result = effect.apply();
+            results.push(result);
+        }
+
+        this.completed = true;
+        this.dynamicStates.completed = true;
+        this.dynamicStates.timestamp = Date.now();
+
+        return results;
+    }
+}
+
+/**
+ * تأثير/نتيجة على شيء
+ */
+class Effect extends MotherEquation {
+    public target: Thing;                       // الشيء المستهدف
+    public propertyName: string;                // اسم الخاصية المتأثرة
+    public changeType: ChangeType;              // نوع التغيير
+    public amount: number;                      // مقدار التغيير
+    public description: string;                 // وصف التأثير
+
+    constructor(
+        target: Thing,
+        propertyName: string,
+        changeType: ChangeType,
+        amount: number,
+        description: string = ""
+    ) {
+        super(`effect_${target.name}_${propertyName}`);
+
+        this.target = target;
+        this.propertyName = propertyName;
+        this.changeType = changeType;
+        this.amount = amount;
+        this.description = description;
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            targetName: target.name,
+            propertyName: propertyName,
+            changeType: changeType
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            amount: amount,
+            applied: false
+        };
+    }
+
+    /**
+     * تطبيق التأثير
+     */
+    public apply(): string {
+        let change = this.target.updateProperty(
+            this.propertyName,
+            this.changeType,
+            this.amount
+        );
+
+        this.dynamicStates.applied = true;
+
+        let changeSymbol = change > 0 ? "+" : "";
+        return `${this.target.name}.${this.propertyName} ${changeSymbol}${change.toFixed(2)} (${this.description})`;
+    }
+}
+
+/**
+ * معادلة لغوية كاملة
+ * تمثل جملة أو فكرة كاملة
+ */
+class LinguisticEquation extends MotherEquation {
+    public sentence: string;                    // الجملة الأصلية
+    public things: Map<string, Thing>;          // الأشياء المشاركة
+    public events: Array<Event>;                // الأحداث
+    public initialState: Map<string, any>;      // الحالة الأولية
+    public finalState: Map<string, any>;        // الحالة النهائية
+    public timestamp: number;                   // وقت الإنشاء
+
+    constructor(sentence: string) {
+        super(`equation_${sentence.substring(0, 20)}`);
+
+        this.sentence = sentence;
+        this.things = new Map();
+        this.events = [];
+        this.initialState = new Map();
+        this.finalState = new Map();
+        this.timestamp = Date.now();
+
+        // Φ: الخصائص الثابتة
+        this.fixedProperties = {
+            sentence: sentence,
+            timestamp: this.timestamp
+        };
+
+        // Ψ: الحالات الديناميكية
+        this.dynamicStates = {
+            thingsCount: 0,
+            eventsCount: 0,
+            executed: false
+        };
+    }
+
+    /**
+     * إضافة شيء
+     */
+    public addThing(thing: Thing): void {
+        this.things.set(thing.name, thing);
+        this.dynamicStates.thingsCount = this.things.size;
+    }
+
+    /**
+     * إضافة حدث
+     */
+    public addEvent(event: Event): void {
+        this.events.push(event);
+        this.dynamicStates.eventsCount = this.events.length;
+    }
+
+    /**
+     * حفظ الحالة الأولية
+     */
+    public saveInitialState(): void {
+        this.things.forEach((thing, name) => {
+            let state: any = {
+                exists: thing.exists,
+                properties: {}
+            };
+
+            thing.properties.forEach((property, propName) => {
+                state.properties[propName] = property.value;
+            });
+
+            this.initialState.set(name, state);
+        });
+    }
+
+    /**
+     * حفظ الحالة النهائية
+     */
+    public saveFinalState(): void {
+        this.things.forEach((thing, name) => {
+            let state: any = {
+                exists: thing.exists,
+                properties: {}
+            };
+
+            thing.properties.forEach((property, propName) => {
+                state.properties[propName] = property.value;
+            });
+
+            this.finalState.set(name, state);
+        });
+    }
+
+    /**
+     * تنفيذ المعادلة
+     */
+    public execute(): Array<string> {
+        let allResults: Array<string> = [];
+
+        // حفظ الحالة الأولية
+        this.saveInitialState();
+
+        // تنفيذ جميع الأحداث
+        for (let event of this.events) {
+            let results = event.execute();
+            allResults = allResults.concat(results);
+        }
+
+        // حفظ الحالة النهائية
+        this.saveFinalState();
+
+        this.dynamicStates.executed = true;
+
+        return allResults;
+    }
+
+    /**
+     * الحصول على التغييرات
+     */
+    public getChanges(): Array<any> {
+        let changes: Array<any> = [];
+
+        this.things.forEach((thing, name) => {
+            let initial = this.initialState.get(name);
+            let final = this.finalState.get(name);
+
+            if (!initial || !final) return;
+
+            // تغيير الوجود
+            if (initial.exists !== final.exists) {
+                changes.push({
+                    thing: name,
+                    type: "existence",
+                    from: initial.exists,
+                    to: final.exists,
+                    description: final.exists ? "تم إنشاء" : "تم إنهاء"
+                });
+            }
+
+            // تغييرات الخصائص
+            for (let propName in initial.properties) {
+                if (initial.properties[propName] !== final.properties[propName]) {
+                    let delta = final.properties[propName] - initial.properties[propName];
+                    changes.push({
+                        thing: name,
+                        type: "property",
+                        property: propName,
+                        from: initial.properties[propName],
+                        to: final.properties[propName],
+                        delta: delta,
+                        description: `${propName}: ${initial.properties[propName]} → ${final.properties[propName]}`
+                    });
+                }
+            }
+        });
+
+        return changes;
+    }
+
+    /**
+     * تحويل إلى نص
+     */
+    public toString(): string {
+        let result = `المعادلة اللغوية: ${this.sentence}\n`;
+        result += `الأشياء: ${this.things.size}\n`;
+        result += `الأحداث: ${this.events.length}\n`;
+
+        if (this.dynamicStates.executed) {
+            result += "\nالتغييرات:\n";
+            let changes = this.getChanges();
+            changes.forEach(change => {
+                result += `  - ${change.description}\n`;
+            });
+        }
+
+        return result;
+    }
+}
+
+export {
+    ElementType,
+    GrammaticalRole,
+    ChangeType,
+    PropertyDomain,
+    PropertyState,
+    Thing,
+    Event,
+    Effect,
+    LinguisticEquation
+};

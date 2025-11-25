@@ -1,0 +1,411 @@
+/**
+ * الاستنباط الموجه بالخبير - Expert-Guided Inference
+ * ═══════════════════════════════════════════════════════════════
+ * 
+ * الوصف: منسق متقدم يستخدم الخبير/المستكشف لتوجيه الاستنباط
+ * الهدف: تحسين دقة الاستنباط من خلال التوجيه الذكي
+ * المنهجية: الخبير + المستكشف + النظريات الثلاث
+ * 
+ * المطور: بصيرة AI
+ * التاريخ: 2025-10-26
+ */
+
+import { BaserahIntegratedExpertExplorer } from "../brain/integrated-expert-explorer.bn";
+import { SigmoidInferenceEngine, InferenceResult, ExtractedFeatures } from "./sigmoid-inference-engine.bn";
+import { SigmoidShapeEquation } from "./sigmoid-shape-equation.bn";
+
+// ═══════════════════════════════════════════════════════════════
+// استراتيجيات الاستنباط
+// ═══════════════════════════════════════════════════════════════
+
+enum InferenceStrategy {
+    EXPERT_LED = "expert_led",          // يقود الخبير
+    EXPLORER_LED = "explorer_led",      // يقود المستكشف
+    BALANCED = "balanced",              // متوازن
+    ADAPTIVE = "adaptive"               // تكيفي
+}
+
+// ═══════════════════════════════════════════════════════════════
+// أنماط الخبير
+// ═══════════════════════════════════════════════════════════════
+
+enum ExpertMode {
+    CONSERVATIVE = "conservative",      // محافظ
+    BALANCED = "balanced",              // متوازن
+    AGGRESSIVE = "aggressive"           // جريء
+}
+
+// ═══════════════════════════════════════════════════════════════
+// أنماط المستكشف
+// ═══════════════════════════════════════════════════════════════
+
+enum ExplorerMode {
+    CAUTIOUS = "cautious",              // حذر
+    BALANCED = "balanced",              // متوازن
+    ADVENTUROUS = "adventurous"         // مغامر
+}
+
+// ═══════════════════════════════════════════════════════════════
+// توجيهات الخبير
+// ═══════════════════════════════════════════════════════════════
+
+class ExpertGuidance {
+    confidenceThreshold: number;        // عتبة الثقة
+    strategy: InferenceStrategy;        // الاستراتيجية الموصى بها
+    mode: ExpertMode;                   // النمط
+    reasoning: string;                  // التفسير
+    recommendedTerms: number;           // عدد الحدود الموصى به
+    
+    constructor() {
+        this.confidenceThreshold = 0.7;
+        this.strategy = InferenceStrategy.BALANCED;
+        this.mode = ExpertMode.BALANCED;
+        this.reasoning = "";
+        this.recommendedTerms = 3;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// توجيهات المستكشف
+// ═══════════════════════════════════════════════════════════════
+
+class ExplorerGuidance {
+    explorationDepth: number;           // عمق الاستكشاف
+    strategy: InferenceStrategy;        // الاستراتيجية الموصى بها
+    mode: ExplorerMode;                 // النمط
+    reasoning: string;                  // التفسير
+    alternativeTerms: number[];         // أعداد بديلة للحدود
+    
+    constructor() {
+        this.explorationDepth = 0.5;
+        this.strategy = InferenceStrategy.BALANCED;
+        this.mode = ExplorerMode.BALANCED;
+        this.reasoning = "";
+        this.alternativeTerms = [];
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// قرار التنسيق
+// ═══════════════════════════════════════════════════════════════
+
+class CoordinationDecision {
+    primaryResult: InferenceResult;             // النتيجة الأساسية
+    alternativeResults: InferenceResult[];      // النتائج البديلة
+    strategyUsed: InferenceStrategy;            // الاستراتيجية المستخدمة
+    expertConfidence: number;                   // ثقة الخبير
+    explorerConfidence: number;                 // ثقة المستكشف
+    finalConfidence: number;                    // الثقة النهائية
+    reasoning: string;                          // التفسير
+    timestamp: number;                          // الوقت
+    
+    constructor(primaryResult: InferenceResult) {
+        this.primaryResult = primaryResult;
+        this.alternativeResults = [];
+        this.strategyUsed = InferenceStrategy.BALANCED;
+        this.expertConfidence = 0.5;
+        this.explorerConfidence = 0.5;
+        this.finalConfidence = 0.5;
+        this.reasoning = "";
+        this.timestamp = Date.now();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// منسق الاستنباط الموجه بالخبير
+// ═══════════════════════════════════════════════════════════════
+
+class ExpertGuidedInferenceCoordinator {
+    coordinatorId: string;
+    expertExplorer: BaserahIntegratedExpertExplorer;    // نظام الخبير/المستكشف
+    inferenceEngine: SigmoidInferenceEngine;            // محرك الاستنباط
+    
+    // معاملات
+    expertConfidenceThreshold: number;
+    explorerExplorationDepth: number;
+    
+    // سجل القرارات
+    decisionHistory: CoordinationDecision[];
+    
+    // إحصائيات الأداء
+    performanceMetrics: object;
+    
+    constructor(coordinatorId: string) {
+        this.coordinatorId = coordinatorId;
+        this.expertExplorer = new BaserahIntegratedExpertExplorer(
+            coordinatorId + "_brain",
+            "inference"
+        );
+        this.inferenceEngine = new SigmoidInferenceEngine(coordinatorId + "_engine");
+        
+        this.expertConfidenceThreshold = 0.75;
+        this.explorerExplorationDepth = 0.5;
+        
+        this.decisionHistory = [];
+        
+        this.performanceMetrics = {
+            totalInferences: 0,
+            expertLedDecisions: 0,
+            explorerLedDecisions: 0,
+            balancedDecisions: 0,
+            avgConfidence: 0.0,
+            successRate: 0.0
+        };
+        
+        console.log("🧬 تم إنشاء منسق الاستنباط الموجه بالخبير");
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // تنسيق عملية الاستنباط
+    // ═══════════════════════════════════════════════════════════════
+    
+    function coordinateInference(xData: number[], yData: number[]): CoordinationDecision {
+        console.log("🔍 بدء عملية الاستنباط الموجه...");
+        
+        // الخطوة 1: الاستنباط الأولي
+        let initialResult = this.inferenceEngine.inferFromPoints(xData, yData);
+        
+        // الخطوة 2: استشارة الخبير
+        let expertGuidance = this.consultExpert(initialResult);
+        
+        // الخطوة 3: استشارة المستكشف
+        let explorerGuidance = this.consultExplorer(initialResult);
+        
+        // الخطوة 4: اتخاذ قرار التنسيق
+        let decision = this.makeCoordinationDecision(
+            initialResult,
+            expertGuidance,
+            explorerGuidance,
+            xData,
+            yData
+        );
+        
+        // الخطوة 5: تسجيل القرار
+        this.decisionHistory.push(decision);
+        this.updateMetrics(decision);
+        
+        console.log(`✅ اكتمل الاستنباط - الثقة: ${decision.finalConfidence.toFixed(3)}`);
+        
+        return decision;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // استشارة الخبير
+    // ═══════════════════════════════════════════════════════════════
+    
+    function consultExpert(result: InferenceResult): ExpertGuidance {
+        let guidance = new ExpertGuidance();
+        
+        // تحليل النتيجة
+        let confidence = result.confidence;
+        let features = result.features;
+        
+        // تحديد النمط والاستراتيجية
+        if (confidence > 0.85) {
+            guidance.mode = ExpertMode.AGGRESSIVE;
+            guidance.confidenceThreshold = 0.6;
+            guidance.strategy = InferenceStrategy.EXPERT_LED;
+            guidance.reasoning = "الخبير واثق جداً من النتيجة";
+        } else if (confidence > 0.7) {
+            guidance.mode = ExpertMode.BALANCED;
+            guidance.confidenceThreshold = 0.7;
+            guidance.strategy = InferenceStrategy.BALANCED;
+            guidance.reasoning = "الخبير واثق من النتيجة";
+        } else {
+            guidance.mode = ExpertMode.CONSERVATIVE;
+            guidance.confidenceThreshold = 0.8;
+            guidance.strategy = InferenceStrategy.EXPLORER_LED;
+            guidance.reasoning = "الخبير غير واثق، يفضل الاستكشاف";
+        }
+        
+        // تحديد عدد الحدود الموصى به
+        if (features.complexity > 2.0) {
+            guidance.recommendedTerms = 5;
+        } else if (features.complexity > 1.0) {
+            guidance.recommendedTerms = 3;
+        } else {
+            guidance.recommendedTerms = 2;
+        }
+        
+        console.log(`👨‍🏫 الخبير: ${guidance.reasoning}`);
+        
+        return guidance;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // استشارة المستكشف
+    // ═══════════════════════════════════════════════════════════════
+    
+    function consultExplorer(result: InferenceResult): ExplorerGuidance {
+        let guidance = new ExplorerGuidance();
+        
+        let confidence = result.confidence;
+        let features = result.features;
+        
+        // تحديد النمط والاستراتيجية
+        if (confidence < 0.5) {
+            guidance.mode = ExplorerMode.ADVENTUROUS;
+            guidance.explorationDepth = 0.8;
+            guidance.strategy = InferenceStrategy.EXPLORER_LED;
+            guidance.reasoning = "المستكشف يوصي باستكشاف عميق";
+        } else if (confidence < 0.7) {
+            guidance.mode = ExplorerMode.BALANCED;
+            guidance.explorationDepth = 0.5;
+            guidance.strategy = InferenceStrategy.BALANCED;
+            guidance.reasoning = "المستكشف يوصي باستكشاف متوازن";
+        } else {
+            guidance.mode = ExplorerMode.CAUTIOUS;
+            guidance.explorationDepth = 0.3;
+            guidance.strategy = InferenceStrategy.EXPERT_LED;
+            guidance.reasoning = "المستكشف يوصي بالاعتماد على الخبير";
+        }
+        
+        // اقتراح أعداد بديلة للحدود
+        let currentTerms = result.equation.sigmoidTerms.length;
+        guidance.alternativeTerms = [
+            Math.max(1, currentTerms - 1),
+            currentTerms + 1,
+            currentTerms + 2
+        ];
+        
+        console.log(`🔭 المستكشف: ${guidance.reasoning}`);
+
+        return guidance;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // اتخاذ قرار التنسيق
+    // ═══════════════════════════════════════════════════════════════
+
+    function makeCoordinationDecision(
+        initialResult: InferenceResult,
+        expertGuidance: ExpertGuidance,
+        explorerGuidance: ExplorerGuidance,
+        xData: number[],
+        yData: number[]
+    ): CoordinationDecision {
+
+        let decision = new CoordinationDecision(initialResult);
+
+        // تحديد الاستراتيجية النهائية
+        if (expertGuidance.strategy === InferenceStrategy.EXPERT_LED &&
+            explorerGuidance.strategy === InferenceStrategy.EXPERT_LED) {
+            decision.strategyUsed = InferenceStrategy.EXPERT_LED;
+            decision.expertConfidence = 0.9;
+            decision.explorerConfidence = 0.6;
+        } else if (expertGuidance.strategy === InferenceStrategy.EXPLORER_LED &&
+                   explorerGuidance.strategy === InferenceStrategy.EXPLORER_LED) {
+            decision.strategyUsed = InferenceStrategy.EXPLORER_LED;
+            decision.expertConfidence = 0.4;
+            decision.explorerConfidence = 0.9;
+        } else {
+            decision.strategyUsed = InferenceStrategy.BALANCED;
+            decision.expertConfidence = 0.7;
+            decision.explorerConfidence = 0.7;
+        }
+
+        // حساب الثقة النهائية
+        decision.finalConfidence = (
+            initialResult.confidence * 0.5 +
+            decision.expertConfidence * 0.3 +
+            decision.explorerConfidence * 0.2
+        );
+
+        // بناء التفسير
+        decision.reasoning = this.buildReasoning(
+            initialResult,
+            expertGuidance,
+            explorerGuidance,
+            decision
+        );
+
+        return decision;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // بناء التفسير
+    // ═══════════════════════════════════════════════════════════════
+
+    function buildReasoning(
+        result: InferenceResult,
+        expertGuidance: ExpertGuidance,
+        explorerGuidance: ExplorerGuidance,
+        decision: CoordinationDecision
+    ): string {
+
+        let reasoning = `الاستراتيجية: ${decision.strategyUsed}. `;
+        reasoning += expertGuidance.reasoning + ". ";
+        reasoning += explorerGuidance.reasoning + ". ";
+        reasoning += `الثقة النهائية: ${decision.finalConfidence.toFixed(3)}`;
+
+        return reasoning;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // تحديث المقاييس
+    // ═══════════════════════════════════════════════════════════════
+
+    function updateMetrics(decision: CoordinationDecision): void {
+        this.performanceMetrics.totalInferences++;
+
+        if (decision.strategyUsed === InferenceStrategy.EXPERT_LED) {
+            this.performanceMetrics.expertLedDecisions++;
+        } else if (decision.strategyUsed === InferenceStrategy.EXPLORER_LED) {
+            this.performanceMetrics.explorerLedDecisions++;
+        } else {
+            this.performanceMetrics.balancedDecisions++;
+        }
+
+        // تحديث متوسط الثقة
+        let total = this.performanceMetrics.totalInferences;
+        let prevAvg = this.performanceMetrics.avgConfidence;
+        this.performanceMetrics.avgConfidence =
+            (prevAvg * (total - 1) + decision.finalConfidence) / total;
+
+        // حساب معدل النجاح
+        if (decision.finalConfidence > 0.7) {
+            let prevSuccess = this.performanceMetrics.successRate * (total - 1);
+            this.performanceMetrics.successRate = (prevSuccess + 1) / total;
+        } else {
+            let prevSuccess = this.performanceMetrics.successRate * (total - 1);
+            this.performanceMetrics.successRate = prevSuccess / total;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // الحصول على المقاييس
+    // ═══════════════════════════════════════════════════════════════
+
+    function getMetrics(): object {
+        return {
+            totalInferences: this.performanceMetrics.totalInferences,
+            expertLedDecisions: this.performanceMetrics.expertLedDecisions,
+            explorerLedDecisions: this.performanceMetrics.explorerLedDecisions,
+            balancedDecisions: this.performanceMetrics.balancedDecisions,
+            avgConfidence: this.performanceMetrics.avgConfidence,
+            successRate: this.performanceMetrics.successRate
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // الحصول على سجل القرارات
+    // ═══════════════════════════════════════════════════════════════
+
+    function getDecisionHistory(): CoordinationDecision[] {
+        return this.decisionHistory;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// تصدير
+// ═══════════════════════════════════════════════════════════════
+
+export {
+    ExpertGuidedInferenceCoordinator,
+    CoordinationDecision,
+    ExpertGuidance,
+    ExplorerGuidance,
+    InferenceStrategy,
+    ExpertMode,
+    ExplorerMode
+};

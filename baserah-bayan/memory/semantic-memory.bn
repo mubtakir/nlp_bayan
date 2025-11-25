@@ -1,0 +1,511 @@
+/**
+ * الذاكرة الدلالية - Semantic Memory System
+ * 
+ * تحفظ المعرفة والحقائق العامة:
+ * - الحقائق والمعلومات
+ * - المفاهيم والتعريفات
+ * - العلاقات الدلالية
+ * - القواعد والمبادئ
+ * 
+ * @author باسل يحيى عبدالله
+ * @version 1.0.0
+ * @date 2025-10-27
+ */
+
+import { MotherEquation } from "../core/mother-equation.bn";
+
+/**
+ * فئة الحقيقة - Fact
+ * 
+ * تمثل حقيقة أو معلومة (Subject-Predicate-Object)
+ */
+class Fact extends MotherEquation {
+    public factId: string;
+    public subject: string;
+    public predicate: string;
+    public object: string;
+    
+    // الثقة والمصدر
+    public confidence: number;
+    public source: string;  // learned, told, inferred
+    public timestamp: Date;
+    
+    // السياق
+    public context: object;
+    public domain: string;
+    
+    // العلاقات
+    public relatedFacts: array<string>;
+    public contradicts: array<string>;
+    
+    // الاستخدام
+    public usageCount: number;
+    public lastUsed: Date | null;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(
+        subject: string,
+        predicate: string,
+        object: string,
+        confidence: number = 1.0,
+        source: string = "learned",
+        domain: string = "general"
+    ) {
+        super(`fact_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.factId = this.id;
+        this.subject = subject;
+        this.predicate = predicate;
+        this.object = object;
+        this.confidence = confidence;
+        this.source = source;
+        this.domain = domain;
+        this.timestamp = new Date();
+        this.context = {};
+        this.relatedFacts = [];
+        this.contradicts = [];
+        this.usageCount = 0;
+        this.lastUsed = null;
+    }
+    
+    /**
+     * تحديث الاستخدام
+     */
+    public updateUsage(): void {
+        this.usageCount += 1;
+        this.lastUsed = new Date();
+    }
+    
+    /**
+     * تحويل إلى نص
+     */
+    public toString(): string {
+        return `${this.subject} ${this.predicate} ${this.object}`;
+    }
+}
+
+/**
+ * فئة المفهوم - Concept
+ * 
+ * تمثل مفهوماً مع خصائصه وعلاقاته
+ */
+class Concept extends MotherEquation {
+    public conceptId: string;
+    public name: string;
+    public definition: string;
+    
+    // الخصائص
+    public properties: object;
+    public examples: array<string>;
+    
+    // العلاقات
+    public isA: array<string>;  // التصنيف
+    public partOf: array<string>;  // الجزئية
+    public relatedTo: array<string>;  // العلاقة
+    
+    // المعرفة
+    public associatedFacts: array<string>;
+    
+    // الاستخدام
+    public usageCount: number;
+    public confidence: number;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(
+        name: string,
+        definition: string = "",
+        properties: object = {},
+        examples: array<string> = []
+    ) {
+        super(`concept_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.conceptId = this.id;
+        this.name = name;
+        this.definition = definition;
+        this.properties = properties;
+        this.examples = examples;
+        this.isA = [];
+        this.partOf = [];
+        this.relatedTo = [];
+        this.associatedFacts = [];
+        this.usageCount = 0;
+        this.confidence = 1.0;
+    }
+    
+    /**
+     * تحديث الاستخدام
+     */
+    public updateUsage(): void {
+        this.usageCount += 1;
+    }
+}
+
+/**
+ * فئة القاعدة - Rule
+ * 
+ * تمثل قاعدة أو مبدأ (If-Then)
+ */
+class Rule extends MotherEquation {
+    public ruleId: string;
+    public name: string;
+    public description: string;
+    
+    // الشروط والنتائج
+    public conditions: array<string>;
+    public conclusions: array<string>;
+    
+    // الثقة
+    public confidence: number;
+    public exceptions: array<string>;
+    
+    // الاستخدام
+    public usageCount: number;
+    public successRate: number;
+    
+    /**
+     * المُنشئ
+     */
+    constructor(
+        name: string,
+        description: string,
+        conditions: array<string>,
+        conclusions: array<string>,
+        confidence: number = 1.0
+    ) {
+        super(`rule_${Date.now()}_${Math.random()}`, {}, {}, null);
+        
+        this.ruleId = this.id;
+        this.name = name;
+        this.description = description;
+        this.conditions = conditions;
+        this.conclusions = conclusions;
+        this.confidence = confidence;
+        this.exceptions = [];
+        this.usageCount = 0;
+        this.successRate = 1.0;
+    }
+}
+
+/**
+ * فئة الذاكرة الدلالية - SemanticMemory
+ * 
+ * تحفظ وتسترجع المعرفة والحقائق العامة
+ */
+class SemanticMemory {
+    // الإعدادات
+    private maxFacts: number;
+    
+    // المعرفة
+    private facts: Map<string, Fact>;
+    private concepts: Map<string, Concept>;
+    private rules: Map<string, Rule>;
+    
+    // الفهارس
+    private factsBySubject: Map<string, array<string>>;
+    private factsByDomain: Map<string, array<string>>;
+    private conceptsByName: Map<string, string>;  // name -> concept_id
+    
+    /**
+     * المُنشئ
+     */
+    constructor(maxFacts: number = 10000) {
+        this.maxFacts = maxFacts;
+        
+        this.facts = new Map();
+        this.concepts = new Map();
+        this.rules = new Map();
+        
+        this.factsBySubject = new Map();
+        this.factsByDomain = new Map();
+        this.conceptsByName = new Map();
+        
+        // تحميل المعرفة الأولية
+        this.loadInitialKnowledge();
+        
+        console.log("✅ تم تهيئة الذاكرة الدلالية");
+    }
+    
+    /**
+     * تحميل المعرفة الأولية
+     */
+    private loadInitialKnowledge(): void {
+        // معرفة عن نظام بصيرة
+        this.storeFact("بصيرة", "هو", "نظام ذكاء اصطناعي ثوري", 1.0, "system", "baserah");
+        this.storeFact("بصيرة", "يستخدم", "معادلات رياضية متكيفة", 1.0, "system", "baserah");
+        this.storeFact("بصيرة", "يعتمد على", "سيماء الحروف", 1.0, "system", "baserah");
+        this.storeFact("بصيرة", "لا يستخدم", "شبكات عصبية", 1.0, "system", "baserah");
+        
+        // مفهوم بصيرة
+        this.storeConcept(
+            "بصيرة",
+            "نظام ذكاء اصطناعي ثوري مبني على معادلات رياضية متكيفة وسيماء الحروف",
+            {type: "AI_system", creator: "المبتكر", unique: "لا يستخدم شبكات عصبية"}
+        );
+        
+        // مفاهيم تقنية
+        this.storeConcept(
+            "ذكاء اصطناعي",
+            "علم جعل الآلات تتصرف بذكاء وتحل المشاكل",
+            {type: "technology", field: "computer_science"}
+        );
+        
+        this.storeConcept(
+            "سيماء الحروف",
+            "علم يدرس المعاني الدلالية والرمزية للحروف في اللغة العربية",
+            {type: "linguistic_theory", origin: "arabic"}
+        );
+    }
+    
+    /**
+     * حفظ حقيقة جديدة
+     */
+    public storeFact(
+        subject: string,
+        predicate: string,
+        object: string,
+        confidence: number = 1.0,
+        source: string = "learned",
+        domain: string = "general",
+        context: object = {}
+    ): string {
+        // التحقق من وجود حقيقة مشابهة
+        let existingFact = this.findSimilarFact(subject, predicate, object);
+        if (existingFact !== null) {
+            // تحديث الثقة
+            existingFact.confidence = Math.min(1.0, existingFact.confidence + 0.1);
+            existingFact.updateUsage();
+            return existingFact.factId;
+        }
+        
+        // إنشاء حقيقة جديدة
+        let fact = new Fact(subject, predicate, object, confidence, source, domain);
+        fact.context = context;
+        
+        this.facts.set(fact.factId, fact);
+        
+        // تحديث الفهارس
+        this.updateFactIndices(fact);
+        
+        return fact.factId;
+    }
+
+    /**
+     * حفظ مفهوم جديد
+     */
+    public storeConcept(
+        name: string,
+        definition: string = "",
+        properties: object = {},
+        examples: array<string> = [],
+        isA: array<string> = []
+    ): string {
+        // التحقق من وجود المفهوم
+        if (this.conceptsByName.has(name)) {
+            let conceptId = this.conceptsByName.get(name);
+            let concept = this.concepts.get(conceptId);
+
+            // تحديث المفهوم
+            if (definition !== "") {
+                concept.definition = definition;
+            }
+            if (Object.keys(properties).length > 0) {
+                concept.properties = {...concept.properties, ...properties};
+            }
+            if (examples.length > 0) {
+                concept.examples.push(...examples);
+            }
+            return conceptId;
+        }
+
+        // إنشاء مفهوم جديد
+        let concept = new Concept(name, definition, properties, examples);
+        concept.isA = isA;
+
+        this.concepts.set(concept.conceptId, concept);
+        this.conceptsByName.set(name, concept.conceptId);
+
+        return concept.conceptId;
+    }
+
+    /**
+     * حفظ قاعدة جديدة
+     */
+    public storeRule(
+        name: string,
+        description: string,
+        conditions: array<string>,
+        conclusions: array<string>,
+        confidence: number = 1.0
+    ): string {
+        let rule = new Rule(name, description, conditions, conclusions, confidence);
+        this.rules.set(rule.ruleId, rule);
+        return rule.ruleId;
+    }
+
+    /**
+     * استرجاع الحقائق عن موضوع معين
+     */
+    public retrieveFactsAbout(subject: string, maxCount: number = 10): array<Fact> {
+        if (!this.factsBySubject.has(subject)) {
+            return [];
+        }
+
+        let factIds = this.factsBySubject.get(subject).slice(0, maxCount);
+        let facts: array<Fact> = [];
+
+        for (let fid of factIds) {
+            if (this.facts.has(fid)) {
+                let fact = this.facts.get(fid);
+                fact.updateUsage();
+                facts.push(fact);
+            }
+        }
+
+        return facts;
+    }
+
+    /**
+     * استرجاع مفهوم
+     */
+    public retrieveConcept(name: string): Concept | null {
+        if (!this.conceptsByName.has(name)) {
+            return null;
+        }
+
+        let conceptId = this.conceptsByName.get(name);
+        let concept = this.concepts.get(conceptId);
+
+        // تحديث الاستخدام
+        concept.updateUsage();
+
+        return concept;
+    }
+
+    /**
+     * استعلام عن الحقائق
+     */
+    public query(
+        subject: string | null = null,
+        predicate: string | null = null,
+        object: string | null = null
+    ): array<Fact> {
+        let results: array<Fact> = [];
+
+        for (let [id, fact] of this.facts) {
+            // التحقق من المطابقة
+            if (subject !== null && fact.subject !== subject) {
+                continue;
+            }
+            if (predicate !== null && fact.predicate !== predicate) {
+                continue;
+            }
+            if (object !== null && fact.object !== object) {
+                continue;
+            }
+
+            results.push(fact);
+        }
+
+        // ترتيب حسب الثقة
+        results.sort((a, b) => b.confidence - a.confidence);
+
+        return results;
+    }
+
+    /**
+     * استنتاج حقائق جديدة
+     */
+    public inferFacts(knownFacts: array<Fact>): array<Fact> {
+        let inferred: array<Fact> = [];
+
+        // استنتاج بسيط: إذا A هو B و B هو C، إذن A هو C
+        for (let fact1 of knownFacts) {
+            if (fact1.predicate === "هو") {
+                for (let fact2 of knownFacts) {
+                    if (fact2.subject === fact1.object && fact2.predicate === "هو") {
+                        // استنتاج جديد
+                        let newFact = new Fact(
+                            fact1.subject,
+                            "هو",
+                            fact2.object,
+                            Math.min(fact1.confidence, fact2.confidence) * 0.8,
+                            "inferred"
+                        );
+                        inferred.push(newFact);
+                    }
+                }
+            }
+        }
+
+        return inferred;
+    }
+
+    /**
+     * البحث عن حقيقة مشابهة
+     */
+    private findSimilarFact(subject: string, predicate: string, object: string): Fact | null {
+        for (let [id, fact] of this.facts) {
+            if (fact.subject === subject &&
+                fact.predicate === predicate &&
+                fact.object === object) {
+                return fact;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * تحديث فهارس الحقائق
+     */
+    private updateFactIndices(fact: Fact): void {
+        // فهرس الموضوع
+        if (!this.factsBySubject.has(fact.subject)) {
+            this.factsBySubject.set(fact.subject, []);
+        }
+        this.factsBySubject.get(fact.subject).push(fact.factId);
+
+        // فهرس المجال
+        if (!this.factsByDomain.has(fact.domain)) {
+            this.factsByDomain.set(fact.domain, []);
+        }
+        this.factsByDomain.get(fact.domain).push(fact.factId);
+    }
+
+    /**
+     * الحصول على إحصائيات الذاكرة
+     */
+    public getStatistics(): object {
+        let factsByDomain: object = {};
+        for (let [domain, facts] of this.factsByDomain) {
+            factsByDomain[domain] = facts.length;
+        }
+
+        // الأكثر استخداماً
+        let allConcepts: array<Concept> = [];
+        for (let [id, concept] of this.concepts) {
+            allConcepts.push(concept);
+        }
+        allConcepts.sort((a, b) => b.usageCount - a.usageCount);
+        let mostUsedConcepts = allConcepts.slice(0, 5);
+
+        return {
+            totalFacts: this.facts.size,
+            totalConcepts: this.concepts.size,
+            totalRules: this.rules.size,
+            factsByDomain: factsByDomain,
+            mostUsedConcepts: mostUsedConcepts.map(c => ({
+                name: c.name,
+                usageCount: c.usageCount,
+                definition: c.definition
+            }))
+        };
+    }
+}
+
+// تصدير الفئات
+export { Fact, Concept, Rule, SemanticMemory };
+

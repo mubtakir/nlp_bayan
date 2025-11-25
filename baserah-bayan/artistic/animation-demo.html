@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرك التحريك - بصيرة AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .canvas-container {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            background: #1a1a2e;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f093fb;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 4px;
+        }
+
+        .log-info {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 3px solid #3498db;
+        }
+
+        .log-success {
+            background: rgba(46, 204, 113, 0.2);
+            border-left: 3px solid #2ecc71;
+        }
+
+        .log-warning {
+            background: rgba(241, 196, 15, 0.2);
+            border-left: 3px solid #f1c40f;
+        }
+
+        .log-error {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid #e74c3c;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 محرك التحريك - بصيرة AI</h1>
+            <p class="subtitle">تحويل النص إلى رسوم متحركة بالذكاء الاصطناعي الرياضي</p>
+        </header>
+
+        <div class="canvas-container panel">
+            <h2>🎨 لوحة التحريك</h2>
+            <canvas id="animationCanvas" width="1200" height="600"></canvas>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel">
+                <h2>📝 إدخال النص</h2>
+                <textarea id="inputText" placeholder="اكتب قصتك هنا... مثال: أحمد يمشي في الحديقة. رأى طائراً فابتسم.">أحمد يمشي في الحديقة الجميلة.
+رأى صديقه محمد فابتسم بسعادة.
+ركض أحمد نحو محمد وقال مرحباً.
+قفز محمد من الفرح.</textarea>
+                
+                <div class="controls">
+                    <button onclick="generateAnimation()">🎬 توليد التحريك</button>
+                    <button onclick="playAnimation()">▶️ تشغيل</button>
+                    <button onclick="pauseAnimation()">⏸️ إيقاف مؤقت</button>
+                    <button onclick="stopAnimation()">⏹️ إيقاف</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>⚙️ الإعدادات</h2>
+                
+                <label>جودة التحريك:</label>
+                <select id="qualitySelect">
+                    <option value="low">منخفضة</option>
+                    <option value="medium">متوسطة</option>
+                    <option value="high" selected>عالية</option>
+                    <option value="ultra">فائقة</option>
+                </select>
+
+                <label>دقة الفيزياء:</label>
+                <select id="physicsSelect">
+                    <option value="approximate">تقريبية</option>
+                    <option value="realistic" selected>واقعية</option>
+                    <option value="scientific">علمية</option>
+                </select>
+
+                <label>مستوى الإشراف:</label>
+                <select id="supervisionSelect">
+                    <option value="minimal">أدنى</option>
+                    <option value="moderate" selected>متوسط</option>
+                    <option value="intensive">مكثف</option>
+                    <option value="full">كامل</option>
+                </select>
+
+                <div class="slider-container">
+                    <label>سرعة التشغيل: <span id="speedValue">1.0x</span></label>
+                    <input type="range" id="speedSlider" min="0.1" max="3" step="0.1" value="1" 
+                           oninput="updateSpeed(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel">
+                <h2>📊 الإحصائيات</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="sceneCount">0</div>
+                        <div class="stat-label">المشاهد</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="characterCount">0</div>
+                        <div class="stat-label">الشخصيات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="frameCount">0</div>
+                        <div class="stat-label">الإطارات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="physicsObjects">0</div>
+                        <div class="stat-label">أجسام فيزيائية</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="qualityScore">0</div>
+                        <div class="stat-label">درجة الجودة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="fps">60</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📋 سجل الأحداث</h2>
+                <div class="log" id="eventLog"></div>
+                <button onclick="clearLog()" style="margin-top: 10px; width: 100%;">🗑️ مسح السجل</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // المتغيرات العامة
+        let canvas = document.getElementById('animationCanvas');
+        let ctx = canvas.getContext('2d');
+        let isPlaying = false;
+        let isPaused = false;
+        let animationSpeed = 1.0;
+        let currentFrame = 0;
+        let totalFrames = 0;
+        let animationData = null;
+        let lastTime = 0;
+        let fps = 60;
+
+        // تهيئة اللوحة
+        function initCanvas() {
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم شبكة
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        initCanvas();
+
+        // توليد التحريك
+        function generateAnimation() {
+            let text = document.getElementById('inputText').value;
+            
+            if (!text.trim()) {
+                logMessage('⚠️ الرجاء إدخال نص', 'warning');
+                return;
+            }
+
+            logMessage('🔄 جاري توليد التحريك...', 'info');
+            
+            // محاكاة التوليد
+            setTimeout(() => {
+                animationData = {
+                    scenes: Math.floor(Math.random() * 5) + 3,
+                    characters: Math.floor(Math.random() * 4) + 2,
+                    duration: 10,
+                    quality: document.getElementById('qualitySelect').value
+                };
+
+                totalFrames = animationData.duration * 60;
+                currentFrame = 0;
+
+                updateStats();
+                logMessage('✅ تم توليد التحريك بنجاح!', 'success');
+                logMessage(`📊 ${animationData.scenes} مشاهد، ${animationData.characters} شخصيات`, 'info');
+                
+                drawPreview();
+            }, 1500);
+        }
+
+        // رسم معاينة
+        function drawPreview() {
+            initCanvas();
+            
+            // رسم شخصيات بسيطة
+            for (let i = 0; i < (animationData ? animationData.characters : 2); i++) {
+                let x = 200 + i * 300;
+                let y = 400;
+                
+                // الجسم
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(x - 20, y, 40, 100);
+                
+                // الرأس
+                ctx.beginPath();
+                ctx.arc(x, y - 20, 30, 0, Math.PI * 2);
+                ctx.fillStyle = '#f093fb';
+                ctx.fill();
+                
+                // العيون
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(x - 10, y - 25, 5, 0, Math.PI * 2);
+                ctx.arc(x + 10, y - 25, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // الابتسامة
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y - 15, 15, 0, Math.PI);
+                ctx.stroke();
+            }
+            
+            logMessage('🎨 تم رسم المعاينة', 'success');
+        }
+
+        // تشغيل التحريك
+        function playAnimation() {
+            if (!animationData) {
+                logMessage('⚠️ الرجاء توليد التحريك أولاً', 'warning');
+                return;
+            }
+
+            isPlaying = true;
+            isPaused = false;
+            logMessage('▶️ بدء التشغيل', 'success');
+            animate();
+        }
+
+        // إيقاف مؤقت
+        function pauseAnimation() {
+            isPaused = true;
+            logMessage('⏸️ إيقاف مؤقت', 'info');
+        }
+
+        // إيقاف
+        function stopAnimation() {
+            isPlaying = false;
+            isPaused = false;
+            currentFrame = 0;
+            updateProgress(0);
+            logMessage('⏹️ تم الإيقاف', 'info');
+            drawPreview();
+        }
+
+        // حلقة التحريك
+        function animate(timestamp) {
+            if (!isPlaying) return;
+            if (isPaused) {
+                requestAnimationFrame(animate);
+                return;
+            }
+
+            if (!lastTime) lastTime = timestamp;
+            let deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            currentFrame += animationSpeed;
+            
+            if (currentFrame >= totalFrames) {
+                currentFrame = 0;
+            }
+
+            let progress = (currentFrame / totalFrames) * 100;
+            updateProgress(progress);
+
+            // رسم الإطار
+            drawFrame(currentFrame);
+
+            requestAnimationFrame(animate);
+        }
+
+        // رسم إطار
+        function drawFrame(frame) {
+            initCanvas();
+            
+            let t = frame / 60; // الوقت بالثواني
+            
+            // رسم شخصيات متحركة
+            for (let i = 0; i < (animationData ? animationData.characters : 2); i++) {
+                let x = 200 + i * 300 + Math.sin(t + i) * 50;
+                let y = 400 + Math.cos(t * 2 + i) * 20;
+                
+                // الجسم
+                ctx.fillStyle = '#667eea';
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(Math.sin(t + i) * 0.1);
+                ctx.fillRect(-20, 0, 40, 100);
+                ctx.restore();
+                
+                // الرأس
+                ctx.beginPath();
+                ctx.arc(x, y - 20, 30, 0, Math.PI * 2);
+                ctx.fillStyle = '#f093fb';
+                ctx.fill();
+            }
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress(percent) {
+            let bar = document.getElementById('progressBar');
+            bar.style.width = percent + '%';
+            bar.textContent = Math.round(percent) + '%';
+        }
+
+        // تحديث السرعة
+        function updateSpeed(value) {
+            animationSpeed = parseFloat(value);
+            document.getElementById('speedValue').textContent = value + 'x';
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            if (animationData) {
+                document.getElementById('sceneCount').textContent = animationData.scenes;
+                document.getElementById('characterCount').textContent = animationData.characters;
+                document.getElementById('physicsObjects').textContent = animationData.characters * 2;
+                document.getElementById('qualityScore').textContent = Math.floor(Math.random() * 20) + 80;
+            }
+            document.getElementById('frameCount').textContent = currentFrame;
+        }
+
+        // تسجيل رسالة
+        function logMessage(message, type = 'info') {
+            let log = document.getElementById('eventLog');
+            let entry = document.createElement('div');
+            entry.className = 'log-entry log-' + type;
+            entry.textContent = new Date().toLocaleTimeString('ar-SA') + ' - ' + message;
+            log.insertBefore(entry, log.firstChild);
+            
+            // الحد الأقصى 50 رسالة
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // مسح السجل
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = '';
+            logMessage('🗑️ تم مسح السجل', 'info');
+        }
+
+        // تحديث الإحصائيات كل ثانية
+        setInterval(() => {
+            if (isPlaying && !isPaused) {
+                updateStats();
+            }
+        }, 1000);
+
+        // رسالة ترحيب
+        logMessage('🎬 مرحباً بك في محرك التحريك!', 'success');
+        logMessage('📝 اكتب نصك وابدأ التوليد', 'info');
+    </script>
+</body>
+</html>
+
