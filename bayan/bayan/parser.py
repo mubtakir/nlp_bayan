@@ -124,7 +124,7 @@ class HybridParser:
                         TokenType.TIME, TokenType.PLACE, TokenType.SOURCE, TokenType.CERTAINTY,
                         TokenType.CURRENT_VALUE, TokenType.HISTORY, TokenType.FUTURE_PREDICTION,
                         TokenType.ROOT, TokenType.TAXONOMY, TokenType.CHARACTERS, TokenType.EVENT,
-                        TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT):
+                        TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT, TokenType.RELATION):
             tok = self.current_token
             self.advance()
             return tok
@@ -1694,9 +1694,9 @@ class HybridParser:
                     self.match(TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT,
                                TokenType.DOMAIN, TokenType.MEMORY, TokenType.KNOWLEDGE,
                                TokenType.PATTERN, TokenType.CONCEPT, TokenType.SIMILARITY,
-                               TokenType.BASED_ON, TokenType.REACTIONS,
+                               TokenType.BASED_ON, TokenType.REACTIONS, TokenType.RELATION,
                                TokenType.ROLE, TokenType.DEGREE, TokenType.STATE_CHANGES,
-                               TokenType.ENTITIES, TokenType.RESULT, TokenType.PARTICIPANTS,
+                               TokenType.ENTITIES,TokenType.RESULT, TokenType.PARTICIPANTS,
                                TokenType.STRENGTH, TokenType.TRANSFORM, TokenType.STRUCTURE,
                                TokenType.EXPRESS, TokenType.LINGUISTIC_FORMS, TokenType.CONTENT,
                                TokenType.CONTEXT, TokenType.TIME, TokenType.PLACE, TokenType.SOURCE,

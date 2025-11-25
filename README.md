@@ -5,7 +5,7 @@
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-555%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-559%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -63,7 +63,7 @@
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
 - ✅ **Block Syntax** - Colon `:` + braces `{}`; indentation optional; no semicolons
 
-- ✅ **High Test Coverage** - 555 passing tests (621 total)
+- ✅ **High Test Coverage** - 559 passing tests (621 total, 90% pass rate)
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
