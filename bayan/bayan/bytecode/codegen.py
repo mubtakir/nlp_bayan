@@ -28,13 +28,15 @@ class CodeGenerator:
         self.instructions = []
         self.constants = []
         self.names = []
+        self.optimizer = BytecodeOptimizer()
     
-    def generate(self, ast):
+    def generate(self, ast, optimize=True):
         """
         Generate bytecode from AST.
         
         Args:
             ast: AST node or list of nodes
+            optimize: Whether to apply bytecode optimization (default: True)
         
         Returns:
             CodeObject: Compiled code
@@ -50,12 +52,17 @@ class CodeGenerator:
         else:
             self._visit(ast)
        
-        return CodeObject(
+        code = CodeObject(
             name='<module>',
             instructions=self.instructions,
             constants=self.constants,
             names=self.names
         )
+        
+        if optimize:
+            code = self.optimizer.optimize(code)
+            
+        return code
     
     def _visit(self, node):
         """Visit an AST node and generate code"""
