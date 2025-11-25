@@ -50,6 +50,15 @@ try:
 except ImportError:
     EXPERT_EXPLORER_AVAILABLE = False
 
+try:
+    from .dual_brain import DualBrain, DualResult
+    from .left_brain import LeftBrain, LogicalAnalysis
+    from .right_brain import RightBrain, MathAnalysis
+    from .integration_layer import IntegrationLayer, ConsensusLevel
+    DUAL_BRAIN_AVAILABLE = True
+except ImportError:
+    DUAL_BRAIN_AVAILABLE = False
+
 class BuiltinFunctions:
     """Collection of built-in functions"""
     
@@ -955,6 +964,62 @@ class BuiltinFunctions:
             raise ImportError("expert_explorer module not available")
         
         return BrainSystem(expert_weight, explorer_weight)
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Dual Brain System Functions
+    # دوال نظام الدماغ المزدوج
+    # ═══════════════════════════════════════════════════════════════
+    
+    @staticmethod
+    def DualBrain():
+        """
+        إنشاء نظام دماغ مزدوج.
+        Create a dual brain system.
+        
+        Returns:
+            DualBrain instance
+        
+        Example:
+            brain = DualBrain()
+            result = brain.process("محمد أكل تفاحة")
+            result.print_summary()
+        
+        Note:
+            يجمع بين المعالجة المنطقية (left brain) والرياضياتية (right brain)
+            للحصول على نتائج أفضل عبر التعزيز المتبادل والنقد المشترك.
+        """
+        if not DUAL_BRAIN_AVAILABLE:
+            raise ImportError("dual_brain module not available")
+        
+        return DualBrain()
+    
+    @staticmethod
+    def LeftBrain():
+        """
+        إنشاء فص أيسر (منطقي) منفصل.
+        Create a standalone left brain (logical).
+        
+        Returns:
+            LeftBrain instance
+        """
+        if not DUAL_BRAIN_AVAILABLE:
+            raise ImportError("dual_brain module not available")
+        
+        return LeftBrain()
+    
+    @staticmethod
+    def RightBrain():
+        """
+        إنشاء فص أيمن (رياضياتي) منفصل.
+        Create a standalone right brain (mathematical).
+        
+        Returns:
+            RightBrain instance
+        """
+        if not DUAL_BRAIN_AVAILABLE:
+            raise ImportError("dual_brain module not available")
+        
+        return RightBrain()
 
 class LogicalBuiltins:
     """Built-in logical predicates"""
