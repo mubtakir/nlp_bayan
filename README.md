@@ -5,7 +5,7 @@
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-379%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-555%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -55,12 +55,15 @@
 - ✅ **Adaptive GSE Engine** 🧠 NEW - Generalized Shape Equation for adaptive learning and function approximation
 - ✅ **Mother Equation System** 🌟 NEW - Comprehensive object representation (properties, states, shapes)
 - ✅ **Linguistic Equations** 💬 NEW - Convert natural language concepts to mathematical equations
+- ✅ **Expert-Explorer System** 🎯 NEW - Dual decision-making combining expertise with exploration
+- ✅ **Compiler Interface** 🔧 NEW - Advanced error classification and compilation analytics
+- ✅ **Dual Brain Architecture** 🧠🧠 NEW - World's first true dual-brain programming language (logical + mathematical)
 - ✅ **Modern Features** - Async/await, generators, decorators, context managers
 - ✅ **AI/ML Ready** - Built-in functions for data science and machine learning
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
 - ✅ **Block Syntax** - Colon `:` + braces `{}`; indentation optional; no semicolons
 
-- ✅ **100% Test Coverage** - 379 passing tests
+- ✅ **High Test Coverage** - 555 passing tests (621 total)
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
@@ -380,7 +383,121 @@ hybrid {
 - **9 Event Types**: Physical, Mental, Communication, Movement, etc.
 - **Extensible**: Add custom events with their expected outcomes
 
+
 ---
+
+### 9. Expert-Explorer System 🎯 NEW
+
+```bayan
+hybrid {
+    # Create an intelligent decision-making system
+    brain = BrainSystem(expert_weight=0.7, explorer_weight=0.3)
+    
+    # Expert: Add knowledge
+    brain.expert.add_knowledge("كيف أتعلم Python؟", "ابدأ بالأساسيات", confidence=0.95)
+    
+    # Make a decision
+    decision = brain.decide("كيف أتعلم البرمجة؟")
+    print("Decision: " + decision.reasoning)
+    print("Confidence: " + str(decision.final_confidence))
+}
+```
+
+**Benefits:**
+- **Dual Decision-Making**: Combines expert knowledge with exploration
+- **Three Revolutionary Theories**: Zero Duality, Perpendicular Opposites, Filament Theory
+- **Adaptive Learning**: Updates knowledge based on outcomes
+- **Confidence Tracking**: Every decision has a confidence score
+
+---
+
+### 10. Compiler Interface 🔧 NEW
+
+```bayan
+hybrid {
+    # Create compiler interface with advanced error classification
+    compiler = BayanCompiler()
+    
+    # Compile code with detailed error analysis
+    result = compiler.compile(source_code, "test.bayan")
+    
+    if result.success {
+        print("✅ Compilation successful!")
+    } else {
+        print("❌ Errors found:")
+        for error in result.errors {
+            print(error.get_description("ar"))
+        }
+    }
+    
+    # Get compilation statistics
+    stats = compiler.get_statistics()
+    print("Success rate: " + stats['success_rate'])
+}
+```
+
+**Benefits:**
+- **10 Error Types**: Lexical, Syntax, Semantic, Runtime, Type, Logical, etc.
+- **4 Severity Levels**: Error, Warning, Info, Hint
+- **Automatic Suggestions**: Smart fix recommendations
+- **Comprehensive Analytics**: Track compilation patterns and common errors
+
+---
+
+### 11. Dual Brain Architecture 🧠🧠 NEW - REVOLUTIONARY!
+
+```bayan
+hybrid {
+    # Create the world's first dual-brain system
+    brain = DualBrain()
+    
+    # Process with both logical and mathematical analysis
+    result = brain.process("محمد أكل تفاحة", debug=True)
+    
+    # View the dual analysis
+    result.print_summary()
+    
+    # Access individual brain analyses
+    print("Logical confidence: " + str(result.logical.confidence))
+    print("Mathematical confidence: " + str(result.mathematical.confidence))
+    print("Final confidence: " + str(result.final_confidence))
+    print("Consensus: " + str(result.validation.consensus))
+}
+```
+
+**Output:**
+```
+🧩 Phase 1: Logical Analysis...
+   ✓ Logical confidence: 70%
+   ✓ Facts: 2, Entities: 1
+
+🎨 Phase 2: Mathematical Analysis...
+   ✓ Mathematical confidence: 57%
+   ✓ Equations: 0, Numerical results: 0
+
+🔍 Phase 3: Cross-Validation...
+   ✓ Consensus: 100%
+
+🤝 Phase 4: Negotiation...
+   ✓ Logical contribution: 55% | Mathematical contribution: 45%
+
+✨ Final confidence: 64%
+```
+
+**Benefits:**
+- **Dual Perspective**: Combines logical reasoning with mathematical precision
+- **Cross-Validation**: Each brain verifies the other's results
+- **Conflict Resolution**: Automatically detects and resolves contradictions
+- **Mutual Enhancement**: Weaknesses of one brain are compensated by the other
+- **First of Its Kind**: The ONLY programming language with true dual-brain architecture!
+
+**How It Works:**
+1. **Left Brain (Logical)**: Extracts facts, entities, applies rules, checks consistency
+2. **Right Brain (Mathematical)**: Creates equations, computes numerical values, makes decisions
+3. **Integration Layer**: Cross-validates, negotiates, synthesizes final result
+4. **Result**: More accurate and comprehensive than either brain alone
+
+
 
 ## 📚 Documentation
 
