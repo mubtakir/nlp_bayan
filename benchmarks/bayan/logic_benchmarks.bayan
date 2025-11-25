@@ -1,0 +1,153 @@
+# Logic Programming Benchmarks for Bayan
+
+# الهدف: قياس أداء المحرك المنطقي في لغة بيان
+# Objective: Measure logical engine performance
+
+print("=== Bayan Logic Programming Benchmarks ===\n")
+
+# ===== Benchmark 1: Fact Lookups =====
+print("[1/5] Fact Lookup Performance")
+
+hybrid {
+    # إنشاء 1000 حقيقة
+    # Create 1000 facts
+    def create_facts() {
+        for i in (range(1000)) {
+            assertz(person(f"person_{i}", i))
+        }
+    }
+    
+    create_facts()
+    
+    # قياس وقت الاستعلام
+    # Measure query time
+    import time
+    start = time.time()
+    
+    for _ in (range(100)) {
+        results = query person("person_500", ?age)
+    }
+    
+    end = time.time()
+    print(f"  1000 facts, 100 queries: {(end - start) * 1000:.2f}ms")
+}
+
+# ===== Benchmark 2: Recursive Rules (Fibonacci) =====
+print("\n[2/5] Recursive Rules (Fibonacci)")
+
+hybrid {
+    fact fib(0, 0).
+    fact fib(1, 1).
+    
+    rule fib(?N, ?Result) :-
+        ?N > 1,
+        ?N1 is ?N - 1,
+        ?N2 is ?N - 2,
+        fib(?N1, ?R1),
+        fib(?N2, ?R2),
+        ?Result is ?R1 + ?R2.
+    
+    import time
+    start = time.time()
+    
+    # حساب fib(15) - 10 مرات
+    # Calculate fib(15) - 10 times
+    for _ in (range(10)) {
+        result = query fib(15, ?X)
+    }
+    
+    end = time.time()
+    print(f"  fib(15) x 10 iterations: {(end - start) * 1000:.2f}ms")
+}
+
+# ===== Benchmark 3: Family Tree Queries =====
+print("\n[3/5] Family Tree Queries")
+
+hybrid {
+    # إنشاء شجرة عائلة
+    # Create family tree
+    fact parent("grandpa", "dad").
+    fact parent("grandma", "dad").
+    fact parent("grandpa", "aunt").
+    fact parent("dad", "child1").
+    fact parent("dad", "child2").
+    fact parent("aunt", "cousin").
+    
+    # القواعد
+    # Rules
+    rule grandparent(?X, ?Z) :- parent(?X, ?Y), parent(?Y, ?Z).
+    rule sibling(?X, ?Y) :- parent(?P, ?X), parent(?P, ?Y), ?X != ?Y.
+    rule cousin(?X, ?Y) :- parent(?P1, ?X), parent(?P2, ?Y), sibling(?P1, ?P2).
+    
+    import time
+    start = time.time()
+    
+    # استعلامات متعددة
+    # Multiple queries
+    for _ in (range(100)) {
+        r1 = query grandparent("grandpa", ?gc)
+        r2 = query sibling(?s1, ?s2)
+        r3 = query cousin(?c1, ?c2)
+    }
+    
+    end = time.time()
+    print(f"  100 complex queries: {(end - start) * 1000:.2f}ms")
+}
+
+# ===== Benchmark 4: List Unification =====
+print("\n[4/5] List Pattern Matching")
+
+hybrid {
+    # List head/tail patterns
+    fact list_sum([], 0).
+    rule list_sum([?H|?T], ?Sum) :-
+        list_sum(?T, ?TailSum),
+        ?Sum is ?H + ?TailSum.
+    
+    import time
+    
+    # قائمة من 100 عنصر
+    # List of 100 elements
+    test_list = list(range(1, 101))
+    
+    start = time.time()
+    
+    for _ in (range(10)) {
+        result = query list_sum(test_list, ?total)
+    }
+    
+    end = time.time()
+    print(f"  Sum of 100 elements x 10: {(end - start) * 1000:.2f}ms")
+}
+
+# ===== Benchmark 5: Backtracking =====
+print("\n[5/5] Backtracking Performance")
+
+hybrid {
+    # إنشاء graph
+    # Create graph
+    fact edge(1, 2).
+    fact edge(2, 3).
+    fact edge(3, 4).
+    fact edge(2, 5).
+    fact edge(5, 6).
+    fact edge(1, 7).
+    
+    # Path finding with backtracking
+    rule path(?X, ?Y) :- edge(?X, ?Y).
+    rule path(?X, ?Y) :- edge(?X, ?Z), path(?Z, ?Y).
+    
+    import time
+    start = time.time()
+    
+    # البحث عن جميع المسارات
+    # Find all paths
+    for _ in (range(100)) {
+        results = query path(1, ?dest)
+    }
+    
+    end = time.time()
+    print(f"  Path queries with backtracking x 100: {(end - start) * 1000:.2f}ms")
+}
+
+print("\n=== Logic Benchmarks Complete ===")

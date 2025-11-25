@@ -1,0 +1,143 @@
+# Data Structures Benchmarks for Bayan
+
+print("=== Bayan Data Structures Benchmarks ===\n")
+
+import time
+
+# ===== Benchmark 1: List Operations =====
+print("[1/5] List Operations")
+
+# List append
+start = time.time()
+test_list = []
+for i in (range(10000)) {
+    test_list.append(i)
+}
+end = time.time()
+print(f"  Append 10K elements: {(end - start) * 1000:.2f}ms")
+
+# List iteration
+start = time.time()
+total = 0
+for item in (test_list) {
+    total = total + item
+}
+end = time.time()
+print(f"  Iterate 10K elements: {(end - start) * 1000:.2f}ms")
+
+# List slicing
+start = time.time()
+for _ in (range(1000)) {
+    slice_result = test_list[100:200]
+}
+end = time.time()
+print(f"  Slicing x 1000: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 2: Dictionary Operations =====
+print("\n[2/5] Dictionary Operations")
+
+# Dict insert
+start = time.time()
+test_dict = {}
+for i in (range(10000)) {
+    test_dict[f"key_{i}"] = i
+}
+end = time.time()
+print(f"  Insert 10K key-value pairs: {(end - start) * 1000:.2f}ms")
+
+# Dict lookup
+start = time.time()
+for i in (range(10000)) {
+    value = test_dict[f"key_{i}"]
+}
+end = time.time()
+print(f"  Lookup 10K keys: {(end - start) * 1000:.2f}ms")
+
+# Dict iteration
+start = time.time()
+for key in (test_dict) {
+    value = test_dict[key]
+}
+end = time.time()
+print(f"  Iterate 10K pairs: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 3: Nested Structures =====
+print("\n[3/5] Nested Structures")
+
+start = time.time()
+
+# إنشاء بنية متداخلة
+# Create nested structure
+nested = {
+    "users": [],
+    "posts": {},
+    "metadata": {"version": 1}
+}
+
+for i in (range(100)) {
+    user = {
+        "id": i,
+        "name": f"User_{i}",
+        "posts": []
+    }
+    
+    for j in (range(10)) {
+        post = {
+            "id": i * 100 + j,
+            "title": f"Post {j}",
+            "comments": []
+        }
+        user["posts"].append(post)
+    }
+    
+    nested["users"].append(user)
+}
+
+end = time.time()
+print(f"  Create nested structure (100 users, 1000 posts): {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 4: List Comprehensions =====
+print("\n[4/5] List Comprehensions")
+
+start = time.time()
+
+# List comprehension
+squares = [i * i for i in range(1000)]
+
+# Filtered comprehension
+evens = [i for i in range(1000) if i % 2 == 0]
+
+# Nested comprehension
+matrix = [[i * j for j in range(50)] for i in range(50)]
+
+end = time.time()
+print(f"  List comprehensions (various): {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 5: Sorting and Filtering =====
+print("\n[5/5] Sorting and Filtering")
+
+import random
+
+# إنشاء قائمة عشوائية
+# Create random list
+random_list = [random.randint(0, 1000) for _ in range(5000)]
+
+# Sorting
+start = time.time()
+sorted_list = sorted(random_list)
+end = time.time()
+print(f"  Sort 5K elements: {(end - start) * 1000:.2f}ms")
+
+# Filtering
+start = time.time()
+filtered = [x for x in random_list if x > 500]
+end = time.time()
+print(f"  Filter 5K elements: {(end - start) * 1000:.2f}ms")
+
+# Map operation
+start = time.time()
+mapped = [x * 2 for x in random_list]
+end = time.time()
+print(f"  Map operation on 5K elements: {(end - start) * 1000:.2f}ms")
+
+print("\n=== Data Structures Benchmarks Complete ===")

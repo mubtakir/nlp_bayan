@@ -1,0 +1,173 @@
+# OOP Benchmarks for Bayan
+
+print("=== Bayan OOP Benchmarks ===\n")
+
+# ===== Benchmark 1: Class Instantiation (Small Scale) =====
+print("[1/5] Class Instantiation - 1K objects")
+
+class Person: {
+}
+{
+    def __init__(self, name, age) {
+        self.name = name
+        self.age = age
+    }
+}
+
+import time
+start = time.time()
+
+objects = []
+for i in (range(1000)) {
+    obj = Person(f"Person_{i}", i)
+    objects.append(obj)
+}
+
+end = time.time()
+print(f"  Create 1K objects: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 2: Method Calls =====
+print("\n[2/5] Method Calls")
+
+class Calculator: {
+}
+{
+    def __init__(self) {
+        self.result = 0
+    }
+    
+    def add(a, b) {
+        return a + b
+    }
+    
+    def multiply(a, b) {
+        return a * b
+    }
+}
+
+calc = Calculator()
+
+start = time.time()
+
+for i in (range(10000)) {
+    r1 = calc.add(i, i + 1)
+    r2 = calc.multiply(i, 2)
+}
+
+end = time.time()
+print(f"  20K method calls: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 3: Inheritance =====
+print("\n[3/5] Inheritance and super() calls")
+
+class Animal: {
+}
+{
+    def __init__(self, name) {
+        self.name = name
+    }
+    
+    def speak() {
+        return "Some sound"
+    }
+}
+
+class Dog(Animal): {
+}
+{
+    def __init__(self, name, breed) {
+        super().__init__(name)
+        self.breed = breed
+    }
+    
+    def speak() {
+        return "Woof!"
+    }
+}
+
+start = time.time()
+
+dogs = []
+for i in (range(1000)) {
+    dog = Dog(f"Dog_{i}", "Labrador")
+    sound = dog.speak()
+    dogs.append(dog)
+}
+
+end = time.time()
+print(f"  1K inherited objects with super(): {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 4: Attribute Access =====
+print("\n[4/5] Attribute Read/Write")
+
+class DataHolder: {
+}
+{
+    def __init__(self) {
+        self.value1 = 0
+        self.value2 = 0
+        self.value3 = 0
+    }
+}
+
+holder = DataHolder()
+
+start = time.time()
+
+for i in (range(10000)) {
+    holder.value1 = i
+    holder.value2 = i * 2
+    holder.value3 = i * 3
+    
+    v1 = holder.value1
+    v2 = holder.value2
+    v3 = holder.value3
+}
+
+end = time.time()
+print(f"  60K attribute operations: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 5: Complex Object Creation =====
+print("\n[5/5] Complex Object Graph")
+
+class Node: {
+}
+{
+    def __init__(self, value) {
+        self.value = value
+        self.children = []
+    }
+    
+    def add_child(child) {
+        self.children.append(child)
+    }
+    
+    def count_nodes() {
+        count = 1
+        for child in (self.children) {
+            count = count + child.count_nodes()
+        }
+        return count
+    }
+}
+
+start = time.time()
+
+# إنشاء شجرة مع 100 عقدة
+# Create tree with 100 nodes
+root = Node(0)
+for i in (range(10)) {
+    child = Node(i)
+    root.add_child(child)
+    for j in (range(9)) {
+        grandchild = Node(i * 10 + j)
+        child.add_child(grandchild)
+    }
+}
+
+total = root.count_nodes()
+
+end = time.time()
+print(f"  Tree creation and traversal (100 nodes): {(end - start) * 1000:.2f}ms")
+
+print("\n=== OOP Benchmarks Complete ===")

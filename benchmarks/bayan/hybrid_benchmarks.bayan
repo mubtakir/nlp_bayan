@@ -1,0 +1,110 @@
+# Hybrid Features Benchmarks for Bayan
+# Testing Bayan-specific hybrid features
+
+print("=== Bayan Hybrid Features Benchmarks ===\n")
+
+import time
+
+# ===== Benchmark 1: Entity Creation =====
+print("[1/3] Entity System - Creation")
+
+start = time.time()
+
+for i in (range(100)) {
+    entity {f"Agent_{i}"} {
+        states: {
+            "energy": {type: "fuzzy", value: 0.8},
+            "health": {type: "fuzzy", value: 1.0}
+        },
+        properties: {
+            "x": {type: "numeric", value: 0.0},
+            "y": {type: "numeric", value: 0.0}
+        }
+    }
+}
+
+end = time.time()
+print(f"  Create 100 entities: {(end - start) * 1000:.2f}ms")
+
+# ===== Benchmark 2: Mixed Logic + OOP =====
+print("\n[2/3] Mixed Paradigm Code")
+
+class Student: {
+}
+{
+    def __init__(self, name, gpa) {
+        self.name = name
+        self.gpa = gpa
+    }
+}
+
+hybrid {
+    # إنشاء طلاب
+    # Create students
+    students = []
+    for i in (range(50)) {
+        s = Student(f"Student_{i}", 2.5 + (i % 15) * 0.1)
+        students.append(s)
+        
+        # إضافة حقائق منطقية
+        # Add logical facts
+        if (s.gpa > 3.5) {
+            assertz(honors(s.name))
+        }
+        assertz(enrolled(s.name, "CS101"))
+    }
+    
+    start = time.time()
+    
+    # استعلامات مختلطة
+    # Mixed queries
+    for i in (range(100)) {
+        # استعلام منطقي
+        honors_students = query honors(?name)
+        
+        # عملية OOP
+        for s in (students) {
+            if (s.gpa > 3.0) {
+                gpa_value = s.gpa
+            }
+        }
+    }
+    
+    end = time.time()
+    print(f"  100 mixed logic/OOP operations: {(end - start) * 1000:.2f}ms")
+}
+
+# ===== Benchmark 3: Semantic Operations =====
+print("\n[3/3] Semantic Programming Features")
+
+hybrid {
+    # إنشاء قاعدة معرفية
+    # Create knowledge base
+    fact concept("programming", "computer_science").
+    fact concept("algorithms", "computer_science").
+    fact concept("data_structures", "computer_science").
+    fact concept("machine_learning", "artificial_intelligence").
+    fact concept("neural_networks", "artificial_intelligence").
+    
+    fact related_to("computer_science", "mathematics").
+    fact related_to("artificial_intelligence", "computer_science").
+    
+    rule in_domain(?concept, ?domain) :- concept(?concept, ?domain).
+    rule in_domain(?concept, ?domain) :-
+        concept(?concept, ?subdomain),
+        related_to(?subdomain, ?domain).
+    
+    start = time.time()
+    
+    # استعلامات دلالية
+    # Semantic queries
+    for _ in (range(100)) {
+        cs_concepts = query in_domain(?c, "computer_science")
+        ai_concepts = query in_domain(?c, "artificial_intelligence")
+    }
+    
+    end = time.time()
+    print(f"  200 semantic queries: {(end - start) * 1000:.2f}ms")
+}
+
+print("\n=== Hybrid Benchmarks Complete ===")
