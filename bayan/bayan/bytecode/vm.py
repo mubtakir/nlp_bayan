@@ -4,11 +4,34 @@ Bytecode Virtual Machine
 
 Stack-based virtual machine for executing Bayan bytecode.
 
-This is a Proof of Concept implementation focusing on basic operations.
+Supports:
+- Basic operations (Phase 1)
+- Control flow (Phase 2)  
+- Functions (Phase 3)
 """
 
 from .opcodes import Opcode
 from .instruction import Instruction, CodeObject
+
+
+class CallFrame:
+    """
+    Represents a function call frame.
+    
+    Contains:
+    - Code object being executed
+    - Local variables for this frame
+    - Return address (instruction pointer to return to)
+    """
+    
+    def __init__(self, code_object, return_ip=None, locals=None):
+        self.code = code_object
+        self.locals = locals or {}
+        self.return_ip = return_ip
+        self.ip = 0  # Instruction pointer within this frame
+    
+    def __repr__(self):
+        return f"CallFrame({self.code.name}, ip={self.ip})"
 
 
 class BytecodeVM:
@@ -17,16 +40,17 @@ class BytecodeVM:
     
     Architecture:
     - Value stack for computation
-    - Global and local variable dictionaries
-    - Instruction pointer for execution
+    - Call stack for function calls
+    - Global variables (module level)
     """
     
     def __init__(self):
         """Initialize the VM"""
         self.stack = []              # Value stack
         self.globals = {}            # Global variables
-        self.locals = {}             # Local variables (current frame)
-        self.ip = 0                  # Instruction pointer
+        self.call_stack = []         # Call frames
+        self.current_frame = None    # Current execution frame
+        self.ip = 0                  # Instruction pointer (in current frame)
         self.code = None             # Current code object
         self.running = False         # Execution state
         
@@ -34,7 +58,8 @@ class BytecodeVM:
         """Reset VM state"""
         self.stack.clear()
         self.globals.clear()
-        self.locals.clear()
+        self.call_stack.clear()
+        self.current_frame = None
         self.ip = 0
         self.running = False
     
@@ -48,6 +73,8 @@ class BytecodeVM:
         Returns:
             Value at top of stack (or None)
         """
+        # Create initial frame
+        self.current_frame = CallFrame(code_object)
         self.code = code_object
         self.ip = 0
         self.running = True
@@ -65,6 +92,13 @@ class BytecodeVM:
         if self.stack:
             return self.stack[-1]
         return None
+    
+    @property
+    def locals(self):
+        """Get current frame's local variables"""
+        if self.current_frame:
+            return self.current_frame.locals
+        return {}
     
     def _execute_instruction(self, instr):
         """Execute a single instruction"""
@@ -193,6 +227,59 @@ class BytecodeVM:
             if not condition:
                 self.ip = arg
         
+        # ===== Function Operations =====
+        elif opcode == Opcode.CALL_FUNC:
+            # Call function with N arguments
+            # Stack: [..., func, arg1, arg2, ..., argN]
+            nargs = arg
+            
+            # Pop arguments
+            args = []
+            for _ in range(nargs):
+                args.insert(0, self.stack.pop())
+            
+            # Pop function object (code object)
+            func_code = self.stack.pop()
+            
+            if not isinstance(func_code, CodeObject):
+                raise TypeError(f"Expected CodeObject, got {type(func_code)}")
+            
+            # Save current state
+            saved_ip = self.ip
+            saved_code = self.code
+            saved_instructions = self.code.instructions if self.code else []
+            
+            # Create new frame
+            new_frame = CallFrame(func_code, return_ip=saved_ip, locals={})
+            
+            # Set up arguments as local variables (simple approach: arg0, arg1, ...)
+            for i, arg_val in enumerate(args):
+                new_frame.locals[f'arg{i}'] = arg_val
+            
+            # Push frame to call stack
+            self.call_stack.append(self.current_frame)
+            self.current_frame = new_frame
+            
+            # Execute function
+            self.code = func_code
+            self.ip = 0
+            
+            # Run until RETURN
+            while self.ip < len(func_code.instructions):
+                instr = func_code.instructions[self.ip]
+                self.ip += 1
+                
+                if instr.opcode == Opcode.RETURN:
+                    # Function finished, restore state
+                    break
+                    
+                self._execute_instruction(instr)
+            
+            # Restore previous frame
+            self.current_frame = self.call_stack.pop() if self.call_stack else None
+            self.code = saved_code
+            self.ip = saved_ip
+        
         # ===== Special =====
         elif opcode == Opcode.PRINT:
             # Print top of stack (for debugging)
@@ -200,8 +287,13 @@ class BytecodeVM:
             print(value)
         
         elif opcode == Opcode.RETURN:
-            # Return from function (stop execution for PoC)
-            self.running = False
+            # Return from function
+            # TOS should contain return value (if any)
+            # In nested calls, this will be handled by CALL_FUNC
+            # In top-level, it just stops execution
+            if not self.call_stack:
+                # Top-level return, stop execution
+                self.running = False
         
         else:
             raise NotImplementedError(f"Opcode {opcode} not implemented yet")
