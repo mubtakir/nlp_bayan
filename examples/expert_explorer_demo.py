@@ -37,8 +37,9 @@ print(f"   الحل: {solution}")
 print(f"   الثقة: {conf*100:.1f}%\n")
 
 # استعلام تقريبي
-solution2, conf2 = expert.find_solution("كيف أتعلم البرمجة؟")
-if solution2:
+result = expert.find_solution("كيف أتعلم البرمجة؟")
+if result:
+    solution2, conf2 = result
     print(f"✅ سؤال: كيف أتعلم البرمجة؟ (تقريبي)")
     print(f"   الحل: {solution2}")
     print(f"   الثقة: {conf2*100:.1f}%\n")
