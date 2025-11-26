@@ -1,11 +1,11 @@
 # 🌟 Bayan - Hybrid Programming Language | لغة البيان
 
-**Last Updated**: 2025-11-26
+**Last Updated**: 2025-11-27
 
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-621%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-622%20total-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -27,7 +27,7 @@
 
 ---
 
-> Status update (2025-11-26): All 621 tests passing (100% success rate). Syntax standardized (colons removed from blocks, added to functions). Critical interpreter bugs fixed.
+> Status update (2025-11-27): 622 tests total. Syntax standardized (colons removed from blocks, added to functions). Critical interpreter bugs fixed. Project architecture documented.
 
 ## 📘 Project Docs (nlp_bayan)
 - Developer Guide: [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)
@@ -61,7 +61,7 @@
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
 - ✅ **Block Syntax** - Colon `:` + braces `{}`; indentation optional; no semicolons
 
-- ✅ **High Test Coverage** - 621 passing tests (100% pass rate)
+- ✅ **High Test Coverage** - 622 tests total
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
@@ -636,11 +636,13 @@ python -m pytest tests/ -v
 
 ## 📊 Statistics
 
-- **1000+ files** in the repository
-- **45,000+ lines** of code and documentation
-- **621 tests** (100% passing)
-- **5,594+ lines** of tutorials and guides
-- **10+ complete examples**
+- **1,100+ files** in the repository
+- **538,000+ lines** of code and documentation
+- **622 tests** total
+- **873 Python files** (core interpreter + tests + tools)
+- **233 Bayan files** (.bayan + .by)
+- **148 examples** (complete working examples)
+- **151 test files** (comprehensive test suite)
 - **3 programming paradigms** in one language
 
 ---
