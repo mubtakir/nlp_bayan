@@ -213,8 +213,7 @@ logical {
 # انسخ كل الحقائق والقواعد من قاعدة هذا الملف إلى محرك منطقي مستهدف
 
 hybrid {
-    def load_into(target_logical):
-    {
+    def load_into(target_logical): {
     kb = logical.knowledge_base
     for pred in (kb) {
         items = kb[pred]
@@ -228,8 +227,7 @@ hybrid {
     # Selective copy by domains (prob, information, family, events, shapes)
     # تحميل انتقائي حسب المجالات المعرفية
 
-    def load_selective(target_logical, only):
-    {
+    def load_selective(target_logical, only): {
         # Map domain → list of predicate names included in that domain
         domains = {
             "prob": ["prob", "threshold", "maybe", "likely"],

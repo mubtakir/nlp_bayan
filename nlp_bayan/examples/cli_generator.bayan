@@ -7,8 +7,6 @@ import nlp_bayan.api.simple_api as api
 # (يمكن لاحقًا تحويلها إلى CLI حقيقي عند توفر مكتبة بارس للأوامر)
 
 def demo(): {
-}
-{
     docs = ["سعد مر السوق", "السوق مزدحم"]
     tok_map = {"سعد":"person", "السوق":"market"}
     s = api.gen_sentence("سعد", "مر", docs, tok_map,

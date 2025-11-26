@@ -749,9 +749,9 @@ class HybridInterpreter:
                 fixed_args = []
                 for arg in goal.args:
                     if isinstance(arg, Term):
-                        # Check if this should be a variable (starts with uppercase or ?)
+                        # Check if this should be a variable (starts with uppercase or ? or already flagged)
                         val = str(arg.value)
-                        is_var = val.startswith('?') or (val and val[0].isupper())
+                        is_var = getattr(arg, 'is_variable', False) or val.startswith('?') or (val and val[0].isupper())
                         fixed_args.append(Term(arg.value, is_variable=is_var))
                     else:
                         fixed_args.append(arg)

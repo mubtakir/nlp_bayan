@@ -78,7 +78,7 @@ def test_bool_dunder_in_condition_and_not():
     if (Z()) {
         a = 1
     }
-    else:
+    else
     {
         a = 2
     }

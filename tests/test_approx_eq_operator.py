@@ -99,7 +99,7 @@ hybrid {
     if (x ~= y) {
         result = "approximately equal"
     }
-    else:
+    else
     {
         result = "not equal"
     }

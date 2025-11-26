@@ -144,7 +144,7 @@ def test_async_with_if_statement():
 async def check_value(x): {
     if (x > 10) {
         return "large"
-    } else: {
+    } else {
         return "small"
     }
 }

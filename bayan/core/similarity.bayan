@@ -37,8 +37,6 @@ hybrid {
 
 # Copy all facts and rules into a target logical engine (like integrated_kb)
 def load_into(target_logical): {
-}
-{
     kb = logical.knowledge_base
     for pred in (kb) {
         items = kb[pred]
@@ -52,8 +50,6 @@ def load_into(target_logical): {
 # Selective copy by domains (here: only one domain "similarity")
 # تحميل انتقائي: "similarity"
 def load_selective(target_logical, only): {
-}
-{
     domains = {
         "similarity": [
             "similar", "sim_threshold", "close", "synonym"
@@ -88,8 +84,6 @@ def load_selective(target_logical, only): {
 # دوال مساعدة وقت التشغيل لإضافة تشابهات
 
 def assert_similar(x, y, score, kind="syn", domain="lexicon"): {
-}
-{
     # Ensure numeric score
     s = float(score)
     # Use provided sugar to assert logical facts
@@ -102,8 +96,6 @@ def assert_similar(x, y, score, kind="syn", domain="lexicon"): {
 # items can be: dict {"غضنفر":0.8, ...} OR list of [name, score] OR "name:0.8, other:0.6"
 
 def synset(head, items, default=0.7, kind="syn", domain="lexicon"): {
-}
-{
     d = float(default)
     # Normalize to iterable of (name, score)
     pairs = []

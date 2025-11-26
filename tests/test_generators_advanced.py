@@ -147,7 +147,7 @@ def error_reporter(operations): {
         try: {
             if (op == "error") {
                 x = 1 / 0
-            } else: {
+            } else {
                 yield "ok"
             }
         } except: {

@@ -74,7 +74,7 @@ hybrid {
     if (m) {
         result = "matched"
     }
-    else:
+    else
     {
         result = "no match"
     }

@@ -1142,9 +1142,9 @@ class TraditionalInterpreter:
         if isinstance(node, WhileLoop):
             return self._contains_yield(node.body)
         if isinstance(node, IfStatement):
-            has_yield = self._contains_yield(node.then_block)
-            if node.else_block:
-                has_yield = has_yield or self._contains_yield(node.else_block)
+            has_yield = self._contains_yield(node.then_branch)
+            if node.else_branch:
+                has_yield = has_yield or self._contains_yield(node.else_branch)
             return has_yield
         if isinstance(node, list):
             return any(self._contains_yield(n) for n in node if hasattr(n, '__class__'))
@@ -3330,6 +3330,11 @@ class TraditionalInterpreter:
     def _convert_to_predicate(self, node):
         from .logical_engine import Predicate
         from .ast_nodes import FunctionCall, Variable, LogicalPredicate
+        
+        # If node is already a Predicate from logical_engine, return it directly
+        if isinstance(node, Predicate):
+            return node
+            
         # node could be LogicalPredicate or FunctionCall
         if isinstance(node, LogicalPredicate):
             # Already a LogicalPredicate, convert to logical_engine.Predicate
@@ -4468,11 +4473,11 @@ class GeneratorInterpreter(TraditionalInterpreter):
         # condition is expression, interpret returns value
         condition = self._truthy(self.interpret(node.condition))
         if condition:
-            result = self.interpret(node.then_block)
+            result = self.interpret(node.then_branch)
             if inspect.isgenerator(result):
                 yield from result
-        elif node.else_block:
-            result = self.interpret(node.else_block)
+        elif node.else_branch:
+            result = self.interpret(node.else_branch)
             if inspect.isgenerator(result):
                 yield from result
 
@@ -4535,11 +4540,11 @@ class GeneratorInterpreter(TraditionalInterpreter):
                 yield from result
         except Exception as e:
             handled = False
-            for handler in node.except_blocks:
-                exc_type = self.interpret(handler.exception_type) if handler.exception_type else Exception
+            for handler in node.handlers:
+                exc_type = self.interpret(handler.type_name) if handler.type_name else Exception
                 if isinstance(e, exc_type):
-                    if handler.variable:
-                        self.local_env[handler.variable] = e
+                    if handler.alias:
+                        self.local_env[handler.alias] = e
                     result = self.interpret(handler.body)
                     if inspect.isgenerator(result):
                         yield from result

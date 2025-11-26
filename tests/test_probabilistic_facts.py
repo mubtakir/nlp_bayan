@@ -6,10 +6,10 @@ Tests for probabilistic facts: fact[0.8] p(args).
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from bayan.bayan.lexer import HybridLexer
-from bayan.bayan.parser import HybridParser
-from bayan.bayan.hybrid_interpreter import HybridInterpreter
-from bayan.bayan.logical_engine import Fact
+from bayan.lexer import HybridLexer
+from bayan.parser import HybridParser
+from bayan.hybrid_interpreter import HybridInterpreter
+from bayan.logical_engine import Fact
 
 
 def run(code: str) -> HybridInterpreter:

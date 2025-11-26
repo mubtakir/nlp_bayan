@@ -198,7 +198,7 @@ def test_parse_with_conditional():
 with get_resource() as resource: {
     if (resource.is_valid()) {
         resource.use()
-    } else: {
+    } else {
         print("Invalid resource")
     }
 }

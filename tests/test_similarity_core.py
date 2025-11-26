@@ -38,6 +38,10 @@ def test_close_with_default_threshold():
     sols_ok = interp.logical.query(goal_ok)
     assert len(sols_ok) >= 1
 
+    # Debug KB
+    print("DEBUG KB Keys:", interp.logical.knowledge_base.keys())
+    print("DEBUG KB close:", interp.logical.knowledge_base.get('close'))
+    
     # close("أسد","هيضم","syn") should fail by default (0.5 < 0.7)
     goal_bad = Predicate('close', [Term(u"أسد"), Term(u"هيضم"), Term(u"syn")])
     sols_bad = interp.logical.query(goal_bad)

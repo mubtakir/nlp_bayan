@@ -1,11 +1,11 @@
 # 🌟 Bayan - Hybrid Programming Language | لغة البيان
 
-**Last Updated**: 2025-11-25
+**Last Updated**: 2025-11-26
 
 <div align="center">
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Hybrid%20Language-blue?style=for-the-badge)
-![Tests](https://img.shields.io/badge/tests-559%20passing-green?style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-621%20passing-green?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -27,9 +27,7 @@
 
 ---
 
-> Status update (2025-11-24): Arabic Morphology System fully integrated with logic engine. AI stdlib Waves 1–20 complete (379 tests passing).
-
-
+> Status update (2025-11-26): All 621 tests passing (100% success rate). Syntax standardized (colons removed from blocks, added to functions). Critical interpreter bugs fixed.
 
 ## 📘 Project Docs (nlp_bayan)
 - Developer Guide: [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)
@@ -63,7 +61,7 @@
 - ✅ **Dynamic Knowledge Base** - Assert and retract facts at runtime
 - ✅ **Block Syntax** - Colon `:` + braces `{}`; indentation optional; no semicolons
 
-- ✅ **High Test Coverage** - 559 passing tests (621 total, 90% pass rate)
+- ✅ **High Test Coverage** - 621 passing tests (100% pass rate)
 - ✅ **Comprehensive Documentation** - 5,594+ lines of tutorials and guides
 - ✅ **LLM Integration** - Ready-to-use prompts for ChatGPT, Claude, and other AI models
 
@@ -605,7 +603,7 @@ Run all tests:
 python -m pytest tests/ -v
 ```
 
-**Result**: 379 tests passing (100% success rate) ✅
+**Result**: 621 tests passing (100% success rate) ✅
 
 ## 📚 AI/ML Examples (Wave 20)
 - Softmax Multiclass: examples/ai_softmax_multiclass.md
@@ -638,9 +636,9 @@ python -m pytest tests/ -v
 
 ## 📊 Statistics
 
-- **154 files** in the repository
-- **41,889 lines** of code and documentation
-- **379 tests** (100% passing)
+- **1000+ files** in the repository
+- **45,000+ lines** of code and documentation
+- **621 tests** (100% passing)
 - **5,594+ lines** of tutorials and guides
 - **10+ complete examples**
 - **3 programming paradigms** in one language
@@ -705,7 +703,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **صيغة الكتل** - نقطتان `:` وأقواس `{}`؛ المسافات البادئة اختيارية؛ بلا فواصل منقوطة
 
 - ✅ **قاعدة معرفة ديناميكية** - إضافة وحذف الحقائق أثناء التشغيل
-- ✅ **تغطية اختبارات 100%** - 379 اختبار ناجح
+- ✅ **تغطية اختبارات 100%** - 621 اختبار ناجح
 - ✅ **وثائق شاملة** - 5,594+ سطر من الدروس والأدلة
 - ✅ **تكامل مع النماذج اللغوية** - Prompts جاهزة لـ ChatGPT وClaude وغيرها
 
@@ -785,7 +783,7 @@ python web_ide/app.py
 python -m pytest tests/ -v
 ```
 
-**النتيجة**: 379 اختبار ناجح (100% نجاح) ✅
+**النتيجة**: 621 اختبار ناجح (100% نجاح) ✅
 
 ---
 

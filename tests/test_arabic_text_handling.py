@@ -228,7 +228,7 @@ def احسب_المجموع(أ, ب):
     return أ + ب
 }
 
-النتيجة = احسب_المجموع(10, 20)
+المحصلة = احسب_المجموع(10, 20)
 """
     lexer = HybridLexer(code)
     tokens = lexer.tokenize()
@@ -240,7 +240,7 @@ def احسب_المجموع(أ, ب):
     assert interpreter.traditional.global_env['الاسم'] == "محمد"
     assert interpreter.traditional.global_env['العمر'] == 25
     assert interpreter.traditional.global_env['المدينة'] == "الرياض"
-    assert interpreter.traditional.global_env['النتيجة'] == 30
+    assert interpreter.traditional.global_env['المحصلة'] == 30
 
 
 def test_arabic_comments():

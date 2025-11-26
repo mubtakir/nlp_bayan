@@ -43,7 +43,7 @@ def test_contradiction_detection():
     
     contradictions = engine.check_contradictions()
     assert len(contradictions) == 1
-    assert "conflicts with" in contradictions[0]
+    assert "conflicts with" in contradictions[0]['message']
 
 def test_graph_export():
     # Mock interpreter

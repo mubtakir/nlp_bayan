@@ -169,9 +169,9 @@ def test_invariant_for_loop_success():
     """Test invariant in for loop that succeeds"""
     code = """
 total = 0
-for i in range(5):
+for i in (range(5))
     invariant total >= 0
-    {
+{
         total = total + i
     }
 """
@@ -189,9 +189,9 @@ def test_invariant_for_loop_failure():
     """Test invariant in for loop that fails"""
     code = """
 total = 0
-for i in range(5):
+for i in (range(5))
     invariant total < 5
-    {
+{
         total = total + i
     }
 """
@@ -209,9 +209,9 @@ def test_invariant_while_loop_success():
     """Test invariant in while loop that succeeds"""
     code = """
 counter = 0
-while counter < 5:
+while (counter < 5)
     invariant counter >= 0
-    {
+{
         counter = counter + 1
     }
 """
@@ -229,9 +229,9 @@ def test_invariant_arabic():
     """Test invariant with Arabic keyword"""
     code = """
 مجموع = 0
-for عدد in range(3):
+for عدد in (range(3))
     ثابت مجموع >= 0
-    {
+{
         مجموع = مجموع + عدد
     }
 """
