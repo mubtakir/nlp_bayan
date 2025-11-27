@@ -1,0 +1,242 @@
+hybrid {
+    // ============================================================
+    // 🎬 نظام توصيات الأفلام الذكي - لغة البيان
+    // Smart Movie Recommendation System - Bayan Language
+    // ============================================================
+    
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("🎬 نظام توصيات الأفلام الذكي")
+    print("   Smart Movie Recommendation System")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+    
+    // قاعدة معرفة الأفلام (25 فيلم)
+    movie("The Shawshank Redemption", "الخلاص من شاوشانك", "دراما", 9.3, "Frank Darabont", 1994).
+    movie("The Godfather", "العراب", "جريمة", 9.2, "Francis Ford Coppola", 1972).
+    movie("The Dark Knight", "فارس الظلام", "أكشن", 9.0, "Christopher Nolan", 2008).
+    movie("Inception", "البداية", "خيال_علمي", 8.8, "Christopher Nolan", 2010).
+    movie("Interstellar", "بين النجوم", "خيال_علمي", 8.6, "Christopher Nolan", 2014).
+    movie("Forrest Gump", "فورست غامب", "دراما", 8.8, "Robert Zemeckis", 1994).
+    movie("The Matrix", "المصفوفة", "خيال_علمي", 8.7, "Wachowski", 1999).
+    movie("Goodfellas", "رفاق طيبون", "جريمة", 8.7, "Martin Scorsese", 1990).
+    movie("Pulp Fiction", "الخيال الرخيص", "جريمة", 8.9, "Quentin Tarantino", 1994).
+    movie("The Silence of the Lambs", "صمت الحملان", "إثارة", 8.6, "Jonathan Demme", 1991).
+    movie("Saving Private Ryan", "إنقاذ الجندي رايان", "حرب", 8.6, "Steven Spielberg", 1998).
+    movie("The Green Mile", "الميل الأخضر", "دراما", 8.6, "Frank Darabont", 1999).
+    movie("The Prestige", "المكانة", "دراما", 8.5, "Christopher Nolan", 2006).
+    movie("The Departed", "المنشق", "جريمة", 8.5, "Martin Scorsese", 2006).
+    movie("Gladiator", "المصارع", "أكشن", 8.5, "Ridley Scott", 2000).
+    movie("The Lion King", "الأسد الملك", "رسوم_متحركة", 8.5, "Roger Allers", 1994).
+    movie("Toy Story", "حكاية لعبة", "رسوم_متحركة", 8.3, "John Lasseter", 1995).
+    movie("Finding Nemo", "البحث عن نيمو", "رسوم_متحركة", 8.1, "Andrew Stanton", 2003).
+    movie("The Avengers", "المنتقمون", "أكشن", 8.0, "Joss Whedon", 2012).
+    movie("Spider-Man", "الرجل العنكبوت", "أكشن", 7.3, "Sam Raimi", 2002).
+    movie("Titanic", "تايتانك", "رومانسي", 7.8, "James Cameron", 1997).
+    movie("The Notebook", "المفكرة", "رومانسي", 7.8, "Nick Cassavetes", 2004).
+    movie("La La Land", "لا لا لاند", "رومانسي", 8.0, "Damien Chazelle", 2016).
+    movie("The Hangover", "المخمور", "كوميدي", 7.7, "Todd Phillips", 2009).
+    movie("Superbad", "سوبرباد", "كوميدي", 7.6, "Greg Mottola", 2007).
+    
+    // الشبكة الدلالية - التشابه بين الأفلام
+    similar_to("Inception", "Interstellar", "نفس_المخرج", 0.9).
+    similar_to("Inception", "The Matrix", "خيال_علمي", 0.8).
+    similar_to("The Dark Knight", "The Prestige", "نفس_المخرج", 0.85).
+    similar_to("The Godfather", "Goodfellas", "نفس_النوع", 0.9).
+    similar_to("The Shawshank Redemption", "The Green Mile", "نفس_المخرج", 0.95).
+    similar_to("The Lion King", "Toy Story", "رسوم_متحركة", 0.8).
+    similar_to("Titanic", "The Notebook", "رومانسي", 0.85).
+    similar_to("The Hangover", "Superbad", "كوميدي", 0.8).
+    similar_to("The Godfather", "The Departed", "جريمة", 0.85).
+    similar_to("Gladiator", "The Dark Knight", "أكشن_ملحمي", 0.75).
+    
+    // العلاقات الدلالية
+    علاقة("دراما", "يناسب", "تفكير_عميق", 0.9).
+    علاقة("أكشن", "يناسب", "إثارة", 0.95).
+    علاقة("كوميدي", "يناسب", "مزاج_سعيد", 0.9).
+    علاقة("رومانسي", "يناسب", "أمسية_رومانسية", 0.95).
+    علاقة("رسوم_متحركة", "يناسب", "عائلي", 0.9).
+    علاقة("خيال_علمي", "يناسب", "تفكير_مستقبلي", 0.85).
+    
+    // المستخدمون وتفضيلاتهم
+    user("أحمد", 25, ["أكشن", "خيال_علمي"]).
+    watched("أحمد", "The Dark Knight", 9.5).
+    watched("أحمد", "Inception", 9.0).
+    watched("أحمد", "The Matrix", 8.5).
+    watched("أحمد", "Gladiator", 8.0).
+    
+    user("سارة", 28, ["دراما", "رومانسي"]).
+    watched("سارة", "The Shawshank Redemption", 9.5).
+    watched("سارة", "Forrest Gump", 9.0).
+    watched("سارة", "Titanic", 8.5).
+    watched("سارة", "The Notebook", 8.0).
+    
+    user("خالد", 30, ["جريمة", "إثارة"]).
+    watched("خالد", "The Godfather", 9.5).
+    watched("خالد", "Goodfellas", 9.0).
+    watched("خالد", "Pulp Fiction", 9.0).
+    watched("خالد", "The Departed", 8.5).
+    
+    user("فاطمة", 22, ["رسوم_متحركة", "كوميدي"]).
+    watched("فاطمة", "The Lion King", 9.0).
+    watched("فاطمة", "Toy Story", 8.5).
+    watched("فاطمة", "Finding Nemo", 8.5).
+    watched("فاطمة", "The Hangover", 7.5).
+    
+    user("عمر", 35, ["دراما", "حرب"]).
+    watched("عمر", "Saving Private Ryan", 9.0).
+    watched("عمر", "The Shawshank Redemption", 9.5).
+    watched("عمر", "The Green Mile", 8.5).
+    
+    user("ليلى", 26, ["خيال_علمي", "دراما"]).
+    watched("ليلى", "Interstellar", 9.0).
+    watched("ليلى", "Inception", 8.5).
+    watched("ليلى", "The Prestige", 8.0).
+    
+    user("محمد", 32, ["أكشن", "جريمة"]).
+    watched("محمد", "The Dark Knight", 9.0).
+    watched("محمد", "The Godfather", 9.5).
+    watched("محمد", "Gladiator", 8.5).
+    
+    user("نورة", 24, ["رومانسي", "كوميدي"]).
+    watched("نورة", "La La Land", 8.5).
+    watched("نورة", "The Notebook", 8.0).
+    watched("نورة", "The Hangover", 7.5).
+    
+    user("يوسف", 29, ["خيال_علمي", "أكشن"]).
+    watched("يوسف", "The Matrix", 9.0).
+    watched("يوسف", "Inception", 8.5).
+    watched("يوسف", "The Avengers", 8.0).
+    
+    user("هند", 27, ["رسوم_متحركة", "عائلي"]).
+    watched("هند", "The Lion King", 9.5).
+    watched("هند", "Finding Nemo", 9.0).
+    watched("هند", "Toy Story", 8.5).
+    
+    // محرك التوصيات
+    print("📋 الجزء الأول: توصيات مخصصة\n")
+    
+    target_user = "أحمد"
+    print("🎯 توصيات لـ: " + target_user + "\n")
+    
+    // البحث عن أفلام مشابهة للأفلام التي أحبها
+    watched_results = query watched(target_user, ?Movie, ?Rating) where ?Rating >= 8.0?
+    
+    recommendations = []
+    
+    for w in watched_results {
+        liked_movie = w["?Movie"]
+        
+        // البحث عن أفلام مشابهة
+        similar_results = query similar_to(liked_movie, ?Similar, ?Reason, ?Similarity) 
+                               where ?Similarity >= 0.7?
+        
+        for s in similar_results {
+            similar_movie = s["?Similar"]
+            
+            // تحقق أن المستخدم لم يشاهده
+            already_watched = query watched(target_user, similar_movie, _)?
+            
+            if (len(already_watched) == 0) {
+                score = s["?Similarity"]
+                reason = "مشابه لـ " + liked_movie + " (" + s["?Reason"] + ")"
+                recommendations.append([similar_movie, score, reason])
+            }
+        }
+    }
+    
+    // ترتيب التوصيات
+    recommendations = sorted(recommendations, key=lambda x: x[1], reverse=True)
+    
+    // عرض أفضل 5 توصيات
+    print("🌟 أفضل التوصيات:\n")
+    count = 0
+    for rec in recommendations {
+        if (count >= 5) {
+            break
+        }
+        
+        movie_info = query movie(rec[0], ?ArabicName, ?Genre, ?Rating, ?Director, ?Year)?
+        
+        if (len(movie_info) > 0) {
+            info = movie_info[0]
+            print(str(count+1) + ". 🎬 " + rec[0] + " (" + info["?ArabicName"] + ")")
+            print("   ⭐ التقييم: " + str(info["?Rating"]) + "/10")
+            print("   🎭 النوع: " + info["?Genre"])
+            print("   🎬 المخرج: " + info["?Director"])
+            print("   📅 السنة: " + str(info["?Year"]))
+            print("   💯 درجة التوصية: " + str(round(rec[1] * 100)) + "%")
+            print("   💡 السبب: " + rec[2])
+            print()
+            count = count + 1
+        }
+    }
+    
+    // الاستدلال العكسي
+    print("\n📋 الجزء الثاني: الاستدلال العكسي\n")
+    
+    // السؤال 1: من يحب الأكشن ولم يشاهد The Avengers؟
+    print("🔍 السؤال 1: من يحب الأكشن ولم يشاهد The Avengers؟\n")
+    
+    action_fans = query user(?U, ?Age, ?Prefs) where "أكشن" in ?Prefs?
+    
+    for fan in action_fans {
+        username = fan["?U"]
+        already_watched = query watched(username, "The Avengers", _)?
+        
+        if (len(already_watched) == 0) {
+            print("   ✅ " + username + " (العمر: " + str(fan["?Age"]) + ")")
+        }
+    }
+    
+    // السؤال 2: ما الأفلام المشابهة لـ Inception بتشابه > 70%؟
+    print("\n🔍 السؤال 2: ما الأفلام المشابهة لـ Inception بتشابه > 70%؟\n")
+    
+    similar_inception = query similar_to("Inception", ?Movie, ?Reason, ?Sim) 
+                             where ?Sim > 0.7?
+    
+    for s in similar_inception {
+        print("   🎬 " + s["?Movie"])
+        print("      📊 التشابه: " + str(round(s["?Sim"] * 100)) + "%")
+        print("      💡 السبب: " + s["?Reason"])
+        print()
+    }
+    
+    // السؤال 3: من هم المستخدمون المشابهون لأحمد؟
+    print("\n🔍 السؤال 3: من هم المستخدمون المشابهون لأحمد؟\n")
+    
+    ahmed_prefs = query user("أحمد", _, ?Prefs)?
+    
+    if (len(ahmed_prefs) > 0) {
+        prefs = ahmed_prefs[0]["?Prefs"]
+        
+        similar_users = query user(?U, ?Age, ?UPrefs) where ?U != "أحمد"?
+        
+        for u in similar_users {
+            username = u["?U"]
+            user_prefs = u["?UPrefs"]
+            
+            // حساب التشابه
+            common = []
+            for p in prefs {
+                if (p in user_prefs) {
+                    common.append(p)
+                }
+            }
+            
+            if (len(common) > 0) {
+                similarity = len(common) / max(len(prefs), len(user_prefs))
+                
+                if (similarity >= 0.5) {
+                    print("   👥 " + username + " (العمر: " + str(u["?Age"]) + ")")
+                    print("      📊 التشابه: " + str(round(similarity * 100)) + "%")
+                    print("      🎭 التفضيلات المشتركة: " + str(common))
+                    print()
+                }
+            }
+        }
+    }
+    
+    print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("✅ تم إنجاز التوصيات بنجاح!")
+    print("🚀 بيان: حيث تلتقي التوصيات بالذكاء")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+}
