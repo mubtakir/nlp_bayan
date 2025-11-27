@@ -502,7 +502,32 @@ hybrid {
 ### 🤖 For AI Models (للنماذج اللغوية)
 > **Complete project access for AI models with 632+ files organized by category**
 
-- **AI Model Links (روابط للنماذج اللغوية):**
+#### 📖 Essential Guides for AI Models
+> **Start here to understand the project architecture and capabilities**
+
+- **[PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)** ⭐⭐⭐
+  - Comprehensive architecture guide (824 lines)
+  - Complete system overview with diagrams
+  - Detailed component descriptions
+  - File structure and statistics
+  - Development workflows
+  
+- **[BAYAN_PROGRAMMING_CHALLENGE.md](BAYAN_PROGRAMMING_CHALLENGE.md)** 🔥
+  - Programming challenge: Expert system in 250 lines
+  - Demonstrates Bayan's unique capabilities
+  - Complete working example with backward chaining
+  - Comparison with other languages
+
+- **[ULTIMATE_BAYAN_CHALLENGE.md](ULTIMATE_BAYAN_CHALLENGE.md)** 🔥🔥🔥 **NEW!**
+  - **The Ultimate Challenge**: Multi-domain expert system in 350 lines
+  - Combines 3 domains: Medical + Financial + Educational
+  - Cross-domain integration and queries
+  - Causal networks, semantic relations, dynamic entities
+  - **Master level difficulty** - The most comprehensive challenge yet!
+
+#### 🔗 AI Model Links (روابط للنماذج اللغوية)
+
+- **AI Model Links:**
   - RAW: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
   - GitHub plain: https://github.com/mubtakir/nlp_bayan/blob/main/docs/AI_MODEL_LINKS.md?plain=1
   - **Contains:** Direct links to all essential files (README, keywords reference, guides, tutorials, examples, AI libraries, domain libraries, conceptual libraries, and more)
