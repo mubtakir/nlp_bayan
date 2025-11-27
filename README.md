@@ -5,6 +5,8 @@
 
 ![Bayan Language](https://img.shields.io/badge/Bayan-Revolutionary%20Hybrid-blue?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/tests-622%20passing-green?style=for-the-badge)
+![Examples](https://img.shields.io/badge/examples-148-brightgreen?style=for-the-badge)
+![Challenges](https://img.shields.io/badge/challenges-11-orange?style=for-the-badge)
 ![Arabic Support](https://img.shields.io/badge/Arabic-Fully%20Supported-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -12,9 +14,28 @@
 **The World's First True Hybrid Programming Language with Dual-Brain Architecture**  
 **أول لغة برمجة هجينة حقيقية في العالم بمعمارية الدماغ المزدوج**
 
-[English](#english) | [العربية](#arabic)
+[English](#english) | [العربية](#arabic) | [🤖 For AI Models](#for-ai-models)
 
 </div>
+
+---
+
+## 📑 Table of Contents
+
+- [What Makes Bayan Revolutionary?](#what-makes-bayan-revolutionary)
+- [🚀 Quick Navigation for AI Models](#quick-navigation-for-ai-models)
+- [🌟 Core Innovations](#core-innovations)
+- [🎨 Examples Gallery (148 Examples)](#examples-gallery)
+- [🏆 Programming Challenges (11 Challenges)](#programming-challenges)
+- [🖼️ Graphics & Visualization System](#graphics--visualization-system)
+- [💻 Web IDE & Development Tools](#web-ide--development-tools)
+- [📚 Complete Documentation Index](#complete-documentation-index)
+- [🔗 Essential Links for LLMs](#essential-links-for-llms)
+- [📊 Detailed Project Statistics](#detailed-project-statistics)
+- [🚀 Quick Start](#quick-start)
+- [📖 Documentation](#documentation)
+- [🤝 Contributing](#contributing)
+- [📄 License](#license)
 
 ---
 
@@ -24,78 +45,112 @@
 
 Bayan is not just another programming language. It's a **paradigm shift** that uniquely combines:
 
-**Three Programming Paradigms + Bilingual Support + Innovative Explainable AI Systems**
+**Three Programming Paradigms + Bilingual Support + 10+ Innovative AI Systems**
 
 While other languages may combine multiple paradigms, Bayan is the **first and only** language that brings together:
 - ✅ Multi-paradigm programming (Imperative + OOP + Logic)
 - ✅ Full bilingual support (Arabic + English keywords)
-- ✅ Innovative AI systems (Causal Networks, Semantic Networks, Dual-Brain Architecture)
+- ✅ 10+ Innovative AI systems (Causal Networks, Semantic Networks, Dual-Brain Architecture, and more)
 - ✅ Explainable AI (Every decision has clear reasoning)
+- ✅ Graphics & Visualization (SVG, Canvas, Waves)
+- ✅ Web IDE with live preview
 
-This unique combination makes Bayan revolutionary:
+This unique combination makes Bayan revolutionary.
 
-### 🧠 **Dual-Brain Architecture** (Unique Innovation!)
-- **Left Brain (Logical)**: Facts, rules, inference, consistency checking
-- **Right Brain (Mathematical)**: Equations, calculations, numerical analysis
-- **Integration Layer**: Cross-validation, conflict resolution, synthesis
-- **World's First**: Programming language with true dual-brain cooperation
+---
 
-### 🔗 **Multi-Paradigm Fusion**
-- **Imperative Programming**: Traditional procedural code
-- **Object-Oriented Programming**: Classes, inheritance, polymorphism
-- **Logic Programming**: Prolog-style facts, rules, queries
-- **Functional Programming**: First-class functions, lambdas, closures
+## 🚀 Quick Navigation for AI Models
 
-### 🌐 **Causal & Semantic Networks**
-- **Causal Networks** (شبكات سببية): Cause-effect relationships with physical/logical reasons
-- **Semantic Networks** (شبكات دلالية): Meaning relationships between concepts
-- **Knowledge Graphs**: Entity-relation-entity triplets
-- **Ontologies**: Hierarchical concept structures
+> **For Language Models & AI Assistants**: Start here for complete project understanding
 
-### 🎭 **Entity System** (كيانات ديناميكية)
-- **Dynamic Entities** (كيانات): Objects with states, properties, actions, reactions
-- **Fuzzy States** (حالات ضبابية): All states normalized (0..1)
-- **Event-Driven**: Actions trigger reactions with causal effects
-- **Queryable**: All entities and states accessible via logical queries
+### 📖 Essential Reading (Priority Order)
+1. **[PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)** ⭐⭐⭐ (837 lines)
+   - Complete architecture overview with diagrams
+   - All 10+ AI systems explained
+   - File structure and statistics
+   
+2. **[ULTIMATE_BAYAN_CHALLENGE.md](ULTIMATE_BAYAN_CHALLENGE.md)** 🔥🔥🔥 (843 lines)
+   - Multi-domain expert system in 350 lines
+   - Demonstrates all unique capabilities
+   - Medical + Financial + Educational systems integrated
 
-### 📐 **Linguistic Equations** (معادلات لغوية)
-- **Philosophy**: Idea = (Objects + Event + Result)
-- **الفلسفة**: الفكرة = (أشياء + حدث + نتيجة)
-- **Natural Language → Math**: Convert sentences to equations
-- **8 Grammatical Roles**: Subject, Object, Location, Time, Instrument, etc.
-- **9 Event Types**: Physical, Mental, Communication, Movement, etc.
+3. **[BAYAN_PROGRAMMING_CHALLENGE.md](BAYAN_PROGRAMMING_CHALLENGE.md)** 🔥 (722 lines)
+   - Expert system in 250 lines
+   - Credit analysis with backward chaining
+   - Explainable AI demonstrations
 
-### 🧬 **Conceptual Blueprints** (مخططات مفاهيمية)
-- **Blueprints**: Abstract patterns (Events, States, Causality)
-- **Circuits**: Reusable micro-scenarios built from blueprints
-- **Programs**: High-level meaning programs that compose circuits
-- **Orchestrator**: Manages execution of meaning programs
+### 🔗 Direct RAW Links (For Immediate Access)
+```
+Architecture Guide:
+https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/PROJECT_ARCHITECTURE_GUIDE.md
 
-### 🎨 **Generative Language Model (GLM)**
-- **Lexicon**: Maps concepts to Arabic/English lemmas
-- **Morphology**: Conjugates verbs, declines nouns (Arabic/English)
-- **Surface Realizer**: Generates fluent text from conceptual traces
-- **Full Pipeline**: Abstract meaning → Fluent natural language
+AI Model Links:
+https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
 
-### 🔬 **Advanced Mathematical Systems**
-- **GSE (Generalized Shape Equation)**: Adaptive function approximation
-- **Mother Equation**: Comprehensive object representation (Φ, Ψ(t), Γ)
-- **10 Property Domains**: Physical, Chemical, Psychological, Social, etc.
-- **Fuzzy Logic**: Built-in support for uncertainty and gradual truth
+LLM System Prompt:
+https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/LLM_SYSTEM_PROMPT.txt
 
-### 🎯 **Expert-Explorer System**
-- **Dual Decision-Making**: Combines expertise with exploration
-- **Three Revolutionary Theories**:
-  - Zero Duality (الصفر الثنائي)
-  - Perpendicular Opposites (الأضداد العمودية)
-  - Filament Theory (نظرية الخيط)
-- **Adaptive Learning**: Updates knowledge based on outcomes
+Ultimate Challenge:
+https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/ULTIMATE_BAYAN_CHALLENGE.md
+```
+
+### 📂 Key Directories
+- **[examples/](examples/)** - 148 working examples (all file types)
+- **[docs/تعليمية/](docs/تعليمية/)** - 42 tutorial files (21 AR + 21 EN)
+- **[bayan/bayan/](bayan/bayan/)** - Core interpreter (23 Python files)
+- **[ai/](ai/)** - AI/ML libraries (21 Bayan files)
+- **[tests/](tests/)** - 622 passing tests
 
 ---
 
 ## 🌟 Core Innovations
 
-### 1. **Causal Networks** (الشبكات السببية)
+### 1. 🧠 **Dual-Brain Architecture** (World's First!)
+
+Bayan is the **only programming language** with true dual-brain cooperation:
+
+```bayan
+hybrid {
+    brain = DualBrain()
+    
+    # Process with both brains simultaneously
+    result = brain.process("محمد أكل تفاحة", debug=True)
+    
+    # View dual analysis
+    result.print_summary()
+}
+```
+
+**Output:**
+```
+🧩 Phase 1: Logical Analysis...
+   ✓ Logical confidence: 70%
+   ✓ Facts: 2, Entities: 1
+
+🎨 Phase 2: Mathematical Analysis...
+   ✓ Mathematical confidence: 57%
+   ✓ Equations: 0, Numerical results: 0
+
+🔍 Phase 3: Cross-Validation...
+   ✓ Consensus: 100%
+
+🤝 Phase 4: Negotiation...
+   ✓ Logical contribution: 55% | Mathematical contribution: 45%
+
+✨ Final confidence: 64%
+```
+
+**Components:**
+- **Left Brain (Logical)**: Facts, rules, inference, consistency checking
+- **Right Brain (Mathematical)**: Equations, calculations, numerical analysis
+- **Integration Layer**: Cross-validation, conflict resolution, synthesis
+- **Negotiation**: Weighted combination based on confidence
+
+**Files:** `bayan/bayan/dual_brain.py`, `bayan/bayan/left_brain.py`, `bayan/bayan/right_brain.py`
+
+---
+
+### 2. 🌐 **Causal Networks** (شبكات سببية)
 
 Express cause-effect relationships with **physical or logical reasons**:
 
@@ -119,7 +174,11 @@ hybrid {
 - Context-aware predictions
 - Supports multiple domains (physics, biology, social sciences)
 
-### 2. **Semantic Networks** (الشبكات الدلالية)
+**Examples:** [causal_network_examples.by](examples/causal_network_examples.by), [cause_effect_examples.by](examples/cause_effect_examples.by)
+
+---
+
+### 3. 🕸️ **Semantic Networks** (الشبكات الدلالية)
 
 Model meaning relationships between concepts:
 
@@ -140,7 +199,11 @@ hybrid {
 }
 ```
 
-### 3. **Entity System** (نظام الكيانات)
+**Examples:** [semantic_programming_demo.by](examples/semantic_programming_demo.by), [cognitive_semantic_demo.by](examples/cognitive_semantic_demo.by)
+
+---
+
+### 4. 🎭 **Entity System** (نظام الكيانات)
 
 Model dynamic actors with states, properties, and interactions:
 
@@ -179,7 +242,11 @@ hybrid {
 - **Reactions**: Automatic responses to events
 - **Queryable**: All states accessible via logic
 
-### 4. **Linguistic Equations** (المعادلات اللغوية)
+**Examples:** [entity_new_syntax_demo.by](examples/entity_new_syntax_demo.by), [entity_food_interaction.by](examples/entity_food_interaction.by)
+
+---
+
+### 5. 📐 **Linguistic Equations** (المعادلات اللغوية)
 
 Convert natural language to mathematical equations:
 
@@ -196,16 +263,6 @@ hybrid {
     print(eq.to_formal_notation())
     # → محمد(فاعل) + تفاحة(مفعول_به) + أكل = 
     #   [محمد: جوع↓, طاقة↑] + [تفاحة: موجود=False]
-    
-    # Create custom equation
-    eq2 = create_simple_equation("أحمد", "ضرب", "الكرة", kb)
-    
-    # Add custom event
-    kb.add_custom_event(
-        event="درس",
-        subject_changes={"تعب": +0.3, "معرفة": +0.6},
-        object_changes={"مستوى_الفهم": +0.5}
-    )
 }
 ```
 
@@ -213,7 +270,11 @@ hybrid {
 - **Idea = (Objects + Event + Result)**
 - **الفكرة = (أشياء + حدث + نتيجة)**
 
-### 5. **Conceptual Blueprints** (المخططات المفاهيمية)
+**Examples:** [linguistic_equations_demo.bayan](examples/linguistic_equations_demo.bayan), [equations_ar.by](examples/equations_ar.by)
+
+---
+
+### 6. 🧬 **Conceptual Blueprints** (المخططات المفاهيمية)
 
 Define abstract patterns and reusable scenarios:
 
@@ -248,7 +309,11 @@ hybrid {
 }
 ```
 
-### 6. **Generative Language Model (GLM)**
+**Examples:** 20+ conceptual examples in [examples/](examples/) directory (conceptual_*.bayan)
+
+---
+
+### 7. 🎨 **Generative Language Model (GLM)**
 
 Full pipeline from abstract meaning to fluent text:
 
@@ -272,11 +337,15 @@ hybrid {
 ```
 
 **Layers:**
-1. **Lexicon**: Concept → Lemma
-2. **Morphology**: Lemma → Inflected form
+1. **Lexicon**: Concept → Lemma (500+ concepts)
+2. **Morphology**: Lemma → Inflected form (Arabic + English)
 3. **Realizer**: Concepts → Coherent sentence
 
-### 7. **Mother Equation System** (نظام المعادلة الأم)
+**Files:** `ai/lexicon.bayan`, `ai/morphology.bayan`, `ai/conceptual_surface_realizer.bayan`
+
+---
+
+### 8. 📊 **Mother Equation System** (نظام المعادلة الأم)
 
 Comprehensive object representation:
 
@@ -299,76 +368,431 @@ hybrid {
     
     # Update states
     person.update_state("السعادة", 0.9)
-    
-    # Shape equation (Γ) - for physical objects
-    person.set_shape_equation(GSE_model)
 }
 ```
 
 **10 Property Domains:**
-1. Physical (فيزيائي)
-2. Chemical (كيميائي)
-3. Biological (بيولوجي)
-4. Psychological (نفسي)
-5. Social (اجتماعي)
-6. Economic (اقتصادي)
-7. Temporal (زماني)
-8. Spatial (مكاني)
-9. Informational (معلوماتي)
-10. Functional (وظيفي)
+Physical, Chemical, Biological, Psychological, Social, Economic, Temporal, Spatial, Informational, Functional
 
-### 8. **Dual-Brain Architecture** (معمارية الدماغ المزدوج)
+**Examples:** [mother_equation_demo.bayan](examples/mother_equation_demo.bayan)
 
-World's first programming language with two cooperating brains:
+---
+
+### 9. 🔬 **GSE (Generalized Shape Equation)**
+
+Adaptive function approximation:
 
 ```bayan
 hybrid {
-    brain = DualBrain()
+    # Learn from data
+    x_data = [0, 1, 2, 3, 4, 5]
+    y_data = [0, 1, 4, 9, 16, 25]
     
-    # Process with both brains
-    result = brain.process("محمد أكل تفاحة", debug=True)
-    
-    # View dual analysis
-    result.print_summary()
-    
-    # Access individual analyses
-    print("Logical confidence: " + str(result.logical.confidence))
-    print("Mathematical confidence: " + str(result.mathematical.confidence))
-    print("Final confidence: " + str(result.final_confidence))
+    model = learn("square", x_data, y_data)
+    prediction = infer("square", 2.5)
+    # → 6.25
 }
 ```
 
-**Output:**
-```
-🧩 Phase 1: Logical Analysis...
-   ✓ Logical confidence: 70%
-   ✓ Facts: 2, Entities: 1
+**Examples:** [gse_adaptive_demo.py](examples/gse_adaptive_demo.py), [gse_visualization_demo.py](examples/gse_visualization_demo.py)
 
-🎨 Phase 2: Mathematical Analysis...
-   ✓ Mathematical confidence: 57%
-   ✓ Equations: 0, Numerical results: 0
+---
 
-🔍 Phase 3: Cross-Validation...
-   ✓ Consensus: 100%
+### 10. 🎯 **Expert-Explorer System**
 
-🤝 Phase 4: Negotiation...
-   ✓ Logical contribution: 55% | Mathematical contribution: 45%
+Dual decision-making with three revolutionary theories:
 
-✨ Final confidence: 64%
+```bayan
+hybrid {
+    brain = BrainSystem(expert_weight=0.7, explorer_weight=0.3)
+    brain.expert.add_knowledge("كيف أتعلم Python؟", "ابدأ بالأساسيات", 0.95)
+    decision = brain.decide("كيف أتعلم البرمجة؟")
+}
 ```
 
-**How It Works:**
-1. **Left Brain (Logical)**: Facts, entities, rules, consistency
-2. **Right Brain (Mathematical)**: Equations, calculations, decisions
-3. **Cross-Validation**: Each brain verifies the other
-4. **Negotiation**: Synthesizes final result
-5. **Result**: More accurate than either brain alone!
+**Three Revolutionary Theories:**
+- Zero Duality (الصفر الثنائي)
+- Perpendicular Opposites (الأضداد العمودية)
+- Filament Theory (نظرية الخيط)
 
-**Why This Matters:**
-- First language to implement cooperative dual-brain architecture
-- Combined with bilingual support (Arabic + English)
-- Integrated with explainable AI systems
-- Creates a unique ecosystem for intelligent programming
+**Examples:** [expert_explorer_demo.by](examples/expert_explorer_demo.by), [expert_explorer_demo.py](examples/expert_explorer_demo.py)
+
+---
+
+## 🎨 Examples Gallery
+
+### 📂 148 Working Examples Organized by Category
+
+#### 🌱 Basic Examples (Beginners)
+- [hello.by](examples/hello.by) - Hello World
+- [family.by](examples/family.by) - Family tree with logic
+- [calculator.by](examples/calculator.by) - OOP calculator
+- [factorial_with_is.by](examples/factorial_with_is.by) - Recursive factorial
+- [fibonacci_with_is.by](examples/fibonacci_with_is.by) - Fibonacci sequence
+
+#### 🚀 Advanced Examples
+- [dual_brain_demo.py](examples/dual_brain_demo.py) - Dual-brain architecture demo
+- [gse_adaptive_demo.py](examples/gse_adaptive_demo.py) - Adaptive GSE learning
+- [gse_visualization_demo.py](examples/gse_visualization_demo.py) - GSE visualization
+- [database_integration_demo.by](examples/database_integration_demo.by) - SQL database integration
+- [async_example.by](examples/async_example.by) - Async/await patterns
+
+#### 🤖 AI/ML Examples
+- [ai_kmeans_clustering.md](examples/ai_kmeans_clustering.md) - K-means clustering
+- [ai_knn_classification.md](examples/ai_knn_classification.md) - KNN classification
+- [ai_logistic_regression_binary.md](examples/ai_logistic_regression_binary.md) - Logistic regression
+- [ai_pca_variance_pipeline.md](examples/ai_pca_variance_pipeline.md) - PCA pipeline
+- [ai_tfidf_cosine.md](examples/ai_tfidf_cosine.md) - TF-IDF similarity
+- [ai_voting_stacking.md](examples/ai_voting_stacking.md) - Ensemble methods
+
+#### 🎨 Graphics Examples (SVG/Canvas/Waves)
+- [svg_basic_shapes.md](examples/svg_basic_shapes.md) - Basic SVG shapes
+- [svg_advanced_shapes.md](examples/svg_advanced_shapes.md) - Advanced SVG
+- [svg_free_drawing.md](examples/svg_free_drawing.md) - Free drawing
+- [svg_sine_wave.md](examples/svg_sine_wave.md) - Sine wave visualization
+- [svg_3d_cube_frames.md](examples/svg_3d_cube_frames.md) - 3D cube animation
+- [img_basic_canvas.md](examples/img_basic_canvas.md) - Canvas drawing
+- [wave_modulation.md](examples/wave_modulation.md) - Wave modulation
+- [gif_bouncing_ball.md](examples/gif_bouncing_ball.md) - Animated GIF
+
+#### 🧬 Conceptual Examples (20+ files)
+- [conceptual_trace_demo.bayan](examples/conceptual_trace_demo.bayan) - Conceptual traces
+- [conceptual_orchestrator_demo.bayan](examples/conceptual_orchestrator_demo.bayan) - Orchestrator
+- [conceptual_lm_full_pipeline_demo.bayan](examples/conceptual_lm_full_pipeline_demo.bayan) - Full GLM pipeline
+- [conceptual_circuit_*.bayan](examples/) - 6 circuit demos
+- [conceptual_program_*.bayan](examples/) - 4 program demos
+
+#### 🌍 Arabic Examples
+- [ar_svg_أشكال_أساسية.md](examples/ar_svg_أشكال_أساسية.md) - Arabic SVG shapes
+- [ar_img_لوحة_أساسية.md](examples/ar_img_لوحة_أساسية.md) - Arabic canvas
+- [ar_شبكة_سببية_منطقية.md](examples/ar_شبكة_سببية_منطقية.md) - Causal network
+- [ar_معادلات_لغوية_ومشغلات.md](examples/ar_معادلات_لغوية_ومشغلات.md) - Linguistic equations
+- [arabic_simple_demo.by](examples/arabic_simple_demo.by) - Simple Arabic demo
+- [arabic_text_demo.by](examples/arabic_text_demo.by) - Arabic text processing
+
+#### 💼 Domain-Specific Examples
+- [movie_recommendation_demo.by](examples/movie_recommendation_demo.by) - Movie recommendations
+- [fraud_detection_demo.by](examples/fraud_detection_demo.by) - Fraud detection
+- [inventory_management_demo.by](examples/inventory_management_demo.by) - Inventory management
+- [nutrition_advisor_demo.by](examples/nutrition_advisor_demo.by) - Nutrition advisor
+- [car_diagnostic_demo.by](examples/car_diagnostic_demo.by) - Car diagnostics
+- [legal_advisory_demo.by](examples/legal_advisory_demo.by) - Legal advisory
+- [investment_advisor_demo.by](examples/investment_advisor_demo.by) - Investment advisor
+
+**[View All 148 Examples →](examples/)**
+
+---
+
+## 🏆 Programming Challenges
+
+### 11 Comprehensive Challenges Demonstrating Unique Capabilities
+
+#### 🔥 **Ultimate Challenge** (Master Level)
+**[ULTIMATE_BAYAN_CHALLENGE.md](ULTIMATE_BAYAN_CHALLENGE.md)** - 843 lines
+- Multi-domain expert system in 350 lines
+- Medical + Financial + Educational systems integrated
+- Causal networks, semantic relations, dynamic entities
+- Cross-domain queries and integration
+- **Difficulty:** Master Level 🔥🔥🔥
+
+#### 🏦 **Credit Analysis Challenge**
+**[BAYAN_PROGRAMMING_CHALLENGE.md](BAYAN_PROGRAMMING_CHALLENGE.md)** - 722 lines
+- Expert system in 250 lines
+- Credit risk assessment with backward chaining
+- Explainable AI with clear reasoning
+- **Difficulty:** Advanced 🔥
+
+#### 🎬 **Movie Recommendations Challenge**
+**[MOVIE_RECOMMENDATION_CHALLENGE.md](MOVIE_RECOMMENDATION_CHALLENGE.md)** - 511 lines
+- Smart recommendation system in 200 lines
+- 20+ movies, 10+ users
+- Semantic network + collaborative filtering
+- **Difficulty:** Intermediate
+
+#### ✈️ **Travel Planner Challenge**
+**[TRAVEL_PLANNER_CHALLENGE.md](TRAVEL_PLANNER_CHALLENGE.md)**
+- Constraint satisfaction + optimization
+- Budget, time, preferences
+- Multi-city itinerary planning
+
+#### 📦 **Inventory Management Challenge**
+**[INVENTORY_MANAGEMENT_CHALLENGE.md](INVENTORY_MANAGEMENT_CHALLENGE.md)**
+- Forecasting + alerts
+- Stock optimization
+- Supplier management
+
+#### 🏙️ **Smart City Challenge**
+**[SMART_CITY_CHALLENGE.md](SMART_CITY_CHALLENGE.md)**
+- 5 integrated subsystems
+- Traffic, energy, waste, emergency, citizen services
+- 442 lines of integrated systems
+
+**[View All Challenges →](CHALLENGE_README.md)**
+
+**Solutions:** All challenges have complete working solutions in [bayan_solutions/](bayan_solutions/) and [examples/](examples/)
+
+---
+
+## 🖼️ Graphics & Visualization System
+
+### Three Powerful Graphics Modules
+
+#### 1. **SVG Graphics** (`gfx/svg.bayan`)
+```bayan
+hybrid {
+    import "gfx/svg.bayan"
+    
+    # Basic shapes
+    rect(10, 10, 100, 50, fill="blue", stroke="black")
+    circle(150, 150, 40, fill="red")
+    
+    # Free drawing
+    pen = FreePen()
+    pen.move_to(10, 10)
+    pen.line_to(100, 100)
+    pen.curve_to(150, 50, 200, 100)
+    
+    # Animations
+    animate_circle(cx=100, cy=100, r=20, duration=2)
+}
+```
+
+**Examples:** [svg_basic_shapes.md](examples/svg_basic_shapes.md), [svg_advanced_shapes.md](examples/svg_advanced_shapes.md), [svg_3d_cube_frames.md](examples/svg_3d_cube_frames.md)
+
+#### 2. **Waves & Audio** (`gfx/waves.bayan`)
+```bayan
+hybrid {
+    import "gfx/waves.bayan"
+    
+    # Generate sine wave
+    wave = sine_wave(frequency=440, duration=1.0, sample_rate=44100)
+    
+    # Modulation
+    modulated = amplitude_modulation(carrier, modulator)
+    
+    # Visualization
+    plot_wave_svg(wave, width=800, height=200)
+}
+```
+
+**Examples:** [svg_sine_wave.md](examples/svg_sine_wave.md), [wave_modulation.md](examples/wave_modulation.md)
+
+#### 3. **Canvas/Images** (`gfx/img.bayan`)
+```bayan
+hybrid {
+    import "gfx/img.bayan"
+    
+    # Create canvas
+    canvas = Canvas(width=400, height=300, bg_color=(255, 255, 255))
+    
+    # Draw shapes
+    canvas.rectangle(50, 50, 100, 80, fill=(0, 0, 255))
+    canvas.circle(200, 150, 40, fill=(255, 0, 0))
+    canvas.text(150, 250, "Hello Bayan!", size=24)
+    
+    # Export
+    data_uri = canvas.to_data_uri(format="PNG")
+}
+```
+
+**Examples:** [img_basic_canvas.md](examples/img_basic_canvas.md), [gif_bouncing_ball.md](examples/gif_bouncing_ball.md)
+
+### Arabic Graphics Support
+All graphics modules have Arabic wrappers:
+- [ar_svg_أشكال_أساسية.md](examples/ar_svg_أشكال_أساسية.md)
+- [ar_svg_رسم_حر.md](examples/ar_svg_رسم_حر.md)
+- [ar_img_لوحة_أساسية.md](examples/ar_img_لوحة_أساسية.md)
+
+---
+
+## 💻 Web IDE & Development Tools
+
+### Interactive Web-Based IDE
+
+**Launch:** `python web_ide/app.py` → http://127.0.0.1:5001/ide
+
+**Features:**
+- ✅ **Code Editor** with syntax highlighting
+- ✅ **Live Preview** for SVG/Images
+- ✅ **Built-in Examples** dropdown (148 examples)
+- ✅ **Multi-output Support** (navigate with Previous/Next)
+- ✅ **Download Tools** (SVG/PNG/JPEG)
+- ✅ **Copy Output** functionality
+- ✅ **Arabic Support** (RTL, Arabic keywords)
+
+**Example Categories in IDE:**
+- 🟥 gfx - Graphics examples
+- 🟦 ai - AI/ML examples
+- 🟩 basic - Basic examples
+- 🟨 conceptual - Conceptual examples
+- 🟧 arabic - Arabic examples
+
+**Files:**
+- `web_ide/app.py` - Flask application
+- `web_ide/templates/ide.html` - IDE interface
+- `web_ide/user_scripts/` - User scripts storage
+
+---
+
+## 📚 Complete Documentation Index
+
+### 🎓 Tutorial Documentation (42 Files - 9,318+ Lines)
+
+#### Arabic Tutorials (21 Files)
+**[docs/تعليمية/ar/](docs/تعليمية/ar/)**
+
+1. **[01_INTRODUCTION_AR.md](docs/تعليمية/ar/01_INTRODUCTION_AR.md)** (514 lines) - Introduction
+2. **[02_PROCEDURAL_OOP_AR.md](docs/تعليمية/ar/02_PROCEDURAL_OOP_AR.md)** (1,393 lines) - Procedural & OOP
+3. **[03_LOGIC_PROGRAMMING_AR.md](docs/تعليمية/ar/03_LOGIC_PROGRAMMING_AR.md)** (1,153 lines) - Logic basics
+
+**Advanced Logic Programming (10 Parts):**
+4. [04_LOGIC_ARABIC_KEYWORDS_PART1_BASICS.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART1_BASICS.md) - Arabic keywords basics
+5. [04_LOGIC_ARABIC_KEYWORDS_PART2_INTERMEDIATE.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART2_INTERMEDIATE.md) - Complex rules
+6. [04_LOGIC_ARABIC_KEYWORDS_PART3_ADVANCED.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART3_ADVANCED.md) - Dynamic KB
+7. [04_LOGIC_ARABIC_KEYWORDS_PART4_PROBABILISTIC.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART4_PROBABILISTIC.md) - Probabilistic reasoning
+8. [04_LOGIC_ARABIC_KEYWORDS_PART5_CAUSAL_NETWORKS.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART5_CAUSAL_NETWORKS.md) - Causal networks
+9. [04_LOGIC_ARABIC_KEYWORDS_PART6_ENTITIES_LINGUISTIC_IDEA_EVENT_RESULT.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART6_ENTITIES_LINGUISTIC_IDEA_EVENT_RESULT.md) - Entity system
+10. [04_LOGIC_ARABIC_KEYWORDS_PART7_ADVANCED_ENTITIES_PARTICIPANTS.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART7_ADVANCED_ENTITIES_PARTICIPANTS.md) - Advanced entities
+11. [04_LOGIC_ARABIC_KEYWORDS_PART8_SEMANTIC_NETWORKS_KNOWLEDGE.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART8_SEMANTIC_NETWORKS_KNOWLEDGE.md) - Semantic networks
+12. [04_LOGIC_ARABIC_KEYWORDS_PART9_SYNONYMS_SIMILARITY.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART9_SYNONYMS_SIMILARITY.md) - Synonyms & similarity
+13. [04_LOGIC_ARABIC_KEYWORDS_PART10_CONCEPTUAL_LM_PRE_LANGUAGE_MODEL.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART10_CONCEPTUAL_LM_PRE_LANGUAGE_MODEL.md) - Conceptual LM
+14. [04_LOGIC_ARABIC_KEYWORDS_PART11_CAUSAL_SEMANTIC.md](docs/تعليمية/ar/04_LOGIC_ARABIC_KEYWORDS_PART11_CAUSAL_SEMANTIC.md) - Causal-semantic system
+
+#### English Tutorials (21 Files)
+**[docs/تعليمية/en/](docs/تعليمية/en/)**
+- Complete English equivalents of all Arabic tutorials
+- Same structure and content
+- Full parity with Arabic documentation
+
+**[View Complete Tutorial Index →](docs/تعليمية/README.md)**
+
+### 📖 Technical Documentation (75+ Files)
+
+#### Core Guides
+- **[LANGUAGE_GUIDE.md](docs/LANGUAGE_GUIDE.md)** - Complete language reference
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture
+- **[DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Developer guide (24,720 lines)
+- **[ARABIC_TEXT_SUPPORT.md](docs/ARABIC_TEXT_SUPPORT.md)** - Arabic support details
+
+#### System-Specific Guides
+- **[ENTITY_SYSTEM_GUIDE.md](docs/ENTITY_SYSTEM_GUIDE.md)** - Entity system (22,207 lines)
+- **[LINGUISTIC_EQUATIONS_GUIDE.md](docs/LINGUISTIC_EQUATIONS_GUIDE.md)** - Linguistic equations
+- **[MOTHER_EQUATION_GUIDE.md](docs/MOTHER_EQUATION_GUIDE.md)** - Mother equation
+- **[GSE_SYSTEM_GUIDE.md](docs/GSE_SYSTEM_GUIDE.md)** - GSE system
+- **[CONCEPTUAL_CIRCUITS_AND_PROGRAMS.md](docs/CONCEPTUAL_CIRCUITS_AND_PROGRAMS.md)** - Conceptual programming
+- **[SEMANTIC_PROGRAMMING_GUIDE.md](docs/SEMANTIC_PROGRAMMING_GUIDE.md)** - Semantic programming
+- **[VISUALIZATION_GUIDE.md](docs/VISUALIZATION_GUIDE.md)** - Visualization
+
+#### For AI/LLM Models
+- **[AI_MODEL_LINKS.md](docs/AI_MODEL_LINKS.md)** - Direct links for AI models
+- **[LLM_SYSTEM_PROMPT.txt](docs/LLM_SYSTEM_PROMPT.txt)** - System prompt
+- **[LLM_QUICK_REFERENCE.md](docs/LLM_QUICK_REFERENCE.md)** - Quick reference
+- **[LLM_REFERENCE_GUIDE.md](docs/LLM_REFERENCE_GUIDE.md)** - Complete reference (36,748 lines)
+- **[HOW_TO_USE_WITH_LLMS.md](docs/HOW_TO_USE_WITH_LLMS.md)** - Usage guide
+
+**[View All Documentation →](docs/)**
+
+---
+
+## 🔗 Essential Links for LLMs
+
+### 📖 Priority Reading for AI Models
+
+#### 1. Architecture & Overview
+- **Local:** [PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)
+- **RAW:** https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/PROJECT_ARCHITECTURE_GUIDE.md
+
+#### 2. AI Model Integration
+- **Local:** [docs/AI_MODEL_LINKS.md](docs/AI_MODEL_LINKS.md)
+- **RAW:** https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
+
+#### 3. System Prompt
+- **Local:** [docs/LLM_SYSTEM_PROMPT.txt](docs/LLM_SYSTEM_PROMPT.txt)
+- **RAW:** https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/LLM_SYSTEM_PROMPT.txt
+
+#### 4. Quick Reference
+- **Local:** [docs/LLM_QUICK_REFERENCE.md](docs/LLM_QUICK_REFERENCE.md)
+- **RAW:** https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/LLM_QUICK_REFERENCE.md
+
+#### 5. Ultimate Challenge (Best Demo)
+- **Local:** [ULTIMATE_BAYAN_CHALLENGE.md](ULTIMATE_BAYAN_CHALLENGE.md)
+- **RAW:** https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/ULTIMATE_BAYAN_CHALLENGE.md
+
+### 📂 Key Directories for Exploration
+```
+examples/          - 148 working examples
+docs/تعليمية/      - 42 tutorial files
+bayan/bayan/       - Core interpreter source
+ai/                - AI/ML libraries
+tests/             - 622 passing tests
+web_ide/           - Web IDE
+gfx/               - Graphics modules
+```
+
+---
+
+## 📊 Detailed Project Statistics
+
+### 📈 Code & Documentation
+| Category | Count | Details |
+|----------|-------|---------|
+| **Total Files** | 1,100+ | Complete project |
+| **Lines of Code** | 538,000+ | Code + documentation |
+| **Python Files** | 873 | Core + tests + tools |
+| **Bayan Files** | 233 | .bayan + .by |
+| **Documentation** | 119 files | 9,318+ lines of tutorials |
+| **Tests** | 622 | 100% passing ✅ |
+| **Examples** | 148 | Working examples |
+| **Challenges** | 11 | Programming challenges |
+
+### 🧠 Core Interpreter
+| File | Lines | Purpose |
+|------|-------|---------|
+| `parser.py` | 144,651 | Parser |
+| `traditional_interpreter.py` | 190,091 | Traditional interpreter |
+| `ast_nodes.py` | 55,395 | AST nodes |
+| `hybrid_interpreter.py` | 43,948 | Hybrid interpreter |
+| `logical_engine.py` | 41,303 | Logic engine |
+| `entity_engine.py` | 34,054 | Entity system |
+| `builtins.py` | 33,849 | Built-in functions |
+| `lexer.py` | 30,177 | Lexer |
+| `visualization.py` | 28,445 | Visualization |
+
+### 🤖 AI/ML Libraries
+| File | Lines | Purpose |
+|------|-------|---------|
+| `ml.bayan` | 104,130 | Machine learning |
+| `nlp.bayan` | 68,623 | NLP tools |
+| `conceptual_programs.bayan` | 29,362 | Conceptual programs |
+| `data.bayan` | 26,598 | Data structures |
+| `conceptual_circuits.bayan` | 24,223 | Conceptual circuits |
+
+### 🎨 Examples by Category
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Basic** | 15+ | hello.by, family.by, calculator.by |
+| **Advanced** | 20+ | dual_brain_demo.py, gse_adaptive_demo.py |
+| **AI/ML** | 15+ | ai_kmeans, ai_knn, ai_tfidf |
+| **Graphics** | 25+ | svg_*, img_*, wave_* |
+| **Conceptual** | 20+ | conceptual_*.bayan |
+| **Arabic** | 25+ | ar_*, *_ar.by |
+| **Domain-Specific** | 28+ | movie, fraud, inventory, etc. |
+
+### 🏆 Challenges Statistics
+| Challenge | Lines | Difficulty | Domain |
+|-----------|-------|------------|--------|
+| Ultimate Challenge | 350 | Master 🔥🔥🔥 | Multi-domain |
+| Credit Analysis | 250 | Advanced 🔥 | Financial |
+| Movie Recommendations | 200 | Intermediate | Entertainment |
+| Smart City | 442 | Advanced 🔥 | IoT/Urban |
+| Travel Planner | 180 | Intermediate | Travel |
+| Inventory Management | 220 | Intermediate | Business |
+
+### 📚 Documentation Statistics
+- **Tutorial Files:** 42 (21 AR + 21 EN)
+- **Tutorial Lines:** 9,318+
+- **Technical Docs:** 75+ files
+- **Complete Parity:** Arabic ↔ English
 
 ---
 
@@ -396,196 +820,31 @@ hybrid {
 python -m bayan examples/hello.by
 ```
 
----
+### Try the Web IDE
 
-## 📚 Complete Feature List
-
-### Core Language Features
-- ✅ **Three Paradigms**: Imperative + OOP + Logic
-- ✅ **Bilingual Keywords**: Arabic + English
-- ✅ **Block Syntax**: Colon `:` + braces `{}`
-- ✅ **No Semicolons**: Clean, readable code
-- ✅ **Modern Features**: async/await, generators, decorators
-- ✅ **Type System**: Dynamic with optional type hints
-
-### Logic Programming
-- ✅ **Facts**: Assert knowledge (`fact: parent("أحمد", "محمد").`)
-- ✅ **Rules**: Define inference (`rule: sibling(?X, ?Y) :- ...`)
-- ✅ **Queries**: Ask questions (`query parent(?P, "محمد")`)
-- ✅ **Backward Chaining**: Automatic inference
-- ✅ **Unification**: Pattern matching
-- ✅ **Dynamic KB**: Assert/retract at runtime
-
-### Causal & Semantic Systems
-- ✅ **Causal Networks**: Cause-effect with reasons
-- ✅ **Semantic Networks**: Meaning relationships
-- ✅ **Knowledge Graphs**: Entity-relation-entity
-- ✅ **Ontologies**: Hierarchical concepts
-- ✅ **Similarity**: Semantic distance calculations
-- ✅ **Synonyms**: Built-in synonym system
-
-### Entity System
-- ✅ **Dynamic Entities**: States + Properties + Actions
-- ✅ **Fuzzy States**: All states (0..1)
-- ✅ **Event-Driven**: Actions trigger reactions
-- ✅ **Causal Effects**: Formula-based state changes
-- ✅ **Queryable**: Logic queries on entities
-- ✅ **Serializable**: JSON export/import
-
-### Linguistic Systems
-- ✅ **Linguistic Equations**: NL → Math
-- ✅ **8 Grammatical Roles**: Subject, Object, etc.
-- ✅ **9 Event Types**: Physical, Mental, etc.
-- ✅ **Conceptual Blueprints**: Abstract patterns
-- ✅ **Circuits**: Reusable scenarios
-- ✅ **Programs**: High-level compositions
-
-### Generative Systems
-- ✅ **GLM Pipeline**: Meaning → Text
-- ✅ **Lexicon**: 500+ concepts
-- ✅ **Morphology**: Arabic + English
-- ✅ **Surface Realizer**: Fluent generation
-- ✅ **Tense/Aspect**: Full control
-- ✅ **Bilingual**: Arabic ↔ English
-
-### Mathematical Systems
-- ✅ **GSE**: Adaptive function approximation
-- ✅ **Mother Equation**: Φ + Ψ(t) + Γ
-- ✅ **10 Property Domains**: Comprehensive modeling
-- ✅ **Fuzzy Logic**: Built-in uncertainty
-- ✅ **Probabilistic**: Bayesian reasoning
-- ✅ **Optimization**: Gradient descent, genetic algorithms
-
-### AI/ML Integration
-- ✅ **Machine Learning**: Built-in ML algorithms
-- ✅ **NLP Tools**: Tokenization, stemming, roots
-- ✅ **Data Science**: Pandas-like operations
-- ✅ **Neural Networks**: Basic NN support
-- ✅ **Expert Systems**: Rule-based AI
-- ✅ **Fuzzy Systems**: Fuzzy logic controllers
-
-### Arabic Language Support
-- ✅ **Perfect Arabic Text**: No external libraries needed
-- ✅ **Arabic Keywords**: Full bilingual support
-- ✅ **Arabic Morphology**: Verb conjugation, noun declension
-- ✅ **Arabic Patterns**: Nominal templates (صفات/ألقاب/إضافة)
-- ✅ **Arabic Roots**: Trilateral root extraction
-- ✅ **Arabic Phonetics**: Sound-based operations
-
-### Development Tools
-- ✅ **Web IDE**: Browser-based development
-- ✅ **622 Tests**: 100% passing
-- ✅ **Comprehensive Docs**: 5,594+ lines
-- ✅ **LLM Integration**: Ready for AI models
-- ✅ **Error Messages**: Clear, helpful
-- ✅ **Debugging**: Built-in debugger
-
----
-
-## 🎯 Real-World Applications
-
-### 1. **Expert Systems**
-Build intelligent systems that reason and explain:
-- Medical diagnosis
-- Financial advice
-- Legal consultation
-- Technical troubleshooting
-
-### 2. **Knowledge Management**
-Organize and query complex knowledge:
-- Corporate knowledge bases
-- Research databases
-- Educational systems
-- Documentation systems
-
-### 3. **AI/ML Applications**
-Combine logic with learning:
-- Explainable AI
-- Hybrid reasoning systems
-- Semantic search
-- Intelligent agents
-
-### 4. **Arabic Software**
-Build software in Arabic:
-- Educational tools
-- Government systems
-- Cultural applications
-- Arabic NLP tools
-
-### 5. **Research & Education**
-Explore new paradigms:
-- Programming language research
-- AI research
-- Teaching multiple paradigms
-- Computational linguistics
-
----
-
-## 📊 Project Statistics
-
-- **1,100+ files** in repository
-- **538,000+ lines** of code and documentation
-- **622 tests** (100% passing)
-- **873 Python files** (core + tests + tools)
-- **233 Bayan files** (.bayan + .by)
-- **148 examples** (complete working examples)
-- **11 challenges** (demonstrating unique capabilities)
-- **3 programming paradigms** in one language
-- **2 brains** (logical + mathematical)
-
----
-
-## 🌐 For AI Models (للنماذج اللغوية)
-
-### Essential Links
-- **Architecture Guide**: [PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)
-- **AI Model Links**: [docs/AI_MODEL_LINKS.md](docs/AI_MODEL_LINKS.md)
-- **LLM System Prompt**: [docs/LLM_SYSTEM_PROMPT.txt](docs/LLM_SYSTEM_PROMPT.txt)
-
-### RAW Links (for direct access)
-- Architecture: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/PROJECT_ARCHITECTURE_GUIDE.md
-- AI Links: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/AI_MODEL_LINKS.md
-- LLM Prompt: https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/docs/LLM_SYSTEM_PROMPT.txt
-
----
-
-## 🏆 Challenges & Examples
-
-### Completed Challenges
-1. ✅ **Movie Recommendations** (200 lines) - Semantic networks + collaborative filtering
-2. ✅ **Travel Planner** (180 lines) - Constraints + optimization
-3. ✅ **Inventory Management** (220 lines) - Forecasting + alerts
-4. ✅ **Fraud Detection** (228 lines) - Behavioral analysis + risk scoring
-5. ✅ **Nutrition Advisor** (140 lines) - Meal planning + health constraints
-6. ✅ **Employee Scheduling** (90 lines) - Constraint satisfaction
-7. ✅ **Car Diagnostic** (100 lines) - Multi-level diagnosis
-8. ✅ **Investment Advisor** (80 lines) - Portfolio optimization
-9. ✅ **Crisis Management** (75 lines) - Resource allocation + priorities
-10. ✅ **Legal Advisory** (75 lines) - Case analysis + precedents
-11. ✅ **Smart City** (442 lines) - 5 integrated subsystems!
-
-**Total**: ~1,775 lines across 11 diverse domains  
-**Achievement**: 48% under target goals!
+```bash
+python web_ide/app.py
+# Open: http://127.0.0.1:5001/ide
+```
 
 ---
 
 ## 📖 Documentation
 
-### Tutorials (Arabic)
-- [Part 1: Introduction](docs/01_INTRODUCTION_AR.md)
-- [Part 2: Procedural & OOP](docs/02_PROCEDURAL_OOP_AR.md)
-- [Part 3: Logic Programming](docs/03_LOGIC_PROGRAMMING_AR.md)
-- [Part 4: Probabilistic Reasoning](docs/04_PROBABILISTIC_REASONING_AR.md)
+### Getting Started
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[START_HERE.md](START_HERE.md)** - Begin here
+- **[docs/تعليمية/ar/01_INTRODUCTION_AR.md](docs/تعليمية/ar/01_INTRODUCTION_AR.md)** - Arabic introduction
 
-### Tutorials (English)
-- Procedural & OOP: [PART1](docs/02_PROCEDURAL_OOP_EN_PART1.md), [PART2](docs/02_PROCEDURAL_OOP_EN_PART2.md), [PART3](docs/02_PROCEDURAL_OOP_EN_PART3.md), [PART4](docs/02_PROCEDURAL_OOP_EN_PART4.md)
-- Logic Programming: [PART1](docs/03_LOGIC_PROGRAMMING_EN_PART1.md), [PART2](docs/03_LOGIC_PROGRAMMING_EN_PART2.md), [PART3](docs/03_LOGIC_PROGRAMMING_EN_PART3.md), [PART4](docs/03_LOGIC_PROGRAMMING_EN_PART4.md)
+### Learning Paths
+- **Beginner:** Parts 1-3 (Introduction, Procedural/OOP, Logic basics)
+- **Intermediate:** Parts 4.1-4.4 (Advanced logic)
+- **Advanced:** Parts 4.5-4.11 (AI systems)
+- **Expert:** Conceptual LM + Challenges
 
-### Technical Documentation
-- [Language Guide](docs/LANGUAGE_GUIDE.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Entity System Guide](docs/ENTITY_SYSTEM_GUIDE.md)
-- [Arabic Text Support](docs/ARABIC_TEXT_SUPPORT.md)
+### Complete Index
+- **[docs/تعليمية/README.md](docs/تعليمية/README.md)** - Tutorial index
+- **[docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)** - Complete documentation index
 
 ---
 
@@ -601,7 +860,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨💻 Author
+## 👨‍💻 Author
 
 **Developed by: Basel Yahya Abdullah (باسل يحيى عبدالله)**  
 **With assistance from: AI Language Models**
@@ -623,6 +882,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 بيان ليست مجرد لغة برمجة أخرى. إنها **نقلة نوعية** تجمع:
 
+**ثلاثة أنماط برمجية + دعم ثنائي اللغة + 10+ أنظمة ذكاء اصطناعي مبتكرة**
+
 ### 🧠 **معمارية الدماغ المزدوج** (الأولى في العالم!)
 - **الدماغ الأيسر (المنطقي)**: حقائق، قواعد، استدلال، فحص الاتساق
 - **الدماغ الأيمن (الرياضي)**: معادلات، حسابات، تحليل عددي
@@ -633,50 +894,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **البرمجة الكائنية**: الأصناف، الوراثة، تعدد الأشكال
 - **البرمجة المنطقية**: حقائق وقواعد واستعلامات بأسلوب Prolog
 - **البرمجة الوظيفية**: دوال من الدرجة الأولى، lambdas، closures
-
-### 🌐 **الشبكات السببية والدلالية**
-- **الشبكات السببية**: علاقات السبب والنتيجة مع الأسباب الفيزيائية/المنطقية
-- **الشبكات الدلالية**: علاقات المعنى بين المفاهيم
-- **رسوم المعرفة**: ثلاثيات كيان-علاقة-كيان
-- **الأنطولوجيات**: هياكل المفاهيم الهرمية
-
-### 🎭 **نظام الكيانات**
-- **الكيانات الديناميكية**: كائنات بحالات وخصائص وأفعال وردود أفعال
-- **الحالات الضبابية**: جميع الحالات منتظمة (0..1)
-- **مدفوع بالأحداث**: الأفعال تطلق ردود أفعال مع تأثيرات سببية
-- **قابل للاستعلام**: جميع الكيانات والحالات متاحة عبر الاستعلامات المنطقية
-
-### 📐 **المعادلات اللغوية**
-- **الفلسفة**: الفكرة = (أشياء + حدث + نتيجة)
-- **اللغة الطبيعية → الرياضيات**: تحويل الجمل إلى معادلات
-- **8 أدوار نحوية**: فاعل، مفعول به، مكان، زمان، أداة، إلخ
-- **9 أنواع أحداث**: فيزيائية، عقلية، تواصلية، حركية، إلخ
-
-### 🧬 **المخططات المفاهيمية**
-- **المخططات**: أنماط مجردة (أحداث، حالات، سببية)
-- **الدوائر**: سيناريوهات صغيرة قابلة لإعادة الاستخدام
-- **البرامج**: برامج معنى عالية المستوى
-- **المنسق**: يدير تنفيذ برامج المعنى
-
-### 🎨 **نموذج اللغة التوليدي (GLM)**
-- **المعجم**: يربط المفاهيم بالجذور العربية/الإنجليزية
-- **الصرف**: يصرف الأفعال ويعرب الأسماء (عربي/إنجليزي)
-- **المحقق السطحي**: يولد نصاً طليقاً من الآثار المفاهيمية
-- **خط أنابيب كامل**: معنى مجرد → لغة طبيعية طليقة
-
-### 🔬 **الأنظمة الرياضية المتقدمة**
-- **GSE (معادلة الشكل المعممة)**: تقريب دالة تكيفي
-- **المعادلة الأم**: تمثيل شامل للكائنات (Φ، Ψ(t)، Γ)
-- **10 مجالات خصائص**: فيزيائي، كيميائي، نفسي، اجتماعي، إلخ
-- **المنطق الضبابي**: دعم مدمج لعدم اليقين والحقيقة التدريجية
-
-### 🎯 **نظام الخبير-المستكشف**
-- **اتخاذ قرار مزدوج**: يجمع الخبرة مع الاستكشاف
-- **ثلاث نظريات ثورية**:
-  - الصفر الثنائي
-  - الأضداد العمودية
-  - نظرية الخيط
-- **التعلم التكيفي**: يحدث المعرفة بناءً على النتائج
 
 ---
 
@@ -711,32 +928,33 @@ python -m bayan examples/hello.by
 - **1,100+ ملف** في المستودع
 - **538,000+ سطر** من الكود والوثائق
 - **622 اختبار** (100% نجاح)
-- **873 ملف Python** (النواة + الاختبارات + الأدوات)
-- **233 ملف Bayan** (.bayan + .by)
 - **148 مثال** (أمثلة عملية كاملة)
 - **11 تحدي** (يوضح القدرات الفريدة)
-- **3 أنماط برمجية** في لغة واحدة
-- **2 دماغ** (منطقي + رياضي)
+- **42 ملف تعليمي** (21 عربي + 21 إنجليزي)
+- **10+ نظام ذكاء اصطناعي** متقدم
 
 ---
 
 ## 🏆 التحديات والأمثلة
 
-### التحديات المكتملة
-1. ✅ **توصيات الأفلام** (200 سطر) - شبكات دلالية + تصفية تعاونية
-2. ✅ **مخطط الرحلات** (180 سطر) - قيود + تحسين
-3. ✅ **إدارة المخزون** (220 سطر) - تنبؤ + تنبيهات
-4. ✅ **كشف الاحتيال** (228 سطر) - تحليل سلوكي + تقييم مخاطر
-5. ✅ **مستشار التغذية** (140 سطر) - تخطيط وجبات + قيود صحية
-6. ✅ **جدولة الموظفين** (90 سطر) - إشباع القيود
-7. ✅ **تشخيص السيارات** (100 سطر) - تشخيص متعدد المستويات
-8. ✅ **المستشار الاستثماري** (80 سطر) - تحسين المحفظة
-9. ✅ **إدارة الأزمات** (75 سطر) - تخصيص موارد + أولويات
-10. ✅ **الاستشارة القانونية** (75 سطر) - تحليل قضايا + سوابق
-11. ✅ **المدينة الذكية** (442 سطر) - 5 أنظمة فرعية متكاملة!
+### التحديات المكتملة (11 تحدي)
+1. ✅ **التحدي الأعظم** - نظام متعدد المجالات (350 سطر)
+2. ✅ **التحليل الائتماني** - نظام خبير (250 سطر)
+3. ✅ **توصيات الأفلام** - نظام ذكي (200 سطر)
+4. ✅ **مخطط الرحلات** - تحسين القيود
+5. ✅ **إدارة المخزون** - تنبؤ وتنبيهات
+6. ✅ **المدينة الذكية** - 5 أنظمة متكاملة (442 سطر)
+7. ✅ وغيرها...
 
-**الإجمالي**: ~1,775 سطر عبر 11 مجال متنوع  
-**الإنجاز**: 48% أقل من الأهداف المحددة!
+### الأمثلة (148 مثال)
+- أمثلة أساسية
+- أمثلة متقدمة
+- أمثلة AI/ML
+- أمثلة رسومية (SVG/Canvas)
+- أمثلة مفاهيمية
+- أمثلة عربية
+
+**[عرض جميع الأمثلة ←](examples/)**
 
 </div>
 
