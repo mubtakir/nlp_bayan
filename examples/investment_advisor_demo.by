@@ -1,0 +1,87 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 💹 المستشار الاستثماري الذكي
+# Smart Investment Advisor
+# ============================================================================
+# التحدي: بناء محفظة استثمارية متوازنة < 350 سطر
+# ============================================================================
+
+# الأدوات الاستثمارية (ID، الاسم، النوع، العائد_المتوقع، المخاطر، السيولة)
+fact: investment("I001", "أسهم_تقنية", "stocks", 12, "high", "high").
+fact: investment("I002", "أسهم_بنوك", "stocks", 8, "medium", "high").
+fact: investment("I003", "سندات_حكومية", "bonds", 4, "low", "medium").
+fact: investment("I004", "سندات_شركات", "bonds", 6, "medium", "medium").
+fact: investment("I005", "عقار_سكني", "real_estate", 7, "medium", "low").
+fact: investment("I006", "عقار_تجاري", "real_estate", 9, "medium", "low").
+fact: investment("I007", "ذهب", "commodities", 5, "low", "high").
+fact: investment("I008", "صناديق_مؤشرات", "funds", 10, "medium", "high").
+fact: investment("I009", "صكوك_إسلامية", "islamic", 5.5, "low", "medium").
+fact: investment("I010", "أسهم_أرامكو", "stocks", 7, "low", "high").
+
+# ملفات المستثمرين (ID، الاسم، العمر، الدخل_الشهري، المدخرات، تحمل_المخاطر)
+fact: investor("INV001", "أحمد", 25, 15000, 50000, "high").
+fact: investor("INV002", "فاطمة", 45, 25000, 500000, "low").
+fact: investor("INV003", "خالد", 35, 20000, 200000, "medium").
+fact: investor("INV004", "نورة", 55, 30000, 800000, "low").
+
+# الأهداف الاستثمارية (ID المستثمر، الهدف، المدة_بالسنوات، المبلغ_المستهدف)
+fact: investment_goal("INV001", "retirement", 35, 2000000).
+fact: investment_goal("INV002", "children_education", 10, 500000).
+fact: investment_goal("INV003", "wealth_growth", 15, 1000000).
+fact: investment_goal("INV004", "income_generation", 5, 100000).
+
+# توافق الاستثمار مع تحمل المخاطر
+rule: suitable_investment(InvestorId, InvestmentId, Investment, Return) :-
+    investor(InvestorId, _, _, _, _, RiskTolerance),
+    investment(InvestmentId, Investment, _, Return, Risk, _),
+    ((RiskTolerance = "high") ;
+     (RiskTolerance = "medium", Risk \= "high") ;
+     (RiskTolerance = "low", Risk = "low")).
+
+# بناء محفظة متنوعة
+rule: diversified_portfolio(InvestorId, Stocks, Bonds, RealEstate, Others) :-
+    investor(InvestorId, _, Age, _, Savings, RiskTolerance),
+    (Age < 35 -> StockRatio = 0.6, BondRatio = 0.2, RERatio = 0.15, OtherRatio = 0.05 ;
+     Age < 50 -> StockRatio = 0.5, BondRatio = 0.3, RERatio = 0.15, OtherRatio = 0.05 ;
+     StockRatio = 0.3, BondRatio = 0.5, RERatio = 0.15, OtherRatio = 0.05),
+    Stocks is Savings * StockRatio,
+    Bonds is Savings * BondRatio,
+    RealEstate is Savings * RERatio,
+    Others is Savings * OtherRatio.
+
+# حساب العائد المتوقع للمحفظة
+rule: portfolio_return(InvestorId, ExpectedReturn) :-
+    diversified_portfolio(InvestorId, Stocks, Bonds, RE, Others),
+    investor(InvestorId, _, _, _, Savings, _),
+    StockReturn is (Stocks / Savings) * 10,
+    BondReturn is (Bonds / Savings) * 5,
+    REReturn is (RE / Savings) * 7,
+    OtherReturn is (Others / Savings) * 5.5,
+    ExpectedReturn is StockReturn + BondReturn + REReturn + OtherReturn.
+
+# توصيات استثمارية
+rule: investment_recommendation(InvestorId, InvestmentId, Reason, Amount) :-
+    suitable_investment(InvestorId, InvestmentId, _, _),
+    diversified_portfolio(InvestorId, Stocks, Bonds, RE, Others),
+    investment(InvestmentId, _, Type, _, _, _),
+    ((Type = "stocks", Amount = Stocks, Reason = "growth_potential") ;
+     (Type = "bonds", Amount = Bonds, Reason = "stability") ;
+     (Type = "real_estate", Amount = RE, Reason = "long_term_value") ;
+     (Type = "islamic", Amount = Others, Reason = "shariah_compliant")).
+
+# تحليل المخاطر
+rule: risk_analysis(InvestorId, RiskLevel, Recommendation) :-
+    investor(InvestorId, _, Age, Income, Savings, RiskTolerance),
+    SavingsToIncomeRatio is Savings / (Income * 12),
+    ((RiskTolerance = "high", Age < 40, SavingsToIncomeRatio > 2) ->
+        RiskLevel = "acceptable", Recommendation = "aggressive_growth" ;
+     (RiskTolerance = "medium") ->
+        RiskLevel = "moderate", Recommendation = "balanced_growth" ;
+        RiskLevel = "conservative", Recommendation = "capital_preservation").
+
+# استعلامات
+query: suitable_investment("INV001", InvestmentId, Investment, Return).
+query: diversified_portfolio("INV003", Stocks, Bonds, RealEstate, Others).
+query: portfolio_return("INV001", ExpectedReturn).
+query: investment_recommendation("INV002", InvestmentId, Reason, Amount).
+query: risk_analysis("INV001", RiskLevel, Recommendation).

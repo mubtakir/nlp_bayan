@@ -1,0 +1,90 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 🚨 نظام إدارة الأزمات الذكي
+# Smart Crisis Management System
+# ============================================================================
+# التحدي: اتخاذ قرارات حرجة مع موارد محدودة < 380 سطر
+# ============================================================================
+
+# أنواع الأزمات
+fact: crisis("C001", "حريق_كبير", "منطقة_سكنية_أ", "active", "critical").
+fact: crisis("C002", "فيضان", "منطقة_ب", "active", "high").
+fact: crisis("C003", "زلزال", "منطقة_ج", "monitoring", "critical").
+fact: crisis("C004", "انقطاع_كهرباء", "منطقة_د", "active", "medium").
+
+# السكان المتأثرون
+fact: affected_population("C001", 5000, 200, 50).
+fact: affected_population("C002", 3000, 100, 20).
+fact: affected_population("C003", 10000, 500, 150).
+fact: affected_population("C004", 2000, 0, 0).
+
+# الموارد المتاحة (النوع، الكمية، الحالة، الموقع)
+fact: resource("ambulance", 10, "available", "central").
+fact: resource("fire_truck", 8, "available", "central").
+fact: resource("rescue_team", 15, "available", "central").
+fact: resource("helicopter", 3, "available", "airport").
+fact: resource("emergency_shelter", 5, "available", "various").
+fact: resource("medical_supplies", 1000, "available", "warehouse").
+fact: resource("food_supplies", 5000, "available", "warehouse").
+fact: resource("water_tanker", 6, "available", "central").
+
+# الأولويات (إنقاذ أرواح > إصابات > ممتلكات)
+rule: priority_level(CrisisId, Priority) :-
+    crisis(CrisisId, _, _, Status, Severity),
+    affected_population(CrisisId, _, Injured, Trapped),
+    ((Trapped > 0, Severity = "critical") -> Priority = 10 ;
+     (Injured > 100, Severity = "critical") -> Priority = 9 ;
+     (Trapped > 0) -> Priority = 8 ;
+     (Injured > 50) -> Priority = 7 ;
+     (Severity = "critical") -> Priority = 6 ;
+     Priority = 5).
+
+# تخصيص الموارد
+rule: allocate_resources(CrisisId, CrisisType, ResourceType, Amount) :-
+    crisis(CrisisId, CrisisType, _, "active", _),
+    affected_population(CrisisId, Population, Injured, Trapped),
+    resource(ResourceType, Available, "available", _),
+    ((CrisisType = "حريق_كبير", ResourceType = "fire_truck", Amount is min(Available, 5)) ;
+     (CrisisType = "حريق_كبير", ResourceType = "ambulance", Amount is min(Available, Injured / 20)) ;
+     (CrisisType = "فيضان", ResourceType = "rescue_team", Amount is min(Available, 8)) ;
+     (CrisisType = "فيضان", ResourceType = "helicopter", Amount is min(Available, 2)) ;
+     (CrisisType = "زلزال", ResourceType = "rescue_team", Amount is min(Available, 12)) ;
+     (CrisisType = "زلزال", ResourceType = "medical_supplies", Amount is min(Available, Injured * 5))).
+
+# قرارات الإخلاء
+rule: evacuation_needed(CrisisId, Area, Population, Urgency) :-
+    crisis(CrisisId, Type, Area, "active", Severity),
+    affected_population(CrisisId, Population, _, Trapped),
+    ((Severity = "critical", Trapped > 10) -> Urgency = "immediate" ;
+     (Severity = "critical") -> Urgency = "urgent" ;
+     (Severity = "high") -> Urgency = "soon" ;
+     Urgency = "monitor").
+
+# خطة الاستجابة
+rule: response_plan(CrisisId, Actions) :-
+    crisis(CrisisId, Type, Area, "active", Severity),
+    priority_level(CrisisId, Priority),
+    findall(Action, (
+        (evacuation_needed(CrisisId, _, _, "immediate"), Action = "immediate_evacuation") ;
+        (allocate_resources(CrisisId, _, ResourceType, _), Action = allocate(ResourceType)) ;
+        (Priority >= 8, Action = "deploy_all_emergency_services")
+    ), Actions).
+
+# تقييم المخاطر المتتالية
+rule: cascading_risks(CrisisId, SecondaryRisks) :-
+    crisis(CrisisId, Type, Area, _, _),
+    findall(Risk, (
+        (Type = "حريق_كبير", Risk = "smoke_inhalation") ;
+        (Type = "حريق_كبير", Risk = "building_collapse") ;
+        (Type = "فيضان", Risk = "waterborne_diseases") ;
+        (Type = "فيضان", Risk = "infrastructure_damage") ;
+        (Type = "زلزال", Risk = "aftershocks") ;
+        (Type = "زلزال", Risk = "gas_leaks")
+    ), SecondaryRisks).
+
+# استعلامات
+query: priority_level(CrisisId, Priority).
+query: allocate_resources("C001", Type, ResourceType, Amount).
+query: evacuation_needed(CrisisId, Area, Population, Urgency).
+query: response_plan("C001", Actions).
+query: cascading_risks("C003", SecondaryRisks).

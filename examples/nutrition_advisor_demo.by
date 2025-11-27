@@ -1,0 +1,140 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 🥗 مستشار التغذية والصحة الشخصي
+# Personal Nutrition & Health Advisor
+# ============================================================================
+# التحدي: نظام توصيات غذائية ذكي < 300 سطر
+# ============================================================================
+
+# قاعدة بيانات الأطعمة (اسم، سعرات، بروتين، كربوهيدرات، دهون، فئة)
+fact: food("دجاج_مشوي", 165, 31, 0, 3.6, "protein").
+fact: food("سمك_سلمون", 206, 22, 0, 13, "protein").
+fact: food("أرز_بني", 112, 2.6, 24, 0.9, "carbs").
+fact: food("خبز_أسمر", 69, 3.6, 12, 1.2, "carbs").
+fact: food("بروكلي", 34, 2.8, 7, 0.4, "vegetables").
+fact: food("سبانخ", 23, 2.9, 3.6, 0.4, "vegetables").
+fact: food("تفاح", 52, 0.3, 14, 0.2, "fruits").
+fact: food("موز", 89, 1.1, 23, 0.3, "fruits").
+fact: food("لوز", 579, 21, 22, 50, "nuts").
+fact: food("زيت_زيتون", 884, 0, 0, 100, "fats").
+fact: food("حليب_قليل_الدسم", 42, 3.4, 5, 1, "dairy").
+fact: food("زبادي_يوناني", 59, 10, 3.6, 0.4, "dairy").
+fact: food("بيض", 155, 13, 1.1, 11, "protein").
+fact: food("شوفان", 389, 17, 66, 7, "carbs").
+fact: food("عدس", 116, 9, 20, 0.4, "legumes").
+fact: food("حمص", 164, 9, 27, 2.6, "legumes").
+
+# بيانات المستخدمين (ID، الاسم، العمر، الوزن، الطول، الجنس، مستوى_النشاط)
+fact: user("U001", "أحمد", 35, 85, 175, "male", "moderate").
+fact: user("U002", "فاطمة", 28, 65, 160, "female", "active").
+fact: user("U003", "خالد", 45, 95, 180, "male", "sedentary").
+fact: user("U004", "نورة", 32, 70, 165, "female", "moderate").
+
+# الحالات الصحية (ID المستخدم، الحالة، الشدة)
+fact: health_condition("U001", "diabetes", "controlled").
+fact: health_condition("U002", "none", "healthy").
+fact: health_condition("U003", "hypertension", "moderate").
+fact: health_condition("U003", "high_cholesterol", "high").
+fact: health_condition("U004", "none", "healthy").
+
+# الأهداف الصحية (ID المستخدم، الهدف، الهدف_بالكيلو، المدة_بالأسابيع)
+fact: health_goal("U001", "maintain_weight", 85, 12).
+fact: health_goal("U002", "lose_weight", 60, 16).
+fact: health_goal("U003", "lose_weight", 80, 24).
+fact: health_goal("U004", "gain_muscle", 72, 12).
+
+# حساب السعرات الحرارية المطلوبة (معادلة Harris-Benedict)
+rule: daily_calorie_need(UserId, Calories) :-
+    user(UserId, _, Age, Weight, Height, Gender, Activity),
+    (Gender = "male" -> 
+        BMR is 88.362 + (13.397 * Weight) + (4.799 * Height) - (5.677 * Age) ;
+        BMR is 447.593 + (9.247 * Weight) + (3.098 * Height) - (4.330 * Age)),
+    (Activity = "sedentary" -> Multiplier = 1.2 ;
+     Activity = "moderate" -> Multiplier = 1.55 ;
+     Activity = "active" -> Multiplier = 1.725 ;
+     Multiplier = 1.9),
+    Calories is BMR * Multiplier.
+
+# تعديل السعرات حسب الهدف
+rule: target_calories(UserId, TargetCal) :-
+    daily_calorie_need(UserId, BaseCal),
+    health_goal(UserId, Goal, _, _),
+    (Goal = "lose_weight" -> TargetCal is BaseCal - 500 ;
+     Goal = "gain_muscle" -> TargetCal is BaseCal + 300 ;
+     TargetCal = BaseCal).
+
+# الأطعمة الممنوعة حسب الحالة الصحية
+rule: forbidden_food(UserId, Food, Reason) :-
+    health_condition(UserId, Condition, _),
+    food(Food, _, _, Carbs, Fat, Category),
+    ((Condition = "diabetes", Carbs > 20, Reason = "high_carbs") ;
+     (Condition = "hypertension", Category = "fats", Reason = "high_sodium") ;
+     (Condition = "high_cholesterol", Fat > 10, Reason = "high_fat")).
+
+# الأطعمة الموصى بها حسب الحالة
+rule: recommended_food(UserId, Food, Reason) :-
+    health_condition(UserId, Condition, _),
+    food(Food, Cal, Protein, Carbs, Fat, Category),
+    \+ forbidden_food(UserId, Food, _),
+    ((Condition = "diabetes", Carbs < 15, Category = "vegetables", Reason = "low_carb_veggie") ;
+     (Condition = "hypertension", Category = "vegetables", Reason = "heart_healthy") ;
+     (Condition = "high_cholesterol", Fat < 5, Protein > 5, Reason = "low_fat_protein") ;
+     (Condition = "none", Cal < 200, Reason = "healthy_choice")).
+
+# بناء وجبة متوازنة (بروتين + كربوهيدرات + خضار)
+rule: balanced_meal(UserId, Protein, Carb, Veggie, TotalCal) :-
+    recommended_food(UserId, Protein, _),
+    food(Protein, Cal1, _, _, _, "protein"),
+    recommended_food(UserId, Carb, _),
+    food(Carb, Cal2, _, _, _, "carbs"),
+    recommended_food(UserId, Veggie, _),
+    food(Veggie, Cal3, _, _, _, "vegetables"),
+    TotalCal is Cal1 + Cal2 + Cal3,
+    target_calories(UserId, Target),
+    MealTarget is Target / 3,
+    TotalCal < MealTarget + 100,
+    TotalCal > MealTarget - 100.
+
+# خطة وجبات يومية (3 وجبات)
+rule: daily_meal_plan(UserId, Breakfast, Lunch, Dinner, TotalCal) :-
+    balanced_meal(UserId, BP, BC, BV, BCal),
+    balanced_meal(UserId, LP, LC, LV, LCal),
+    balanced_meal(UserId, DP, DC, DV, DCal),
+    BP \= LP, BP \= DP, LP \= DP,
+    Breakfast = meal(BP, BC, BV, BCal),
+    Lunch = meal(LP, LC, LV, LCal),
+    Dinner = meal(DP, DC, DV, DCal),
+    TotalCal is BCal + LCal + DCal,
+    target_calories(UserId, Target),
+    TotalCal < Target + 200,
+    TotalCal > Target - 200.
+
+# تحذيرات صحية
+rule: health_warning(UserId, Food, Warning) :-
+    forbidden_food(UserId, Food, Reason),
+    health_condition(UserId, Condition, Severity),
+    (Severity = "high" -> Priority = "critical" ; Priority = "moderate"),
+    Warning = warning(Condition, Reason, Priority).
+
+# توصيات المكملات الغذائية
+rule: supplement_recommendation(UserId, Supplement, Reason) :-
+    health_goal(UserId, Goal, _, _),
+    ((Goal = "gain_muscle", Supplement = "protein_powder", Reason = "muscle_building") ;
+     (Goal = "lose_weight", Supplement = "multivitamin", Reason = "nutrient_support")).
+
+# تقرير التغذية الشخصي
+rule: nutrition_report(UserId, Name, TargetCal, RecommendedFoods, ForbiddenFoods) :-
+    user(UserId, Name, _, _, _, _, _),
+    target_calories(UserId, TargetCal),
+    findall(Food, recommended_food(UserId, Food, _), RecommendedFoods),
+    findall(Food, forbidden_food(UserId, Food, _), ForbiddenFoods).
+
+# استعلامات
+query: daily_calorie_need(UserId, Calories).
+query: target_calories(UserId, TargetCal).
+query: recommended_food("U001", Food, Reason).
+query: forbidden_food("U003", Food, Reason).
+query: balanced_meal("U002", Protein, Carb, Veggie, TotalCal).
+query: daily_meal_plan("U001", Breakfast, Lunch, Dinner, TotalCal).
+query: health_warning(UserId, Food, Warning).
+query: nutrition_report("U001", Name, TargetCal, Recommended, Forbidden).

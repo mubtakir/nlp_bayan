@@ -1,0 +1,91 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 📅 نظام الجدولة الذكي للموظفين
+# Smart Employee Scheduling System
+# ============================================================================
+# التحدي: جدولة 20+ موظف على 7 أيام × 3 ورديات < 260 سطر
+# ============================================================================
+
+# الموظفون (ID، الاسم، المهارات، التفضيلات)
+fact: employee("E001", "أحمد", ["cashier", "stock"], "morning").
+fact: employee("E002", "فاطمة", ["manager", "cashier"], "any").
+fact: employee("E003", "خالد", ["stock", "delivery"], "night").
+fact: employee("E004", "نورة", ["cashier", "customer_service"], "morning").
+fact: employee("E005", "محمد", ["security", "stock"], "night").
+fact: employee("E006", "سارة", ["manager", "customer_service"], "afternoon").
+fact: employee("E007", "عبدالله", ["delivery", "stock"], "morning").
+fact: employee("E008", "ليلى", ["cashier", "customer_service"], "afternoon").
+fact: employee("E009", "يوسف", ["security", "delivery"], "night").
+fact: employee("E010", "مريم", ["manager", "cashier"], "morning").
+fact: employee("E011", "عمر", ["stock", "cashier"], "any").
+fact: employee("E012", "هند", ["customer_service", "cashier"], "afternoon").
+fact: employee("E013", "سعيد", ["delivery", "security"], "night").
+fact: employee("E014", "لطيفة", ["cashier", "stock"], "morning").
+fact: employee("E015", "ماجد", ["manager", "security"], "any").
+fact: employee("E016", "عائشة", ["customer_service", "cashier"], "afternoon").
+fact: employee("E017", "طارق", ["stock", "delivery"], "morning").
+fact: employee("E018", "جميلة", ["cashier", "customer_service"], "any").
+fact: employee("E019", "راشد", ["security", "stock"], "night").
+fact: employee("E020", "منى", ["manager", "customer_service"], "afternoon").
+
+# متطلبات الورديات (اليوم، الوردية، المهارة_المطلوبة، العدد_المطلوب)
+fact: shift_requirement("monday", "morning", "cashier", 3).
+fact: shift_requirement("monday", "morning", "stock", 2).
+fact: shift_requirement("monday", "afternoon", "cashier", 4).
+fact: shift_requirement("monday", "afternoon", "customer_service", 2).
+fact: shift_requirement("monday", "night", "security", 2).
+fact: shift_requirement("monday", "night", "stock", 1).
+fact: shift_requirement("tuesday", "morning", "cashier", 3).
+fact: shift_requirement("tuesday", "afternoon", "cashier", 4).
+fact: shift_requirement("tuesday", "night", "security", 2).
+fact: shift_requirement("wednesday", "morning", "cashier", 3).
+fact: shift_requirement("wednesday", "afternoon", "manager", 1).
+fact: shift_requirement("thursday", "morning", "stock", 3).
+fact: shift_requirement("friday", "morning", "cashier", 5).
+fact: shift_requirement("friday", "afternoon", "cashier", 5).
+fact: shift_requirement("saturday", "morning", "cashier", 4).
+fact: shift_requirement("sunday", "afternoon", "customer_service", 3).
+
+# قواعد الجدولة
+rule: can_work_shift(EmployeeId, Day, Shift) :-
+    employee(EmployeeId, _, Skills, Preference),
+    shift_requirement(Day, Shift, RequiredSkill, _),
+    member(RequiredSkill, Skills),
+    (Preference = "any" ; Preference = Shift).
+
+rule: assign_shift(EmployeeId, Name, Day, Shift, Skill) :-
+    can_work_shift(EmployeeId, Day, Shift),
+    employee(EmployeeId, Name, Skills, _),
+    shift_requirement(Day, Shift, Skill, _),
+    member(Skill, Skills).
+
+# كشف تعارضات الجدولة
+rule: schedule_conflict(EmployeeId, Day) :-
+    assign_shift(EmployeeId, _, Day, "morning", _),
+    assign_shift(EmployeeId, _, Day, "afternoon", _).
+
+# توزيع عادل للورديات
+rule: shift_count(EmployeeId, Count) :-
+    findall(S, assign_shift(EmployeeId, _, _, S, _), Shifts),
+    length(Shifts, Count).
+
+rule: fair_distribution :-
+    findall(C, shift_count(_, C), Counts),
+    max_list(Counts, Max),
+    min_list(Counts, Min),
+    Diff is Max - Min,
+    Diff < 3.
+
+# تقرير الجدولة
+rule: weekly_schedule(EmployeeId, Name, Schedule) :-
+    employee(EmployeeId, Name, _, _),
+    findall(shift(Day, Shift, Skill), 
+            assign_shift(EmployeeId, _, Day, Shift, Skill), 
+            Schedule).
+
+# استعلامات
+query: can_work_shift(EmployeeId, "monday", "morning").
+query: assign_shift(EmployeeId, Name, "friday", "morning", "cashier").
+query: schedule_conflict(EmployeeId, Day).
+query: shift_count(EmployeeId, Count).
+query: weekly_schedule("E001", Name, Schedule).

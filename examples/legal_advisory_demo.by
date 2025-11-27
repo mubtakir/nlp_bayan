@@ -1,0 +1,82 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# ⚖️ النظام القانوني الاستشاري
+# Legal Advisory Expert System
+# ============================================================================
+# التحدي: استدلال قانوني معقد < 400 سطر
+# ============================================================================
+
+# المواد القانونية (رقم_المادة، القانون، الموضوع، النص_المختصر)
+fact: law_article("A001", "قانون_العقود", "صحة_العقد", "يشترط_الأهلية_والرضا").
+fact: law_article("A002", "قانون_العقود", "بطلان_العقد", "العقد_باطل_إذا_خالف_النظام_العام").
+fact: law_article("A003", "قانون_الملكية", "حق_الملكية", "للمالك_حق_التصرف_والاستعمال").
+fact: law_article("A004", "قانون_الملكية", "نزع_الملكية", "يجوز_نزع_الملكية_للمصلحة_العامة_بتعويض").
+fact: law_article("A005", "قانون_العمل", "عقد_العمل", "يجب_أن_يكون_مكتوباً_ومحدد_المدة").
+fact: law_article("A006", "قانون_العمل", "إنهاء_العمل", "يحق_للعامل_التعويض_عند_الفصل_التعسفي").
+fact: law_article("A007", "قانون_الأسرة", "الزواج", "يشترط_الإيجاب_والقبول_والشهود").
+fact: law_article("A008", "قانون_الأسرة", "الطلاق", "للزوج_حق_الطلاق_وللزوجة_طلب_الخلع").
+fact: law_article("A009", "قانون_التجارة", "الشركات", "يجب_تسجيل_الشركة_في_السجل_التجاري").
+fact: law_article("A010", "قانون_التجارة", "الإفلاس", "يحق_للدائنين_طلب_إشهار_الإفلاس").
+
+# السوابق القضائية (رقم_القضية، المحكمة، السنة، الموضوع، الحكم)
+fact: precedent("P001", "محكمة_النقض", 2020, "نزاع_عقاري", "للمالك_الأصلي_حق_الاسترداد").
+fact: precedent("P002", "محكمة_الاستئناف", 2019, "فصل_تعسفي", "تعويض_6_أشهر_للعامل").
+fact: precedent("P003", "المحكمة_التجارية", 2021, "نزاع_شركاء", "حل_الشركة_وتصفيتها").
+fact: precedent("P004", "محكمة_الأسرة", 2018, "نفقة", "النفقة_واجبة_حسب_دخل_الزوج").
+fact: precedent("P005", "محكمة_النقض", 2022, "عقد_باطل", "العقد_باطل_لمخالفة_النظام_العام").
+
+# الحالات القانونية (ID، نوع_القضية، الأطراف، الوقائع)
+fact: legal_case("C001", "نزاع_عقاري", ["أحمد", "خالد"], "نزاع_على_ملكية_أرض").
+fact: legal_case("C002", "فصل_تعسفي", ["فاطمة", "شركة_س"], "فصل_بدون_سبب_مشروع").
+fact: legal_case("C003", "عقد_باطل", ["محمد", "سعيد"], "عقد_بيع_مخالف_للنظام").
+
+# تحليل الحالة القانونية
+rule: applicable_laws(CaseId, CaseType, Articles) :-
+    legal_case(CaseId, CaseType, _, _),
+    findall(ArticleId, (
+        law_article(ArticleId, Law, Subject, _),
+        ((CaseType = "نزاع_عقاري", Law = "قانون_الملكية") ;
+         (CaseType = "فصل_تعسفي", Law = "قانون_العمل") ;
+         (CaseType = "عقد_باطل", Law = "قانون_العقود"))
+    ), Articles).
+
+# السوابق ذات الصلة
+rule: relevant_precedents(CaseId, CaseType, Precedents) :-
+    legal_case(CaseId, CaseType, _, _),
+    findall(PrecId, (
+        precedent(PrecId, _, _, Subject, _),
+        ((CaseType = "نزاع_عقاري", Subject = "نزاع_عقاري") ;
+         (CaseType = "فصل_تعسفي", Subject = "فصل_تعسفي") ;
+         (CaseType = "عقد_باطل", Subject = "عقد_باطل"))
+    ), Precedents).
+
+# التوصية القانونية
+rule: legal_recommendation(CaseId, Recommendation, Basis) :-
+    legal_case(CaseId, CaseType, Parties, _),
+    applicable_laws(CaseId, CaseType, Articles),
+    relevant_precedents(CaseId, CaseType, Precedents),
+    length(Articles, ArticleCount),
+    length(Precedents, PrecedentCount),
+    ((CaseType = "نزاع_عقاري", ArticleCount > 0) ->
+        Recommendation = "للمالك_الأصلي_حق_الاسترداد", Basis = "قانون_الملكية_والسوابق" ;
+     (CaseType = "فصل_تعسفي", PrecedentCount > 0) ->
+        Recommendation = "يحق_للعامل_تعويض_6_أشهر", Basis = "قانون_العمل_والسوابق" ;
+     (CaseType = "عقد_باطل") ->
+        Recommendation = "العقد_باطل_ويجب_إلغاؤه", Basis = "قانون_العقود").
+
+# تقييم قوة القضية
+rule: case_strength(CaseId, Strength) :-
+    applicable_laws(CaseId, _, Articles),
+    relevant_precedents(CaseId, _, Precedents),
+    length(Articles, AC),
+    length(Precedents, PC),
+    TotalSupport is AC + (PC * 2),
+    ((TotalSupport >= 5) -> Strength = "strong" ;
+     (TotalSupport >= 3) -> Strength = "moderate" ;
+     Strength = "weak").
+
+# استعلامات
+query: applicable_laws("C001", CaseType, Articles).
+query: relevant_precedents("C002", CaseType, Precedents).
+query: legal_recommendation("C001", Recommendation, Basis).
+query: case_strength("C002", Strength).

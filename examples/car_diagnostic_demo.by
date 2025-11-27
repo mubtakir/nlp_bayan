@@ -1,0 +1,106 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 🚗 نظام تشخيص أعطال السيارات
+# Car Diagnostic Expert System
+# ============================================================================
+# التحدي: تشخيص متعدد المستويات < 320 سطر
+# ============================================================================
+
+# الأعراض (ID، الوصف، النوع، الشدة)
+fact: symptom("S001", "صوت_طقطقة_عند_الفرامل", "sound", "high").
+fact: symptom("S002", "اهتزاز_المقود", "vibration", "medium").
+fact: symptom("S003", "دخان_أزرق_من_العادم", "smoke", "high").
+fact: symptom("S004", "صعوبة_التشغيل_صباحاً", "starting", "medium").
+fact: symptom("S005", "ارتفاع_حرارة_المحرك", "temperature", "critical").
+fact: symptom("S006", "صوت_صفير_من_المحرك", "sound", "medium").
+fact: symptom("S007", "تسريب_زيت", "leak", "high").
+fact: symptom("S008", "ضعف_التسارع", "performance", "medium").
+fact: symptom("S009", "رائحة_احتراق", "smell", "high").
+fact: symptom("S010", "ضوء_فحص_المحرك", "warning_light", "medium").
+
+# الأنظمة الفرعية
+fact: car_system("brakes", "نظام_الفرامل").
+fact: car_system("engine", "المحرك").
+fact: car_system("transmission", "ناقل_الحركة").
+fact: car_system("cooling", "نظام_التبريد").
+fact: car_system("electrical", "النظام_الكهربائي").
+fact: car_system("exhaust", "نظام_العادم").
+
+# ربط الأعراض بالأنظمة
+rule: symptom_to_system("S001", "brakes", 90).
+rule: symptom_to_system("S002", "brakes", 70).
+rule: symptom_to_system("S002", "transmission", 30).
+rule: symptom_to_system("S003", "engine", 85).
+rule: symptom_to_system("S004", "electrical", 60).
+rule: symptom_to_system("S004", "engine", 40).
+rule: symptom_to_system("S005", "cooling", 95).
+rule: symptom_to_system("S006", "engine", 75).
+rule: symptom_to_system("S007", "engine", 80).
+rule: symptom_to_system("S008", "engine", 60).
+rule: symptom_to_system("S008", "transmission", 40).
+rule: symptom_to_system("S009", "electrical", 70).
+rule: symptom_to_system("S009", "engine", 30).
+rule: symptom_to_system("S010", "engine", 50).
+
+# الأعطال المحتملة (ID، الوصف، النظام، الاحتمال، التكلفة)
+fact: fault("F001", "تآكل_فحمات_الفرامل", "brakes", "high", 500).
+fact: fault("F002", "تلف_أقراص_الفرامل", "brakes", "medium", 1200).
+fact: fault("F003", "احتراق_زيت_المحرك", "engine", "high", 2000).
+fact: fault("F004", "ضعف_البطارية", "electrical", "high", 400).
+fact: fault("F005", "تلف_الثرموستات", "cooling", "high", 300).
+fact: fault("F006", "تسريب_رادياتير", "cooling", "medium", 800).
+fact: fault("F007", "تلف_حزام_المحرك", "engine", "medium", 250).
+fact: fault("F008", "مشكلة_حساس_الأكسجين", "exhaust", "medium", 600).
+fact: fault("F009", "انزلاق_القابض", "transmission", "high", 3000).
+fact: fault("F010", "تلف_بواجي_الإشعال", "engine", "medium", 350).
+
+# ربط الأعطال بالأعراض
+rule: fault_causes_symptom("F001", "S001", 95).
+rule: fault_causes_symptom("F002", "S001", 85).
+rule: fault_causes_symptom("F002", "S002", 70).
+rule: fault_causes_symptom("F003", "S003", 90).
+rule: fault_causes_symptom("F003", "S007", 60).
+rule: fault_causes_symptom("F004", "S004", 85).
+rule: fault_causes_symptom("F005", "S005", 90).
+rule: fault_causes_symptom("F006", "S005", 70).
+rule: fault_causes_symptom("F007", "S006", 80).
+rule: fault_causes_symptom("F008", "S008", 65).
+rule: fault_causes_symptom("F008", "S010", 70).
+rule: fault_causes_symptom("F009", "S008", 75).
+rule: fault_causes_symptom("F010", "S004", 60).
+rule: fault_causes_symptom("F010", "S008", 55).
+
+# التشخيص بناءً على الأعراض
+rule: diagnose(SymptomId, FaultId, System, Probability, Cost) :-
+    symptom(SymptomId, _, _, _),
+    fault_causes_symptom(FaultId, SymptomId, Prob),
+    fault(FaultId, _, System, _, Cost),
+    Probability = Prob.
+
+# تشخيص متعدد الأعراض
+rule: multi_symptom_diagnosis(Symptoms, FaultId, TotalProb, Cost) :-
+    fault(FaultId, _, _, _, Cost),
+    findall(P, (member(S, Symptoms), fault_causes_symptom(FaultId, S, P)), Probs),
+    length(Probs, Count),
+    Count > 0,
+    sum_list(Probs, Sum),
+    TotalProb is Sum / Count.
+
+# توصيات الإصلاح
+rule: repair_recommendation(FaultId, Description, Priority, Cost) :-
+    fault(FaultId, Description, System, Likelihood, Cost),
+    symptom_to_system(_, System, _),
+    (Likelihood = "high" -> Priority = "urgent" ;
+     Likelihood = "medium" -> Priority = "soon" ;
+     Priority = "monitor").
+
+# تقدير التكلفة الإجمالية
+rule: total_repair_cost(Faults, TotalCost) :-
+    findall(Cost, (member(F, Faults), fault(F, _, _, _, Cost)), Costs),
+    sum_list(Costs, TotalCost).
+
+# استعلامات
+query: diagnose("S001", FaultId, System, Probability, Cost).
+query: multi_symptom_diagnosis(["S003", "S007"], FaultId, Prob, Cost).
+query: repair_recommendation(FaultId, Description, Priority, Cost).
+query: total_repair_cost(["F001", "F005"], TotalCost).

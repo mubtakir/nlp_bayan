@@ -1,0 +1,442 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 🏙️ نظام المدينة الذكية المتكاملة
+# Integrated Smart City Management System
+# ============================================================================
+# التحدي: إدارة 5 أنظمة متكاملة في أقل من 500 سطر!
+# Challenge: Manage 5 integrated systems in under 500 lines!
+# ============================================================================
+
+# ============================================================================
+# 1️⃣ نظام المرور الذكي - Smart Traffic Management
+# ============================================================================
+
+# تعريف التقاطعات والإشارات
+fact: intersection("تقاطع_الملك_فهد", "north_south", "green", 60).
+fact: intersection("تقاطع_العليا", "east_west", "green", 45).
+fact: intersection("تقاطع_التحلية", "north_south", "red", 30).
+fact: intersection("تقاطع_الأمير_محمد", "east_west", "yellow", 15).
+
+# حالة المرور
+fact: traffic_flow("تقاطع_الملك_فهد", "heavy", 85).
+fact: traffic_flow("تقاطع_العليا", "moderate", 55).
+fact: traffic_flow("تقاطع_التحلية", "light", 25).
+fact: traffic_flow("تقاطع_الأمير_محمد", "heavy", 90).
+
+# الحوادث
+fact: accident("حادث_001", "تقاطع_الملك_فهد", "minor", "lane_blocked").
+fact: accident("حادث_002", "تقاطع_الأمير_محمد", "major", "road_closed").
+
+# قواعد إدارة المرور
+rule: needs_extended_green(Intersection) :-
+    traffic_flow(Intersection, "heavy", Density),
+    Density > 80,
+    intersection(Intersection, _, _, _).
+
+rule: needs_traffic_reroute(Intersection) :-
+    accident(_, Intersection, Severity, Status),
+    Severity = "major",
+    Status = "road_closed".
+
+rule: traffic_alert(Intersection, "high_congestion", Priority) :-
+    traffic_flow(Intersection, "heavy", Density),
+    Density > 85,
+    Priority = 9.
+
+# ============================================================================
+# 2️⃣ نظام الطاقة - Energy Management System
+# ============================================================================
+
+# مصادر الطاقة
+fact: power_source("solar_farm_1", "solar", 5000, "active", 85).
+fact: power_source("grid_main", "grid", 20000, "active", 100).
+fact: power_source("backup_gen_1", "diesel", 3000, "standby", 0).
+fact: power_source("wind_farm_1", "wind", 2000, "active", 60).
+
+# استهلاك الطاقة حسب المنطقة
+fact: power_consumption("منطقة_سكنية_شمال", 4500, "normal").
+fact: power_consumption("منطقة_تجارية_وسط", 8000, "high").
+fact: power_consumption("منطقة_صناعية_جنوب", 6500, "normal").
+fact: power_consumption("منطقة_مستشفيات", 3500, "critical").
+
+# حالة الشبكة
+fact: grid_status("منطقة_سكنية_شمال", "stable", 95).
+fact: grid_status("منطقة_تجارية_وسط", "overload", 105).
+fact: grid_status("منطقة_صناعية_جنوب", "stable", 88).
+fact: grid_status("منطقة_مستشفيات", "stable", 92).
+
+# قواعد إدارة الطاقة
+rule: use_renewable_first(Source, Capacity) :-
+    power_source(Source, Type, Capacity, "active", Efficiency),
+    (Type = "solar"; Type = "wind"),
+    Efficiency > 50.
+
+rule: activate_backup(Area) :-
+    grid_status(Area, "overload", Load),
+    Load > 100,
+    power_consumption(Area, _, Priority),
+    Priority = "critical".
+
+rule: energy_alert(Area, "overload_warning", Priority) :-
+    grid_status(Area, "overload", Load),
+    Load > 100,
+    Priority = 10.
+
+rule: load_balancing_needed(Area, Excess) :-
+    grid_status(Area, "overload", Load),
+    Excess is Load - 100,
+    Excess > 0.
+
+# ============================================================================
+# 3️⃣ نظام الأمن - Security System
+# ============================================================================
+
+# الكاميرات والمراقبة
+fact: camera("cam_001", "تقاطع_الملك_فهد", "active", "normal").
+fact: camera("cam_002", "منطقة_تجارية_وسط", "active", "alert").
+fact: camera("cam_003", "منطقة_سكنية_شمال", "active", "normal").
+fact: camera("cam_004", "تقاطع_الأمير_محمد", "maintenance", "offline").
+
+# الحوادث الأمنية
+fact: security_incident("inc_001", "منطقة_تجارية_وسط", "theft", "high", "in_progress").
+fact: security_incident("inc_002", "منطقة_سكنية_شمال", "suspicious_activity", "medium", "monitoring").
+
+# وحدات الأمن
+fact: security_unit("unit_alpha", "patrol", "available", "منطقة_سكنية_شمال").
+fact: security_unit("unit_beta", "patrol", "responding", "منطقة_تجارية_وسط").
+fact: security_unit("unit_gamma", "emergency", "available", "central_station").
+fact: security_unit("unit_delta", "patrol", "available", "منطقة_صناعية_جنوب").
+
+# قواعد الأمن
+rule: dispatch_security(Unit, Location, Incident) :-
+    security_incident(Incident, Location, Type, Priority, "in_progress"),
+    Priority = "high",
+    security_unit(Unit, _, "available", _).
+
+rule: security_alert(Location, Type, Priority) :-
+    security_incident(_, Location, Type, Priority, "in_progress"),
+    Priority = "high".
+
+rule: camera_maintenance_needed(Camera, Location) :-
+    camera(Camera, Location, "maintenance", "offline").
+
+# ============================================================================
+# 4️⃣ نظام الصحة العامة - Public Health System
+# ============================================================================
+
+# المستشفيات والمراكز الصحية
+fact: hospital("مستشفى_الملك_فيصل", "منطقة_مستشفيات", 500, 450, "high").
+fact: hospital("مستشفى_العليا", "منطقة_تجارية_وسط", 300, 280, "medium").
+fact: hospital("مركز_صحي_الشمال", "منطقة_سكنية_شمال", 100, 60, "low").
+
+# سيارات الإسعاف
+fact: ambulance("amb_001", "available", "مستشفى_الملك_فيصل").
+fact: ambulance("amb_002", "responding", "تقاطع_الملك_فهد").
+fact: ambulance("amb_003", "available", "مستشفى_العليا").
+fact: ambulance("amb_004", "maintenance", "مركز_صحي_الشمال").
+
+# حالات الطوارئ الصحية
+fact: health_emergency("emr_001", "تقاطع_الملك_فهد", "accident_injury", "critical").
+fact: health_emergency("emr_002", "منطقة_سكنية_شمال", "cardiac_arrest", "critical").
+
+# مراقبة الأوبئة
+fact: disease_monitoring("منطقة_سكنية_شمال", "flu", 15, "low_risk").
+fact: disease_monitoring("منطقة_تجارية_وسط", "covid", 45, "medium_risk").
+fact: disease_monitoring("منطقة_صناعية_جنوب", "flu", 8, "low_risk").
+
+# قواعد الصحة العامة
+rule: dispatch_ambulance(Ambulance, Location, Emergency) :-
+    health_emergency(Emergency, Location, Type, "critical"),
+    ambulance(Ambulance, "available", _).
+
+rule: hospital_capacity_alert(Hospital, Available) :-
+    hospital(Hospital, _, Capacity, Occupied, _),
+    Available is Capacity - Occupied,
+    Available < 50.
+
+rule: outbreak_alert(Area, Disease, Priority) :-
+    disease_monitoring(Area, Disease, Cases, Risk),
+    Cases > 40,
+    Risk = "medium_risk",
+    Priority = 8.
+
+rule: increase_health_resources(Area) :-
+    disease_monitoring(Area, _, Cases, Risk),
+    Cases > 40,
+    Risk = "medium_risk".
+
+# ============================================================================
+# 5️⃣ نظام البيئة - Environmental System
+# ============================================================================
+
+# مراقبة جودة الهواء
+fact: air_quality("منطقة_سكنية_شمال", 45, "good").
+fact: air_quality("منطقة_تجارية_وسط", 95, "moderate").
+fact: air_quality("منطقة_صناعية_جنوب", 165, "unhealthy").
+fact: air_quality("منطقة_مستشفيات", 55, "good").
+
+# إدارة النفايات
+fact: waste_management("منطقة_سكنية_شمال", 65, "normal").
+fact: waste_management("منطقة_تجارية_وسط", 88, "high").
+fact: waste_management("منطقة_صناعية_جنوب", 92, "critical").
+
+# جودة المياه
+fact: water_quality("reservoir_north", 8.5, "excellent").
+fact: water_quality("reservoir_south", 7.2, "good").
+fact: water_quality("treatment_plant_1", 8.0, "excellent").
+
+# قواعد البيئة
+rule: pollution_alert(Area, Level, Priority) :-
+    air_quality(Area, AQI, Status),
+    AQI > 150,
+    Status = "unhealthy",
+    Priority = 7.
+
+rule: waste_collection_urgent(Area) :-
+    waste_management(Area, Level, Status),
+    Level > 85,
+    Status = "critical".
+
+rule: environmental_action_needed(Area, "reduce_industrial_emissions") :-
+    air_quality(Area, AQI, "unhealthy"),
+    AQI > 150.
+
+# ============================================================================
+# 🔗 التكامل بين الأنظمة - Cross-System Integration
+# ============================================================================
+
+# حادث مرور → أمن + صحة
+rule: multi_system_response_accident(Intersection, SecurityUnit, Ambulance) :-
+    accident(AccidentId, Intersection, "major", _),
+    dispatch_security(SecurityUnit, Intersection, _),
+    dispatch_ambulance(Ambulance, Intersection, _).
+
+# انقطاع كهرباء → مرور + أمن
+rule: power_outage_response(Area, TrafficImpact, SecurityNeeded) :-
+    grid_status(Area, "overload", Load),
+    Load > 100,
+    TrafficImpact = "traffic_lights_backup_needed",
+    SecurityNeeded = "increase_patrol".
+
+# تلوث عالي → مرور + بيئة
+rule: pollution_traffic_control(Area, Action) :-
+    air_quality(Area, AQI, "unhealthy"),
+    AQI > 150,
+    Action = "reroute_traffic_from_area".
+
+# وباء → صحة + مرور
+rule: outbreak_response(Area, HealthAction, TrafficAction) :-
+    disease_monitoring(Area, Disease, Cases, "medium_risk"),
+    Cases > 40,
+    HealthAction = "increase_health_resources",
+    TrafficAction = "limit_public_transport".
+
+# حدث كبير → تنسيق كامل
+rule: major_event_coordination(Area, Systems) :-
+    accident(_, Area, "major", "road_closed"),
+    security_incident(_, Area, _, "high", "in_progress"),
+    Systems = ["traffic", "security", "health", "energy"].
+
+# ============================================================================
+# 📊 استعلامات متقدمة - Advanced Queries
+# ============================================================================
+
+# استعلام 1: المناطق التي تحتاج تدخل فوري
+rule: critical_area(Area, Reasons) :-
+    (traffic_alert(Area, _, Priority1), Priority1 > 8);
+    (energy_alert(Area, _, Priority2), Priority2 > 9);
+    (security_alert(Area, _, Priority3), Priority3 = "high");
+    (pollution_alert(Area, _, Priority4), Priority4 > 6).
+
+# استعلام 2: حالة النظام الكاملة
+rule: system_status(System, Area, Status, Priority) :-
+    (System = "traffic", traffic_alert(Area, Status, Priority));
+    (System = "energy", energy_alert(Area, Status, Priority));
+    (System = "security", security_alert(Area, _, Priority), Status = "incident");
+    (System = "health", outbreak_alert(Area, _, Priority), Status = "outbreak");
+    (System = "environment", pollution_alert(Area, _, Priority), Status = "pollution").
+
+# استعلام 3: الموارد المتاحة
+rule: available_resources(Type, Resource, Location) :-
+    (Type = "security", security_unit(Resource, _, "available", Location));
+    (Type = "health", ambulance(Resource, "available", Location));
+    (Type = "energy", power_source(Resource, _, _, "active", _), Location = "grid").
+
+# استعلام 4: خطة الطوارئ
+rule: emergency_plan(Area, Actions) :-
+    critical_area(Area, _),
+    findall(Action, (
+        (needs_traffic_reroute(Area), Action = "reroute_traffic");
+        (activate_backup(Area), Action = "activate_backup_power");
+        (dispatch_security(_, Area, _), Action = "dispatch_security");
+        (increase_health_resources(Area), Action = "increase_health_resources");
+        (environmental_action_needed(Area, EnvAction), Action = EnvAction)
+    ), Actions).
+
+# استعلام 5: تأثير متعدد الأنظمة
+rule: cascading_effects(InitialEvent, AffectedSystems) :-
+    (accident(InitialEvent, Location, "major", _),
+     findall(System, (
+         (needs_traffic_reroute(Location), System = "traffic");
+         (dispatch_security(_, Location, _), System = "security");
+         (dispatch_ambulance(_, Location, _), System = "health")
+     ), AffectedSystems)).
+
+# ============================================================================
+# 🎯 سيناريوهات تجريبية - Test Scenarios
+# ============================================================================
+
+# سيناريو 1: حادث كبير في تقاطع رئيسي
+fact: scenario("major_accident_scenario", "active").
+fact: scenario_trigger("major_accident_scenario", "accident", "حادث_002").
+
+# سيناريو 2: انقطاع كهرباء في منطقة حيوية
+fact: scenario("power_outage_scenario", "active").
+fact: scenario_trigger("power_outage_scenario", "energy", "منطقة_تجارية_وسط").
+
+# سيناريو 3: تلوث بيئي حاد
+fact: scenario("pollution_scenario", "active").
+fact: scenario_trigger("pollution_scenario", "environment", "منطقة_صناعية_جنوب").
+
+# سيناريو 4: حالة طوارئ صحية
+fact: scenario("health_emergency_scenario", "active").
+fact: scenario_trigger("health_emergency_scenario", "health", "منطقة_تجارية_وسط").
+
+# ============================================================================
+# 📈 تقارير وإحصائيات - Reports & Statistics
+# ============================================================================
+
+# تقرير حالة المرور
+rule: traffic_report(TotalIntersections, HeavyTraffic, Accidents) :-
+    findall(I, intersection(I, _, _, _), Intersections),
+    length(Intersections, TotalIntersections),
+    findall(H, traffic_flow(H, "heavy", _), HeavyList),
+    length(HeavyList, HeavyTraffic),
+    findall(A, accident(A, _, _, _), AccidentList),
+    length(AccidentList, Accidents).
+
+# تقرير الطاقة
+rule: energy_report(TotalSources, ActiveSources, TotalCapacity) :-
+    findall(S, power_source(S, _, _, _, _), Sources),
+    length(Sources, TotalSources),
+    findall(A, power_source(A, _, _, "active", _), ActiveList),
+    length(ActiveList, ActiveSources),
+    findall(C, power_source(_, _, C, "active", _), Capacities),
+    sum_list(Capacities, TotalCapacity).
+
+# تقرير الأمن
+rule: security_report(TotalIncidents, HighPriority, AvailableUnits) :-
+    findall(I, security_incident(I, _, _, _, _), Incidents),
+    length(Incidents, TotalIncidents),
+    findall(H, security_incident(H, _, _, "high", _), HighList),
+    length(HighList, HighPriority),
+    findall(U, security_unit(U, _, "available", _), Units),
+    length(Units, AvailableUnits).
+
+# تقرير الصحة
+rule: health_report(TotalHospitals, TotalBeds, OccupiedBeds, AvailableAmbulances) :-
+    findall(H, hospital(H, _, _, _, _), Hospitals),
+    length(Hospitals, TotalHospitals),
+    findall(C, hospital(_, _, C, _, _), Capacities),
+    sum_list(Capacities, TotalBeds),
+    findall(O, hospital(_, _, _, O, _), Occupied),
+    sum_list(Occupied, OccupiedBeds),
+    findall(A, ambulance(A, "available", _), Ambulances),
+    length(Ambulances, AvailableAmbulances).
+
+# تقرير البيئة
+rule: environment_report(AreasMonitored, UnhealthyAreas, CriticalWaste) :-
+    findall(A, air_quality(A, _, _), Areas),
+    length(Areas, AreasMonitored),
+    findall(U, air_quality(U, _, "unhealthy"), UnhealthyList),
+    length(UnhealthyList, UnhealthyAreas),
+    findall(W, waste_management(W, _, "critical"), WasteList),
+    length(WasteList, CriticalWaste).
+
+# ============================================================================
+# 🚨 نظام التنبيهات الذكي - Smart Alert System
+# ============================================================================
+
+# تصنيف الأولويات
+rule: alert_priority(Alert, Priority, Urgency) :-
+    (traffic_alert(_, Alert, P1), Priority = P1, Urgency = "immediate", P1 > 8);
+    (energy_alert(_, Alert, P2), Priority = P2, Urgency = "critical", P2 > 9);
+    (security_alert(_, _, P3), Alert = "security", Priority = 10, Urgency = "critical", P3 = "high");
+    (pollution_alert(_, _, P4), Alert = "pollution", Priority = P4, Urgency = "high", P4 > 6).
+
+# تجميع التنبيهات
+rule: all_active_alerts(Alerts) :-
+    findall(alert(System, Area, Type, Priority), (
+        system_status(System, Area, Type, Priority)
+    ), Alerts).
+
+# توصيات تلقائية
+rule: auto_recommendation(Area, Recommendation, Reason) :-
+    (needs_extended_green(Area), 
+     Recommendation = "extend_green_light_duration",
+     Reason = "heavy_traffic_detected");
+    (activate_backup(Area),
+     Recommendation = "activate_backup_generator",
+     Reason = "grid_overload");
+    (waste_collection_urgent(Area),
+     Recommendation = "schedule_immediate_waste_collection",
+     Reason = "critical_waste_level").
+
+# ============================================================================
+# 📱 واجهة الاستعلام - Query Interface
+# ============================================================================
+
+# استعلامات جاهزة للاستخدام:
+
+# 1. ما المناطق الحرجة؟
+query: critical_area(Area, Reasons).
+
+# 2. ما حالة كل نظام؟
+query: system_status(System, Area, Status, Priority).
+
+# 3. ما الموارد المتاحة؟
+query: available_resources(Type, Resource, Location).
+
+# 4. ما التنبيهات النشطة؟
+query: all_active_alerts(Alerts).
+
+# 5. ما التوصيات التلقائية؟
+query: auto_recommendation(Area, Recommendation, Reason).
+
+# 6. تقرير شامل للمدينة
+query: traffic_report(TI, HT, A),
+       energy_report(TS, AS, TC),
+       security_report(SI, HP, AU),
+       health_report(TH, TB, OB, AA),
+       environment_report(AM, UA, CW).
+
+# 7. تأثيرات متعددة الأنظمة
+query: cascading_effects(Event, Systems).
+
+# 8. خطة الطوارئ لمنطقة
+query: emergency_plan("منطقة_تجارية_وسط", Actions).
+
+# ============================================================================
+# 📊 النتائج المتوقعة - Expected Results
+# ============================================================================
+
+# عند تشغيل هذا الملف، سيقوم النظام بـ:
+# 1. تحليل حالة 5 أنظمة متكاملة
+# 2. كشف المناطق الحرجة التي تحتاج تدخل فوري
+# 3. تقديم توصيات تلقائية ذكية
+# 4. إظهار التكامل بين الأنظمة المختلفة
+# 5. توليد تقارير شاملة عن حالة المدينة
+
+# ============================================================================
+# 🎉 نهاية التحدي - End of Challenge
+# ============================================================================
+# إجمالي الأسطر: < 500 سطر
+# Total Lines: < 500 lines
+# 
+# هذا النظام يوضح قدرة لغة البيان على:
+# - إدارة أنظمة معقدة متعددة المجالات
+# - الاستدلال المنطقي المتقدم
+# - التكامل السلس بين الأنظمة
+# - اتخاذ قرارات ذكية في الوقت الفعلي
+# - كل ذلك بوضوح وإيجاز لا يمكن تحقيقه بسهولة في لغات أخرى!
+# ============================================================================
