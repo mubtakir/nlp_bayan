@@ -525,6 +525,26 @@ hybrid {
   - Causal networks, semantic relations, dynamic entities
   - **Master level difficulty** - The most comprehensive challenge yet!
 
+- **[MOVIE_RECOMMENDATION_CHALLENGE.md](MOVIE_RECOMMENDATION_CHALLENGE.md)** 🎬 **NEW!**
+  - Smart movie recommendation system in 200 lines
+  - 25 movies, 10 users, semantic networks
+  - Collaborative filtering with explainable AI
+  
+- **[TRAVEL_PLANNER_CHALLENGE.md](TRAVEL_PLANNER_CHALLENGE.md)** ✈️ **NEW!**
+  - Smart travel planner with constraints in 180 lines
+  - 15 destinations, budget/time optimization
+  - Causal networks for weather and activities
+  
+- **[INVENTORY_MANAGEMENT_CHALLENGE.md](INVENTORY_MANAGEMENT_CHALLENGE.md)** 📦 **NEW!**
+  - Smart inventory management in 220 lines
+  - 30 products, auto-reordering, demand forecasting
+  - Smart alerts and seasonal analysis
+
+- **[REMAINING_CHALLENGES_SUMMARY.md](REMAINING_CHALLENGES_SUMMARY.md)** 📋
+  - Summary of 8 additional challenge ideas
+  - Fraud detection, nutrition advisor, employee scheduling, and more
+  - Ready for future development
+
 #### 🔗 AI Model Links (روابط للنماذج اللغوية)
 
 - **AI Model Links:**
