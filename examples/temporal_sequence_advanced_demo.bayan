@@ -1,0 +1,139 @@
+# Advanced Temporal Sequence Demonstration
+# عرض توضيحي للتسلسل الزمني المتقدم
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    
+    print("=" * 70)
+    print("Advanced Temporal Sequence Demonstration")
+    print("عرض توضيحي للتسلسل الزمني المتقدم")
+    print("=" * 70)
+    print()
+    
+    # Test 1: Simple 3-event sequence
+    print("Test 1: Morning Routine (3 events)")
+    print("-" * 70)
+    
+    morning_events = [
+        "حدث_الاستيقاظ",
+        "حدث_الإفطار",
+        "حدث_الذهاب_للعمل"
+    ]
+    
+    morning_relations = [
+        "before",
+        "before"
+    ]
+    
+    morning_sequence = circuits.build_multi_event_temporal_sequence_circuit(
+        morning_events,
+        morning_relations,
+        "روتين_الصباح"
+    )
+    
+    print("Events in sequence:")
+    for i in (range(len(morning_events))) {
+        print("  " + str(i + 1) + ". " + morning_events[i])
+    }
+    
+    print("\nTemporal links:")
+    trace = morning_sequence["trace"]
+    if ("temporal_links" in trace) {
+        for link in (trace["temporal_links"]) {
+            print("  " + link["event1"] + " → " + link["event2"] + " (" + link["relation"] + ")")
+        }
+    }
+    print()
+    
+    # Test 2: Complex 5-event sequence
+    print("Test 2: Medical Treatment Process (5 events)")
+    print("-" * 70)
+    
+    treatment_events = [
+        "حدث_ظهور_الأعراض",
+        "حدث_زيارة_الطبيب",
+        "حدث_التشخيص",
+        "حدث_تناول_العلاج",
+        "حدث_الشفاء"
+    ]
+    
+    treatment_relations = [
+        "before",
+        "before",
+        "before",
+        "before"
+    ]
+    
+    treatment_sequence = circuits.build_multi_event_temporal_sequence_circuit(
+        treatment_events,
+        treatment_relations,
+        "عملية_العلاج_الطبي"
+    )
+    
+    print("Events in sequence:")
+    for i in (range(len(treatment_events))) {
+        print("  " + str(i + 1) + ". " + treatment_events[i])
+    }
+    
+    print("\nTemporal links:")
+    trace2 = treatment_sequence["trace"]
+    if ("temporal_links" in trace2) {
+        for link in (trace2["temporal_links"]) {
+            print("  " + link["event1"] + " → " + link["event2"] + " (" + link["relation"] + ")")
+        }
+    }
+    
+    print("\nSequence metadata:")
+    if ("meta" in trace2) {
+        meta = trace2["meta"]
+        if ("sequence_length" in meta) {
+            print("  Length: " + str(meta["sequence_length"]) + " events")
+        }
+    }
+    print()
+    
+    # Test 3: Investment decision process (4 events)
+    print("Test 3: Investment Decision Process (4 events)")
+    print("-" * 70)
+    
+    investment_events = [
+        "حدث_دراسة_السوق",
+        "حدث_تحليل_المخاطر",
+        "حدث_اتخاذ_القرار",
+        "حدث_تنفيذ_الاستثمار"
+    ]
+    
+    investment_relations = [
+        "before",
+        "before",
+        "before"
+    ]
+    
+    investment_sequence = circuits.build_multi_event_temporal_sequence_circuit(
+        investment_events,
+        investment_relations,
+        "عملية_الاستثمار"
+    )
+    
+    print("Events in sequence:")
+    for i in (range(len(investment_events))) {
+        print("  " + str(i + 1) + ". " + investment_events[i])
+    }
+    
+    print("\nBridge structures:")
+    bridges = investment_sequence["bridge_structures"]
+    for key in (bridges) {
+        print("  - " + key)
+    }
+    print()
+    
+    # Summary
+    print("=" * 70)
+    print("Summary: Multi-Event Temporal Sequences")
+    print("=" * 70)
+    print("✅ 3-event sequence: Morning routine")
+    print("✅ 5-event sequence: Medical treatment process")
+    print("✅ 4-event sequence: Investment decision process")
+    print()
+    print("Multi-event temporal sequences allow complex narrative chains!")
+}

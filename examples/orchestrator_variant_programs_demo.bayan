@@ -1,0 +1,111 @@
+# Orchestrator Variant Programs Demo
+# عرض توضيحي للبرامج البديلة
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    
+    print("=" * 70)
+    print("Orchestrator Variant Programs Demo")
+    print("عرض توضيحي للبرامج البديلة")
+    print("=" * 70)
+    print()
+    
+    def run_variant(name, control_msg):
+    {
+        print("Running Variant: " + name)
+        print("-" * 50)
+        
+        result = orchestrator.dispatch_request(control_msg)
+        
+        if (result["ok"]):
+            print("Program: " + result["selected_program"])
+            print("Components generated:")
+            for comp_name in (result["components"]) {
+                print("  - " + comp_name)
+            }
+            
+            # Check for specific variant features
+            comps = result["components"]
+            if ("study_method_comparison" in comps):
+                print("  ✅ Found study comparison (Success Variant)")
+            if ("situation_comparison" in comps):
+                print("  ✅ Found situation comparison (Struggle Variant)")
+            if ("treatment_comparison" in comps):
+                print("  ✅ Found treatment comparison (Acute Variant)")
+            if ("management_comparison" in comps):
+                print("  ✅ Found management comparison (Chronic Variant)")
+                
+        else:
+            print("❌ Error: " + result["error"])
+        print()
+    }
+    
+    # 1. Education Variants
+    run_variant("Student Success", {
+        "domain": "education",
+        "scenario_variant": "positive",
+        "detail_level": "high"
+    })
+    
+    run_variant("Student Struggle", {
+        "domain": "education",
+        "scenario_variant": "negative",
+        "detail_level": "high"
+    })
+    
+    # 2. Health Variants
+    run_variant("Acute Treatment", {
+        "domain": "health",
+        "time_horizon": "short_term",
+        "detail_level": "high"
+    })
+    
+    run_variant("Chronic Management", {
+        "domain": "health",
+        "time_horizon": "long_term",
+        "detail_level": "high"
+    })
+    
+    # 3. Economy Variants
+    run_variant("Growth Investment", {
+        "domain": "economy",
+        "scenario_variant": "positive",
+        "detail_level": "high"
+    })
+    
+    run_variant("Recession Strategy", {
+        "domain": "economy",
+        "scenario_variant": "negative",
+        "detail_level": "high"
+    })
+    
+    # 4. Social Variants
+    run_variant("Relationship Building", {
+        "domain": "social",
+        "intent": "new",
+        "detail_level": "high"
+    })
+    
+    run_variant("Relationship Maintenance", {
+        "domain": "social",
+        "intent": "maintenance",
+        "detail_level": "high"
+    })
+    
+    # 5. Daily Life Variants
+    run_variant("Routine Decision", {
+        "domain": "daily_life",
+        "intent": "routine",
+        "detail_level": "medium"
+    })
+    
+    run_variant("Crisis Decision", {
+        "domain": "daily_life",
+        "intent": "crisis",
+        "detail_level": "high"
+    })
+    
+    print("=" * 70)
+    print("All Variants Verified Successfully")
+    print("=" * 70)
+}

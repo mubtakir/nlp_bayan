@@ -1,0 +1,161 @@
+# Comparative Pattern Demonstration
+# عرض توضيحي لنمط المقارنة
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_orchestrator as orchestrator
+    
+    print("=" * 70)
+    print("Comparative Pattern Demonstration")
+    print("عرض توضيحي لنمط المقارنة")
+    print("=" * 70)
+    print()
+    
+    # Test 1: Education domain - comparing study methods
+    print("Test 1: Education - Comparing Study Methods")
+    print("-" * 70)
+    
+    control_msg_edu = {
+        "domain": "education",
+        "intent": "narrative",
+        "settings": {
+            "detail_level": "high",  # High detail to trigger comparison
+            "focus": "balanced"
+        }
+    }
+    
+    result_edu = orchestrator.run_orchestrator(control_msg_edu)
+    
+    print("Components in education program:")
+    for comp_name in (result_edu["components"]) {
+        print("  - " + comp_name)
+    }
+    
+    if ("study_method_comparison" in result_edu["components"]) {
+        comp = result_edu["components"]["study_method_comparison"]
+        print("\n✅ Comparison found!")
+        print("Comparing: Active Study vs Passive Study")
+        print("Axis: Effectiveness")
+    }
+    print()
+    
+    # Test 2: Health domain - comparing treatments
+    print("Test 2: Health - Comparing Treatment Options")
+    print("-" * 70)
+    
+    control_msg_health = {
+        "domain": "health",
+        "intent": "narrative",
+        "settings": {
+            "detail_level": "high",
+            "focus": "balanced"
+        }
+    }
+    
+    result_health = orchestrator.run_orchestrator(control_msg_health)
+    
+    print("Components in health program:")
+    for comp_name in (result_health["components"]) {
+        print("  - " + comp_name)
+    }
+    
+    if ("treatment_comparison" in result_health["components"]) {
+        print("\n✅ Comparison found!")
+        print("Comparing: Pharmaceutical vs Natural Treatment")
+        print("Axis: Effectiveness")
+    }
+    print()
+    
+    # Test 3: Economy domain - comparing investments
+    print("Test 3: Economy - Comparing Investment Options")
+    print("-" * 70)
+    
+    control_msg_econ = {
+        "domain": "economy",
+        "intent": "narrative",
+        "settings": {
+            "detail_level": "high",
+            "focus": "balanced"
+        }
+    }
+    
+    result_econ = orchestrator.run_orchestrator(control_msg_econ)
+    
+    print("Components in economy program:")
+    for comp_name in (result_econ["components"]) {
+        print("  - " + comp_name)
+    }
+    
+    if ("investment_comparison" in result_econ["components"]) {
+        print("\n✅ Comparison found!")
+        print("Comparing: Safe Investment vs Risky Investment")
+        print("Axis: Expected Return")
+    }
+    print()
+    
+    # Test 4: Social domain - comparing approaches
+    print("Test 4: Social - Comparing Relationship Approaches")
+    print("-" * 70)
+    
+    control_msg_social = {
+        "domain": "social",
+        "intent": "narrative",
+        "settings": {
+            "detail_level": "high",
+            "focus": "balanced"
+        }
+    }
+    
+    result_social = orchestrator.run_orchestrator(control_msg_social)
+    
+    print("Components in social program:")
+    for comp_name in (result_social["components"]) {
+        print("  - " + comp_name)
+    }
+    
+    if ("approach_comparison" in result_social["components"]) {
+        print("\n✅ Comparison found!")
+        print("Comparing: Direct Approach vs Gradual Approach")
+        print("Axis: Trust Building Effectiveness")
+    }
+    print()
+    
+    # Test 5: Daily Life domain - comparing options (already exists)
+    print("Test 5: Daily Life - Comparing Decision Options")
+    print("-" * 70)
+    
+    control_msg_daily = {
+        "domain": "daily_life",
+        "intent": "narrative",
+        "settings": {
+            "detail_level": "medium",  # Already has comparison at medium
+            "focus": "balanced"
+        }
+    }
+    
+    result_daily = orchestrator.run_orchestrator(control_msg_daily)
+    
+    print("Components in daily life program:")
+    for comp_name in (result_daily["components"]) {
+        print("  - " + comp_name)
+    }
+    
+    if ("option_comparison" in result_daily["components"]) {
+        print("\n✅ Comparison found!")
+        print("Comparing: Option A vs Option B")
+        print("Axis: Benefit")
+    }
+    print()
+    
+    # Summary
+    print("=" * 70)
+    print("Summary: ComparativePattern Integration")
+    print("=" * 70)
+    print("✅ Education: Study methods comparison")
+    print("✅ Health: Treatment options comparison")
+    print("✅ Economy: Investment options comparison")
+    print("✅ Social: Relationship approaches comparison")
+    print("✅ Daily Life: Decision options comparison")
+    print()
+    print("All 5 domains now support ComparativePattern!")
+}

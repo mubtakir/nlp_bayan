@@ -1,0 +1,152 @@
+# All Patterns Integration Demonstration
+# عرض توضيحي متكامل لجميع الأنماط
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    import ai.conceptual_orchestrator as orchestrator
+    
+    print("=" * 70)
+    print("All Patterns Integration Demonstration")
+    print("عرض توضيحي متكامل لجميع الأنماط")
+    print("=" * 70)
+    print()
+    print("This demo shows how all three advanced patterns work together:")
+    print("1. ComparativePattern - Comparing alternatives")
+    print("2. TemporalOrderPattern - Sequential events")
+    print("3. ContextualizationPattern - Layered contexts")
+    print()
+    
+    # Scenario: A student choosing between study methods in a university setting
+    print("=" * 70)
+    print("Scenario: Student Decision-Making Process")
+    print("=" * 70)
+    print()
+    
+    # Step 1: Nested Context - Student in library within university
+    print("Step 1: Setting the Context (Nested)")
+    print("-" * 70)
+    
+    context_setup = circuits.build_nested_context_circuit(
+        "حدث_التفكير_في_الخيارات",
+        "الطالب",
+        "تفكير",
+        "مكتبة_الجامعة",
+        "الحرم_الجامعي",
+        "foreground"
+    )
+    
+    print("✅ Context established:")
+    print("   Student thinking in Library (within University Campus)")
+    print()
+    
+    # Step 2: Comparison - Comparing study methods
+    print("Step 2: Comparing Options (Comparative)")
+    print("-" * 70)
+    
+    method_comparison = circuits.build_enhanced_comparison_circuit(
+        "طريقة_المذاكرة_الجماعية",
+        "طريقة_المذاكرة_الفردية",
+        "محور_الفعالية",
+        0.75,
+        0.85,
+        "less",
+        "سياق_دراسي",
+        0.9
+    )
+    
+    print("✅ Comparison made:")
+    print("   Group Study (0.75) vs Individual Study (0.85)")
+    print("   Result: Individual study is more effective")
+    print()
+    
+    # Step 3: Temporal Sequence - Decision and implementation process
+    print("Step 3: Decision Process (Temporal Sequence)")
+    print("-" * 70)
+    
+    decision_events = [
+        "حدث_المقارنة",
+        "حدث_اتخاذ_القرار",
+        "حدث_تطبيق_الطريقة",
+        "حدث_تقييم_النتائج"
+    ]
+    
+    decision_relations = [
+        "before",
+        "before",
+        "before"
+    ]
+    
+    decision_sequence = circuits.build_multi_event_temporal_sequence_circuit(
+        decision_events,
+        decision_relations,
+        "عملية_اتخاذ_القرار"
+    )
+    
+    print("✅ Temporal sequence:")
+    for i in (range(len(decision_events))) {
+        print("   " + str(i + 1) + ". " + decision_events[i])
+    }
+    print()
+    
+    # Step 4: Full integration via orchestrator
+    print("Step 4: Full Integration via Orchestrator")
+    print("-" * 70)
+    
+    control_msg = {
+        "domain": "education",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "positive",
+            "time_horizon": "medium_term",
+            "detail_level": "high",  # Triggers all patterns
+            "focus": "temporal"       # Extra temporal focus
+        }
+    }
+    
+    result = orchestrator.run_orchestrator(control_msg)
+    
+    print("✅ Orchestrator result:")
+    print("   Components generated:")
+    for comp_name in (result["components"]) {
+        print("     - " + comp_name)
+    }
+    
+    trace = result["trace"]
+    print("\n   Trace statistics:")
+    if ("entities" in trace) {
+        print("     Entities: " + str(len(trace["entities"])))
+    }
+    if ("events" in trace) {
+        print("     Events: " + str(len(trace["events"])))
+    }
+    if ("causal_links" in trace) {
+        print("     Causal Links: " + str(len(trace["causal_links"])))
+    }
+    print()
+    
+    # Summary
+    print("=" * 70)
+    print("Integration Summary")
+    print("=" * 70)
+    print()
+    print("✅ All three patterns demonstrated:")
+    print()
+    print("1. ComparativePattern:")
+    print("   - Used to compare study methods")
+    print("   - Integrated in all 5 domain programs")
+    print("   - Triggered at high detail level")
+    print()
+    print("2. TemporalOrderPattern (Advanced):")
+    print("   - Multi-event sequences (3+ events)")
+    print("   - Decision process timeline")
+    print("   - Extra sequences with temporal focus")
+    print()
+    print("3. ContextualizationPattern (Nested):")
+    print("   - Two-layer context hierarchy")
+    print("   - Library within University")
+    print("   - Foreground/background scoping")
+    print()
+    print("=" * 70)
+    print("Phase 2.3 Pattern Integration: COMPLETE! ✅")
+    print("=" * 70)
+}

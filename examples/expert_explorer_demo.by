@@ -1,0 +1,42 @@
+# ============================================================================
+# تجربة نظام الخبير والمستكشف - Expert-Explorer Demo
+# ============================================================================
+
+import "ai/expert_explorer.by"
+
+hybrid {
+    print("🚀 Initializing Expert-Explorer System...")
+    system = ExpertExplorerController()
+    
+    # محاكاة سلسلة من المشاكل
+    # Simulate a sequence of problems (represented as numbers for the equation)
+    problems = [1.0, 2.0, 3.0, 4.0, 5.0]
+    
+    for i in (range(len(problems))) {
+        problem = problems[i]
+        print("\n📝 Problem " + str(i+1) + ": Input = " + str(problem))
+        
+        # 1. Process
+        response = system.process(problem)
+        print("   Agent: " + response["agent"])
+        print("   Result: " + str(response["result"]))
+        
+        # 2. Simulate User Feedback
+        # Let's say the target is x^2. If result is close, feedback is good.
+        target = problem * problem
+        error = abs(response["result"] - target)
+        
+        if (error < 5.0) {
+            feedback = "good"
+            print("   User Feedback: ✅ Good (Error: " + str(error) + ")")
+        } else {
+            feedback = "bad"
+            print("   User Feedback: ❌ Bad (Error: " + str(error) + ")")
+        }
+        
+        # 3. Learn
+        system.learn(problem, response["result"], feedback)
+    }
+    
+    print("\n🏁 Final Exploration Rate: " + str(system.exploration_rate))
+}

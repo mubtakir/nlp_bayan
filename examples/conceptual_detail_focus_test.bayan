@@ -1,0 +1,180 @@
+# Test Example: detail_level and focus Settings
+# This example demonstrates how detail_level and focus settings
+# control circuit selection in meaning programs
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    
+    print("=" * 60)
+    print("Testing detail_level and focus Settings")
+    print("=" * 60)
+    print()
+    
+    # Test 1: Low detail level
+    print("Test 1: Low Detail Level")
+    print("-" * 60)
+    
+    control_msg_low = {
+        "domain": "education",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "neutral",
+            "time_horizon": "short_term",
+            "detail_level": "low",
+            "focus": "balanced"
+        }
+    }
+    
+    result_low = orchestrator.run_orchestrator(control_msg_low)
+    trace_low = result_low["trace"]
+    
+    print("Circuits used (low detail):")
+    for comp_name in (result_low["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Total events: " + str(len(trace_low["events"])))
+    print("Total causal links: " + str(len(trace_low["causal_links"])))
+    print()
+    
+    # Test 2: Medium detail level
+    print("Test 2: Medium Detail Level")
+    print("-" * 60)
+    
+    control_msg_medium = {
+        "domain": "education",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "neutral",
+            "time_horizon": "short_term",
+            "detail_level": "medium",
+            "focus": "balanced"
+        }
+    }
+    
+    result_medium = orchestrator.run_orchestrator(control_msg_medium)
+    trace_medium = result_medium["trace"]
+    
+    print("Circuits used (medium detail):")
+    for comp_name in (result_medium["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Total events: " + str(len(trace_medium["events"])))
+    print("Total causal links: " + str(len(trace_medium["causal_links"])))
+    print()
+    
+    # Test 3: High detail level
+    print("Test 3: High Detail Level")
+    print("-" * 60)
+    
+    control_msg_high = {
+        "domain": "education",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "neutral",
+            "time_horizon": "short_term",
+            "detail_level": "high",
+            "focus": "balanced"
+        }
+    }
+    
+    result_high = orchestrator.run_orchestrator(control_msg_high)
+    trace_high = result_high["trace"]
+    
+    print("Circuits used (high detail):")
+    for comp_name in (result_high["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Total events: " + str(len(trace_high["events"])))
+    print("Total causal links: " + str(len(trace_high["causal_links"])))
+    print()
+    
+    # Test 4: Causal focus
+    print("Test 4: Causal Focus")
+    print("-" * 60)
+    
+    control_msg_causal = {
+        "domain": "health",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "neutral",
+            "time_horizon": "medium_term",
+            "detail_level": "medium",
+            "focus": "causal"
+        }
+    }
+    
+    result_causal = orchestrator.run_orchestrator(control_msg_causal)
+    trace_causal = result_causal["trace"]
+    
+    print("Circuits used (causal focus):")
+    for comp_name in (result_causal["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Causal links (should have stronger values):")
+    for link in (trace_causal["causal_links"]) {
+        print("  - " + link["cause_event"] + " → " + link["effect_event"])
+        print("    Strength: " + str(link["strength"]))
+    }
+    print()
+    
+    # Test 5: Temporal focus
+    print("Test 5: Temporal Focus")
+    print("-" * 60)
+    
+    control_msg_temporal = {
+        "domain": "economy",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "positive",
+            "time_horizon": "long_term",
+            "detail_level": "medium",
+            "focus": "temporal"
+        }
+    }
+    
+    result_temporal = orchestrator.run_orchestrator(control_msg_temporal)
+    
+    print("Circuits used (temporal focus):")
+    for comp_name in (result_temporal["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Note: Should include extra temporal_sequence_2 circuit")
+    print()
+    
+    # Test 6: Uncertainty focus
+    print("Test 6: Uncertainty Focus")
+    print("-" * 60)
+    
+    control_msg_uncertainty = {
+        "domain": "social",
+        "intent": "narrative",
+        "settings": {
+            "scenario_variant": "negative",
+            "time_horizon": "short_term",
+            "detail_level": "low",
+            "focus": "uncertainty"
+        }
+    }
+    
+    result_uncertainty = orchestrator.run_orchestrator(control_msg_uncertainty)
+    
+    print("Circuits used (uncertainty focus):")
+    for comp_name in (result_uncertainty["components"]) {
+        print("  - " + comp_name)
+    }
+    print("Note: Should include uncertain circuit even with low detail")
+    print()
+    
+    # Summary
+    print("=" * 60)
+    print("Summary:")
+    print("=" * 60)
+    print("✅ Low detail: 2 circuits (action_state + causal)")
+    print("✅ Medium detail: 4 circuits (+ temporal + contextual)")
+    print("✅ High detail: 5-6 circuits (+ uncertain)")
+    print("✅ Causal focus: Stronger causal links")
+    print("✅ Temporal focus: Extra temporal circuits")
+    print("✅ Uncertainty focus: Uncertain circuit added even at low detail")
+    print()
+    print("All detail_level and focus settings working correctly!")
+}

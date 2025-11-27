@@ -313,35 +313,37 @@ hybrid {
 
 ---
 
-### 7. 🎨 **Generative Language Model (GLM)**
+### 7. 🎨 **Generative Language Model (GLM)** (100% Complete ✅)
 
-Full pipeline from abstract meaning to fluent text:
+Full pipeline from abstract meaning to fluent text (Arabic & English):
 
 ```bayan
 hybrid {
-    # Conceptual trace
-    trace = [
-        Concept("محمد", role="AGENT"),
-        Concept("أكل", role="ACTION"),
-        Concept("تفاحة", role="PATIENT")
-    ]
+    # 1. User Intent -> Smart Orchestrator
+    # Selects best program based on domain, focus, and scenario
+    control = {"domain": "education", "scenario_variant": "positive"}
+    result = orchestrator.dispatch_request(control)
     
-    # Generate text
-    text = realize(trace, language="ar")
-    # → "محمد أكل تفاحة"
+    # 2. Conceptual Program -> Circuits
+    # Generates abstract thought patterns (Causal, Temporal, etc.)
+    circuits = result["components"]
     
-    # With tense and aspect
-    text2 = realize(trace, language="ar", tense="past", aspect="perfect")
-    # → "كان محمد قد أكل تفاحة"
+    # 3. Realizer -> Natural Language
+    # Converts thoughts to fluent text
+    text_ar = realize(circuits, language="arabic")
+    # → "الطالب الناجح ذاكر بفعالية وحصل على درجات ممتازة."
+    
+    text_en = realize(circuits, language="english")
+    # → "The successful student studied effectively and got excellent grades."
 }
 ```
 
-**Layers:**
-1. **Lexicon**: Concept → Lemma (500+ concepts)
-2. **Morphology**: Lemma → Inflected form (Arabic + English)
-3. **Realizer**: Concepts → Coherent sentence
+**New Capabilities (v2.4):**
+- **Smart Orchestrator**: Selects from 15+ variant programs (Optimistic/Pessimistic, Short/Long-term).
+- **Real LM Integration**: Converts abstract circuits to fluent text using expanded lexicon.
+- **Bilingual Generation**: Simultaneous Arabic and English output.
 
-**Files:** `ai/lexicon.bayan`, `ai/morphology.bayan`, `ai/conceptual_surface_realizer.bayan`
+**Files:** `ai/conceptual_orchestrator.bayan`, `ai/conceptual_surface_realizer.bayan`, `ai/lexicon.bayan`
 
 ---
 

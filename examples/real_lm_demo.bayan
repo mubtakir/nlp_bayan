@@ -1,0 +1,84 @@
+# Real LM Integration Demo
+# عرض توضيحي للتكامل مع النموذج اللغوي الحقيقي
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    import ai.conceptual_surface_realizer as realizer
+    
+    print("=" * 70)
+    print("Real LM Integration Demo")
+    print("عرض توضيحي للتكامل مع النموذج اللغوي")
+    print("=" * 70)
+    print()
+    
+    def run_and_realize(name, control_msg):
+    {
+        print("Scenario: " + name)
+        print("-" * 50)
+        
+        # 1. Run Orchestrator
+        result = orchestrator.dispatch_request(control_msg)
+        
+        if (result["ok"]):
+            print("Program Selected: " + result["selected_program"])
+            
+            # Prepare data for realizer
+            # Convert components dict to list of circuits
+            circuits_list = []
+            components = result["components"]
+            for key in (components) {
+                circuits_list.append(components[key])
+            }
+            
+            program_output = {"circuits": circuits_list}
+            
+            # 2. Realize in Arabic
+            ar_data = realizer.build_lm_training_data(program_output, "arabic")
+            print("\n[Arabic Output]:")
+            print(ar_data["full_text"])
+            
+            # 3. Realize in English
+            en_data = realizer.build_lm_training_data(program_output, "english")
+            print("\n[English Output]:")
+            print(en_data["full_text"])
+            
+        else:
+            print("❌ Error: " + result["error"])
+        print("\n" + "="*50 + "\n")
+    }
+    
+    # Test 1: Education (Success)
+    run_and_realize("Student Success", {
+        "domain": "education",
+        "scenario_variant": "positive",
+        "detail_level": "high"
+    })
+    
+    # Test 2: Health (Acute)
+    run_and_realize("Acute Treatment", {
+        "domain": "health",
+        "time_horizon": "short_term",
+        "detail_level": "high"
+    })
+    
+    # Test 3: Economy (Recession)
+    run_and_realize("Recession Strategy", {
+        "domain": "economy",
+        "scenario_variant": "negative",
+        "detail_level": "high"
+    })
+    
+    # Test 4: Social (New Relationship)
+    run_and_realize("New Relationship", {
+        "domain": "social",
+        "intent": "new",
+        "detail_level": "high"
+    })
+    
+    # Test 5: Daily Life (Decision)
+    run_and_realize("Routine Decision", {
+        "domain": "daily_life",
+        "intent": "routine",
+        "detail_level": "medium"
+    })
+}

@@ -11,64 +11,117 @@ import ai.conceptual_programs as programs
 def get_program_registry():
 {
     return [
+        # --- EDUCATION ---
         {
             "id": "student_study",
-            "description": "Student study narrative meaning program",
+            "description": "Student study narrative (Default)",
             "domains": ["education", "student"],
-            "intents": ["study_scenario"],
+            "intents": ["study_scenario", "narrative"],
             "builder": programs.build_student_study_narrative_program,
             "preferred_for": {
-                "time_horizon": "medium_term",
+                "scenario_variant": "neutral",
                 "focus": "balanced"
             }
         },
         {
-            "id": "student_study_causal",
-            "description": "Student study with causal focus (alternative)",
+            "id": "student_success",
+            "description": "Student success narrative (Optimistic)",
             "domains": ["education", "student"],
-            "intents": ["study_scenario"],
-            "builder": programs.build_student_study_narrative_program,
+            "intents": ["study_scenario", "narrative", "success"],
+            "builder": programs.build_student_success_narrative,
             "preferred_for": {
+                "scenario_variant": "positive",
+                "focus": "balanced"
+            }
+        },
+        {
+            "id": "student_struggle",
+            "description": "Student struggle narrative (Pessimistic)",
+            "domains": ["education", "student"],
+            "intents": ["study_scenario", "narrative", "struggle"],
+            "builder": programs.build_student_struggle_narrative,
+            "preferred_for": {
+                "scenario_variant": "negative",
+                "focus": "uncertainty"
+            }
+        },
+
+        # --- HEALTH ---
+        {
+            "id": "medical_treatment",
+            "description": "Medical treatment (Default)",
+            "domains": ["health", "medicine"],
+            "intents": ["treatment_scenario", "narrative"],
+            "builder": programs.build_medical_treatment_uncertainty_program,
+            "preferred_for": {
+                "time_horizon": "medium_term",
+                "focus": "uncertainty"
+            }
+        },
+        {
+            "id": "acute_treatment",
+            "description": "Acute treatment program (Short-term)",
+            "domains": ["health", "medicine"],
+            "intents": ["treatment_scenario", "narrative", "acute"],
+            "builder": programs.build_acute_treatment_program,
+            "preferred_for": {
+                "time_horizon": "short_term",
                 "focus": "causal"
             }
         },
         {
-            "id": "medical_treatment",
-            "description": "Medical treatment with possible side effects meaning program",
+            "id": "chronic_management",
+            "description": "Chronic management program (Long-term)",
             "domains": ["health", "medicine"],
-            "intents": ["treatment_scenario"],
-            "builder": programs.build_medical_treatment_uncertainty_program,
-            "preferred_for": {
-                "time_horizon": "medium_term",
-                "focus": "uncertainty"
-            }
-        },
-        {
-            "id": "medical_treatment_short",
-            "description": "Medical treatment for short-term scenarios",
-            "domains": ["health", "medicine"],
-            "intents": ["treatment_scenario"],
-            "builder": programs.build_medical_treatment_uncertainty_program,
-            "preferred_for": {
-                "time_horizon": "short_term"
-            }
-        },
-        {
-            "id": "economic_investment",
-            "description": "Economic investment scenario with potential risk",
-            "domains": ["economy", "finance", "market"],
-            "intents": ["investment_scenario"],
-            "builder": programs.build_economic_investment_risk_program,
+            "intents": ["treatment_scenario", "narrative", "chronic"],
+            "builder": programs.build_chronic_management_program,
             "preferred_for": {
                 "time_horizon": "long_term",
+                "focus": "temporal"
+            }
+        },
+
+        # --- ECONOMY ---
+        {
+            "id": "economic_investment",
+            "description": "Economic investment (Default)",
+            "domains": ["economy", "finance", "market"],
+            "intents": ["investment_scenario", "narrative"],
+            "builder": programs.build_economic_investment_risk_program,
+            "preferred_for": {
+                "scenario_variant": "neutral",
                 "focus": "uncertainty"
             }
         },
         {
+            "id": "growth_investment",
+            "description": "Growth investment (Bull Market)",
+            "domains": ["economy", "finance", "market"],
+            "intents": ["investment_scenario", "narrative", "growth"],
+            "builder": programs.build_growth_investment_program,
+            "preferred_for": {
+                "scenario_variant": "positive",
+                "focus": "causal"
+            }
+        },
+        {
+            "id": "recession_strategy",
+            "description": "Recession strategy (Bear Market)",
+            "domains": ["economy", "finance", "market"],
+            "intents": ["investment_scenario", "narrative", "recession"],
+            "builder": programs.build_recession_strategy_program,
+            "preferred_for": {
+                "scenario_variant": "negative",
+                "focus": "uncertainty"
+            }
+        },
+
+        # --- SOCIAL ---
+        {
             "id": "social_relationship",
-            "description": "Social relationship building narrative meaning program",
+            "description": "Social relationship (Default)",
             "domains": ["social", "friendship", "relationships"],
-            "intents": ["relationship_scenario", "friendship_scenario"],
+            "intents": ["relationship_scenario", "narrative"],
             "builder": programs.build_social_relationship_program,
             "preferred_for": {
                 "time_horizon": "medium_term",
@@ -76,24 +129,60 @@ def get_program_registry():
             }
         },
         {
-            "id": "social_relationship_temporal",
-            "description": "Social relationship with temporal focus",
+            "id": "relationship_building",
+            "description": "Relationship building (New)",
             "domains": ["social", "friendship", "relationships"],
-            "intents": ["relationship_scenario", "friendship_scenario"],
-            "builder": programs.build_social_relationship_program,
+            "intents": ["relationship_scenario", "narrative", "new"],
+            "builder": programs.build_relationship_building_program,
             "preferred_for": {
+                "time_horizon": "short_term",
                 "focus": "temporal"
             }
         },
         {
+            "id": "relationship_maintenance",
+            "description": "Relationship maintenance (Established)",
+            "domains": ["social", "friendship", "relationships"],
+            "intents": ["relationship_scenario", "narrative", "maintenance"],
+            "builder": programs.build_relationship_maintenance_program,
+            "preferred_for": {
+                "time_horizon": "long_term",
+                "focus": "balanced"
+            }
+        },
+
+        # --- DAILY LIFE ---
+        {
             "id": "daily_decision",
-            "description": "Daily decision-making narrative meaning program",
+            "description": "Daily decision (Default)",
             "domains": ["daily_life", "personal", "decision"],
-            "intents": ["decision_scenario", "choice_scenario"],
+            "intents": ["decision_scenario", "narrative"],
             "builder": programs.build_daily_decision_program,
             "preferred_for": {
-                "time_horizon": "short_term",
+                "detail_level": "medium",
                 "focus": "balanced"
+            }
+        },
+        {
+            "id": "routine_decision",
+            "description": "Routine decision (Low stakes)",
+            "domains": ["daily_life", "personal", "decision"],
+            "intents": ["decision_scenario", "narrative", "routine"],
+            "builder": programs.build_routine_decision_program,
+            "preferred_for": {
+                "detail_level": "low",
+                "focus": "balanced"
+            }
+        },
+        {
+            "id": "crisis_decision",
+            "description": "Crisis decision (High stakes)",
+            "domains": ["daily_life", "personal", "decision"],
+            "intents": ["decision_scenario", "narrative", "crisis"],
+            "builder": programs.build_crisis_decision_program,
+            "preferred_for": {
+                "detail_level": "high",
+                "focus": "uncertainty"
             }
         }
     ]
@@ -122,7 +211,6 @@ def _score_program(entry, control_message):
                 score = score + 10
             }
             else {
-            
                 return -1
             }
         }
@@ -143,40 +231,73 @@ def _score_program(entry, control_message):
             if (matched) {
                 score = score + 10
             }
-            else {
-            
-                return -1
-            }
         }
     }
 
-    # Bonus: preferred_settings alignment
-    if ("preferred_settings" in control_message) {
-        prefs = control_message["preferred_settings"]
-
-        # Check if program has metadata about preferred settings
-        if ("preferred_for" in entry) {
-            pref_for = entry["preferred_for"]
-
-            # Check scenario_variant preference
-            if ("scenario_variant" in prefs and "scenario_variant" in pref_for) {
-                if (prefs["scenario_variant"] == pref_for["scenario_variant"]) {
-                    score = score + 5
-                }
+    # Check preferences (both in preferred_settings and top-level)
+    if ("preferred_for" in entry) {
+        pref_for = entry["preferred_for"]
+        
+        # Helper to check a setting
+        # We check control_message[key] AND control_message["preferred_settings"][key]
+        
+        # 1. Scenario Variant
+        if ("scenario_variant" in pref_for) {
+            val = None
+            if ("scenario_variant" in control_message) {
+                val = control_message["scenario_variant"]
             }
-
-            # Check time_horizon preference
-            if ("time_horizon" in prefs and "time_horizon" in pref_for) {
-                if (prefs["time_horizon"] == pref_for["time_horizon"]) {
-                    score = score + 5
-                }
+            elif ("preferred_settings" in control_message and "scenario_variant" in control_message["preferred_settings"]) {
+                val = control_message["preferred_settings"]["scenario_variant"]
             }
+            
+            if (val != None and val == pref_for["scenario_variant"]) {
+                score = score + 5
+            }
+        }
 
-            # Check focus preference
-            if ("focus" in prefs and "focus" in pref_for) {
-                if (prefs["focus"] == pref_for["focus"]) {
-                    score = score + 3
-                }
+        # 2. Time Horizon
+        if ("time_horizon" in pref_for) {
+            val = None
+            if ("time_horizon" in control_message) {
+                val = control_message["time_horizon"]
+            }
+            elif ("preferred_settings" in control_message and "time_horizon" in control_message["preferred_settings"]) {
+                val = control_message["preferred_settings"]["time_horizon"]
+            }
+            
+            if (val != None and val == pref_for["time_horizon"]) {
+                score = score + 5
+            }
+        }
+
+        # 3. Focus
+        if ("focus" in pref_for) {
+            val = None
+            if ("focus" in control_message) {
+                val = control_message["focus"]
+            }
+            elif ("preferred_settings" in control_message and "focus" in control_message["preferred_settings"]) {
+                val = control_message["preferred_settings"]["focus"]
+            }
+            
+            if (val != None and val == pref_for["focus"]) {
+                score = score + 3
+            }
+        }
+        
+        # 4. Detail Level
+        if ("detail_level" in pref_for) {
+            val = None
+            if ("detail_level" in control_message) {
+                val = control_message["detail_level"]
+            }
+            elif ("preferred_settings" in control_message and "detail_level" in control_message["preferred_settings"]) {
+                val = control_message["preferred_settings"]["detail_level"]
+            }
+            
+            if (val != None and val == pref_for["detail_level"]) {
+                score = score + 3
             }
         }
     }
@@ -188,7 +309,7 @@ def _score_program(entry, control_message):
 # control_message is expected to be a dict-like object, e.g.:
 #   {"domain": "education", "intent": "study_scenario"}
 # or {"program_id": "student_study"}
-# or {"domain": "social", "preferred_settings": {"focus": "causal"}}
+# or {"domain": "social", "scenario_variant": "positive"}
 # Returns the selected registry entry or None.
 # Now supports multiple programs per domain with intelligent selection.
 def select_program(control_message):

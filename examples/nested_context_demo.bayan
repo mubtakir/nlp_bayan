@@ -1,0 +1,136 @@
+# Nested Context Demonstration
+# عرض توضيحي للسياقات المتداخلة
+
+hybrid {
+    import ai.conceptual_circuits as circuits
+    
+    print("=" * 70)
+    print("Nested Context Demonstration")
+    print("عرض توضيحي للسياقات المتداخلة")
+    print("=" * 70)
+    print()
+    
+    # Test 1: Student studying in library within university
+    print("Test 1: Student Studying (Library → University)")
+    print("-" * 70)
+    
+    study_nested = circuits.build_nested_context_circuit(
+        "حدث_المذاكرة",
+        "الطالب",
+        "مذاكرة",
+        "مكتبة_الجامعة",      # Inner context
+        "الحرم_الجامعي",       # Outer context
+        "foreground"
+    )
+    
+    print("Event: Student studying")
+    print("Inner Context: University Library")
+    print("Outer Context: University Campus")
+    print("Scope: Foreground")
+    
+    trace1 = study_nested["trace"]
+    if ("meta" in trace1 and "context_hierarchy" in trace1["meta"]) {
+        hierarchy = trace1["meta"]["context_hierarchy"]
+        print("\nContext Hierarchy:")
+        print("  Focus Event: " + hierarchy["focus_event"])
+        print("  Inner: " + hierarchy["inner_context"])
+        print("  Outer: " + hierarchy["outer_context"])
+        print("  Layers: " + str(study_nested["roles"]["ContextualizationPattern"]["ContextLayers"]))
+    }
+    print()
+    
+    # Test 2: Patient receiving treatment in hospital within city
+    print("Test 2: Medical Treatment (Hospital → City)")
+    print("-" * 70)
+    
+    treatment_nested = circuits.build_nested_context_circuit(
+        "حدث_تلقي_العلاج",
+        "المريض",
+        "تلقي_علاج",
+        "غرفة_الطوارئ",        # Inner context
+        "المستشفى_المركزي",    # Outer context
+        "foreground"
+    )
+    
+    print("Event: Patient receiving treatment")
+    print("Inner Context: Emergency Room")
+    print("Outer Context: Central Hospital")
+    print("Scope: Foreground")
+    
+    trace2 = treatment_nested["trace"]
+    if ("meta" in trace2 and "context_hierarchy" in trace2["meta"]) {
+        hierarchy2 = trace2["meta"]["context_hierarchy"]
+        print("\nContext Hierarchy:")
+        print("  Focus Event: " + hierarchy2["focus_event"])
+        print("  Inner: " + hierarchy2["inner_context"])
+        print("  Outer: " + hierarchy2["outer_context"])
+    }
+    print()
+    
+    # Test 3: Business meeting in office within corporate building
+    print("Test 3: Business Meeting (Office → Building)")
+    print("-" * 70)
+    
+    meeting_nested = circuits.build_nested_context_circuit(
+        "حدث_الاجتماع",
+        "المدير",
+        "عقد_اجتماع",
+        "قاعة_الاجتماعات",     # Inner context
+        "مبنى_الشركة",         # Outer context
+        "foreground"
+    )
+    
+    print("Event: Manager holding meeting")
+    print("Inner Context: Meeting Room")
+    print("Outer Context: Company Building")
+    print("Scope: Foreground")
+    
+    print("\nBridge Structures:")
+    bridges = meeting_nested["bridge_structures"]
+    for key in (bridges) {
+        print("  - " + key)
+    }
+    print()
+    
+    # Test 4: Background event with nested context
+    print("Test 4: Background Activity (Lab → Research Center)")
+    print("-" * 70)
+    
+    research_nested = circuits.build_nested_context_circuit(
+        "حدث_البحث",
+        "الباحث",
+        "إجراء_تجربة",
+        "المختبر",             # Inner context
+        "مركز_الأبحاث",        # Outer context
+        "background"
+    )
+    
+    print("Event: Researcher conducting experiment")
+    print("Inner Context: Laboratory")
+    print("Outer Context: Research Center")
+    print("Scope: Background")
+    
+    trace4 = research_nested["trace"]
+    if ("events" in trace4 and len(trace4["events"]) > 0) {
+        event = trace4["events"][0]
+        print("\nEvent details:")
+        print("  ID: " + event["id"])
+        print("  Action: " + event["action"])
+        print("  Context: " + event["context"])
+        if ("outer_context" in event) {
+            print("  Outer Context: " + event["outer_context"])
+        }
+    }
+    print()
+    
+    # Summary
+    print("=" * 70)
+    print("Summary: Nested Context Patterns")
+    print("=" * 70)
+    print("✅ Library → University Campus")
+    print("✅ Emergency Room → Hospital")
+    print("✅ Meeting Room → Company Building")
+    print("✅ Laboratory → Research Center")
+    print()
+    print("Nested contexts create layered situational understanding!")
+}

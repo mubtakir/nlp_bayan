@@ -1,0 +1,118 @@
+# Orchestrator Smart Selection Demo
+# عرض توضيحي للاختيار الذكي في المنسق
+
+hybrid {
+    import ai.conceptual_orchestrator as orchestrator
+    
+    print("=" * 70)
+    print("Orchestrator Smart Selection Demo")
+    print("عرض توضيحي للاختيار الذكي")
+    print("=" * 70)
+    print()
+    
+    def test_selection(name, control_msg, expected_id):
+    {
+        print("Test: " + name)
+        print("-" * 40)
+        print("Control Message: " + str(control_msg))
+        
+        result = orchestrator.dispatch_request(control_msg)
+        
+        if (result["ok"]):
+            selected = result["selected_program"]
+            print("Selected Program: " + selected)
+            print("Description: " + result["program_description"])
+            
+            if (selected == expected_id):
+                print("✅ SUCCESS: Correct program selected")
+            else:
+                print("❌ FAILURE: Expected " + expected_id + ", got " + selected)
+        else:
+            print("❌ ERROR: " + result["error"])
+        print()
+    }
+    
+    # Test 1: Education - Positive Scenario -> Success Narrative
+    test_selection(
+        "Education (Positive)",
+        {
+            "domain": "education",
+            "scenario_variant": "positive"
+        },
+        "student_success"
+    )
+    
+    # Test 2: Education - Negative Scenario -> Struggle Narrative
+    test_selection(
+        "Education (Negative)",
+        {
+            "domain": "education",
+            "scenario_variant": "negative"
+        },
+        "student_struggle"
+    )
+    
+    # Test 3: Health - Short Term -> Acute Treatment
+    test_selection(
+        "Health (Short Term)",
+        {
+            "domain": "health",
+            "time_horizon": "short_term"
+        },
+        "acute_treatment"
+    )
+    
+    # Test 4: Health - Long Term -> Chronic Management
+    test_selection(
+        "Health (Long Term)",
+        {
+            "domain": "health",
+            "time_horizon": "long_term"
+        },
+        "chronic_management"
+    )
+    
+    # Test 5: Economy - Positive -> Growth Investment
+    test_selection(
+        "Economy (Positive)",
+        {
+            "domain": "economy",
+            "scenario_variant": "positive"
+        },
+        "growth_investment"
+    )
+    
+    # Test 6: Social - New Relationship -> Building Program
+    test_selection(
+        "Social (New Relationship)",
+        {
+            "domain": "social",
+            "intent": "new"  # Using intent matching
+        },
+        "relationship_building"
+    )
+    
+    # Test 7: Daily Life - High Stakes -> Crisis Decision
+    test_selection(
+        "Daily Life (Crisis)",
+        {
+            "domain": "daily_life",
+            "detail_level": "high",
+            "focus": "uncertainty"
+        },
+        "crisis_decision"
+    )
+    
+    # Test 8: Default Fallback
+    test_selection(
+        "Education (Default)",
+        {
+            "domain": "education"
+        },
+        "student_study"
+    )
+    
+    print("=" * 70)
+    print("Smart Selection Verification Complete")
+    print("=" * 70)
+}

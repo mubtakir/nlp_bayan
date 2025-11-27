@@ -32,6 +32,11 @@ def realize_from_surface_plan(plan, register):
     for i in (range(len(abstract_seq))) {
         node = abstract_seq[i]
         
+        # Unwrap slot/value if present (from planner)
+        if (isinstance(node, dict) and "value" in node) {
+            node = node["value"]
+        }
+        
         # Default to the node itself if not a dict or no concept
         token_str = str(node)
         
@@ -64,7 +69,6 @@ def realize_from_surface_plan(plan, register):
                             token_str = morph.conjugate_arabic_verb(lemma, tense, person)
                         }
                         else {
-                        
                             # English needs person mapping (3ms -> 3s)
                             en_person = "3s"
                             if (person == "1s") { en_person = "1s" }
@@ -79,36 +83,51 @@ def realize_from_surface_plan(plan, register):
                             token_str = morph.decline_arabic_noun(lemma, definiteness)
                         }
                         else {
-                        
                             number = "singular"
                             if ("number" in features) { number = features["number"] }
                             if (number == "plural") {
                                 token_str = morph.pluralize_english_noun(lemma)
                             }
                             else {
-                            
                                 token_str = lemma
                             }
                             
-                            # English definite article is separate usually, but for simplicity:
+                            # English definite article
                             if ("definiteness" in features and features["definiteness"] == "def") {
                                 token_str = "the " + token_str
                             }
                         }
                     }
                     else {
-                    
                         token_str = lemma
                     }
                 }
                 else {
-                
                     # Concept not found, fallback to concept name
                     token_str = "[" + concept_id + "]"
                 }
             }
             elif ("symbol" in node) {
                 token_str = node["symbol"]
+            }
+        }
+        elif (isinstance(node, str)) {
+            # Handle symbolic connectors
+            if (node == "TEMPORAL_NEXT") {
+                token_str = "then"
+                if (lang == "arabic" or lang == "ar") { token_str = "ثم" }
+            }
+            elif (node == "TEMPORAL_BEFORE") {
+                token_str = "before"
+                if (lang == "arabic" or lang == "ar") { token_str = "قبل" }
+            }
+            elif (node == "TEMPORAL_AFTER") {
+                token_str = "after"
+                if (lang == "arabic" or lang == "ar") { token_str = "بعد" }
+            }
+            elif (node == "CAUSE_EFFECT_LINK") {
+                token_str = "leads to"
+                if (lang == "arabic" or lang == "ar") { token_str = "يؤدي إلى" }
             }
         }
         
@@ -274,60 +293,142 @@ def build_lm_training_data(program_output, language):
 
 
 # Helper: Convert circuit to text
+    import ai.conceptual_surface_planner as planner
+
+# --- Circuit Realization Functions ---
+
+def realize_action_state_circuit(circuit, lang="abstract"):
+{
+    # Map circuit fields to sentence roles
+    sent = {
+        "type": "ActionSentence",
+        "subject": {"concept_key": "entity_" + circuit["entity"]},
+        "predicate": {"concept_key": "action_" + circuit["action"]},
+        "object": {"concept_key": "state_" + circuit["state"]}, # Simplified
+        "intensity": circuit.get("strength", 0.5),
+        "context": "neutral"
+    }
+    
+    # Plan surface structure
+    plan = planner.plan_action_sentence(sent, lang)
+    
+    # Realize to tokens
+    return realize_from_surface_plan(plan, "neutral")
+}
+
+def realize_causal_circuit(circuit, lang="abstract"):
+{
+    # Causal: Cause -> Effect
+    sent = {
+        "type": "CausalSentence",
+        "cause_event": {"concept_key": "event_" + circuit["cause_event"]},
+        "effect_event": {"concept_key": "event_" + circuit["effect_event"]},
+        "strength": circuit.get("strength", 0.8),
+        "probability": circuit.get("probability", 1.0),
+        "context": circuit.get("context", "neutral")
+    }
+    
+    plan = planner.plan_causal_sentence(sent, lang)
+    return realize_from_surface_plan(plan, "neutral")
+}
+
+def realize_temporal_circuit(circuit, lang="abstract"):
+{
+    # Temporal: Event1 -> Event2 ...
+    
+    # Handle both simple (2 events) and multi-event circuits
+    events = []
+    relations = []
+    
+    if ("events" in circuit):
+        # Multi-event
+        raw_events = circuit["events"]
+        for e in (raw_events) {
+            events.append({"concept_key": "event_" + e})
+        }
+        relations = circuit["relations"]
+    else:
+        # Simple 2-event
+        events.append({"concept_key": "event_" + circuit["event1"]})
+        events.append({"concept_key": "event_" + circuit["event2"]})
+        relations.append(circuit["relation"])
+        
+    sent = {
+        "type": "TemporalSentence",
+        "events": events,
+        "relations": relations,
+        "context": circuit.get("context", "neutral")
+    }
+    
+    plan = planner.plan_temporal_sentence(sent, lang)
+    return realize_from_surface_plan(plan, "neutral")
+}
+
+def realize_comparison_circuit(circuit, lang="abstract"):
+{
+    # Comparison: Entity1 vs Entity2
+    sent = {
+        "type": "ComparisonSentence",
+        "entity1": {"concept_key": "entity_" + circuit["entity1"]},
+        "entity2": {"concept_key": "entity_" + circuit["entity2"]},
+        "axis": {"concept_key": "axis_" + circuit["axis"]},
+        "relation": circuit["relation"], # better/worse
+        "degree": circuit.get("degree", 1.0)
+    }
+    
+    plan = planner.plan_comparison_sentence(sent, lang)
+    return realize_from_surface_plan(plan, "neutral")
+}
+
+def realize_uncertainty_circuit(circuit, lang="abstract"):
+{
+    # Uncertainty: Cause -> Effect (Uncertain)
+    sent = {
+        "type": "UncertaintySentence",
+        "content": {
+            "cause": {"concept_key": "event_" + circuit["cause_event"]},
+            "effect": {"concept_key": "event_" + circuit["effect_event"]}
+        },
+        "degree": circuit.get("probability", 0.5)
+    }
+    
+    plan = planner.plan_uncertainty_sentence(sent, lang)
+    return realize_from_surface_plan(plan, "neutral")
+}
+
+
+# Helper: Convert circuit to text (Updated to use realization)
 def _circuit_to_text(circuit, language):
 {
-    # Simple text generation from circuit
     circuit_type = circuit.get("circuit_type", "unknown")
-
-    if (language == "arabic") {
-        if (circuit_type == "action_state_eval") {
-            return "دائرة الفعل والحالة والتقييم"
-        }
-        elif (circuit_type == "causal_link") {
-            return "دائرة الربط السببي"
-        }
-        elif (circuit_type == "temporal_sequence") {
-            return "دائرة التسلسل الزمني"
-        }
-        elif (circuit_type == "contextualized_event") {
-            return "دائرة الحدث السياقي"
-        }
-        elif (circuit_type == "uncertain_cause_effect") {
-            return "دائرة السبب والنتيجة غير المؤكدة"
-        }
-        elif (circuit_type == "enhanced_comparison") {
-            return "دائرة المقارنة المحسنة"
-        }
-        else {
-        
-            return "دائرة مفاهيمية"
-        }
-    }
-    else {
     
-        if (circuit_type == "action_state_eval") {
-            return "action state evaluation circuit"
-        }
-        elif (circuit_type == "causal_link") {
-            return "causal link circuit"
-        }
-        elif (circuit_type == "temporal_sequence") {
-            return "temporal sequence circuit"
-        }
-        elif (circuit_type == "contextualized_event") {
-            return "contextualized event circuit"
-        }
-        elif (circuit_type == "uncertain_cause_effect") {
-            return "uncertain cause effect circuit"
-        }
-        elif (circuit_type == "enhanced_comparison") {
-            return "enhanced comparison circuit"
-        }
-        else {
-        
-            return "conceptual circuit"
-        }
+    realization = None
+    
+    if (circuit_type == "action_state_eval") {
+        realization = realize_action_state_circuit(circuit, language)
     }
+    elif (circuit_type == "causal_link") {
+        realization = realize_causal_circuit(circuit, language)
+    }
+    elif (circuit_type == "temporal_sequence" or circuit_type == "multi_event_temporal_sequence") {
+        realization = realize_temporal_circuit(circuit, language)
+    }
+    elif (circuit_type == "enhanced_comparison") {
+        realization = realize_comparison_circuit(circuit, language)
+    }
+    elif (circuit_type == "uncertain_cause_effect") {
+        realization = realize_uncertainty_circuit(circuit, language)
+    }
+    
+    if (realization != None) {
+        return realization_to_text(realization)
+    }
+    
+    # Fallback for unknown types
+    if (language == "arabic") {
+        return "دائرة مفاهيمية: " + circuit_type
+    }
+    return "conceptual circuit: " + circuit_type
 }
 
 

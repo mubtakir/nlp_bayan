@@ -276,6 +276,24 @@ def build_student_study_narrative_program(settings=None):
         components["uncertain_cause_effect"] = uncertain
     }
 
+    # High detail: add comparison between study methods
+    if (detail_level == "high") {
+        comparison_confidence = _adjust_scalar_for_scenario(0.85, scenario_variant)
+        
+        study_method_comparison = circuits.build_enhanced_comparison_circuit(
+            "طريقة_المذاكرة_النشطة",
+            "طريقة_المذاكرة_السلبية",
+            "محور_الفعالية",
+            0.85,
+            0.6,
+            "better",
+            "سياق_دراسي",
+            comparison_confidence
+        )
+        traces.append(study_method_comparison["trace"])
+        components["study_method_comparison"] = study_method_comparison
+    }
+
     merged_trace = merge_traces(traces)
 
     return {
@@ -424,6 +442,24 @@ def build_medical_treatment_uncertainty_program(settings):
         components["uncertain_side_effect"] = uncertain_side_effect
     }
 
+    # High detail: add comparison between treatment options
+    if (detail_level == "high") {
+        comparison_confidence = _adjust_scalar_for_scenario(0.8, scenario_variant)
+        
+        treatment_comparison = circuits.build_enhanced_comparison_circuit(
+            "علاج_دوائي",
+            "علاج_طبيعي",
+            "محور_الفعالية",
+            0.85,
+            0.7,
+            "better",
+            "سياق_طبي",
+            comparison_confidence
+        )
+        traces.append(treatment_comparison["trace"])
+        components["treatment_comparison"] = treatment_comparison
+    }
+
     merged_trace = merge_traces(traces)
 
     return {
@@ -569,6 +605,24 @@ def build_economic_investment_risk_program(settings=None):
         )
         traces.append(uncertain_risk["trace"])
         components["uncertain_risk"] = uncertain_risk
+    }
+
+    # High detail: add comparison between investment options
+    if (detail_level == "high") {
+        comparison_confidence = _adjust_scalar_for_scenario(0.75, scenario_variant)
+        
+        investment_comparison = circuits.build_enhanced_comparison_circuit(
+            "استثمار_آمن",
+            "استثمار_محفوف_بالمخاطر",
+            "محور_العائد_المتوقع",
+            0.6,
+            0.85,
+            "less",
+            "سياق_اقتصادي",
+            comparison_confidence
+        )
+        traces.append(investment_comparison["trace"])
+        components["investment_comparison"] = investment_comparison
     }
 
     merged_trace = merge_traces(traces)
@@ -721,6 +775,24 @@ def build_social_relationship_program(settings=None):
         )
         traces.append(uncertain_friendship["trace"])
         components["uncertain_friendship"] = uncertain_friendship
+    }
+
+    # High detail: add comparison between relationship approaches
+    if (detail_level == "high") {
+        comparison_confidence = _adjust_scalar_for_scenario(0.8, scenario_variant)
+        
+        approach_comparison = circuits.build_enhanced_comparison_circuit(
+            "نهج_مباشر",
+            "نهج_تدريجي",
+            "محور_فعالية_بناء_الثقة",
+            0.7,
+            0.85,
+            "less",
+            "سياق_اجتماعي",
+            comparison_confidence
+        )
+        traces.append(approach_comparison["trace"])
+        components["approach_comparison"] = approach_comparison
     }
 
     merged_trace = merge_traces(traces)
@@ -899,3 +971,439 @@ def build_daily_decision_program(settings=None):
         "components": components
     }
 }
+
+
+# ============================================================================
+# VARIANT PROGRAMS - Phase 2.2
+# برامج بديلة - المرحلة 2.2
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# EDUCATION VARIANTS
+# ----------------------------------------------------------------------------
+
+# Variant 1: Student Success Narrative (Optimistic)
+def build_student_success_narrative(settings):
+{
+    scenario_variant = settings.get("scenario_variant", "positive")
+    time_horizon = settings.get("time_horizon", "medium_term")
+    detail_level = settings.get("detail_level", "high")
+    focus = settings.get("focus", "balanced")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الطالب_الناجح", "مذاكرة_فعالة", "حالة_تركيز_عالي", 0.9
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_المذاكرة_الفعالة", "حدث_الحصول_على_درجات_ممتازة",
+        "الطالب_الناجح", "الطالب_الناجح",
+        "مذاكرة_فعالة", "الحصول_على_درجات_ممتازة",
+        "سياق_دراسي_إيجابي", 0.95, 0.85
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "medium" or detail_level == "high") {
+        temporal_seq = circuits.build_temporal_sequence_circuit(
+            "حدث_الاستيقاظ_مبكراً", "حدث_المذاكرة_المنتظمة",
+            "before", "روتين_النجاح"
+        )
+        traces.append(temporal_seq["trace"])
+        components["temporal_sequence"] = temporal_seq
+    }
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "طريقة_المذاكرة_الفعالة", "طريقة_المذاكرة_العشوائية",
+            "محور_النتائج", 0.9, 0.4, "better", "سياق_دراسي", 0.9
+        )
+        traces.append(comparison["trace"])
+        components["study_method_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# Variant 2: Student Struggle Narrative (Pessimistic)
+def build_student_struggle_narrative(settings):
+{
+    scenario_variant = settings.get("scenario_variant", "negative")
+    detail_level = settings.get("detail_level", "high")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الطالب_المتعثر", "محاولة_المذاكرة", "حالة_تشتت", 0.5
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_uncertain_cause_effect_circuit(
+        "حدث_التشتت", "حدث_الحصول_على_درجات_ضعيفة",
+        "الطالب_المتعثر", "الطالب_المتعثر",
+        "تشتت", "درجات_ضعيفة", "سياق_دراسي_صعب", 0.6, 0.7
+    )
+    traces.append(causal["trace"])
+    components["uncertain_cause_effect"] = causal
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "الوضع_الحالي", "الوضع_المأمول",
+            "محور_الأداء", 0.4, 0.85, "less", "سياق_دراسي", 0.75
+        )
+        traces.append(comparison["trace"])
+        components["situation_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# ----------------------------------------------------------------------------
+# HEALTH VARIANTS
+# ----------------------------------------------------------------------------
+
+# Variant 1: Acute Treatment Program
+def build_acute_treatment_program(settings):
+{
+    time_horizon = settings.get("time_horizon", "short_term")
+    detail_level = settings.get("detail_level", "high")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "المريض", "تلقي_علاج_فوري", "حالة_طوارئ", 0.85
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_تلقي_العلاج", "حدث_التعافي_السريع",
+        "المريض", "المريض", "تلقي_علاج", "تعافي",
+        "سياق_طبي_طارئ", 0.9, 0.8
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "علاج_فوري", "علاج_متأخر",
+            "محور_فعالية_التعافي", 0.85, 0.5, "better", "سياق_طبي", 0.9
+        )
+        traces.append(comparison["trace"])
+        components["treatment_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# Variant 2: Chronic Management Program
+def build_chronic_management_program(settings):
+{
+    time_horizon = settings.get("time_horizon", "long_term")
+    detail_level = settings.get("detail_level", "high")
+    focus = settings.get("focus", "temporal")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "المريض_المزمن", "إدارة_المرض", "حالة_مستقرة", 0.7
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_الالتزام_بالعلاج", "حدث_السيطرة_على_المرض",
+        "المريض_المزمن", "المريض_المزمن",
+        "التزام_بالعلاج", "سيطرة_على_المرض",
+        "سياق_طبي_مزمن", 0.75, 0.75
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "medium" or detail_level == "high") {
+        events = ["حدث_التشخيص", "حدث_بدء_العلاج", "حدث_المتابعة_الدورية", "حدث_تعديل_الخطة"]
+        relations = ["before", "before", "before"]
+        temporal_seq = circuits.build_multi_event_temporal_sequence_circuit(
+            events, relations, "عملية_الإدارة_المزمنة"
+        )
+        traces.append(temporal_seq["trace"])
+        components["temporal_sequence"] = temporal_seq
+    }
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "مرض_مُدار", "مرض_غير_مُدار",
+            "محور_جودة_الحياة", 0.75, 0.4, "better", "سياق_طبي", 0.85
+        )
+        traces.append(comparison["trace"])
+        components["management_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# ----------------------------------------------------------------------------
+# ECONOMY VARIANTS
+# ----------------------------------------------------------------------------
+
+# Variant 1: Growth Investment Program
+def build_growth_investment_program(settings):
+{
+    scenario_variant = settings.get("scenario_variant", "positive")
+    detail_level = settings.get("detail_level", "high")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "المستثمر", "استثمار_في_النمو", "حالة_تفاؤل", 0.85
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_الاستثمار_في_النمو", "حدث_تحقيق_عوائد_عالية",
+        "المستثمر", "المستثمر", "استثمار", "عوائد_عالية",
+        "سياق_سوق_صاعد", 0.9, 0.8
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "استثمار_نمو", "استثمار_محافظ",
+            "محور_العائد_المحتمل", 0.85, 0.5, "better", "سياق_اقتصادي", 0.8
+        )
+        traces.append(comparison["trace"])
+        components["investment_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# Variant 2: Recession Strategy Program
+def build_recession_strategy_program(settings):
+{
+    scenario_variant = settings.get("scenario_variant", "negative")
+    detail_level = settings.get("detail_level", "high")
+    focus = settings.get("focus", "uncertainty")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "المستثمر_الحذر", "استراتيجية_دفاعية", "حالة_حذر", 0.7
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_uncertain_cause_effect_circuit(
+        "حدث_التحول_للدفاع", "حدث_الحفاظ_على_رأس_المال",
+        "المستثمر_الحذر", "المستثمر_الحذر",
+        "تحول_دفاعي", "حفاظ_على_رأس_المال",
+        "سياق_ركود_اقتصادي", 0.7, 0.75
+    )
+    traces.append(causal["trace"])
+    components["uncertain_cause_effect"] = causal
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "استراتيجية_دفاعية", "استراتيجية_هجومية",
+            "محور_الحفاظ_على_رأس_المال", 0.8, 0.4, "better", "سياق_ركود", 0.85
+        )
+        traces.append(comparison["trace"])
+        components["strategy_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# ----------------------------------------------------------------------------
+# SOCIAL VARIANTS
+# ----------------------------------------------------------------------------
+
+# Variant 1: Relationship Building Program
+def build_relationship_building_program(settings):
+{
+    time_horizon = settings.get("time_horizon", "short_term")
+    detail_level = settings.get("detail_level", "high")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الشخص", "بدء_التواصل", "حالة_انفتاح", 0.7
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_التفاعل_الإيجابي", "حدث_بناء_الثقة",
+        "الشخص", "الصديق_المحتمل", "تفاعل_إيجابي", "بناء_ثقة",
+        "سياق_اجتماعي_جديد", 0.75, 0.7
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "medium" or detail_level == "high") {
+        events = ["حدث_اللقاء_الأول", "حدث_المحادثة", "حدث_التواصل_المتكرر", "حدث_تكوين_الصداقة"]
+        relations = ["before", "before", "before"]
+        temporal_seq = circuits.build_multi_event_temporal_sequence_circuit(
+            events, relations, "عملية_بناء_العلاقة"
+        )
+        traces.append(temporal_seq["trace"])
+        components["temporal_sequence"] = temporal_seq
+    }
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "نهج_تدريجي", "نهج_مباشر",
+            "محور_بناء_الثقة", 0.8, 0.6, "better", "سياق_اجتماعي", 0.75
+        )
+        traces.append(comparison["trace"])
+        components["approach_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# Variant 2: Relationship Maintenance Program
+def build_relationship_maintenance_program(settings):
+{
+    time_horizon = settings.get("time_horizon", "long_term")
+    detail_level = settings.get("detail_level", "high")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الصديق", "التواصل_المنتظم", "حالة_استقرار", 0.8
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_الجهد_المستمر", "حدث_استقرار_العلاقة",
+        "الصديق", "الصديق", "جهد_مستمر", "استقرار",
+        "سياق_صداقة_طويلة", 0.85, 0.85
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "high") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "علاقة_مُعتنى_بها", "علاقة_مُهملة",
+            "محور_قوة_الرابطة", 0.85, 0.4, "better", "سياق_اجتماعي", 0.9
+        )
+        traces.append(comparison["trace"])
+        components["maintenance_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# ----------------------------------------------------------------------------
+# DAILY LIFE VARIANTS
+# ----------------------------------------------------------------------------
+
+# Variant 1: Routine Decision Program
+def build_routine_decision_program(settings):
+{
+    detail_level = settings.get("detail_level", "low")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الشخص", "اتخاذ_قرار_روتيني", "حالة_عادية", 0.7
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_causal_link_circuit(
+        "حدث_الاختيار", "حدث_النتيجة_المتوقعة",
+        "الشخص", "الشخص", "اختيار", "نتيجة",
+        "سياق_حياة_يومية", 0.75, 0.75
+    )
+    traces.append(causal["trace"])
+    components["causal_link"] = causal
+    
+    if (detail_level == "medium") {
+        comparison = circuits.build_enhanced_comparison_circuit(
+            "خيار_أ", "خيار_ب", "محور_الراحة",
+            0.7, 0.6, "better", "سياق_روتيني", 0.7
+        )
+        traces.append(comparison["trace"])
+        components["option_comparison"] = comparison
+    }
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+
+
+# Variant 2: Crisis Decision Program
+def build_crisis_decision_program(settings):
+{
+    detail_level = settings.get("detail_level", "high")
+    focus = settings.get("focus", "uncertainty")
+    
+    traces = []
+    components = {}
+    
+    action_state = circuits.build_action_state_evaluation_circuit(
+        "الشخص_تحت_ضغط", "اتخاذ_قرار_حاسم", "حالة_ضغط_شديد", 0.6
+    )
+    traces.append(action_state["trace"])
+    components["action_state_eval"] = action_state
+    
+    causal = circuits.build_uncertain_cause_effect_circuit(
+        "حدث_القرار_العاجل", "حدث_نتيجة_غير_مؤكدة",
+        "الشخص_تحت_ضغط", "الشخص_تحت_ضغط",
+        "قرار_عاجل", "نتيجة_غير_مؤكدة", "سياق_أزمة", 0.7, 0.6
+    )
+    traces.append(causal["trace"])
+    components["uncertain_cause_effect"] = causal
+    
+    temporal_seq = circuits.build_temporal_sequence_circuit(
+        "حدث_ظهور_الأزمة", "حدث_اتخاذ_القرار_السريع",
+        "before", "عملية_إدارة_الأزمة"
+    )
+    traces.append(temporal_seq["trace"])
+    components["temporal_sequence"] = temporal_seq
+    
+    comparison = circuits.build_enhanced_comparison_circuit(
+        "قرار_محفوف_بالمخاطر", "قرار_آمن",
+        "محور_احتمال_النجاح", 0.5, 0.8, "less", "سياق_أزمة", 0.6
+    )
+    traces.append(comparison["trace"])
+    components["option_comparison"] = comparison
+    
+    merged_trace = merge_traces(traces)
+    return {"trace": merged_trace, "components": components}
+}
+

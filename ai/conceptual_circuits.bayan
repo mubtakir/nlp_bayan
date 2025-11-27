@@ -896,3 +896,224 @@ def build_enhanced_comparison_circuit(
         "bridge_structures": bridge_structures
     }
 }
+
+
+# Seventh circuit: Multi-event temporal sequence (advanced)
+#
+# Intent: Create a chain of 3 or more events with temporal ordering.
+# This allows for more complex narratives with multiple sequential steps.
+#
+# Inputs (conceptual):
+#   event_ids          : list of event IDs (3 or more)
+#   temporal_relations : list of temporal relations between consecutive events
+#                        (length should be len(event_ids) - 1)
+#   context_label      : abstract context label
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+def build_multi_event_temporal_sequence_circuit(
+    event_ids,
+    temporal_relations,
+    context_label
+):
+{
+    # Validate inputs
+    if (len(event_ids) < 3) {
+        # Need at least 3 events for multi-event sequence
+        # Fall back to simple sequence if only 2
+        if (len(event_ids) == 2) {
+            return build_temporal_sequence_circuit(
+                event_ids[0],
+                event_ids[1],
+                temporal_relations[0],
+                context_label
+            )
+        }
+        # Return empty if less than 2
+        return {
+            "trace": {},
+            "roles": {},
+            "bridge_structures": {}
+        }
+    }
+
+    # 1) Build trace with all events
+    events = []
+    for i in (range(len(event_ids))) {
+        event_id = event_ids[i]
+        events.append({
+            "id": event_id,
+            "action": "AbstractAction_" + str(i + 1),
+            "actors": [],
+            "targets": [],
+            "context": context_label
+        })
+    }
+
+    # Build temporal links between consecutive events
+    temporal_links = []
+    for i in (range(len(event_ids) - 1)) {
+        temporal_links.append({
+            "event1": event_ids[i],
+            "event2": event_ids[i + 1],
+            "relation": temporal_relations[i]
+        })
+    }
+
+    meta = {
+        "source": "multi_event_temporal_sequence_circuit",
+        "confidence": 1.0,
+        "context": context_label,
+        "sequence_length": len(event_ids)
+    }
+
+    trace = {
+        "events": events,
+        "temporal_links": temporal_links,
+        "meta": meta
+    }
+
+    # 2) Roles for TemporalOrderPattern (chain)
+    temporal_roles = {
+        "EventChain": event_ids,
+        "TemporalRelations": temporal_relations,
+        "SequenceLength": len(event_ids)
+    }
+
+    roles = {
+        "TemporalOrderPattern": temporal_roles
+    }
+
+    # 3) Bridge structures: create a causal-like structure for each pair
+    bridge_structures = {}
+    for i in (range(len(event_ids) - 1)) {
+        key = "Temporal_Link_" + str(i + 1)
+        bridge_structures[key] = {
+            "pattern": "CausalSentencePattern",
+            "slots": {
+                "CauseEvent": event_ids[i],
+                "EffectEvent": event_ids[i + 1],
+                "Strength": 1.0,
+                "Probability": 1.0,
+                "Context": temporal_relations[i]
+            }
+        }
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}
+
+
+# Eighth circuit: Nested context (advanced)
+#
+# Intent: Represent an event within multiple layers of context.
+# This creates a hierarchy: Event → InnerContext → OuterContext
+#
+# Inputs (conceptual):
+#   focus_event_id : identifier for the focus event
+#   actor_id       : entity performing the event
+#   action_kind    : abstract label for the action
+#   inner_context  : immediate/local context
+#   outer_context  : broader/global context
+#   scope_label    : label for the scope (e.g., "foreground", "background")
+#
+# Output: {"trace", "roles", "bridge_structures"}.
+
+def build_nested_context_circuit(
+    focus_event_id,
+    actor_id,
+    action_kind,
+    inner_context,
+    outer_context,
+    scope_label
+):
+{
+    # 1) Build trace with nested context information
+    entities = [
+        {
+            "id": actor_id,
+            "kind": "generic_entity",
+            "domain": "abstract_domain"
+        }
+    ]
+
+    events = [
+        {
+            "id": focus_event_id,
+            "action": action_kind,
+            "actors": [actor_id],
+            "targets": [],
+            "context": inner_context,
+            "outer_context": outer_context
+        }
+    ]
+
+    # Create context hierarchy
+    context_hierarchy = {
+        "focus_event": focus_event_id,
+        "inner_context": inner_context,
+        "outer_context": outer_context,
+        "scope": scope_label
+    }
+
+    meta = {
+        "source": "nested_context_circuit",
+        "confidence": 1.0,
+        "context_hierarchy": context_hierarchy
+    }
+
+    trace = {
+        "entities": entities,
+        "events": events,
+        "meta": meta
+    }
+
+    # 2) Roles for ContextualizationPattern (nested)
+    contextual_roles = {
+        "FocusEvent": focus_event_id,
+        "InnerContext": inner_context,
+        "OuterContext": outer_context,
+        "Scope": scope_label,
+        "ContextLayers": 2
+    }
+
+    roles = {
+        "ContextualizationPattern": contextual_roles
+    }
+
+    # 3) Bridge structures: two description patterns for each context layer
+    inner_context_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": focus_event_id,
+            "Axis": "InnerContext",
+            "Degree": scope_label,
+            "Value": inner_context
+        }
+    }
+
+    outer_context_structure = {
+        "pattern": "DescriptionPattern",
+        "slots": {
+            "Entity": focus_event_id,
+            "Axis": "OuterContext",
+            "Degree": "broader",
+            "Value": outer_context
+        }
+    }
+
+    bridge_structures = {
+        "InnerContext_Description": inner_context_structure,
+        "OuterContext_Description": outer_context_structure
+    }
+
+    return {
+        "trace": trace,
+        "roles": roles,
+        "bridge_structures": bridge_structures
+    }
+}

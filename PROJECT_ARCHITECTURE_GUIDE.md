@@ -391,7 +391,20 @@ hybrid {
 
 ---
 
-### 2. محرك GSE (Generalized Shape Equation)
+### 2. AI & Adaptive Systems (New)
+- **`ai/adaptive_math.by`**: Core mathematical theories (Zero Duality, Perpendicularity, Filament).
+- **`ai/adaptive_linguistics.by`**: Application of math theories to linguistic analysis.
+- **`ai/expert_explorer.by`**: Dual-agent system for adaptive learning and decision making.
+- **`ai/gse.py`**: Generalized Shape Equation implementation.
+
+### 3. Libraries (`libraries/`)
+- **`ai.bayan`**: AI and Machine Learning tools.
+- **`nlp.bayan`**: Natural Language Processing tools.
+- **`data.bayan`**: Data manipulation and analysis.
+
+---
+
+### 4. محرك GSE (Generalized Shape Equation)
 
 **الملفات**: 
 - `bayan/bayan/gse.py`

@@ -12,87 +12,249 @@
 def get_lexicon():
 {
     return {
-        # Actions
+        # --- EDUCATION DOMAIN ---
         "action_study": {
-            "ar": {"lemma": "درس", "pos": "verb"},
+            "ar": {"lemma": "ذاكر", "pos": "verb"},
             "en": {"lemma": "study", "pos": "verb"}
         },
+        "action_succeed": {
+            "ar": {"lemma": "نجح", "pos": "verb"},
+            "en": {"lemma": "succeed", "pos": "verb"}
+        },
+        "action_fail": {
+            "ar": {"lemma": "رسب", "pos": "verb"},
+            "en": {"lemma": "fail", "pos": "verb"}
+        },
+        "action_focus": {
+            "ar": {"lemma": "ركز", "pos": "verb"},
+            "en": {"lemma": "focus", "pos": "verb"}
+        },
+        "entity_student": {
+            "ar": {"lemma": "طالب", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "student", "pos": "noun"}
+        },
+        "entity_exam": {
+            "ar": {"lemma": "امتحان", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "exam", "pos": "noun"}
+        },
+        "entity_grades": {
+            "ar": {"lemma": "درجات", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "grades", "pos": "noun"}
+        },
+        "context_school": {
+            "ar": {"lemma": "مدرسة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "school", "pos": "noun"}
+        },
+        "context_library": {
+            "ar": {"lemma": "مكتبة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "library", "pos": "noun"}
+        },
+
+        # --- HEALTH DOMAIN ---
         "action_treat": {
             "ar": {"lemma": "عالج", "pos": "verb"},
             "en": {"lemma": "treat", "pos": "verb"}
         },
-        "action_invest": {
-            "ar": {"lemma": "استثمر", "pos": "verb"},
-            "en": {"lemma": "invest", "pos": "verb"}
+        "action_cure": {
+            "ar": {"lemma": "شفي", "pos": "verb"},
+            "en": {"lemma": "cure", "pos": "verb"}
         },
-        "action_eat": {
-            "ar": {"lemma": "أكل", "pos": "verb"},
-            "en": {"lemma": "eat", "pos": "verb"}
-        },
-        "action_compare": {
-            "ar": {"lemma": "قارن", "pos": "verb"},
-            "en": {"lemma": "compare", "pos": "verb"}
-        },
-
-        # Entities / Roles
-        "entity_student": {
-            "ar": {"lemma": "طالب", "pos": "noun", "gender": "m"},
-            "en": {"lemma": "student", "pos": "noun"}
+        "action_take_medicine": {
+            "ar": {"lemma": "تناول", "pos": "verb"},
+            "en": {"lemma": "take", "pos": "verb"}
         },
         "entity_doctor": {
             "ar": {"lemma": "طبيب", "pos": "noun", "gender": "m"},
             "en": {"lemma": "doctor", "pos": "noun"}
         },
-        "entity_investor": {
-            "ar": {"lemma": "مستثمر", "pos": "noun", "gender": "m"},
-            "en": {"lemma": "investor", "pos": "noun"}
-        },
         "entity_patient": {
             "ar": {"lemma": "مريض", "pos": "noun", "gender": "m"},
             "en": {"lemma": "patient", "pos": "noun"}
-        },
-        
-        # Contexts / Adverbs
-        "context_library": {
-            "ar": {"lemma": "مكتبة", "pos": "noun", "gender": "f"},
-            "en": {"lemma": "library", "pos": "noun"}
-        },
-        "context_hospital": {
-            "ar": {"lemma": "مستشفى", "pos": "noun", "gender": "m"},
-            "en": {"lemma": "hospital", "pos": "noun"}
-        },
-        "time_evening": {
-            "ar": {"lemma": "مساء", "pos": "noun"},
-            "en": {"lemma": "evening", "pos": "noun"}
-        },
-
-        # Medical Domain
-        "action_take_medicine": {
-            "ar": {"lemma": "تناول", "pos": "verb"},
-            "en": {"lemma": "take", "pos": "verb"}
-        },
-        "action_improve_health": {
-            "ar": {"lemma": "تحسن", "pos": "verb"},
-            "en": {"lemma": "improve", "pos": "verb"}
         },
         "entity_medicine": {
             "ar": {"lemma": "دواء", "pos": "noun", "gender": "m"},
             "en": {"lemma": "medicine", "pos": "noun"}
         },
-        "context_medical": {
+        "context_hospital": {
+            "ar": {"lemma": "مستشفى", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "hospital", "pos": "noun"}
+        },
+        "context_clinic": {
             "ar": {"lemma": "عيادة", "pos": "noun", "gender": "f"},
             "en": {"lemma": "clinic", "pos": "noun"}
         },
 
-        # Economic Domain
-        "action_increase_wealth": {
-            "ar": {"lemma": "زاد", "pos": "verb"},
-            "en": {"lemma": "increase", "pos": "verb"}
+        # --- ECONOMY DOMAIN ---
+        "action_invest": {
+            "ar": {"lemma": "استثمر", "pos": "verb"},
+            "en": {"lemma": "invest", "pos": "verb"}
         },
-        "context_market": {
+        "action_profit": {
+            "ar": {"lemma": "ربح", "pos": "verb"},
+            "en": {"lemma": "profit", "pos": "verb"}
+        },
+        "action_lose": {
+            "ar": {"lemma": "خسر", "pos": "verb"},
+            "en": {"lemma": "lose", "pos": "verb"}
+        },
+        "entity_investor": {
+            "ar": {"lemma": "مستثمر", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "investor", "pos": "noun"}
+        },
+        "entity_market": {
             "ar": {"lemma": "سوق", "pos": "noun", "gender": "m"},
             "en": {"lemma": "market", "pos": "noun"}
-        }
+        },
+        "entity_stocks": {
+            "ar": {"lemma": "أسهم", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "stocks", "pos": "noun"}
+        },
+        "context_bank": {
+            "ar": {"lemma": "بنك", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "bank", "pos": "noun"}
+        },
+
+        # --- SOCIAL DOMAIN ---
+        "action_meet": {
+            "ar": {"lemma": "قابل", "pos": "verb"},
+            "en": {"lemma": "meet", "pos": "verb"}
+        },
+        "action_talk": {
+            "ar": {"lemma": "تحدث", "pos": "verb"},
+            "en": {"lemma": "talk", "pos": "verb"}
+        },
+        "action_trust": {
+            "ar": {"lemma": "وثق", "pos": "verb"},
+            "en": {"lemma": "trust", "pos": "verb"}
+        },
+        "entity_friend": {
+            "ar": {"lemma": "صديق", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "friend", "pos": "noun"}
+        },
+        "entity_relationship": {
+            "ar": {"lemma": "علاقة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "relationship", "pos": "noun"}
+        },
+        "context_cafe": {
+            "ar": {"lemma": "مقهى", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "cafe", "pos": "noun"}
+        },
+        "context_party": {
+            "ar": {"lemma": "حفلة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "party", "pos": "noun"}
+        },
+
+        # --- DAILY LIFE DOMAIN ---
+        "action_decide": {
+            "ar": {"lemma": "قرر", "pos": "verb"},
+            "en": {"lemma": "decide", "pos": "verb"}
+        },
+        "action_choose": {
+            "ar": {"lemma": "اختار", "pos": "verb"},
+            "en": {"lemma": "choose", "pos": "verb"}
+        },
+        "action_wait": {
+            "ar": {"lemma": "انتظر", "pos": "verb"},
+            "en": {"lemma": "wait", "pos": "verb"}
+        },
+        "entity_person": {
+            "ar": {"lemma": "شخص", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "person", "pos": "noun"}
+        },
+        "entity_choice": {
+            "ar": {"lemma": "خيار", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "choice", "pos": "noun"}
+        },
+        "entity_problem": {
+            "ar": {"lemma": "مشكلة", "pos": "noun", "gender": "f"},
+            "en": {"lemma": "problem", "pos": "noun"}
+        },
+        "context_home": {
+            "ar": {"lemma": "منزل", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "home", "pos": "noun"}
+        },
+        "context_work": {
+            "ar": {"lemma": "عمل", "pos": "noun", "gender": "m"},
+            "en": {"lemma": "work", "pos": "noun"}
+        },
+
+        # --- COMMON / ABSTRACT ---
+        "action_compare": {
+            "ar": {"lemma": "قارن", "pos": "verb"},
+            "en": {"lemma": "compare", "pos": "verb"}
+        },
+        "time_now": {
+            "ar": {"lemma": "الآن", "pos": "adv"},
+            "en": {"lemma": "now", "pos": "adv"}
+        },
+        # --- SPECIFIC PROGRAM KEYS (MAPPING) ---
+        
+        # Education
+        "entity_الطالب_الناجح": {"ar": {"lemma": "طالب ناجح", "pos": "noun"}, "en": {"lemma": "successful student", "pos": "noun"}},
+        "entity_الطالب_المتعثر": {"ar": {"lemma": "طالب متعثر", "pos": "noun"}, "en": {"lemma": "struggling student", "pos": "noun"}},
+        "action_مذاكرة_فعالة": {"ar": {"lemma": "ذاكر بفعالية", "pos": "verb"}, "en": {"lemma": "study effectively", "pos": "verb"}},
+        "action_محاولة_المذاكرة": {"ar": {"lemma": "حاول المذاكرة", "pos": "verb"}, "en": {"lemma": "try to study", "pos": "verb"}},
+        "state_حالة_تركيز_عالي": {"ar": {"lemma": "تركيز عالي", "pos": "noun"}, "en": {"lemma": "high focus", "pos": "noun"}},
+        "state_حالة_تشتت": {"ar": {"lemma": "تشتت", "pos": "noun"}, "en": {"lemma": "distraction", "pos": "noun"}},
+        "event_حدث_المذاكرة_الفعالة": {"ar": {"lemma": "مذاكرة فعالة", "pos": "noun"}, "en": {"lemma": "effective studying", "pos": "noun"}},
+        "event_حدث_الحصول_على_درجات_ممتازة": {"ar": {"lemma": "حصول على درجات ممتازة", "pos": "noun"}, "en": {"lemma": "getting excellent grades", "pos": "noun"}},
+        "event_حدث_التشتت": {"ar": {"lemma": "تشتت", "pos": "noun"}, "en": {"lemma": "getting distracted", "pos": "noun"}},
+        "event_حدث_الحصول_على_درجات_ضعيفة": {"ar": {"lemma": "حصول على درجات ضعيفة", "pos": "noun"}, "en": {"lemma": "getting poor grades", "pos": "noun"}},
+        
+        # Health
+        "entity_المريض": {"ar": {"lemma": "مريض", "pos": "noun"}, "en": {"lemma": "patient", "pos": "noun"}},
+        "entity_المريض_المزمن": {"ar": {"lemma": "مريض مزمن", "pos": "noun"}, "en": {"lemma": "chronic patient", "pos": "noun"}},
+        "action_تلقي_علاج_فوري": {"ar": {"lemma": "تلقى علاجاً", "pos": "verb"}, "en": {"lemma": "receive treatment", "pos": "verb"}},
+        "action_إدارة_المرض": {"ar": {"lemma": "أدار المرض", "pos": "verb"}, "en": {"lemma": "manage disease", "pos": "verb"}},
+        "state_حالة_طوارئ": {"ar": {"lemma": "حالة طوارئ", "pos": "noun"}, "en": {"lemma": "emergency state", "pos": "noun"}},
+        "state_حالة_مستقرة": {"ar": {"lemma": "حالة مستقرة", "pos": "noun"}, "en": {"lemma": "stable condition", "pos": "noun"}},
+        "event_حدث_تلقي_العلاج": {"ar": {"lemma": "تلقي العلاج", "pos": "noun"}, "en": {"lemma": "receiving treatment", "pos": "noun"}},
+        "event_حدث_التعافي_السريع": {"ar": {"lemma": "تعافي سريع", "pos": "noun"}, "en": {"lemma": "quick recovery", "pos": "noun"}},
+        "event_حدث_الالتزام_بالعلاج": {"ar": {"lemma": "التزام بالعلاج", "pos": "noun"}, "en": {"lemma": "adherence to treatment", "pos": "noun"}},
+        "event_حدث_السيطرة_على_المرض": {"ar": {"lemma": "سيطرة على المرض", "pos": "noun"}, "en": {"lemma": "disease control", "pos": "noun"}},
+
+        # Economy
+        "entity_المستثمر": {"ar": {"lemma": "مستثمر", "pos": "noun"}, "en": {"lemma": "investor", "pos": "noun"}},
+        "entity_المستثمر_الحذر": {"ar": {"lemma": "مستثمر حذر", "pos": "noun"}, "en": {"lemma": "cautious investor", "pos": "noun"}},
+        "action_استثمار_في_النمو": {"ar": {"lemma": "استثمر للنمو", "pos": "verb"}, "en": {"lemma": "invest for growth", "pos": "verb"}},
+        "action_استراتيجية_دفاعية": {"ar": {"lemma": "تبنى استراتيجية دفاعية", "pos": "verb"}, "en": {"lemma": "adopt defensive strategy", "pos": "verb"}},
+        "state_حالة_تفاؤل": {"ar": {"lemma": "تفاؤل", "pos": "noun"}, "en": {"lemma": "optimism", "pos": "noun"}},
+        "state_حالة_حذر": {"ar": {"lemma": "حذر", "pos": "noun"}, "en": {"lemma": "caution", "pos": "noun"}},
+        "event_حدث_الاستثمار_في_النمو": {"ar": {"lemma": "استثمار النمو", "pos": "noun"}, "en": {"lemma": "growth investment", "pos": "noun"}},
+        "event_حدث_تحقيق_عوائد_عالية": {"ar": {"lemma": "تحقيق عوائد", "pos": "noun"}, "en": {"lemma": "high returns", "pos": "noun"}},
+        "event_حدث_التحول_للدفاع": {"ar": {"lemma": "تحول للدفاع", "pos": "noun"}, "en": {"lemma": "shift to defense", "pos": "noun"}},
+        "event_حدث_الحفاظ_على_رأس_المال": {"ar": {"lemma": "حفاظ على رأس المال", "pos": "noun"}, "en": {"lemma": "capital preservation", "pos": "noun"}},
+
+        # Social
+        "entity_الشخص": {"ar": {"lemma": "شخص", "pos": "noun"}, "en": {"lemma": "person", "pos": "noun"}},
+        "entity_الصديق": {"ar": {"lemma": "صديق", "pos": "noun"}, "en": {"lemma": "friend", "pos": "noun"}},
+        "action_بدء_التواصل": {"ar": {"lemma": "بدأ التواصل", "pos": "verb"}, "en": {"lemma": "initiate contact", "pos": "verb"}},
+        "action_التواصل_المنتظم": {"ar": {"lemma": "تواصل بانتظام", "pos": "verb"}, "en": {"lemma": "communicate regularly", "pos": "verb"}},
+        "state_حالة_انفتاح": {"ar": {"lemma": "انفتاح", "pos": "noun"}, "en": {"lemma": "openness", "pos": "noun"}},
+        "state_حالة_استقرار": {"ar": {"lemma": "استقرار", "pos": "noun"}, "en": {"lemma": "stability", "pos": "noun"}},
+        "event_حدث_التفاعل_الإيجابي": {"ar": {"lemma": "تفاعل إيجابي", "pos": "noun"}, "en": {"lemma": "positive interaction", "pos": "noun"}},
+        "event_حدث_بناء_الثقة": {"ar": {"lemma": "بناء الثقة", "pos": "noun"}, "en": {"lemma": "building trust", "pos": "noun"}},
+        "event_حدث_الجهد_المستمر": {"ar": {"lemma": "جهد مستمر", "pos": "noun"}, "en": {"lemma": "consistent effort", "pos": "noun"}},
+        "event_حدث_استقرار_العلاقة": {"ar": {"lemma": "استقرار العلاقة", "pos": "noun"}, "en": {"lemma": "relationship stability", "pos": "noun"}},
+
+        # Daily Life
+        "entity_الشخص_تحت_ضغط": {"ar": {"lemma": "شخص مضغوط", "pos": "noun"}, "en": {"lemma": "stressed person", "pos": "noun"}},
+        "action_اتخاذ_قرار_روتيني": {"ar": {"lemma": "قرر بروتين", "pos": "verb"}, "en": {"lemma": "decide routinely", "pos": "verb"}},
+        "action_اتخاذ_قرار_حاسم": {"ar": {"lemma": "قرر بحسم", "pos": "verb"}, "en": {"lemma": "decide decisively", "pos": "verb"}},
+        "state_حالة_عادية": {"ar": {"lemma": "حالة عادية", "pos": "noun"}, "en": {"lemma": "normal state", "pos": "noun"}},
+        "state_حالة_ضغط_شديد": {"ar": {"lemma": "ضغط شديد", "pos": "noun"}, "en": {"lemma": "high pressure", "pos": "noun"}},
+        "event_حدث_الاختيار": {"ar": {"lemma": "اختيار", "pos": "noun"}, "en": {"lemma": "choice", "pos": "noun"}},
+        "event_حدث_النتيجة_المتوقعة": {"ar": {"lemma": "نتيجة متوقعة", "pos": "noun"}, "en": {"lemma": "expected outcome", "pos": "noun"}},
+        "event_حدث_القرار_العاجل": {"ar": {"lemma": "قرار عاجل", "pos": "noun"}, "en": {"lemma": "urgent decision", "pos": "noun"}},
+        "event_حدث_نتيجة_غير_مؤكدة": {"ar": {"lemma": "نتيجة غير مؤكدة", "pos": "noun"}, "en": {"lemma": "uncertain outcome", "pos": "noun"}},
+        
+        # Missing Contextual Events
+        "event_حدث_المذاكرة_في_بيئة_مثالية": {"ar": {"lemma": "مذاكرة في بيئة مثالية", "pos": "noun"}, "en": {"lemma": "studying in optimal environment", "pos": "noun"}},
+        "event_حدث_المذاكرة_في_بيئة_مشتتة": {"ar": {"lemma": "مذاكرة في بيئة مشتتة", "pos": "noun"}, "en": {"lemma": "studying in distracted environment", "pos": "noun"}},
+        "event_حدث_العلاج_الطارئ": {"ar": {"lemma": "علاج طارئ", "pos": "noun"}, "en": {"lemma": "emergency treatment", "pos": "noun"}},
+        "event_حدث_الاستثمار_الجريء": {"ar": {"lemma": "استثمار جريء", "pos": "noun"}, "en": {"lemma": "bold investment", "pos": "noun"}},
+        "event_حدث_التعارف": {"ar": {"lemma": "تعارف", "pos": "noun"}, "en": {"lemma": "getting to know", "pos": "noun"}},
+        "event_حدث_القرار_الحاسم": {"ar": {"lemma": "قرار حاسم", "pos": "noun"}, "en": {"lemma": "decisive decision", "pos": "noun"}}
     }
 }
 

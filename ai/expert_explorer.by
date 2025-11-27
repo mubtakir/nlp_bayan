@@ -1,0 +1,127 @@
+# ============================================================================
+# نظام الخبير والمستكشف - Expert-Explorer System
+# ============================================================================
+# The brain that drives adaptive equations
+# ============================================================================
+
+import "ai/adaptive_math.by"
+import "ai/adaptive_linguistics.by"
+
+hybrid {
+    
+    # ========================================================================
+    # 1. Learning Experience
+    # ========================================================================
+    class LearningExperience: {
+        def __init__(self, input_data, output, feedback, score): {
+            self.input = input_data
+            self.output = output
+            self.feedback = feedback
+            self.score = score
+            self.timestamp = time.now()
+        }
+    }
+
+    # ========================================================================
+    # 2. The Expert (الخبير)
+    # ========================================================================
+    # Uses proven knowledge and high-confidence models
+    class ExpertAgent: {
+        def __init__(self): {
+            self.knowledge_base = []
+            self.best_equation = AdaptiveEquation("BestEq", [1.0], [1.0], [0.1])
+            self.confidence = 1.0
+        }
+        
+        def solve(self, problem): {
+            # Use the best equation to solve
+            result = self.best_equation.compute(problem)
+            return result
+        }
+        
+        def update_knowledge(self, experience): {
+            if (experience.score > 0.8) {
+                self.knowledge_base.append(experience)
+                # Reinforce current equation
+            }
+        }
+    }
+    
+    # ========================================================================
+    # 3. The Explorer (المستكشف)
+    # ========================================================================
+    # Tries new things, adapts equations, takes risks
+    class ExplorerAgent: {
+        def __init__(self): {
+            self.current_equation = AdaptiveEquation("ExplorerEq", [1.0], [1.0], [0.1])
+            self.curiosity = 0.8
+        }
+        
+        def explore(self, problem): {
+            # Adapt the equation slightly (Mutation)
+            self.current_equation.adapt(self.curiosity)
+            
+            # Try to solve
+            result = self.current_equation.compute(problem)
+            return result
+        }
+    }
+    
+    # ========================================================================
+    # 4. The Controller (المنسق)
+    # ========================================================================
+    # Decides who acts: Expert or Explorer
+    class ExpertExplorerController: {
+        def __init__(self): {
+            self.expert = ExpertAgent()
+            self.explorer = ExplorerAgent()
+            self.history = []
+            
+            # Balance parameters
+            self.exploration_rate = 0.2  # 20% exploration
+        }
+        
+        def process(self, input_data): {
+            # Decision: Exploit (Expert) or Explore (Explorer)?
+            r = random.random()
+            
+            if (r < self.exploration_rate) {
+                print("🎲 Explorer is taking charge...")
+                result = self.explorer.explore(input_data)
+                agent = "explorer"
+            } else {
+                print("🧠 Expert is taking charge...")
+                result = self.expert.solve(input_data)
+                agent = "expert"
+            }
+            
+            return {"result": result, "agent": agent}
+        }
+        
+        def learn(self, input_data, output, feedback): {
+            score = self._calculate_score(feedback)
+            experience = LearningExperience(input_data, output, feedback, score)
+            self.history.append(experience)
+            
+            # Update agents
+            self.expert.update_knowledge(experience)
+            
+            # Adjust exploration rate based on success
+            if (score < 0.5) {
+                # If failing, explore more
+                self.exploration_rate = min(0.8, self.exploration_rate + 0.05)
+                print("⚠️ Performance drop. Increasing exploration to " + str(self.exploration_rate))
+            } else {
+                # If succeeding, exploit more (reduce exploration)
+                self.exploration_rate = max(0.1, self.exploration_rate - 0.01)
+            }
+        }
+        
+        def _calculate_score(self, feedback): {
+            # Simple score parsing
+            if (feedback == "good") { return 1.0 }
+            if (feedback == "bad") { return 0.0 }
+            return 0.5
+        }
+    }
+}

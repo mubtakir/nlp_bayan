@@ -153,19 +153,74 @@ def plan_description_sentence(sent, lang="abstract"):
 
 
 
-def plan_intensity_sentence(sent, lang="abstract"):
-{
-    seq = []
-    seq.append({"slot": "Axis", "value": sent["axis"]})
-    seq.append({"slot": "Value", "value": sent["value"]})
-    seq.append({"slot": "Degree", "value": sent["degree"]})
-
     return {
         "plan_type": "SurfacePlan",
         "sentence_type": "IntensitySentence",
         "lang": lang,
         "sequence": seq,
         "modifiers": {}
+    }
+}
+
+
+def plan_temporal_sentence(sent, lang="abstract"):
+{
+    # Temporal sequence: Event1 -> Connective -> Event2
+    seq = []
+    
+    events = sent["events"]
+    relations = sent["relations"]
+    
+    for i in (range(len(events))) {
+        seq.append({"slot": "Event", "value": events[i]})
+        
+        # Add connective if not the last event
+        if (i < len(events) - 1):
+            rel = "then"
+            if (i < len(relations)):
+                rel = relations[i]
+            
+            conn_val = "TEMPORAL_NEXT"
+            if (rel == "before"): conn_val = "TEMPORAL_BEFORE"
+            elif (rel == "after"): conn_val = "TEMPORAL_AFTER"
+            
+            seq.append({"slot": "TemporalConnector", "value": conn_val})
+    }
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "TemporalSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {
+            "context": sent.get("context", "neutral")
+        }
+    }
+}
+
+
+def plan_comparison_sentence(sent, lang="abstract"):
+{
+    # Comparison: Entity1 -> Axis -> Relation -> Entity2
+    seq = []
+    
+    seq.append({"slot": "Subject", "value": sent["entity1"]})
+    seq.append({"slot": "Axis", "value": sent["axis"]})
+    
+    # Relation token (better/worse/more/less)
+    rel = sent["relation"]
+    seq.append({"slot": "ComparisonRelation", "value": rel})
+    
+    seq.append({"slot": "Object", "value": sent["entity2"]})
+
+    return {
+        "plan_type": "SurfacePlan",
+        "sentence_type": "ComparisonSentence",
+        "lang": lang,
+        "sequence": seq,
+        "modifiers": {
+            "degree": sent.get("degree", 1.0)
+        }
     }
 }
 
