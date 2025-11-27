@@ -1,0 +1,253 @@
+#!/usr/bin/env bayan
+# ============================================================================
+# 🔗 مثال: تحميل الشبكات السببية من قاعدة بيانات خارجية
+# Example: Loading Causal Networks from External Database
+# ============================================================================
+# يوضح هذا المثال كيفية دمج Bayan مع قواعد بيانات خارجية
+# This example demonstrates how to integrate Bayan with external databases
+# ============================================================================
+
+# ============================================================================
+# الطريقة 1: تحميل من ملف JSON
+# Method 1: Load from JSON file
+# ============================================================================
+
+# دالة لتحميل الحقائق من ملف JSON
+function: load_medical_knowledge_from_json(filepath) {
+    # قراءة ملف JSON
+    json_data = read_json(filepath)
+    
+    # تحميل الأعراض
+    for symptom in json_data["symptoms"] {
+        assert_fact: symptom(symptom["id"], symptom["name"], symptom["type"])
+    }
+    
+    # تحميل الأمراض
+    for disease in json_data["diseases"] {
+        assert_fact: disease(disease["id"], disease["name"], disease["severity"])
+    }
+    
+    # تحميل الشبكة السببية
+    for relation in json_data["causal_relations"] {
+        assert_fact: disease_causes_symptom(
+            relation["disease_id"],
+            relation["symptom_id"],
+            relation["probability"]
+        )
+    }
+}
+
+# استخدام الدالة
+# load_medical_knowledge_from_json("medical_kb.json")
+
+# ============================================================================
+# الطريقة 2: تحميل من قاعدة بيانات SQL
+# Method 2: Load from SQL Database
+# ============================================================================
+
+# دالة للاتصال بقاعدة البيانات وتحميل البيانات
+function: load_from_database(connection_string) {
+    # الاتصال بقاعدة البيانات
+    db = connect_to_db(connection_string)
+    
+    # تحميل الأعراض من جدول symptoms
+    symptoms_query = "SELECT id, name, type FROM symptoms"
+    symptoms_results = db.execute(symptoms_query)
+    
+    for row in symptoms_results {
+        assert_fact: symptom(row["id"], row["name"], row["type"])
+    }
+    
+    # تحميل الأمراض من جدول diseases
+    diseases_query = "SELECT id, name, severity FROM diseases"
+    diseases_results = db.execute(diseases_query)
+    
+    for row in diseases_results {
+        assert_fact: disease(row["id"], row["name"], row["severity"])
+    }
+    
+    # تحميل الشبكة السببية من جدول العلاقات
+    relations_query = """
+        SELECT disease_id, symptom_id, probability 
+        FROM disease_symptom_relations
+        WHERE probability > 50
+    """
+    relations_results = db.execute(relations_query)
+    
+    for row in relations_results {
+        assert_fact: disease_causes_symptom(
+            row["disease_id"],
+            row["symptom_id"],
+            row["probability"]
+        )
+    }
+    
+    db.close()
+}
+
+# استخدام الدالة
+# load_from_database("postgresql://localhost:5432/medical_kb")
+
+# ============================================================================
+# الطريقة 3: النهج الهجين (الأفضل)
+# Method 3: Hybrid Approach (Best Practice)
+# ============================================================================
+
+# القواعد المنطقية في الكود (ثابتة ولا تتغير)
+rule: diagnose(Patient, Disease, Confidence) :-
+    patient_symptoms(Patient, Symptoms),
+    disease_causes_symptoms(Disease, RequiredSymptoms),
+    symptoms_match(Symptoms, RequiredSymptoms, MatchScore),
+    disease(Disease, _, Severity),
+    Confidence is MatchScore * (Severity = "critical" ? 1.2 : 1.0).
+
+rule: symptoms_match(PatientSymptoms, DiseaseSymptoms, Score) :-
+    findall(Prob, (
+        member(S, PatientSymptoms),
+        member(S, DiseaseSymptoms),
+        disease_causes_symptom(_, S, Prob)
+    ), Probabilities),
+    length(Probabilities, Count),
+    sum_list(Probabilities, Total),
+    Score is Total / Count.
+
+rule: disease_causes_symptoms(Disease, Symptoms) :-
+    disease(Disease, _, _),
+    findall(S, disease_causes_symptom(Disease, S, _), Symptoms).
+
+rule: recommend_treatment(Patient, Treatment) :-
+    diagnose(Patient, Disease, Confidence),
+    Confidence > 70,
+    treatment_for_disease(Disease, Treatment).
+
+# البيانات من مصدر خارجي (يتم تحميلها عند التشغيل)
+# Data loaded from external source at runtime
+
+# ============================================================================
+# مثال عملي: نظام تشخيص طبي
+# Practical Example: Medical Diagnosis System
+# ============================================================================
+
+# بيانات المريض (يمكن أن تأتي من نموذج إدخال)
+fact: patient("P001", "أحمد_محمد", 45).
+fact: patient_symptoms("P001", ["S001", "S002", "S005"]).
+
+# البيانات التالية عادةً ستُحمل من قاعدة بيانات
+# The following data would typically be loaded from a database
+
+# الأعراض (من قاعدة البيانات)
+fact: symptom("S001", "حمى_عالية", "temperature").
+fact: symptom("S002", "سعال_جاف", "respiratory").
+fact: symptom("S003", "صداع", "neurological").
+fact: symptom("S004", "ألم_صدر", "cardiac").
+fact: symptom("S005", "ضيق_تنفس", "respiratory").
+
+# الأمراض (من قاعدة البيانات)
+fact: disease("D001", "كوفيد-19", "critical").
+fact: disease("D002", "إنفلونزا", "moderate").
+fact: disease("D003", "التهاب_رئوي", "high").
+
+# الشبكة السببية (من قاعدة البيانات)
+fact: disease_causes_symptom("D001", "S001", 85).
+fact: disease_causes_symptom("D001", "S002", 90).
+fact: disease_causes_symptom("D001", "S005", 80).
+fact: disease_causes_symptom("D002", "S001", 75).
+fact: disease_causes_symptom("D002", "S002", 60).
+fact: disease_causes_symptom("D002", "S003", 70).
+fact: disease_causes_symptom("D003", "S001", 80).
+fact: disease_causes_symptom("D003", "S004", 85).
+fact: disease_causes_symptom("D003", "S005", 90).
+
+# العلاجات (من قاعدة البيانات)
+fact: treatment_for_disease("D001", "عزل_منزلي_وأدوية_داعمة").
+fact: treatment_for_disease("D002", "راحة_ومضادات_حيوية").
+fact: treatment_for_disease("D003", "مضادات_حيوية_قوية_ومراقبة").
+
+# ============================================================================
+# الاستعلامات
+# Queries
+# ============================================================================
+
+# تشخيص المريض
+query: diagnose("P001", Disease, Confidence).
+
+# التوصية بالعلاج
+query: recommend_treatment("P001", Treatment).
+
+# عرض جميع الأمراض المحتملة مع درجة الثقة
+query: diagnose("P001", Disease, Confidence), Confidence > 50.
+
+# ============================================================================
+# ملاحظات التنفيذ
+# Implementation Notes
+# ============================================================================
+
+# في نظام حقيقي، ستحتاج إلى:
+# 1. مكتبة للاتصال بقاعدة البيانات (مثل psycopg2 لـ PostgreSQL)
+# 2. دالة لتحويل نتائج SQL إلى حقائق Bayan
+# 3. آلية للتحديث الديناميكي عند تغيير البيانات
+# 4. معالجة الأخطاء والاستثناءات
+
+# مثال على كود Python للتكامل:
+# 
+# import psycopg2
+# from bayan import BayanEngine
+# 
+# def load_medical_kb():
+#     engine = BayanEngine()
+#     conn = psycopg2.connect("postgresql://localhost/medical_kb")
+#     cur = conn.cursor()
+#     
+#     # تحميل الأعراض
+#     cur.execute("SELECT id, name, type FROM symptoms")
+#     for row in cur.fetchall():
+#         engine.assert_fact(f'symptom("{row[0]}", "{row[1]}", "{row[2]}")')
+#     
+#     # تحميل الأمراض
+#     cur.execute("SELECT id, name, severity FROM diseases")
+#     for row in cur.fetchall():
+#         engine.assert_fact(f'disease("{row[0]}", "{row[1]}", "{row[2]}")')
+#     
+#     # تحميل الشبكة السببية
+#     cur.execute("SELECT disease_id, symptom_id, probability FROM disease_symptom_relations")
+#     for row in cur.fetchall():
+#         engine.assert_fact(f'disease_causes_symptom("{row[0]}", "{row[1]}", {row[2]})')
+#     
+#     conn.close()
+#     return engine
+
+# ============================================================================
+# المزايا والعيوب
+# Advantages and Disadvantages
+# ============================================================================
+
+# المزايا:
+# ✅ فصل المنطق عن البيانات
+# ✅ سهولة تحديث البيانات بدون تعديل الكود
+# ✅ مشاركة البيانات مع أنظمة أخرى
+# ✅ إدارة أفضل للبيانات الكبيرة
+# ✅ إمكانية التحديث في الوقت الفعلي
+
+# العيوب:
+# ❌ يحتاج إعداد إضافي (قاعدة بيانات)
+# ❌ تعقيد أكبر في البداية
+# ❌ يحتاج معالجة الأخطاء والاتصال
+# ❌ أبطأ قليلاً من البيانات المباشرة
+
+# ============================================================================
+# التوصيات
+# Recommendations
+# ============================================================================
+
+# استخدم البيانات المباشرة في الكود عندما:
+# - البيانات صغيرة (< 100 حقيقة)
+# - البيانات ثابتة لا تتغير
+# - تكتب أمثلة تعليمية
+# - تختبر أفكار جديدة
+
+# استخدم قاعدة بيانات خارجية عندما:
+# - البيانات كبيرة (> 1000 حقيقة)
+# - البيانات تتحدث بشكل متكرر
+# - عدة مستخدمين يحدثون البيانات
+# - تحتاج مشاركة البيانات مع أنظمة أخرى
+# - تبني نظام إنتاجي

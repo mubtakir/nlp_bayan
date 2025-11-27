@@ -1,0 +1,225 @@
+{
+  "description": "قاعدة معرفة طبية - Medical Knowledge Base",
+  "version": "1.0",
+  "last_updated": "2025-11-27",
+  
+  "symptoms": [
+    {
+      "id": "S001",
+      "name": "حمى_عالية",
+      "name_en": "high_fever",
+      "type": "temperature",
+      "severity": "high"
+    },
+    {
+      "id": "S002",
+      "name": "سعال_جاف",
+      "name_en": "dry_cough",
+      "type": "respiratory",
+      "severity": "medium"
+    },
+    {
+      "id": "S003",
+      "name": "صداع",
+      "name_en": "headache",
+      "type": "neurological",
+      "severity": "low"
+    },
+    {
+      "id": "S004",
+      "name": "ألم_صدر",
+      "name_en": "chest_pain",
+      "type": "cardiac",
+      "severity": "high"
+    },
+    {
+      "id": "S005",
+      "name": "ضيق_تنفس",
+      "name_en": "shortness_of_breath",
+      "type": "respiratory",
+      "severity": "critical"
+    },
+    {
+      "id": "S006",
+      "name": "إرهاق",
+      "name_en": "fatigue",
+      "type": "general",
+      "severity": "low"
+    }
+  ],
+  
+  "diseases": [
+    {
+      "id": "D001",
+      "name": "كوفيد-19",
+      "name_en": "COVID-19",
+      "severity": "critical",
+      "category": "viral_infection",
+      "contagious": true
+    },
+    {
+      "id": "D002",
+      "name": "إنفلونزا",
+      "name_en": "Influenza",
+      "severity": "moderate",
+      "category": "viral_infection",
+      "contagious": true
+    },
+    {
+      "id": "D003",
+      "name": "التهاب_رئوي",
+      "name_en": "Pneumonia",
+      "severity": "high",
+      "category": "bacterial_infection",
+      "contagious": false
+    },
+    {
+      "id": "D004",
+      "name": "نزلة_برد",
+      "name_en": "Common_Cold",
+      "severity": "low",
+      "category": "viral_infection",
+      "contagious": true
+    }
+  ],
+  
+  "causal_relations": [
+    {
+      "disease_id": "D001",
+      "symptom_id": "S001",
+      "probability": 85,
+      "onset_days": 2,
+      "duration_days": 7
+    },
+    {
+      "disease_id": "D001",
+      "symptom_id": "S002",
+      "probability": 90,
+      "onset_days": 3,
+      "duration_days": 14
+    },
+    {
+      "disease_id": "D001",
+      "symptom_id": "S005",
+      "probability": 80,
+      "onset_days": 5,
+      "duration_days": 10
+    },
+    {
+      "disease_id": "D001",
+      "symptom_id": "S006",
+      "probability": 95,
+      "onset_days": 1,
+      "duration_days": 21
+    },
+    {
+      "disease_id": "D002",
+      "symptom_id": "S001",
+      "probability": 75,
+      "onset_days": 1,
+      "duration_days": 5
+    },
+    {
+      "disease_id": "D002",
+      "symptom_id": "S002",
+      "probability": 60,
+      "onset_days": 2,
+      "duration_days": 7
+    },
+    {
+      "disease_id": "D002",
+      "symptom_id": "S003",
+      "probability": 70,
+      "onset_days": 1,
+      "duration_days": 5
+    },
+    {
+      "disease_id": "D002",
+      "symptom_id": "S006",
+      "probability": 80,
+      "onset_days": 1,
+      "duration_days": 7
+    },
+    {
+      "disease_id": "D003",
+      "symptom_id": "S001",
+      "probability": 80,
+      "onset_days": 2,
+      "duration_days": 10
+    },
+    {
+      "disease_id": "D003",
+      "symptom_id": "S004",
+      "probability": 85,
+      "onset_days": 3,
+      "duration_days": 7
+    },
+    {
+      "disease_id": "D003",
+      "symptom_id": "S005",
+      "probability": 90,
+      "onset_days": 2,
+      "duration_days": 14
+    },
+    {
+      "disease_id": "D004",
+      "symptom_id": "S002",
+      "probability": 50,
+      "onset_days": 1,
+      "duration_days": 5
+    },
+    {
+      "disease_id": "D004",
+      "symptom_id": "S003",
+      "probability": 60,
+      "onset_days": 1,
+      "duration_days": 3
+    },
+    {
+      "disease_id": "D004",
+      "symptom_id": "S006",
+      "probability": 70,
+      "onset_days": 1,
+      "duration_days": 5
+    }
+  ],
+  
+  "treatments": [
+    {
+      "disease_id": "D001",
+      "treatment": "عزل_منزلي_وأدوية_داعمة",
+      "treatment_en": "Home_isolation_and_supportive_medication",
+      "duration_days": 14,
+      "effectiveness": 85
+    },
+    {
+      "disease_id": "D002",
+      "treatment": "راحة_ومضادات_فيروسات",
+      "treatment_en": "Rest_and_antivirals",
+      "duration_days": 7,
+      "effectiveness": 80
+    },
+    {
+      "disease_id": "D003",
+      "treatment": "مضادات_حيوية_قوية_ومراقبة",
+      "treatment_en": "Strong_antibiotics_and_monitoring",
+      "duration_days": 10,
+      "effectiveness": 90
+    },
+    {
+      "disease_id": "D004",
+      "treatment": "راحة_وسوائل",
+      "treatment_en": "Rest_and_fluids",
+      "duration_days": 5,
+      "effectiveness": 95
+    }
+  ],
+  
+  "metadata": {
+    "total_symptoms": 6,
+    "total_diseases": 4,
+    "total_relations": 14,
+    "data_source": "Medical Knowledge Base v1.0",
+    "language": "ar/en"
+  }
+}
