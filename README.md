@@ -421,6 +421,49 @@ hybrid {
 
 ---
 
+### 11. 🕵️ **Istinbat Engine** (Deep Inference)
+
+The "Unified Brain" that deduces rather than retrieves:
+
+```bayan
+hybrid {
+    # Text -> Equation -> Causal Logic -> Entity State -> Circuit
+    engine = IstinbatEngine()
+    result = engine.process("Ahmed hit the ball")
+    
+    # It deduces:
+    # 1. Ahmed might be tired/angry
+    # 2. Ball is affected physically
+    # 3. Builds a unique logical circuit for this specific event
+}
+```
+
+**Why it matters:**
+- **True Deduction**: Doesn't use templates. It calculates consequences.
+- **Unified**: Connects Linguistic Equations, Entities, and Causal Networks.
+
+**Examples:** [istinbat_demo.py](examples/istinbat_demo.py)
+
+---
+
+### 12. ⚡ **Dynamic Circuit Builder**
+
+Generative Symbolic AI that builds logic on the fly:
+
+```bayan
+hybrid {
+    # Input: "The car flies in the sky" (Novel concept)
+    # Result: A valid logical circuit created instantly from atoms.
+    
+    builder = DynamicCircuitBuilder()
+    circuit = builder.assemble([Atom("Car"), Atom("Fly"), Atom("Sky")])
+}
+```
+
+**Examples:** [dynamic_creativity_demo.py](examples/dynamic_creativity_demo.py)
+
+---
+
 ## 🎨 Examples Gallery
 
 ### 📂 148 Working Examples Organized by Category
