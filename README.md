@@ -464,6 +464,34 @@ hybrid {
 
 ---
 
+### 13. 🌉 **Neuro-Symbolic Integration** (3-Mode System)
+
+The bridge between Bayan's logic and external LLMs:
+
+```python
+from bayan.ai.neuro_symbolic_loop import NeuroSymbolicLoop
+
+# Mode 1: Standalone (Default) - Pure Bayan, no external LLM
+loop = NeuroSymbolicLoop(mode="standalone")
+result = loop.process("أحمد ضرب الكرة")
+# Uses only IstinbatEngine + DynamicCircuitBuilder
+
+# Mode 2: Local - Ollama with open-source models
+loop = NeuroSymbolicLoop(mode="local")
+# Requires: pip install ollama + ollama serve
+
+# Mode 3: Cloud - Gemini 1.5 Pro
+loop = NeuroSymbolicLoop(mode="cloud")
+# Requires: pip install google-generativeai + API key
+```
+
+**Why 3 Modes?**
+- **Standalone**: Proves Bayan is CAPABLE on its own (knowledge-limited, not design-limited)
+- **Local**: Privacy + Power without internet
+- **Cloud**: Maximum capability for complex tasks
+
+**Examples:** [neuro_symbolic_demo.py](examples/neuro_symbolic_demo.py)
+
 ## 🎨 Examples Gallery
 
 ### 📂 148 Working Examples Organized by Category
