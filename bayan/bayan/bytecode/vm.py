@@ -47,8 +47,13 @@ class BytecodeVM:
         self.paused = False
         self.current_code = None # The top-level code object being executed
         
-        # Note: The original code had self.logical_engine. This change removes it.
-        # If logical_engine is still needed, it should be re-added here.
+        # Logic Programming
+        self.logical_engine = LogicalEngine()
+        
+        # Call stack for function calls
+        self.call_stack = []
+        self.current_frame = None
+        
         self.reset()
         
     def reset(self):
@@ -60,6 +65,9 @@ class BytecodeVM:
         self.running = False
         self.paused = False
         self.current_code = None
+        self.logical_engine = LogicalEngine()
+        self.call_stack = []
+        self.current_frame = None
     
     def execute(self, code_object):
         """
@@ -190,10 +198,12 @@ class BytecodeVM:
             self.stack.append(self.current_code.constants[arg])
         
         elif opcode == Opcode.LOAD_VAR:
-            # Load variable (check locals first, then globals)
+            # Load variable (check current frame's locals first, then globals)
             name = self.current_code.names[arg] if isinstance(arg, int) else arg
-            if name in self.locals:
-                self.stack.append(self.locals[name])
+            
+            # Check current frame's locals if we're in a function call
+            if self.current_frame and name in self.current_frame.locals:
+                self.stack.append(self.current_frame.locals[name])
             elif name in self.globals:
                 self.stack.append(self.globals[name])
             else:
@@ -203,11 +213,12 @@ class BytecodeVM:
             # Store to variable
             name = self.current_code.names[arg] if isinstance(arg, int) else arg
             value = self.stack.pop()
-            # For module-level code, store in globals
-            # For function calls, would store in current frame's locals
-            if self.frames:
-                self.frames[-1].locals[name] = value
+            
+            # Store in current frame's locals if we're in a function call
+            if self.current_frame:
+                self.current_frame.locals[name] = value
             else:
+                # Module-level code, store in globals
                 self.globals[name] = value
         
         elif opcode == Opcode.POP:
@@ -331,7 +342,7 @@ class BytecodeVM:
             saved_instructions = self.current_code.instructions if self.current_code else []
             
             # Create new frame
-            new_frame = CallFrame(func_code, return_ip=saved_ip, locals={})
+            new_frame = CallFrame(func_code, locals_map={}, return_ip=saved_ip)
             
             # Set up arguments as local variables (simple approach: arg0, arg1, ...)
             for i, arg_val in enumerate(args):
@@ -342,7 +353,7 @@ class BytecodeVM:
             self.current_frame = new_frame
             
             # Execute function
-            self.code = func_code
+            self.current_code = func_code
             self.ip = 0
             
             # Run until RETURN
@@ -358,7 +369,7 @@ class BytecodeVM:
             
             # Restore previous frame
             self.current_frame = self.call_stack.pop() if self.call_stack else None
-            self.code = saved_code
+            self.current_code = saved_code
             self.ip = saved_ip
         
         # ===== Special =====

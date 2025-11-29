@@ -215,18 +215,43 @@ class BytecodeCompiler:
         
         if node.operator in comparison_ops:
             # Use COMPARE_OP
-            compare_map = {
-                '<': 0,   # Py_LT
-                '<=': 1,  # Py_LE
-                '==': 2,  # Py_EQ
-                '!=': 3,  # Py_NE
-                '>': 4,   # Py_GT
-                '>=': 5,  # Py_GE
-            }
-            self.emit('COMPARE_OP', compare_map[node.operator])
-            if sys.version_info >= (3, 11):
+            if sys.version_info >= (3, 12):
+                # Python 3.12 COMPARE_OP values
+                compare_map_312 = {
+                    '<': 2,
+                    '<=': 26,
+                    '==': 40,
+                    '!=': 55,
+                    '>': 68,
+                    '>=': 92,
+                }
+                self.emit('COMPARE_OP', compare_map_312[node.operator])
+                # COMPARE_OP in 3.12 has 1 CACHE entry (2 bytes)
+                self.emit('CACHE', 0)
+            elif sys.version_info >= (3, 11):
+                # Python 3.11 COMPARE_OP values (same as map below but with cache)
+                compare_map = {
+                    '<': 0,   # Py_LT
+                    '<=': 1,  # Py_LE
+                    '==': 2,  # Py_EQ
+                    '!=': 3,  # Py_NE
+                    '>': 4,   # Py_GT
+                    '>=': 5,  # Py_GE
+                }
+                self.emit('COMPARE_OP', compare_map[node.operator])
                 # COMPARE_OP has 1 CACHE in 3.11+
                 self.emit('CACHE', 0)
+            else:
+                # Python 3.10-
+                compare_map = {
+                    '<': 0,   # Py_LT
+                    '<=': 1,  # Py_LE
+                    '==': 2,  # Py_EQ
+                    '!=': 3,  # Py_NE
+                    '>': 4,   # Py_GT
+                    '>=': 5,  # Py_GE
+                }
+                self.emit('COMPARE_OP', compare_map[node.operator])
             return
         
         # Python 3.11+ uses BINARY_OP with an argument indicating the operation
@@ -330,15 +355,22 @@ class BytecodeCompiler:
 
     def visit_WhileLoop(self, node):
         """Compile while loop"""
-        # Create labels
-        loop_start = self.create_label()  # Start of condition check
-        loop_body = self.create_label()   # Start of body
-        loop_end = self.create_label()    # End of loop
+        # Standard While Loop Compilation
+        # loop_start:
+        #     condition
+        #     POP_JUMP_IF_FALSE loop_end
+        #     body
+        #     JUMP_BACKWARD loop_start
+        # loop_end:
         
-        # Mark loop start (condition evaluation)
+        # Create labels
+        loop_start = self.create_label()
+        loop_end = self.create_label()
+        
+        # Mark loop start
         self.mark_label(loop_start)
         
-        # Evaluate condition (first time)
+        # Evaluate condition
         self.visit(node.condition)
         
         # Jump to end if false
@@ -346,28 +378,16 @@ class BytecodeCompiler:
             self.emit_jump('POP_JUMP_IF_FALSE', loop_end)
         else:
             self.emit_jump('POP_JUMP_IF_FALSE', loop_end)
-        
-        # Mark body start
-        self.mark_label(loop_body)
-        
-        # Loop body
+            
+        # Body
         self.visit(node.body)
         
-        # Re-evaluate condition
-        self.visit(node.condition)
-        
-        # Jump to end if false
+        # Jump back to start
         if sys.version_info >= (3, 11):
-            self.emit_jump('POP_JUMP_IF_FALSE', loop_end)
-        else:
-            self.emit_jump('POP_JUMP_IF_FALSE', loop_end)
-        
-        # Jump back to body (not to start!)
-        if sys.version_info >= (3, 11):
-            self.emit_jump('JUMP_BACKWARD', loop_body)
+            self.emit_jump('JUMP_BACKWARD', loop_start)
         else:
             self.emit_jump('JUMP_ABSOLUTE', loop_start)
-        
+            
         # Mark loop end
         self.mark_label(loop_end)
 
@@ -410,7 +430,9 @@ class BytecodeCompiler:
         
         # Clean up iterator (FOR_ITER leaves it on stack when done)
         # Actually, FOR_ITER pops the iterator when exhausted in 3.11+
-        # So no cleanup needed
+        # But Python 3.12 requires END_FOR to clean up the stack properly
+        if 'END_FOR' in dis.opmap:
+            self.emit('END_FOR')
 
     def visit_Boolean(self, node):
         """Compile boolean literal"""
