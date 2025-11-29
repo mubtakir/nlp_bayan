@@ -705,6 +705,13 @@ All graphics modules have Arabic wrappers:
 - `web_ide/templates/ide.html` - IDE interface
 - `web_ide/user_scripts/` - User scripts storage
 
+### 📘 Advanced Web IDE Documentation
+- **[Interfaces Guide](docs/web_ide/interfaces_guide.md)** - Comprehensive guide to all IDE interfaces
+- **[Pages Guide](docs/web_ide/pages_guide.md)** - Detailed guide to the three main pages (/ide, /logic_graph, /unified_graph)
+- **[IDE vs Debugger](docs/web_ide/ide_vs_debugger.md)** - When to use the main IDE vs the Visual Debugger
+- **[Debugger Fix Report](docs/reports/debugger_fix_report.md)** - Technical report on recent debugger fixes
+
+
 ---
 
 ## 📚 Complete Documentation Index

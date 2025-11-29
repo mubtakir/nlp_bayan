@@ -18,9 +18,9 @@ class Instruction:
         offset (int): Position in bytecode sequence
     """
     
-    __slots__ = ('opcode', 'arg', 'offset')
+    __slots__ = ('opcode', 'arg', 'offset', 'line_number')
     
-    def __init__(self, opcode, arg=None, offset=0):
+    def __init__(self, opcode, arg=None, offset=0, line_number=None):
         """
         Initialize instruction.
         
@@ -28,6 +28,7 @@ class Instruction:
             opcode (Opcode or int): Operation code
             arg: Argument value (int, str, or None)
             offset (int): Byte offset in code
+            line_number (int): Source line number
         """
         if isinstance(opcode, int):
             self.opcode = Opcode(opcode)
@@ -36,6 +37,7 @@ class Instruction:
             
         self.arg = arg
         self.offset = offset
+        self.line_number = line_number
     
     def __repr__(self):
         if self.arg is not None:

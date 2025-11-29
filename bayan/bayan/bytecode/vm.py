@@ -33,62 +33,147 @@ class BytecodeVM:
     - Global variables (module level)
     """
     
-    def __init__(self):
-        """Initialize the VM"""
-        self.stack = []              # Value stack
-        self.globals = {}            # Global variables
-        self.call_stack = []         # Call frames
-        self.current_frame = None    # Current execution frame
-        self.ip = 0                  # Instruction pointer (in current frame)
-        self.code = None             # Current code object
-        self.running = False         # Execution state
-        self.logical_engine = LogicalEngine()
+    def __init__(self, debug_mode=False):
+        """Initialize VM"""
+        self.stack = []
+        self.frames = [] # This will replace call_stack and current_frame conceptually
+        self.globals = {}
+        self.ip = 0  # Instruction Pointer
+        self.running = False
+        
+        # Debugging
+        self.debug_mode = debug_mode
+        self.breakpoints = set()  # Set of instruction indices
+        self.paused = False
+        self.current_code = None # The top-level code object being executed
+        
+        # Note: The original code had self.logical_engine. This change removes it.
+        # If logical_engine is still needed, it should be re-added here.
         self.reset()
         
     def reset(self):
         """Reset VM state"""
-        self.stack.clear()
-        self.globals.clear()
-        self.call_stack.clear()
-        self.current_frame = None
+        self.stack = []
+        self.frames = []
+        self.globals = {}
         self.ip = 0
         self.running = False
+        self.paused = False
+        self.current_code = None
     
     def execute(self, code_object):
         """
-        Execute a code object.
+        Execute code object.
         
         Args:
             code_object (CodeObject): Code to execute
         
         Returns:
-            Value at top of stack (or None)
+            Result of execution (TOS)
         """
-        # Create initial frame
-        self.current_frame = CallFrame(code_object)
-        self.code = code_object
-        self.ip = 0
+        self.current_code = code_object
         self.running = True
+        self.paused = False
+        
+        # Create initial frame (module level)
+        # For PoC, we just use global state + ip
+        self.ip = 0
         
         instructions = code_object.instructions
         
         while self.running and self.ip < len(instructions):
+            # Check breakpoints
+            if self.debug_mode and self.ip in self.breakpoints:
+                self.paused = True
+                return "PAUSED"
+            
+            if self.debug_mode and self.paused:
+                return "PAUSED"
+
             instr = instructions[self.ip]
             self.ip += 1
             
             # Execute instruction
             self._execute_instruction(instr)
         
+        self.running = False
+        
         # Return value at top of stack (if any)
         if self.stack:
             return self.stack[-1]
         return None
+
+    def step(self):
+        """Execute single instruction (Debug Mode)"""
+        if not self.running or not self.current_code:
+            return "NOT_RUNNING"
+            
+        instructions = self.current_code.instructions
+        if self.ip >= len(instructions):
+            self.running = False
+            return "FINISHED"
+            
+        instr = instructions[self.ip]
+        self.ip += 1
+        self._execute_instruction(instr)
+        
+        if self.ip >= len(instructions):
+            self.running = False
+            return "FINISHED"
+            
+        return "STEPPED"
+
+    def resume(self):
+        """Resume execution until breakpoint or end"""
+        self.paused = False
+        return self.execute(self.current_code)
+
+    def get_state(self):
+        """Get current VM state for debugger"""
+        current_instr = None
+        if self.current_code and 0 <= self.ip < len(self.current_code.instructions):
+            current_instr = self.current_code.instructions[self.ip]
+            
+        return {
+            'ip': self.ip,
+            'stack': [str(x) for x in self.stack],
+            'globals': {k: str(v) for k, v in self.globals.items()},
+            'running': self.running,
+            'paused': self.paused,
+            'current_instruction': str(current_instr) if current_instr else None,
+            'line_number': current_instr.line_number if current_instr else None
+        }
+
+    def set_breakpoint(self, line_number):
+        """Set breakpoint at line number"""
+        if not self.current_code:
+            return False
+            
+        # Find first instruction at or after line_number
+        for i, instr in enumerate(self.current_code.instructions):
+            if instr.line_number == line_number:
+                self.breakpoints.add(i)
+                return True
+        return False
+        
+    def clear_breakpoint(self, line_number):
+        """Clear breakpoint at line number"""
+        if not self.current_code:
+            return False
+            
+        for i, instr in enumerate(self.current_code.instructions):
+            if instr.line_number == line_number:
+                self.breakpoints.discard(i)
+                return True
+        return False
     
     @property
     def locals(self):
         """Get current frame's local variables"""
-        if self.current_frame:
-            return self.current_frame.locals
+        # For simple PoC without call frames, use globals
+        # If frames are implemented later, use frames[-1].locals
+        if self.frames:
+            return self.frames[-1].locals if hasattr(self.frames[-1], 'locals') else {}
         return {}
     
     def _execute_instruction(self, instr):
@@ -102,11 +187,11 @@ class BytecodeVM:
         
         elif opcode == Opcode.LOAD_CONST:
             # Push constant from constant pool
-            self.stack.append(self.code.constants[arg])
+            self.stack.append(self.current_code.constants[arg])
         
         elif opcode == Opcode.LOAD_VAR:
             # Load variable (check locals first, then globals)
-            name = self.code.names[arg] if isinstance(arg, int) else arg
+            name = self.current_code.names[arg] if isinstance(arg, int) else arg
             if name in self.locals:
                 self.stack.append(self.locals[name])
             elif name in self.globals:
@@ -116,9 +201,14 @@ class BytecodeVM:
         
         elif opcode == Opcode.STORE_VAR:
             # Store to variable
-            name = self.code.names[arg] if isinstance(arg, int) else arg
+            name = self.current_code.names[arg] if isinstance(arg, int) else arg
             value = self.stack.pop()
-            self.locals[name] = value
+            # For module-level code, store in globals
+            # For function calls, would store in current frame's locals
+            if self.frames:
+                self.frames[-1].locals[name] = value
+            else:
+                self.globals[name] = value
         
         elif opcode == Opcode.POP:
             self.stack.pop()
@@ -237,8 +327,8 @@ class BytecodeVM:
             
             # Save current state
             saved_ip = self.ip
-            saved_code = self.code
-            saved_instructions = self.code.instructions if self.code else []
+            saved_code = self.current_code
+            saved_instructions = self.current_code.instructions if self.current_code else []
             
             # Create new frame
             new_frame = CallFrame(func_code, return_ip=saved_ip, locals={})

@@ -691,7 +691,133 @@ def api_ide_export_graph():
         }), 500
 
 
+# Debugger State
+debug_session = {
+    'vm': None,
+    'code_object': None,
+    'source_code': None
+}
+
+@app.route('/api/debug/start', methods=['POST'])
+def api_debug_start():
+    """Start debugging session"""
+    data = request.json
+    code = data.get('code', '')
+    
+    try:
+        # 1. Parse AST
+        from bayan.lexer import HybridLexer
+        from bayan.parser import HybridParser
+        lexer = HybridLexer(code)
+        tokens = lexer.tokenize()
+        parser = HybridParser(tokens)
+        ast = parser.parse()
+        
+        # 2. Compile to Bytecode
+        from bayan.bytecode.codegen import compile_to_bytecode
+        code_obj = compile_to_bytecode(ast)
+        
+        # 3. Initialize VM in debug mode
+        from bayan.bytecode.vm import BytecodeVM
+        vm = BytecodeVM(debug_mode=True)
+        
+        # Store session
+        debug_session['vm'] = vm
+        debug_session['code_object'] = code_obj
+        debug_session['source_code'] = code
+        
+        # Start execution (will pause at first instruction if we set a breakpoint or just init)
+        # Actually, we want to start paused.
+        # Let's just set up the VM and not call execute yet, or call execute and expect it to pause?
+        # The VM.execute runs until end or breakpoint.
+        # We want to "load" the code.
+        vm.current_code = code_obj
+        vm.running = True
+        vm.paused = True # Start paused
+        vm.ip = 0
+        
+        return jsonify({
+            'success': True,
+            'state': vm.get_state()
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/debug/step', methods=['POST'])
+def api_debug_step():
+    """Step execution"""
+    vm = debug_session.get('vm')
+    if not vm:
+        return jsonify({'success': False, 'error': 'No active debug session'})
+        
+    status = vm.step()
+    return jsonify({
+        'success': True,
+        'status': status,
+        'state': vm.get_state()
+    })
+
+@app.route('/api/debug/resume', methods=['POST'])
+def api_debug_resume():
+    """Resume execution"""
+    vm = debug_session.get('vm')
+    if not vm:
+        return jsonify({'success': False, 'error': 'No active debug session'})
+        
+    result = vm.resume()
+    return jsonify({
+        'success': True,
+        'result': str(result) if result != "PAUSED" else None,
+        'status': "PAUSED" if result == "PAUSED" else "FINISHED",
+        'state': vm.get_state()
+    })
+
+@app.route('/api/debug/stop', methods=['POST'])
+def api_debug_stop():
+    """Stop debugging"""
+    debug_session['vm'] = None
+    debug_session['code_object'] = None
+    return jsonify({'success': True})
+
+@app.route('/api/debug/breakpoint', methods=['POST'])
+def api_debug_breakpoint():
+    """Toggle breakpoint"""
+    vm = debug_session.get('vm')
+    if not vm:
+        return jsonify({'success': False, 'error': 'No active debug session'})
+        
+    data = request.json
+    line = data.get('line')
+    enable = data.get('enable', True)
+    
+    if enable:
+        vm.set_breakpoint(line)
+    else:
+        vm.clear_breakpoint(line)
+        
+    return jsonify({'success': True, 'breakpoints': list(vm.breakpoints)})
+
+@app.route('/api/debug/state', methods=['GET'])
+def api_debug_state():
+    """Get current state"""
+    vm = debug_session.get('vm')
+    if not vm:
+        return jsonify({'success': False, 'error': 'No active debug session'})
+        
+    return jsonify({
+        'success': True,
+        'state': vm.get_state()
+    })
+
+@app.route('/debugger')
+def debugger_page():
+    # Assuming render_template is imported from Flask
+    from flask import render_template
+    return render_template('debugger.html')
+
 if __name__ == '__main__':
     # Use port 5001 to avoid collisions
-    app.run(host='127.0.0.1', port=5001, debug=True)
-
+    app.run(host='127.0.0.1', port=5000, debug=True)

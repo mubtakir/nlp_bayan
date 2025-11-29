@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayan Visual Debugger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --sidebar-bg: #252526;
+            --border-color: #333;
+            --accent-color: #0e639c;
+            --text-color: #d4d4d4;
+            --highlight-color: #264f78;
+            --breakpoint-color: #e51400;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            height: 50px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            display: flex;
+        }
+
+        .line-numbers {
+            width: 50px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            text-align: right;
+            padding-top: 10px;
+            user-select: none;
+        }
+
+        .line-number {
+            height: 24px;
+            line-height: 24px;
+            padding-right: 10px;
+            color: #858585;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .line-number:hover {
+            color: white;
+        }
+
+        .breakpoint {
+            position: absolute;
+            left: 15px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--breakpoint-color);
+            border-radius: 50%;
+            display: none;
+        }
+
+        .line-number.has-breakpoint .breakpoint {
+            display: block;
+        }
+
+        .code-area {
+            flex: 1;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 24px;
+            outline: none;
+            padding-top: 10px;
+            padding-left: 10px;
+            white-space: pre;
+        }
+
+        .code-line {
+            height: 24px;
+        }
+
+        .active-line {
+            background-color: var(--highlight-color);
+        }
+
+        .panel {
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 10px;
+            background-color: #333;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        .variable-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .var-name {
+            color: #9cdcfe;
+        }
+
+        .var-value {
+            color: #ce9178;
+        }
+
+        .stack-item {
+            padding: 4px;
+            background-color: #333;
+            margin-bottom: 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="panel" style="flex: 1;">
+            <div class="panel-header">Variables (Globals)</div>
+            <div class="panel-content" id="globals-panel">
+                <!-- Globals will be populated here -->
+            </div>
+        </div>
+        <div class="panel" style="flex: 1;">
+            <div class="panel-header">Stack</div>
+            <div class="panel-content" id="stack-panel">
+                <!-- Stack will be populated here -->
+            </div>
+        </div>
+        <div class="panel" style="flex: 1;">
+            <div class="panel-header">Output</div>
+            <div class="panel-content" id="output-panel">
+                <!-- Output will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="toolbar">
+            <button class="btn" id="btn-start" onclick="startDebug()">▶ Start</button>
+            <button class="btn" id="btn-step" onclick="stepDebug()" disabled>⤵ Step</button>
+            <button class="btn" id="btn-resume" onclick="resumeDebug()" disabled>⏯ Resume</button>
+            <button class="btn" id="btn-stop" onclick="stopDebug()" disabled>⏹ Stop</button>
+            <span id="status-text" style="margin-left: auto; font-size: 12px; color: #888;">Ready</span>
+        </div>
+
+        <div class="editor-container">
+            <div class="line-numbers" id="line-numbers">
+                <!-- Line numbers generated by JS -->
+            </div>
+            <div class="code-area" id="code-area" contenteditable="true" spellcheck="false">x = 10
+                y = 20
+                z = x + y
+                print(z)
+
+                if (z > 15) {
+                print("Greater than 15")
+                } else {
+                print("Less or equal")
+                }
+
+                i = 0
+                while (i < 3) { print(i) i=i + 1 }</div>
+            </div>
+
+            <script>
+                let isDebugging = false;
+                let breakpoints = new Set();
+                let currentLine = -1;
+
+                // Initialize Editor
+                const codeArea = document.getElementById('code-area');
+                const lineNumbers = document.getElementById('line-numbers');
+
+                function updateLineNumbers() {
+                    const lines = codeArea.innerText.split('\n').length;
+                    lineNumbers.innerHTML = '';
+                    for (let i = 1; i <= lines; i++) {
+                        const div = document.createElement('div');
+                        div.className = 'line-number';
+                        div.dataset.line = i;
+                        div.innerHTML = `<span class="breakpoint"></span>${i}`;
+                        if (breakpoints.has(i)) {
+                            div.classList.add('has-breakpoint');
+                        }
+                        div.onclick = () => toggleBreakpoint(i);
+                        lineNumbers.appendChild(div);
+                    }
+                }
+
+                codeArea.addEventListener('input', updateLineNumbers);
+                updateLineNumbers();
+
+                function toggleBreakpoint(line) {
+                    if (breakpoints.has(line)) {
+                        breakpoints.delete(line);
+                    } else {
+                        breakpoints.add(line);
+                    }
+                    updateLineNumbers();
+
+                    if (isDebugging) {
+                        // Sync with backend
+                        fetch('/api/debug/breakpoint', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ line: line, enable: breakpoints.has(line) })
+                        });
+                    }
+                }
+
+                function highlightLine(line) {
+                    // Remove previous highlight
+                    // This is tricky with contenteditable. 
+                    // For PoC, we'll just use the line numbers column to indicate active line
+                    document.querySelectorAll('.line-number').forEach(el => el.classList.remove('active-line'));
+
+                    if (line && line > 0) {
+                        const el = document.querySelector(`.line-number[data-line="${line}"]`);
+                        if (el) el.classList.add('active-line');
+                    }
+                }
+
+                // API Interactions
+
+                async function startDebug() {
+                    const code = codeArea.innerText;
+                    const res = await fetch('/api/debug/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        isDebugging = true;
+                        updateControls(true);
+                        updateState(data.state);
+                        document.getElementById('status-text').innerText = "Debugging started (Paused)";
+
+                        // Set initial breakpoints
+                        for (let line of breakpoints) {
+                            await fetch('/api/debug/breakpoint', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ line: line, enable: true })
+                            });
+                        }
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                }
+
+                async function stepDebug() {
+                    const res = await fetch('/api/debug/step', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        updateState(data.state);
+                        if (data.status === 'FINISHED') {
+                            stopDebug();
+                            document.getElementById('status-text').innerText = "Execution Finished";
+                        }
+                    }
+                }
+
+                async function resumeDebug() {
+                    const res = await fetch('/api/debug/resume', { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        updateState(data.state);
+                        if (data.status === 'FINISHED') {
+                            stopDebug();
+                            document.getElementById('status-text').innerText = "Execution Finished";
+                        } else {
+                            document.getElementById('status-text').innerText = "Paused at Breakpoint";
+                        }
+                    }
+                }
+
+                async function stopDebug() {
+                    await fetch('/api/debug/stop', { method: 'POST' });
+                    isDebugging = false;
+                    updateControls(false);
+                    highlightLine(null);
+                    document.getElementById('status-text').innerText = "Ready";
+                    // Clear panels
+                    document.getElementById('globals-panel').innerHTML = '';
+                    document.getElementById('stack-panel').innerHTML = '';
+                }
+
+                function updateControls(active) {
+                    document.getElementById('btn-start').disabled = active;
+                    document.getElementById('btn-step').disabled = !active;
+                    document.getElementById('btn-resume').disabled = !active;
+                    document.getElementById('btn-stop').disabled = !active;
+                    codeArea.contentEditable = !active;
+                }
+
+                function updateState(state) {
+                    if (!state) return;
+
+                    // Update Globals
+                    const globalsPanel = document.getElementById('globals-panel');
+                    globalsPanel.innerHTML = '';
+                    for (const [key, value] of Object.entries(state.globals)) {
+                        const row = document.createElement('div');
+                        row.className = 'variable-row';
+                        row.innerHTML = `<span class="var-name">${key}</span><span class="var-value">${value}</span>`;
+                        globalsPanel.appendChild(row);
+                    }
+
+                    // Update Stack
+                    const stackPanel = document.getElementById('stack-panel');
+                    stackPanel.innerHTML = '';
+                    // Show top of stack at top
+                    [...state.stack].reverse().forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.innerText = item;
+                        stackPanel.appendChild(div);
+                    });
+
+                    // Highlight Line
+                    if (state.line_number) {
+                        highlightLine(state.line_number);
+                    }
+                }
+
+            </script>
+</body>
+
+</html>
