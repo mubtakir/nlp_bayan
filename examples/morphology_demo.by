@@ -1,0 +1,52 @@
+# Arabic Morphology Demo in Bayan
+# تجربة الصرف العربي في لغة بيان
+
+print("=== Arabic Morphology Demo ===")
+print("")
+
+# Test conjugation with dual
+print("📝 Testing Verb Conjugation (تصريف الأفعال)")
+print("Verb: كتب (to write)")
+print("")
+
+# Past tense examples
+print("Past Tense (الماضي):")
+print("  هو كتب:", conjugate_verb("كتب", "past", "3ms"))
+print("  هي كتبت:", conjugate_verb("كتب", "past", "3fs"))
+print("  هما كتبا:", conjugate_verb("كتب", "past", "3md"))  # Dual!
+print("  هم كتبوا:", conjugate_verb("كتب", "past", "3mp"))
+print("")
+
+# Present tense examples
+print("Present Tense (المضارع):")
+print("  هو يكتب:", conjugate_verb("كتب", "present", "3ms"))
+print("  هي تكتب:", conjugate_verb("كتب", "present", "3fs"))
+print("  هما يكتبان:", conjugate_verb("كتب", "present", "3md"))  # Dual!
+print("  هم يكتبون:", conjugate_verb("كتب", "present", "3mp"))
+print("")
+
+# Imperative examples
+print("Imperative (الأمر):")
+print("  اكتب (أنتَ):", conjugate_verb("كتب", "imperative", "2ms"))
+print("  اكتبي (أنتِ):", conjugate_verb("كتب", "imperative", "2fs"))
+print("  اكتبا (أنتما):", conjugate_verb("كتب", "imperative", "2md"))  # Dual!
+print("  اكتبوا (أنتم):", conjugate_verb("كتب", "imperative", "2mp"))
+print("")
+
+# Root extraction
+print("🔍 Testing Root Extraction (استخراج الجذر)")
+print("")
+
+test_words = ["مدرسة", "مكتبة", "كاتب", "مكتوب", "استعمار", "انفجار"]
+
+# Test each word
+print("  مدرسة → " + extract_root("مدرسة"))
+print("  مكتبة → " + extract_root("مكتبة"))
+print("  كاتب → " + extract_root("كاتب"))
+print("  مكتوب → " + extract_root("مكتوب"))
+print("  استعمار → " + extract_root("استعمار"))
+print("  انفجار → " + extract_root("انفجار"))
+
+
+print("")
+print("✅ Demo Complete!")

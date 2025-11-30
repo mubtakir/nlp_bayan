@@ -161,7 +161,74 @@ class GenerativeLanguageModel:
         self.scenario_builder = ScenarioBuilder(self.semantics)
         self.network = CausalSemanticNetwork()
         self.wem = WordEnergyMatrix()  # Word Energy Matrix integration
+        
+        # Import morphology adapter for word construction
+        from .arabic_adapter import ArabicNLPAdapter
+        self.arabic_adapter = ArabicNLPAdapter()
+        
         self._initialize_network_knowledge()
+    
+    def generate_word_from_meaning(self, meaning_keywords: List[str], lang: str = 'ar') -> Dict[str, Any]:
+        """
+        Generate a word from semantic meanings using letter semantics and morphology.
+        
+        This is the KEY METHOD that implements:
+        Meaning → Letter Selection → Root Construction → Word Formation
+        
+        Args:
+            meaning_keywords: List of meaning concepts (e.g., ['study', 'place'])
+            lang: Target language ('ar' for Arabic, 'en' for English)
+            
+        Returns:
+            Dictionary with generated word, root, explanation, and confidence
+        """
+        if lang == 'ar':
+            # Arabic: Meaning → Letters → Root → Pattern → Word
+            selected_letters = []
+            explanations = []
+            
+            # Step 1: Find letters that match the meanings
+            for keyword in meaning_keywords[:3]:  # Limit to 3 for trilateral root
+                candidates = self.semantics.find_letters_by_meaning(keyword)
+                if candidates:
+                    letter = candidates[0]  # Pick best match
+                    selected_letters.append(letter.char)
+                    explanations.append(f"{keyword} → {letter.char} ({', '.join(letter.meanings[:2])})")
+            
+            # Step 2: Form root from selected letters
+            if len(selected_letters) >= 3:
+                root = ''.join(selected_letters[:3])
+            elif len(selected_letters) == 2:
+                # Duplicate middle letter for trilateral root
+                root = selected_letters[0] + selected_letters[1] + selected_letters[1]
+            else:
+                return {"error": "Not enough letters found for meanings"}
+            
+            # Step 3: Apply morphological pattern (default: فَعَلَ for verbs, فَعْلَة for nouns)
+            # Detect if we need a noun or verb based on keywords
+            is_place = any(k in ['place', 'location', 'مكان'] for k in meaning_keywords)
+            
+            if is_place:
+                # مَفْعَلَة pattern for place nouns
+                word = 'م' + root[0] + root[1] + root[2] + 'ة'
+                pattern = "مَفْعَلَة (place noun)"
+            else:
+                # Basic فَعَلَ pattern
+                word = root
+                pattern = "فَعَلَ (basic verb)"
+            
+            return {
+                "word": word,
+                "root": root,
+                "pattern": pattern,
+                "selected_letters": selected_letters,
+                "explanation": explanations,
+                "method": "semantic_generation",
+                "confidence": 0.7 if len(selected_letters) == 3 else 0.5
+            }
+        else:
+            # English: simpler concatenation
+            return {"error": "English generation not yet implemented"}
 
     def _initialize_network_knowledge(self):
         """Initialize some basic causal knowledge for demonstration."""

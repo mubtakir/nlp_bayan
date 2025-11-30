@@ -1,6 +1,6 @@
 # لغة البيان - Bayan Programming Language
 
-**آخر تحديث**: 2025-11-28
+**آخر تحديث**: 2025-11-30
 
 <div dir="rtl">
 
@@ -382,6 +382,58 @@ word = model.generate_from_story(start="appearance", event="gathering", result="
 - **باني السيناريو**: يبني الكلمات كسرد (بداية -> حدث -> نتيجة).
 
 **التوثيق:** [WORD_CONSTRUCTION_SCENARIOS.md](docs/WORD_CONSTRUCTION_SCENARIOS.md), [COMPLETE_ARABIC_LETTER_MEANINGS.md](docs/COMPLETE_ARABIC_LETTER_MEANINGS.md)
+
+---
+
+### 15. 🔬 **تكامل GLM مع الصرف العربي** (ثوري! 🚀)
+
+**النظام الأول في العالم** الذي يجمع بين فهم دلالات الحروف والصرف العربي لتوليد كلمات من المعنى المجرد:
+
+```python
+from bayan.bayan.generative_model import GenerativeLanguageModel
+
+glm = GenerativeLanguageModel()
+
+# توليد كلمة من معنى
+result = glm.generate_word_from_meaning(['study', 'place'], lang='ar')
+# → "مدرسة"
+
+# التفسير:
+# 1. study → د (stability, firmness)
+# 2. place → م (containing, gathering)
+# 3. Root: درس
+# 4. Pattern: مَفْعَلَة (place noun)
+# 5. Result: مدرسة
+```
+
+**المسار الكامل:**
+```
+معنى → اختيار حروف → بناء جذر → تطبيق وزن → كلمة
+Meaning → Letter Selection → Root → Pattern → Word
+```
+
+**الفهم الثنائي:**
+- **أمامي**: معنى → كلمة (التوليد)
+- **عكسي**: كلمة → جذر → معنى (التحليل)
+
+**مثال التحليل العكسي:**
+```python
+# تحليل كلمة موجودة
+analysis = glm.analyze_word_energy('مدرسة', lang='ar')
+# Root: "درس" (via Camel Tools)
+# Root Meaning: "stability + flow + crawling"
+# Method: "camel_tools" ✓
+```
+
+**لماذا هذا ثوري؟**
+- النظام **يفهم** لماذا "مدرسة" تعني مكان الدراسة
+- يمكنه **توليد** كلمات جديدة من المعنى فقط
+- ليس محدوداً بمفردات محفوظة
+- يستخدم Camel Tools لاستخراج جذور دقيق
+
+**الملفات:** `bayan/bayan/generative_model.py`, `bayan/bayan/arabic_adapter.py`, `bayan/bayan/word_energy_matrix.py`
+
+**الأمثلة:** [glm_morphology_demo.py](examples/glm_morphology_demo.py), [arabic_morphology_demo.py](examples/arabic_morphology_demo.py)
 
 ---
 

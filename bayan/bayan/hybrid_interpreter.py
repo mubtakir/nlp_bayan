@@ -8,6 +8,7 @@ from .traditional_interpreter import TraditionalInterpreter
 from .logical_engine import LogicalEngine, Fact, Rule, Predicate, Term
 from .entity_engine import EntityEngine
 from .gse import GSEModel, generalized_sigmoid, linear_component, approximate_gate
+from .arabic_adapter import ArabicNLPAdapter
 
 class HybridInterpreter:
     """Hybrid interpreter combining traditional and logical programming"""
@@ -15,6 +16,7 @@ class HybridInterpreter:
     def __init__(self):
         self.traditional = TraditionalInterpreter()
         self.logical = LogicalEngine()
+        self.arabic_adapter = ArabicNLPAdapter()
         self.shared_env = {}
         # Share the logical engine with the traditional interpreter
         self.traditional.logical_engine = self.logical
@@ -38,6 +40,13 @@ class HybridInterpreter:
         env['سيغمويد_معمم'] = generalized_sigmoid
         env['مكون_خطي'] = linear_component
         env['بوابة_تقريبية'] = approximate_gate
+        
+        # Arabic Morphology (Camel Tools)
+        env['extract_root'] = self.arabic_adapter.extract_root
+        env['استخرج_الجذر'] = self.arabic_adapter.extract_root
+        env['conjugate_verb'] = self.arabic_adapter.conjugate_verb
+        env['صرّف_الفعل'] = self.arabic_adapter.conjugate_verb
+        
         # Share the class system and import system
         self.class_system = self.traditional.class_system
         self.import_system = self.traditional.import_system

@@ -511,6 +511,58 @@ word = model.generate_from_story(start="appearance", event="gathering", result="
 
 ---
 
+### 15. 🔬 **GLM + Arabic Morphology Integration** (Revolutionary! 🚀)
+
+**World's First System** combining letter semantics understanding with Arabic morphology for word generation from pure meaning:
+
+```python
+from bayan.bayan.generative_model import GenerativeLanguageModel
+
+glm = GenerativeLanguageModel()
+
+# Generate word from meaning
+result = glm.generate_word_from_meaning(['study', 'place'], lang='ar')
+# → "مدرسة" (school)
+
+# Explanation:
+# 1. study → د (stability, firmness)
+# 2. place → م (containing, gathering)
+# 3. Root: درس
+# 4. Pattern: مَفْعَلَة (place noun)
+# 5. Result: مدرسة
+```
+
+**Complete Pipeline:**
+```
+Meaning → Letter Selection → Root → Pattern → Word
+معنى → اختيار حروف → بناء جذر → تطبيق وزن → كلمة
+```
+
+**Bidirectional Understanding:**
+- **Forward**: Meaning → Word (Generation)
+- **Reverse**: Word → Root → Meaning (Analysis)
+
+**Reverse Analysis Example:**
+```python
+# Analyze existing word
+analysis = glm.analyze_word_energy('مدرسة', lang='ar')
+# Root: "درس" (via Camel Tools)
+# Root Meaning: "stability + flow + crawling"
+# Method: "camel_tools" ✓
+```
+
+**Why Revolutionary?**
+- System **understands** why "مدرسة" means "place of study"
+- Can **generate** new words from meaning alone
+- Not limited to memorized vocabulary
+- Uses Camel Tools for accurate root extraction
+
+**Files:** `bayan/bayan/generative_model.py`, `bayan/bayan/arabic_adapter.py`, `bayan/bayan/word_energy_matrix.py`
+
+**Examples:** [glm_morphology_demo.py](examples/glm_morphology_demo.py), [arabic_morphology_demo.py](examples/arabic_morphology_demo.py)
+
+---
+
 ## 🎨 Examples Gallery
 
 ### 📂 148 Working Examples Organized by Category

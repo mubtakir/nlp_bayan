@@ -5,9 +5,11 @@ Based on the "Letter Semantics" theory (Fiqh Al-Harf) by Researcher Basel Yahya 
 Implements the Hybrid Method (Sound + Shape + Psyche + Movement).
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
-from bayan.bayan.enhanced_letter_semantics import EnhancedLetterSemantics
+from .letter_semantics import LetterSemanticsDatabase
+from .enhanced_letter_semantics import EnhancedLetterSemantics
+from .arabic_adapter import ArabicNLPAdapter
 
 @dataclass
 class LetterEnergy:
@@ -19,10 +21,17 @@ class LetterEnergy:
     category: str = "General"
 
 class WordEnergyMatrix:
+    """
+    Analyzes words based on letter energy and semantic meanings.
+    Now enhanced with Camel Tools integration for accurate root extraction.
+    """
+    
     def __init__(self):
+        self.letter_db = LetterSemanticsDatabase()
+        self.enhanced_semantics = EnhancedLetterSemantics(self.letter_db)
+        self.arabic_adapter = ArabicNLPAdapter()  # For accurate root extraction
         self.en_db = self._init_english_db()
         self.ar_db = self._init_arabic_db()
-        self.root_extractor = EnhancedLetterSemantics()
 
     def _init_english_db(self) -> Dict[str, LetterEnergy]:
         return {
@@ -158,13 +167,11 @@ class WordEnergyMatrix:
                     suffix_effect = f"Continuous [{base_data.meaning}]"
                     narrative += f" The 'ing' suffix indicates a continuous state of [{base_data.meaning}]."
 
-        # Arabic Root Logic
+        # Arabic Root Logic - Now using Camel Tools!
         if lang == 'ar':
-            root = self.root_extractor.extract_root(word)
+            root = self.arabic_adapter.extract_root(word)
             if root and root != word:
-                # Analyze the root separately
-                # Avoid infinite recursion by calling a simpler internal method or just reusing logic
-                # We'll just do a lightweight analysis here
+                # Analyze the root's letter meanings
                 root_letters = []
                 for rc in root:
                     rd = self.get_letter_data(rc, 'ar')
@@ -173,8 +180,10 @@ class WordEnergyMatrix:
                 root_narrative = " + ".join(root_letters)
                 root_analysis = {
                     "root": root,
-                    "meaning": root_narrative
+                    "meaning": root_narrative,
+                    "method": "camel_tools"  # Indicate we used Camel Tools
                 }
+                narrative += f" Root analysis: [{root}] = {root_narrative}"
 
         return {
             "word": word,

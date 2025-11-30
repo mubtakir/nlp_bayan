@@ -19,28 +19,41 @@ class EnhancedLetterSemantics:
     
     def __init__(self, database):
         self.db = database
+        # Initialize Arabic Adapter for advanced morphology
+        try:
+            from .arabic_adapter import ArabicNLPAdapter
+            self.adapter = ArabicNLPAdapter()
+        except ImportError:
+            self.adapter = None
+            print("Warning: ArabicNLPAdapter not found. Using fallback heuristics.")
         
     def extract_root(self, word: str) -> Optional[str]:
         """
         Extract the root (جذر) from an Arabic word.
-        
-        Arabic words are typically built from 3-letter roots.
-        This is a simplified version.
+        Uses Camel Tools if available, otherwise falls back to heuristics.
         """
+        # Try Camel Tools first
+        if self.adapter and self.adapter.morphology_analyzer:
+            root = self.adapter.extract_root(word)
+            if root and root != word:
+                return root
+
+        # Fallback Heuristics
         # Remove common prefixes
         prefixes = ['ال', 'و', 'ف', 'ب', 'ك', 'ل']
+        temp_word = word
         for prefix in prefixes:
-            if word.startswith(prefix):
-                word = word[len(prefix):]
+            if temp_word.startswith(prefix):
+                temp_word = temp_word[len(prefix):]
         
         # Remove common suffixes
         suffixes = ['ة', 'ه', 'ها', 'هم', 'هن', 'ك', 'كم', 'كن', 'ي', 'نا']
         for suffix in suffixes:
-            if word.endswith(suffix):
-                word = word[:-len(suffix)]
+            if temp_word.endswith(suffix):
+                temp_word = temp_word[:-len(suffix)]
         
         # Extract consonants (remove vowels)
-        consonants = ''.join([c for c in word if c not in 'اوي'])
+        consonants = ''.join([c for c in temp_word if c not in 'اوي'])
         
         # Most Arabic roots are 3 letters
         if len(consonants) >= 3:

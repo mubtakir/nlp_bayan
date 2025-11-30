@@ -3,116 +3,17 @@
 
 # --- ARABIC MORPHOLOGY ---
 
-def conjugate_arabic_verb(lemma, tense, person_gender_number):
+# Note: This file now uses native Camel Tools integration when available
+# The conjugate_verb and extract_root functions are provided by the runtime
+# and will automatically use Camel Tools if installed, with fallback to manual rules
+
+def conjugate_arabic_verb(lemma, tense, person_gender_number)
 {
-    # Simplified conjugation table for demonstration
-    # lemma assumed to be 3rd person masculine past (e.g., "درس")
-    
-    prefix = ""
-    suffix = ""
-
-    if (tense == "past") {
-        if (person_gender_number == "3ms") { suffix = "" }
-        elif (person_gender_number == "3fs") { suffix = "ت" }
-        elif (person_gender_number == "3md") { suffix = "ا" } # Dual Masc
-        elif (person_gender_number == "3fd") { suffix = "تا" } # Dual Fem
-        elif (person_gender_number == "3mp") { suffix = "وا" }
-        elif (person_gender_number == "3fp") { suffix = "ن" } # Plural Fem
-        elif (person_gender_number == "2ms") { suffix = "تَ" }
-        elif (person_gender_number == "2fs") { suffix = "تِ" }
-        elif (person_gender_number == "2md") { suffix = "تما" }
-        elif (person_gender_number == "2mp") { suffix = "تم" }
-        elif (person_gender_number == "2fp") { suffix = "تن" }
-        elif (person_gender_number == "1s") { suffix = "ت" }
-        elif (person_gender_number == "1p") { suffix = "نا" }
-    }
-    elif (tense == "present") {
-        if (person_gender_number == "3ms") { 
-            prefix = "ي"
-            suffix = "" 
-        }
-        elif (person_gender_number == "3fs") { 
-            prefix = "ت"
-            suffix = "" 
-        }
-        elif (person_gender_number == "3md") { 
-            prefix = "ي"
-            suffix = "ان" 
-        }
-        elif (person_gender_number == "3fd") { 
-            prefix = "ت"
-            suffix = "ان" 
-        }
-        elif (person_gender_number == "3mp") { 
-            prefix = "ي"
-            suffix = "ون" 
-        }
-        elif (person_gender_number == "3fp") { 
-            prefix = "ي"
-            suffix = "ن" 
-        }
-        elif (person_gender_number == "2ms") { 
-            prefix = "ت"
-            suffix = "" 
-        }
-        elif (person_gender_number == "2fs") { 
-            prefix = "ت"
-            suffix = "ين" 
-        }
-        elif (person_gender_number == "2md") { 
-            prefix = "ت"
-            suffix = "ان" 
-        }
-        elif (person_gender_number == "2mp") { 
-            prefix = "ت"
-            suffix = "ون" 
-        }
-        elif (person_gender_number == "2fp") { 
-            prefix = "ت"
-            suffix = "ن" 
-        }
-        elif (person_gender_number == "1s") { 
-            prefix = "أ"
-            suffix = "" 
-        }
-        elif (person_gender_number == "1p") { 
-            prefix = "ن"
-            suffix = "" 
-        }
-    }
-    elif (tense == "future") {
-        # Future is just sa- + present
-        prefix = "س"
-        present_res = conjugate_arabic_verb(lemma, "present", person_gender_number)
-        return prefix + present_res
-    }
-    elif (tense == "imperative") {
-        # Simplified Imperative
-        if (person_gender_number == "2ms") { 
-            prefix = "ا"
-            suffix = "" 
-        }
-        elif (person_gender_number == "2fs") { 
-            prefix = "ا"
-            suffix = "ي" 
-        }
-        elif (person_gender_number == "2md") { 
-            prefix = "ا"
-            suffix = "ا" 
-        }
-        elif (person_gender_number == "2mp") { 
-            prefix = "ا"
-            suffix = "وا" 
-        }
-        elif (person_gender_number == "2fp") { 
-            prefix = "ا"
-            suffix = "ن" 
-        }
-        else { return "N/A" } # Imperative only for 2nd person
-    }
-
-    return prefix + lemma + suffix
+    # Use native conjugate_verb function (provided by ArabicNLPAdapter)
+    # This automatically uses Camel Tools if available, otherwise falls back
+    return conjugate_verb(lemma, tense, person_gender_number)
 }
+
 
 def decline_arabic_noun(lemma, definiteness, gender="m"):
 {
