@@ -14,6 +14,7 @@ Core Components:
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from .causal_semantic_network import CausalSemanticNetwork, RelationType
 
 class ArticulationPoint(Enum):
     THROAT = "throat"       # جوف - Psychological/Emotional
@@ -49,7 +50,7 @@ class LetterSemanticsEngine:
         db['ي'] = Letter('ي', 'Ya', ['breaking', 'sorrow', 'psychological pain', 'bending'], ArticulationPoint.PALATAL, ['curved', 'painful'])
 
         # --- Consonants (25) ---
-        db['ب'] = Letter('ب', 'Ba', ['eruption', 'filling', 'saturation', 'carrying', 'transport', 'proximity'], ArticulationPoint.LABIAL, ['explosive', 'physical'])
+        db['ب'] = Letter('ب', 'Ba', ['eruption', 'filling', 'saturation', 'carrying', 'transport', 'proximity', 'effort'], ArticulationPoint.LABIAL, ['explosive', 'physical'])
         db['ت'] = Letter('ت', 'Ta', ['building', 'stones', 'projection', 'multiplication', 'result'], ArticulationPoint.ALVEOLAR, ['explosive', 'productive'])
         db['ث'] = Letter('ث', 'Tha', ['scattering', 'randomness', 'stuttering'], ArticulationPoint.DENTAL, ['chaotic', 'weak'])
         db['ج'] = Letter('ج', 'Jeem', ['gathering', 'cohesion', 'attraction', 'solidity', 'trunk'], ArticulationPoint.PALATAL, ['strong', 'unifying'])
@@ -61,7 +62,7 @@ class LetterSemanticsEngine:
         db['ز'] = Letter('ز', 'Zay', ['sliding', 'provision', 'slipping'], ArticulationPoint.ALVEOLAR, ['sharp', 'sliding'])
         db['س'] = Letter('س', 'Seen', ['crawling', 'friction', 'wall', 'hiding', 'stealth'], ArticulationPoint.ALVEOLAR, ['hissing', 'barrier'])
         db['ش'] = Letter('ش', 'Sheen', ['branching', 'spreading', 'scattering', 'diffusion'], ArticulationPoint.PALATAL, ['spreading', 'diffusive'])
-        db['ص'] = Letter('ص', 'Sad', ['insight', 'listening', 'strong impact', 'patience'], ArticulationPoint.ALVEOLAR, ['emphatic', 'perceptive'])
+        db['ص'] = Letter('ص', 'Sad', ['insight', 'listening', 'strong impact', 'patience', 'seeing'], ArticulationPoint.ALVEOLAR, ['emphatic', 'perceptive'])
         db['ض'] = Letter('ض', 'Dad', ['compression', 'stagnation', 'littleness', 'pressure'], ArticulationPoint.ALVEOLAR, ['emphatic', 'heavy'])
         db['ط'] = Letter('ط', 'Ta_Emphatic', ['knocking', 'permission', 'flying', 'release'], ArticulationPoint.ALVEOLAR, ['emphatic', 'percussive'])
         db['ظ'] = Letter('ظ', 'Dha', ['thickness', 'severity', 'darkness'], ArticulationPoint.DENTAL, ['emphatic', 'harsh'])
@@ -105,12 +106,23 @@ class ScenarioBuilder:
         self.engine = semantics_engine
 
     def build_scenario(self, start_concept: str, event_concept: str, result_concept: str) -> List[ScenarioStep]:
-        """Create a 3-step scenario."""
+        """Create a standard 3-step scenario."""
         return [
             ScenarioStep("Start", start_concept),
             ScenarioStep("Event", event_concept),
             ScenarioStep("Result", result_concept)
         ]
+
+    def build_custom_scenario(self, steps: List[Tuple[str, str]]) -> List[ScenarioStep]:
+        """
+        Create a custom scenario with arbitrary steps.
+        Args:
+            steps: List of (stage_name, concept) tuples.
+        """
+        scenario = []
+        for stage, concept in steps:
+            scenario.append(ScenarioStep(stage, concept))
+        return scenario
 
     def generate_word(self, scenario: List[ScenarioStep]) -> Dict[str, Any]:
         """
@@ -146,6 +158,27 @@ class GenerativeLanguageModel:
     def __init__(self):
         self.semantics = LetterSemanticsEngine()
         self.scenario_builder = ScenarioBuilder(self.semantics)
+        self.network = CausalSemanticNetwork()
+        self._initialize_network_knowledge()
+
+    def _initialize_network_knowledge(self):
+        """Initialize some basic causal knowledge for demonstration."""
+        # Causal chain for 'Morning' (صبح)
+        self.network.add_relation("seeing", "effort", RelationType.LEADS_TO, 0.9)
+        self.network.add_relation("effort", "relief", RelationType.LEADS_TO, 0.8)
+        
+        # Causal chain for 'Star' (نجم)
+        self.network.add_relation("appearance", "gathering", RelationType.LEADS_TO, 0.8)
+        self.network.add_relation("gathering", "unknown", RelationType.LEADS_TO, 0.7)
+
+        # Causal chain for 'Tree' (شجرة)
+        self.network.add_relation("branching", "gathering", RelationType.REQUIRES, 0.9)
+        self.network.add_relation("gathering", "flow", RelationType.ENABLES, 0.8)
+        self.network.add_relation("flow", "fruit", RelationType.LEADS_TO, 0.9)
+
+    def suggest_story_completion(self, start_concept: str) -> Dict[str, List[str]]:
+        """Suggest events and results based on a start concept."""
+        return self.network.suggest_scenario_completion(start_concept)
 
     def generate_from_story(self, start: str, event: str, result: str) -> Dict[str, Any]:
         """
