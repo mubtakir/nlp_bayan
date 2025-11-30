@@ -119,6 +119,22 @@ def index():
 def ide():
     return render_template('ide.html')
 
+@app.route('/wem')
+def wem_ui():
+    return render_template('wem.html')
+
+@app.route('/api/wem/analyze', methods=['POST'])
+def wem_analyze():
+    data = request.json
+    word = data.get('word')
+    lang = data.get('lang', 'en')
+    
+    if not word:
+        return jsonify({'error': 'Word is required'}), 400
+        
+    result = wem.analyze_word(word, lang)
+    return jsonify(result)
+
 @app.route('/ide_graph')
 def ide_graph():
     return render_template('ide_graph.html')

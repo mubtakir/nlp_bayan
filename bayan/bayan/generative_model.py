@@ -15,6 +15,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
 from .causal_semantic_network import CausalSemanticNetwork, RelationType
+from .word_energy_matrix import WordEnergyMatrix
 
 class ArticulationPoint(Enum):
     THROAT = "throat"       # جوف - Psychological/Emotional
@@ -159,6 +160,7 @@ class GenerativeLanguageModel:
         self.semantics = LetterSemanticsEngine()
         self.scenario_builder = ScenarioBuilder(self.semantics)
         self.network = CausalSemanticNetwork()
+        self.wem = WordEnergyMatrix()  # Word Energy Matrix integration
         self._initialize_network_knowledge()
 
     def _initialize_network_knowledge(self):
@@ -188,9 +190,12 @@ class GenerativeLanguageModel:
         scenario = self.scenario_builder.build_scenario(start, event, result)
         return self.scenario_builder.generate_word(scenario)
 
-    def analyze_word_story(self, word: str) -> Dict[str, Any]:
+    def analyze_word_story(self, word: str, include_wem: bool = False) -> Dict[str, Any]:
         """
         Reverse engineer the story of a word.
+        Args:
+            word: The word to analyze
+            include_wem: If True, includes Word Energy Matrix analysis
         """
         story = []
         for i, char in enumerate(word):
@@ -202,4 +207,28 @@ class GenerativeLanguageModel:
                     "letter": char,
                     "meanings": letter.meanings
                 })
-        return {"word": word, "story": story}
+        
+        result = {"word": word, "story": story}
+        
+        if include_wem:
+            # Detect language (simple heuristic: if any Arabic char, it's Arabic)
+            lang = 'ar' if any('\u0600' <= c <= '\u06FF' for c in word) else 'en'
+            result["wem_analysis"] = self.wem.analyze_word(word, lang)
+        
+        return result
+
+    def analyze_word_energy(self, word: str, lang: str = 'ar') -> Dict[str, Any]:
+        """
+        Perform deep semantic analysis using the Word Energy Matrix.
+        This is the primary method for symbol interpretation and dream analysis.
+        
+        Args:
+            word: The word to analyze
+            lang: Language ('ar' for Arabic, 'en' for English)
+            
+        Returns:
+            Complete WEM analysis including surface meaning, root analysis (for Arabic),
+            and suffix effects (for English)
+        """
+        return self.wem.analyze_word(word, lang)
+
