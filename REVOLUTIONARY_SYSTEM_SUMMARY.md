@@ -216,10 +216,10 @@
 - 9 طرق لاستنباط المعاني
 - تحليل وتوليد الكلمات
 
-### 2. Causal & Semantic Networks
-- علاقات سببية: دك → امتلاء → تشبع
-- علاقات دلالية: حب ⟷ كره
-- سلاسل استنتاجية
+### 2. Causal & Semantic Networks (Complete ✅)
+- **Relationships**: CAUSES, REQUIRES, ENABLES, LEADS_TO
+- **Inference**: Forward (Consequences) & Backward (Causes) chaining
+- **Scenario Suggestion**: Suggests "Effort" then "Relief" after "Seeing"
 
 ### 3. Entity System
 ```python
@@ -270,21 +270,21 @@ Idea = (Things, Event, Result)
 فهم كامل ✓
 ```
 
-### التوليد
+### التوليد (مع الشبكة السببية)
 ```
-"أريد كلمة تعني: العطاء السخي"
+"أريد كلمة لقصة: رؤية -> جهد -> ارتياح"
     ↓
-تحليل المعنى → [عطاء, سخي, تدفق]
+تحليل المعنى → [seeing, effort, relief]
     ↓
-البحث في الشبكة → كرم
+التحقق من الشبكة → سلسلة سببية صحيحة (Morning Chain)
     ↓
-اختيار حروف → ك (عطاء) + ر (تدفق) + م (ثناء)
+اختيار حروف → ص (رؤية) + ب (جهد) + ح (ارتياح)
     ↓
-بناء كلمة → "كرم"
+بناء كلمة → "صبح"
     ↓
 التحقق → ✓ يطابق المعنى
     ↓
-كلمة مولدة: "كرم" ✓
+كلمة مولدة: "صبح" ✓
 ```
 
 ---
