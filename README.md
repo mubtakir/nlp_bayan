@@ -490,7 +490,26 @@ loop = NeuroSymbolicLoop(mode="cloud")
 - **Local**: Privacy + Power without internet
 - **Cloud**: Maximum capability for complex tasks
 
-**Examples:** [neuro_symbolic_demo.py](examples/neuro_symbolic_demo.py)
+### 14. 🌟 **Generative Language Model (Scenario Based)** (New!)
+
+A revolutionary approach to word generation based on **logical stories** rather than just concatenated meanings:
+
+```python
+# Generate "Star" (نجم)
+# Story: Appearance (Start) -> Gathering (Event) -> Unknown (Result)
+model = GenerativeLanguageModel()
+word = model.generate_from_story(start="appearance", event="gathering", result="unknown")
+# Output: "نجم" (Noon + Jeem + Meem)
+```
+
+**Key Features:**
+- **28-Letter Database**: Complete semantic definitions for all Arabic letters.
+- **9 Semantic Methods**: From body language to reverse dictionary analysis.
+- **Scenario Builder**: Constructs words as narratives (Start -> Event -> Result).
+
+**Documentation:** [WORD_CONSTRUCTION_SCENARIOS.md](docs/WORD_CONSTRUCTION_SCENARIOS.md), [COMPLETE_ARABIC_LETTER_MEANINGS.md](docs/COMPLETE_ARABIC_LETTER_MEANINGS.md)
+
+---
 
 ## 🎨 Examples Gallery
 
