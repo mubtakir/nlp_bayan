@@ -3,12 +3,20 @@ Word Energy Matrix (WEM) System
 ===============================
 Based on the "Letter Semantics" theory (Fiqh Al-Harf) by Researcher Basel Yahya Abdullah.
 Implements the Hybrid Method (Sound + Shape + Psyche + Movement).
+
+Updated: Now uses the unified letter_semiotics system.
 """
 
 from typing import Dict, List, Optional
 from dataclasses import dataclass
-from .letter_semantics import LetterSemanticsDatabase
-from .enhanced_letter_semantics import EnhancedLetterSemantics
+
+# استخدام النظام الموحد الجديد
+from .letter_semiotics import (
+    ArabicLetterDatabase,
+    WordAnalyzer as UnifiedWordAnalyzer,
+    LetterSemanticsDatabase,
+    EnhancedLetterSemantics
+)
 from .arabic_adapter import ArabicNLPAdapter
 
 @dataclass

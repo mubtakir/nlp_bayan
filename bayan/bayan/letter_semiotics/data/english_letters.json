@@ -1,0 +1,511 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "language": "English",
+    "total_letters": 26,
+    "methodology": "Sound + Shape + Psychic + Kinetic Analysis",
+    "source": "Bayan Letter Semiotics System"
+  },
+  "letters": {
+    "A": {
+      "letter": "A",
+      "name": "A",
+      "position_in_alphabet": 1,
+      "sound_type": "open_vowel",
+      "sound_description": "Open front vowel /æ/ or /eɪ/",
+      "sound_meaning": "الانفتاح - البداية - الارتفاع - الطلب",
+      "shape_description": "هرمي/مثلث يشبه الجبل أو الخيمة",
+      "shape_meaning": "قمة - ارتفاع - ثبات - رأس مرفوع",
+      "psychic_meaning": "انطلاقة - إعلان - توجه نحو شيء أكبر",
+      "combined_meaning": "البدء - الرفعة - الاتساع - التمركز",
+      "arabic_equivalent": "ا/ء",
+      "developer_meanings": [
+        {"meaning": "البداية والانفتاح", "opposite": "النهاية", "examples": ["arise", "awake"], "strength": 1.0},
+        {"meaning": "الارتفاع والصعود", "opposite": "الهبوط", "examples": ["ascend", "apex"], "strength": 0.95},
+        {"meaning": "الاتساع والتوسع", "opposite": "الضيق", "examples": ["above", "arch"], "strength": 0.9}
+      ],
+      "example_words": ["ascend", "apex", "above", "arch", "announce", "arise"],
+      "confidence": 0.92
+    },
+    "B": {
+      "letter": "B",
+      "name": "B",
+      "position_in_alphabet": 2,
+      "sound_type": "plosive_bilabial",
+      "sound_description": "Bilabial plosive /b/",
+      "sound_meaning": "انفجار شفوي - حمل - دك - اصطدام",
+      "shape_description": "عمود + بطنان منتفخان",
+      "shape_meaning": "امتلاء - حمل - ضغط - تجميع",
+      "psychic_meaning": "احتواء - تخزين - ثقل",
+      "combined_meaning": "الامتلاء - الضغط - الدفع - الحمل",
+      "arabic_equivalent": "ب",
+      "developer_meanings": [
+        {"meaning": "الدك والضغط", "opposite": null, "examples": ["burst", "bump"], "strength": 1.0},
+        {"meaning": "الامتلاء والتشبع", "opposite": "الفراغ", "examples": ["big", "build"], "strength": 0.95},
+        {"meaning": "الحمل والدفع", "opposite": null, "examples": ["bring", "bear"], "strength": 0.9}
+      ],
+      "example_words": ["burst", "bump", "build", "bring", "break", "boom", "big"],
+      "confidence": 0.95
+    },
+    "C": {
+      "letter": "C",
+      "name": "C",
+      "position_in_alphabet": 3,
+      "sound_type": "dual_plosive_fricative",
+      "sound_description": "/k/ (حادة) or /s/ (انسيابية)",
+      "sound_meaning": "قطع/قوة أو انسياب/زحف",
+      "shape_description": "قوس مفتوح",
+      "shape_meaning": "احتواء - انحناء - تجويف - بدء احتضان",
+      "psychic_meaning": "التفاف حول شيء - فتح فم لالتقاط",
+      "combined_meaning": "الانحناء - الاحتواء - التحويل - القوة",
+      "arabic_equivalent": "ك/س",
+      "developer_meanings": [
+        {"meaning": "الاحتواء والتقوس", "opposite": null, "examples": ["curve", "cave"], "strength": 1.0},
+        {"meaning": "القطع والقوة", "opposite": null, "examples": ["cut", "carve"], "strength": 0.9},
+        {"meaning": "التجويف", "opposite": null, "examples": ["cup", "can"], "strength": 0.85}
+      ],
+      "example_words": ["curve", "contain", "cup", "cave", "circle", "cut", "carve"],
+      "confidence": 0.88
+    },
+    "D": {
+      "letter": "D",
+      "name": "D",
+      "position_in_alphabet": 4,
+      "sound_type": "plosive_alveolar",
+      "sound_description": "Alveolar plosive /d/",
+      "sound_meaning": "ضربة لسانية - ثبت - حد - حسم",
+      "shape_description": "عمود + قوس منغلق",
+      "shape_meaning": "إغلاق - حد - حصر - ارتكاز",
+      "psychic_meaning": "قرار - نهاية - تثبيت",
+      "combined_meaning": "التحديد - الحسم - النهاية - التثبيت",
+      "arabic_equivalent": "د",
+      "developer_meanings": [
+        {"meaning": "التحديد والحسم", "opposite": "التردد", "examples": ["decide", "define"], "strength": 1.0},
+        {"meaning": "الإنهاء والتثبيت", "opposite": null, "examples": ["done", "down"], "strength": 0.95},
+        {"meaning": "الدفع", "opposite": null, "examples": ["drop", "dent"], "strength": 0.85}
+      ],
+      "example_words": ["define", "decide", "do", "done", "down", "dim", "dent"],
+      "confidence": 0.93
+    },
+    "E": {
+      "letter": "E",
+      "name": "E",
+      "position_in_alphabet": 5,
+      "sound_type": "front_vowel",
+      "sound_description": "/iː/ or /ɛ/",
+      "sound_meaning": "انفتاح قصير - امتداد خفيف - انكشاف",
+      "shape_description": "ثلاث شرائط أفقية",
+      "shape_meaning": "درجات - مستويات - طبقات",
+      "psychic_meaning": "تدرج - كشف - بروز",
+      "combined_meaning": "الامتداد - الظهور - التوازن - التسوية",
+      "arabic_equivalent": "ي/ا",
+      "developer_meanings": [
+        {"meaning": "الامتداد والظهور", "opposite": "الاختفاء", "examples": ["emerge", "extend"], "strength": 1.0},
+        {"meaning": "الارتفاع الطفيف", "opposite": null, "examples": ["elevate", "even"], "strength": 0.9},
+        {"meaning": "الوضوح", "opposite": "الغموض", "examples": ["equal", "edge"], "strength": 0.85}
+      ],
+      "example_words": ["elevate", "emerge", "extend", "ever", "even", "equal"],
+      "confidence": 0.9
+    },
+    "F": {
+      "letter": "F",
+      "position_in_alphabet": 6,
+      "sound_type": "fricative_labiodental",
+      "sound_description": "Labiodental fricative /f/",
+      "sound_meaning": "احتكاك شفوي - نفخ - اندفاع هوائي",
+      "shape_description": "خط عمودي + ذراعان",
+      "shape_meaning": "إشارة - توجيه - دفع أمامي",
+      "psychic_meaning": "دفع أمامي - نشر - امتداد",
+      "combined_meaning": "الدفع الهوائي - النشر - الامتداد أمامياً",
+      "arabic_equivalent": "ف",
+      "developer_meanings": [
+        {"meaning": "الاندفاع والتدفق", "opposite": "السكون", "examples": ["flow", "flare"], "strength": 1.0},
+        {"meaning": "السقوط والانحدار", "opposite": "الصعود", "examples": ["fall", "fail"], "strength": 0.9},
+        {"meaning": "القوة والضغط", "opposite": null, "examples": ["force", "fan"], "strength": 0.85}
+      ],
+      "example_words": ["flow", "fall", "forward", "force", "fan", "flare"],
+      "confidence": 0.91
+    },
+    "G": {
+      "letter": "G",
+      "position_in_alphabet": 7,
+      "sound_type": "plosive_velar",
+      "sound_description": "Velar plosive /g/",
+      "sound_meaning": "انفجار عميق - قوة - ثقل",
+      "shape_description": "دائرة مكسورة القاعدة",
+      "shape_meaning": "حركة داخل/خارج - اقتحام",
+      "psychic_meaning": "قوة - تثبيت - اقتحام - أخذ بقوة",
+      "combined_meaning": "الثقل - الاندفاع - الانتزاع - التحوّل القسري",
+      "arabic_equivalent": "ج/غ/ق",
+      "developer_meanings": [
+        {"meaning": "الأخذ والقبض", "opposite": "الإعطاء", "examples": ["grab", "grip"], "strength": 1.0},
+        {"meaning": "النمو والتطور", "opposite": "الذبول", "examples": ["grow", "green"], "strength": 0.95},
+        {"meaning": "الانطلاق", "opposite": "التوقف", "examples": ["go", "get"], "strength": 0.9}
+      ],
+      "example_words": ["grab", "grip", "ground", "go", "grow", "get"],
+      "confidence": 0.92
+    },
+    "H": {
+      "letter": "H",
+      "position_in_alphabet": 8,
+      "sound_type": "fricative_glottal",
+      "sound_description": "Glottal fricative /h/",
+      "sound_meaning": "نفس هوائي خفيف - تنفس - روح - انبعاث",
+      "shape_description": "عمودان + جسر يربط بينهما",
+      "shape_meaning": "وصل بين حالتين - انتقال لطيف - عبور",
+      "psychic_meaning": "انبعاث - انطلاق من الداخل - تهيؤ",
+      "combined_meaning": "الروح - الخفة - التحوّل اللطيف - الهوائية",
+      "arabic_equivalent": "ه",
+      "developer_meanings": [
+        {"meaning": "الروح والقلب", "opposite": null, "examples": ["heart", "heal"], "strength": 1.0},
+        {"meaning": "العلو والارتفاع", "opposite": "الانخفاض", "examples": ["high", "heaven"], "strength": 0.95},
+        {"meaning": "الأمل والحرارة", "opposite": "اليأس", "examples": ["hope", "heat"], "strength": 0.9}
+      ],
+      "example_words": ["heart", "heal", "heat", "high", "heaven", "hope"],
+      "confidence": 0.93
+    },
+    "I": {
+      "letter": "I",
+      "position_in_alphabet": 9,
+      "sound_type": "close_front_vowel",
+      "sound_description": "/i/ narrow vowel",
+      "sound_meaning": "ضيق - حدة - تركيز - توجه نحو نقطة",
+      "shape_description": "خط واحد مستقيم",
+      "shape_meaning": "محورية - تركيز - توجيه نحو نقطة واحدة",
+      "psychic_meaning": "انشداد - انضغاط داخلي - ذاتية",
+      "combined_meaning": "التركيز - الانشداد - الفردانية - الاتجاه نحو نقطة",
+      "arabic_equivalent": "ي",
+      "developer_meanings": [
+        {"meaning": "التركيز والاهتمام", "opposite": "التشتت", "examples": ["interest", "intense"], "strength": 1.0},
+        {"meaning": "الدخول والاختراق", "opposite": "الخروج", "examples": ["in", "into"], "strength": 0.95},
+        {"meaning": "الإشعال والتحفيز", "opposite": null, "examples": ["ignite", "inspire"], "strength": 0.9}
+      ],
+      "example_words": ["ignite", "inch", "into", "in", "interest", "intense"],
+      "confidence": 0.91
+    },
+    "J": {
+      "letter": "J",
+      "position_in_alphabet": 10,
+      "sound_type": "affricate",
+      "sound_description": "/dʒ/ affricate",
+      "sound_meaning": "مزيج انفجار واحتكاك - اقتحام - انزلاق",
+      "shape_description": "انحناء نازل ثم صاعد",
+      "shape_meaning": "قفزة - انعطاف - سحب ثم رفع",
+      "psychic_meaning": "قفزة مفاجئة - حركة ديناميكية",
+      "combined_meaning": "الانحراف الديناميكي - القفز - التحوّل الحاد",
+      "arabic_equivalent": "ج",
+      "developer_meanings": [
+        {"meaning": "القفز والوثب", "opposite": "السكون", "examples": ["jump", "jolt"], "strength": 1.0},
+        {"meaning": "الالتقاء والربط", "opposite": "الفصل", "examples": ["join", "junction"], "strength": 0.9},
+        {"meaning": "الفرح والمرح", "opposite": "الحزن", "examples": ["joy", "jingle"], "strength": 0.85}
+      ],
+      "example_words": ["jump", "jerk", "jolt", "join", "jingle", "joy"],
+      "confidence": 0.88
+    },
+    "K": {
+      "letter": "K",
+      "position_in_alphabet": 11,
+      "sound_type": "plosive_velar",
+      "sound_description": "Velar plosive /k/",
+      "sound_meaning": "انفجار حلقي حاد - قطع - حسم - اصطدام",
+      "shape_description": "عمود + ذراعان زاويتان",
+      "shape_meaning": "انفصال - تفرع - قطع زاوي",
+      "psychic_meaning": "حدة - قرع - زاوية - قطع",
+      "combined_meaning": "القطع - التوجيه - الانفصال - الصلابة",
+      "arabic_equivalent": "ك",
+      "developer_meanings": [
+        {"meaning": "القطع والكسر", "opposite": "الوصل", "examples": ["kick", "crack"], "strength": 1.0},
+        {"meaning": "الحفظ والإبقاء", "opposite": "التخلي", "examples": ["keep", "key"], "strength": 0.9},
+        {"meaning": "القتل والإنهاء", "opposite": "الإحياء", "examples": ["kill", "knock"], "strength": 0.85}
+      ],
+      "example_words": ["kick", "cut", "crack", "keep", "key", "kill"],
+      "confidence": 0.9
+    },
+    "L": {
+      "letter": "L",
+      "position_in_alphabet": 12,
+      "sound_type": "lateral_approximant",
+      "sound_description": "Lateral approximant /l/",
+      "sound_meaning": "انسياب لطيف مع احتواء",
+      "shape_description": "زاوية قائمة",
+      "shape_meaning": "التفاف ثم امتداد - يميل كأنه يدعو",
+      "psychic_meaning": "لين - التفات - اقتراب",
+      "combined_meaning": "اللين - الالتفاف - الاقتراب - الملامسة",
+      "arabic_equivalent": "ل",
+      "developer_meanings": [
+        {"meaning": "الحب والمودة", "opposite": "الكره", "examples": ["love", "like"], "strength": 1.0},
+        {"meaning": "الضوء والإشراق", "opposite": "الظلام", "examples": ["light", "luminous"], "strength": 0.95},
+        {"meaning": "الرفع والنظر", "opposite": "الخفض", "examples": ["lift", "look"], "strength": 0.9}
+      ],
+      "example_words": ["lean", "look", "lift", "link", "love", "light"],
+      "confidence": 0.94
+    },
+    "M": {
+      "letter": "M",
+      "position_in_alphabet": 13,
+      "sound_type": "nasal_bilabial",
+      "sound_description": "Bilabial nasal /m/",
+      "sound_meaning": "شفوي مغلق - احتواء - ضم - داخلية",
+      "shape_description": "قمتان",
+      "shape_meaning": "احتواء بين ذروتين - تموج - حماية",
+      "psychic_meaning": "احتضان - جمع - ثناء",
+      "combined_meaning": "الاحتواء - الضم - الامتلاء الداخلي - الألفة",
+      "arabic_equivalent": "م",
+      "developer_meanings": [
+        {"meaning": "الأمومة والاحتضان", "opposite": null, "examples": ["mother", "maternal"], "strength": 1.0},
+        {"meaning": "العقل والتفكير", "opposite": null, "examples": ["mind", "mental"], "strength": 0.95},
+        {"meaning": "الاندماج والتحريك", "opposite": "السكون", "examples": ["merge", "move"], "strength": 0.9}
+      ],
+      "example_words": ["mother", "mind", "merge", "move", "melt", "make"],
+      "confidence": 0.95
+    },
+    "N": {
+      "letter": "N",
+      "position_in_alphabet": 14,
+      "sound_type": "nasal_alveolar",
+      "sound_description": "Alveolar nasal /n/",
+      "sound_meaning": "أنفي - تذبذب داخلي - امتداد خافت - اتصال",
+      "shape_description": "خطان متصلان بزاوية",
+      "shape_meaning": "انتقال - سير على مسار - عبور من نقطة لأخرى",
+      "psychic_meaning": "استمرار - تدرج - متوالية",
+      "combined_meaning": "الاستمرار - التتابع - المسار - الاتصال",
+      "arabic_equivalent": "ن",
+      "developer_meanings": [
+        {"meaning": "القرب والجوار", "opposite": "البعد", "examples": ["near", "next"], "strength": 1.0},
+        {"meaning": "النفي والإنكار", "opposite": "الإثبات", "examples": ["no", "never"], "strength": 0.9},
+        {"meaning": "الجديد والحداثة", "opposite": "القديم", "examples": ["new", "novel"], "strength": 0.85}
+      ],
+      "example_words": ["near", "next", "never", "new", "night", "nature"],
+      "confidence": 0.91
+    },
+    "O": {
+      "letter": "O",
+      "position_in_alphabet": 15,
+      "sound_type": "back_rounded_vowel",
+      "sound_description": "Back rounded vowel /oː/ or /ɑ/",
+      "sound_meaning": "مد دائري - انفتاح عميق - دوران - استمرارية",
+      "shape_description": "دائرة كاملة",
+      "shape_meaning": "حلقة - دورة - احتواء - حركة دائرية",
+      "psychic_meaning": "تكرار - اندفاع - انغماس - استمرار بلا انقطاع",
+      "combined_meaning": "الدوران - الاستمرارية - الاحتواء - الدفعة المستمرة",
+      "arabic_equivalent": "و",
+      "developer_meanings": [
+        {"meaning": "الانفتاح والفتح", "opposite": "الإغلاق", "examples": ["open", "out"], "strength": 1.0},
+        {"meaning": "الدوران والحركة", "opposite": "السكون", "examples": ["roll", "rotate"], "strength": 0.95},
+        {"meaning": "الواحد والوحدة", "opposite": "التعدد", "examples": ["one", "only"], "strength": 0.9}
+      ],
+      "example_words": ["roll", "round", "rotate", "go", "follow", "flow", "open"],
+      "confidence": 0.93
+    },
+    "P": {
+      "letter": "P",
+      "position_in_alphabet": 16,
+      "sound_type": "plosive_bilabial_voiceless",
+      "sound_description": "Voiceless bilabial plosive /p/",
+      "sound_meaning": "انفجار شفوي خفيف - دفع خارجي - طرقة - قذف",
+      "shape_description": "عمود + بطن واحدة",
+      "shape_meaning": "حمل خفيف - نتوء - شحنة صغيرة",
+      "psychic_meaning": "طرق - دفع - إخراج شيء صغير",
+      "combined_meaning": "الدفع الخفيف - الطرق - القذف - إخراج دفعة واحدة",
+      "arabic_equivalent": "پ/ب",
+      "developer_meanings": [
+        {"meaning": "الدفع والضغط", "opposite": "السحب", "examples": ["push", "press"], "strength": 1.0},
+        {"meaning": "الفرقعة والانفجار", "opposite": null, "examples": ["pop", "pump"], "strength": 0.9},
+        {"meaning": "الالتقاط والاختيار", "opposite": null, "examples": ["pick", "pin"], "strength": 0.85}
+      ],
+      "example_words": ["push", "pop", "pick", "pin", "pump", "press"],
+      "confidence": 0.92
+    },
+    "Q": {
+      "letter": "Q",
+      "position_in_alphabet": 17,
+      "sound_type": "plosive_velar_deep",
+      "sound_description": "Deep velar /k/ often with U",
+      "sound_meaning": "عمق - دائرة - جوف - دفع من الداخل",
+      "shape_description": "O مع ذيل",
+      "shape_meaning": "دائرة + نقطة خروج - حركة دائرية تنفجر من نقطة",
+      "psychic_meaning": "تكور - انبثاق - حصر ثم تحرير",
+      "combined_meaning": "العمق - دائرة مغلقة - انبثاق/قذف من الداخل",
+      "arabic_equivalent": "ق",
+      "developer_meanings": [
+        {"meaning": "السرعة والحدة", "opposite": "البطء", "examples": ["quick", "quiver"], "strength": 1.0},
+        {"meaning": "البحث والسعي", "opposite": null, "examples": ["quest", "question"], "strength": 0.9},
+        {"meaning": "الهدوء والسكون", "opposite": "الضجيج", "examples": ["quiet", "quell"], "strength": 0.85}
+      ],
+      "example_words": ["quick", "quest", "quote", "quake", "squeeze", "quiet"],
+      "confidence": 0.88
+    },
+    "R": {
+      "letter": "R",
+      "position_in_alphabet": 18,
+      "sound_type": "approximant_alveolar",
+      "sound_description": "Alveolar approximant /r/",
+      "sound_meaning": "اهتزاز - جريان - حركة - اندفاع",
+      "shape_description": "ساق + قوس منفتح",
+      "shape_meaning": "حركة - التفاف - ركض",
+      "psychic_meaning": "اضطراب - سرعة - انتقال من حالة لأخرى",
+      "combined_meaning": "الحركة - الاندفاع - التغيّر - الاضطراب الديناميكي",
+      "arabic_equivalent": "ر",
+      "developer_meanings": [
+        {"meaning": "الجري والحركة", "opposite": "السكون", "examples": ["run", "rush"], "strength": 1.0},
+        {"meaning": "الارتفاع والصعود", "opposite": "الهبوط", "examples": ["rise", "raise"], "strength": 0.95},
+        {"meaning": "الدوران والتكرار", "opposite": null, "examples": ["roll", "rotate"], "strength": 0.9}
+      ],
+      "example_words": ["run", "roll", "ride", "rush", "rise", "river", "rotate"],
+      "confidence": 0.94
+    },
+    "S": {
+      "letter": "S",
+      "position_in_alphabet": 19,
+      "sound_type": "fricative_alveolar",
+      "sound_description": "Alveolar fricative /s/",
+      "sound_meaning": "صفير طويل - امتداد - زحف - انسياب",
+      "shape_description": "منحنى ثعباني",
+      "shape_meaning": "التواء - حركة أفقية متعرجة",
+      "psychic_meaning": "زحف - انزلاق - اختراق لطيف أو خبيث",
+      "combined_meaning": "الانسياب - الزحف - الامتداد - الالتواء",
+      "arabic_equivalent": "س",
+      "developer_meanings": [
+        {"meaning": "الانزلاق والانسياب", "opposite": "التوقف", "examples": ["slide", "slip"], "strength": 1.0},
+        {"meaning": "النعومة والليونة", "opposite": "الخشونة", "examples": ["smooth", "soft"], "strength": 0.95},
+        {"meaning": "الانتشار", "opposite": "التجمع", "examples": ["spread", "stream"], "strength": 0.9}
+      ],
+      "example_words": ["slide", "slip", "smooth", "snake", "stream", "spread"],
+      "confidence": 0.95
+    },
+    "T": {
+      "letter": "T",
+      "position_in_alphabet": 20,
+      "sound_type": "plosive_alveolar_voiceless",
+      "sound_description": "Voiceless alveolar plosive /t/",
+      "sound_meaning": "انفجار لساني حاد - قطع - حد - نهاية - فصل",
+      "shape_description": "تقاطع",
+      "shape_meaning": "منعطف - حد - حاجز - نقطة حسم",
+      "psychic_meaning": "حزم - حدة - إيقاف",
+      "combined_meaning": "القطع - الحسم - الحد - التعريف الدقيق",
+      "arabic_equivalent": "ت",
+      "developer_meanings": [
+        {"meaning": "الإنهاء والقطع", "opposite": "البدء", "examples": ["terminate", "stop"], "strength": 1.0},
+        {"meaning": "الإحكام والشد", "opposite": "الارتخاء", "examples": ["tight", "tense"], "strength": 0.95},
+        {"meaning": "اللمس والإشارة", "opposite": null, "examples": ["touch", "tip"], "strength": 0.9}
+      ],
+      "example_words": ["terminate", "cut", "tight", "tip", "stop", "point"],
+      "confidence": 0.93
+    },
+    "U": {
+      "letter": "U",
+      "position_in_alphabet": 21,
+      "sound_type": "close_back_vowel",
+      "sound_description": "Close back vowel /uː/",
+      "sound_meaning": "مد جوفي - عمق - احتواء - انحناء داخلي",
+      "shape_description": "قاع منحني",
+      "shape_meaning": "انخفاض ثم ارتفاع - وعاء",
+      "psychic_meaning": "احتواء - استقبال - تهيؤ لرفع أو صعود بعد نزول",
+      "combined_meaning": "الاحتواء - الانخفاض ثم الصعود - الوعاء - الجوف",
+      "arabic_equivalent": "و/ء",
+      "developer_meanings": [
+        {"meaning": "تحت والانخفاض", "opposite": "فوق", "examples": ["under", "below"], "strength": 1.0},
+        {"meaning": "الصعود بعد النزول", "opposite": null, "examples": ["up", "uplift"], "strength": 0.95},
+        {"meaning": "التوحيد والجمع", "opposite": "التفريق", "examples": ["unite", "union"], "strength": 0.9}
+      ],
+      "example_words": ["under", "up", "until", "unite", "undo", "unfold"],
+      "confidence": 0.91
+    },
+    "V": {
+      "letter": "V",
+      "position_in_alphabet": 22,
+      "sound_type": "fricative_labiodental_voiced",
+      "sound_description": "Voiced labiodental fricative /v/",
+      "sound_meaning": "احتكاك شفوي صوتي - اهتزاز - اندفاع للأمام مع نبرة قوة",
+      "shape_description": "شعبة تتجه لأسفل ثم تصعد",
+      "shape_meaning": "فتح - تركيز - اندفاع نحو نقطة - رأس سهم مقلوب",
+      "psychic_meaning": "حدة - اختراق - توجيه نحو هدف محدد",
+      "combined_meaning": "الاختراق - الاتجاه - الهدف - قوة تهتز وتتقدم",
+      "arabic_equivalent": "ف/ڤ",
+      "developer_meanings": [
+        {"meaning": "النصر والقوة", "opposite": "الهزيمة", "examples": ["victory", "vital"], "strength": 1.0},
+        {"meaning": "الرؤية والنظر", "opposite": "العمى", "examples": ["view", "vision"], "strength": 0.95},
+        {"meaning": "الحركة والاتجاه", "opposite": "السكون", "examples": ["move", "pivot"], "strength": 0.9}
+      ],
+      "example_words": ["victory", "vector", "move", "view", "vital", "pivot"],
+      "confidence": 0.92
+    },
+    "W": {
+      "letter": "W",
+      "position_in_alphabet": 23,
+      "sound_type": "approximant_labial_velar",
+      "sound_description": "Labial-velar approximant /w/",
+      "sound_meaning": "شبه صوت بين O و U - دوران - عمق - تقوس",
+      "shape_description": "V مزدوجة",
+      "shape_meaning": "ازدواج في الاتجاه - تعاقب - موجة",
+      "psychic_meaning": "موجية - تذبذب - تكرار - ازدواجية",
+      "combined_meaning": "الموجة - التكرار - الازدواج - الحركة المترددة",
+      "arabic_equivalent": "و",
+      "developer_meanings": [
+        {"meaning": "الموج والتموج", "opposite": "السكون", "examples": ["wave", "waver"], "strength": 1.0},
+        {"meaning": "الماء والسوائل", "opposite": "الجفاف", "examples": ["water", "wet"], "strength": 0.95},
+        {"meaning": "الاتساع والعرض", "opposite": "الضيق", "examples": ["wide", "whole"], "strength": 0.9}
+      ],
+      "example_words": ["wave", "wind", "wrap", "wide", "water", "weave"],
+      "confidence": 0.93
+    },
+    "X": {
+      "letter": "X",
+      "position_in_alphabet": 24,
+      "sound_type": "consonant_cluster",
+      "sound_description": "/ks/ or /gz/ - consonant cluster",
+      "sound_meaning": "جمع صوتين - تصادم - التقاء قوتين",
+      "shape_description": "صليب مائل",
+      "shape_meaning": "تقاطع - تضارب - التقاء مسارين",
+      "psychic_meaning": "صراع - تقاطع - إلغاء - ضرب",
+      "combined_meaning": "التقاطع - التصادم - التجاور المتعارض - الإلغاء",
+      "arabic_equivalent": "كس/خ",
+      "developer_meanings": [
+        {"meaning": "التقاطع والعبور", "opposite": null, "examples": ["cross", "exit"], "strength": 1.0},
+        {"meaning": "المزج والخلط", "opposite": "الفصل", "examples": ["mix", "complex"], "strength": 0.9},
+        {"meaning": "التثبيت والإصلاح", "opposite": "الكسر", "examples": ["fix", "axis"], "strength": 0.85}
+      ],
+      "example_words": ["exit", "cross", "mix", "fix", "box", "axis"],
+      "confidence": 0.87
+    },
+    "Y": {
+      "letter": "Y",
+      "position_in_alphabet": 25,
+      "sound_type": "palatal_approximant",
+      "sound_description": "/j/ or /ai/ - semi-vowel",
+      "sound_meaning": "انقسام ثم توحيد - تردد - انتقال",
+      "shape_description": "ذراعان يتحدان بساق واحدة",
+      "shape_meaning": "تفرع ثم عودة إلى نقطة واحدة - اختيار طريق",
+      "psychic_meaning": "مسار - مفترق - خيار - عودة إلى الأصل",
+      "combined_meaning": "المسار/الاختيار - المفترق - العود إلى الأصل - الامتداد",
+      "arabic_equivalent": "ي",
+      "developer_meanings": [
+        {"meaning": "الموافقة والقبول", "opposite": "الرفض", "examples": ["yes", "yield"], "strength": 1.0},
+        {"meaning": "الشباب والحيوية", "opposite": "الشيخوخة", "examples": ["young", "youth"], "strength": 0.95},
+        {"meaning": "التوق والاشتياق", "opposite": null, "examples": ["yearn", "yawn"], "strength": 0.85}
+      ],
+      "example_words": ["yes", "you", "yield", "young", "beyond", "why"],
+      "confidence": 0.9
+    },
+    "Z": {
+      "letter": "Z",
+      "position_in_alphabet": 26,
+      "sound_type": "fricative_alveolar_voiced",
+      "sound_description": "Voiced alveolar fricative /z/",
+      "sound_meaning": "صفير صوتي - حركة سريعة مستمرة - اهتزاز",
+      "shape_description": "خط مائل + أفقيان",
+      "shape_meaning": "سرعة - قطع منحرف - انتقال خاطف",
+      "psychic_meaning": "طاقة - حيوية - سرعة - مفاجأة",
+      "combined_meaning": "السرعة - الاهتزاز - الفعل المفاجئ - الحركة الحادة",
+      "arabic_equivalent": "ز",
+      "developer_meanings": [
+        {"meaning": "السرعة والاندفاع", "opposite": "البطء", "examples": ["zoom", "zip"], "strength": 1.0},
+        {"meaning": "الحماس والطاقة", "opposite": "الخمول", "examples": ["zeal", "zest"], "strength": 0.95},
+        {"meaning": "المنطقة والتحديد", "opposite": null, "examples": ["zone", "zenith"], "strength": 0.85}
+      ],
+      "example_words": ["zoom", "zeal", "zone", "zigzag", "blaze", "buzz"],
+      "confidence": 0.91
+    }
+  }
+}
+

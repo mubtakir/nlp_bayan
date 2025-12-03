@@ -7,10 +7,30 @@ Bayan Language - Main Entry Point
 import sys
 import os
 
-# Add the bayan package to the path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the parent directory to the path for proper imports
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
-from bayan.bayan import run_code, HybridLexer, HybridParser, HybridInterpreter
+# Try different import paths
+try:
+    from bayan.bayan import run_code, HybridLexer, HybridParser, HybridInterpreter
+except ImportError:
+    try:
+        from bayan import run_code, HybridLexer, HybridParser, HybridInterpreter
+    except ImportError:
+        from bayan.lexer import HybridLexer
+        from bayan.parser import HybridParser
+        from bayan.hybrid_interpreter import HybridInterpreter
+
+        def run_code(code):
+            """Run Bayan code and return result"""
+            lexer = HybridLexer(code)
+            tokens = lexer.tokenize()
+            parser = HybridParser(tokens)
+            ast = parser.parse()
+            interpreter = HybridInterpreter()
+            return interpreter.interpret(ast)
 
 def main():
     """Main entry point"""

@@ -115,10 +115,10 @@ class BytecodeOptimizer:
         """
         new_instrs = []
         i = 0
-        
+
         while i < len(instructions):
             instr = instructions[i]
-            
+
             # Pattern 1: LOAD_CONST + POP -> Remove both
             if instr.opcode == Opcode.LOAD_CONST and i + 1 < len(instructions):
                 next_instr = instructions[i+1]
@@ -127,12 +127,75 @@ class BytecodeOptimizer:
                     i += 2
                     self.changed = True
                     continue
-            
-            # Pattern 2: JUMP to next instruction -> Remove
-            # Note: This requires resolving jump targets which is complex with indices
-            # For now, we'll skip this to avoid breaking jumps
-            
+
+            # Pattern 2: LOAD_VAR + POP -> Remove both
+            if instr.opcode == Opcode.LOAD_VAR and i + 1 < len(instructions):
+                next_instr = instructions[i+1]
+                if next_instr.opcode == Opcode.POP:
+                    i += 2
+                    self.changed = True
+                    continue
+
+            # Pattern 3: Double negation NOT NOT -> Remove both
+            if instr.opcode == Opcode.NOT and i + 1 < len(instructions):
+                next_instr = instructions[i+1]
+                if next_instr.opcode == Opcode.NOT:
+                    i += 2
+                    self.changed = True
+                    continue
+
+            # Pattern 4: STORE_VAR followed by LOAD_VAR of same var -> DUP + STORE
+            if instr.opcode == Opcode.STORE_VAR and i + 1 < len(instructions):
+                next_instr = instructions[i+1]
+                if next_instr.opcode == Opcode.LOAD_VAR and next_instr.arg == instr.arg:
+                    # Replace with DUP + STORE_NAME
+                    new_instrs.append(Instruction(Opcode.DUP, None))
+                    new_instrs.append(instr)
+                    i += 2
+                    self.changed = True
+                    continue
+
+            # Pattern 5: Multiply by 1 -> Remove
+            if i + 2 < len(instructions):
+                if (instr.opcode == Opcode.LOAD_CONST and
+                    instructions[i+1].opcode == Opcode.MUL):
+                    # Check if constant is 1
+                    pass  # Would need access to constants
+
             new_instrs.append(instr)
             i += 1
-            
+
+        return new_instrs
+
+    def _dead_code_elimination(self, instructions):
+        """
+        Remove unreachable code after unconditional jumps.
+        """
+        new_instrs = []
+        i = 0
+
+        while i < len(instructions):
+            instr = instructions[i]
+            new_instrs.append(instr)
+
+            # After RETURN, skip until next jump target
+            if instr.opcode == Opcode.RETURN:
+                i += 1
+                # Skip until we find a jump target or end
+                while i < len(instructions):
+                    # Check if this is a jump target
+                    is_target = False
+                    for j, check_instr in enumerate(instructions):
+                        if check_instr.opcode in (Opcode.JUMP, Opcode.JUMP_IF_FALSE, Opcode.JUMP_IF_TRUE):
+                            if check_instr.arg == i:
+                                is_target = True
+                                break
+                    if is_target:
+                        break
+                    i += 1
+                    self.changed = True
+                continue
+
+            i += 1
+
         return new_instrs

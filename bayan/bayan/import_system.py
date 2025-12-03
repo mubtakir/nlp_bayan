@@ -72,7 +72,13 @@ class ImportSystem:
         'pytest-cov', 'coverage',
 
         # Project-local safe modules
-        'myutils'
+        'myutils',
+
+        # Bayan internal modules
+        'bayan.core.similarity',
+        'bayan.core.causal_network_engine',
+        'ai/expert_explorer.by',
+        'ai/expert_explorer',
     }
 
     def __init__(self, safe_modules=None, allow_custom=False, custom_paths=None):

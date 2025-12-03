@@ -77,3 +77,147 @@ hybrid {
 }
 ```
 
+---
+
+## 20) New Advanced Features (2025)
+
+### 20.1 Match/Case Pattern Matching
+```bayan
+hybrid {
+    x = 2
+    match x: {
+        case 1: { print("one") }
+        case 2: { print("two") }
+        case _: { print("other") }
+    }
+}
+```
+
+### 20.2 Enums
+```bayan
+hybrid {
+    enum Color: {
+        RED = 1
+        GREEN = 2
+        BLUE = 3
+    }
+
+    print(Color.RED)  # 1
+}
+```
+
+### 20.3 Ternary Operator
+```bayan
+hybrid {
+    x = 10
+    result = "big" if x > 5 else "small"
+    print(result)  # big
+}
+```
+
+### 20.4 Tuple Unpacking
+```bayan
+hybrid {
+    a, b, c = 1, 2, 3
+    print(a, b, c)  # 1 2 3
+
+    # Swap values
+    a, b = b, a
+}
+```
+
+### 20.5 Spread Operator for Lists
+```bayan
+hybrid {
+    list1 = [1, 2, 3]
+    list2 = [4, 5, 6]
+    list3 = [*list1, *list2]
+    print(list3)  # [1, 2, 3, 4, 5, 6]
+}
+```
+
+### 20.6 Dict Spread
+```bayan
+hybrid {
+    dict1 = {"a": 1, "b": 2}
+    dict2 = {"c": 3}
+    merged = {**dict1, **dict2}
+    print(merged)  # {"a": 1, "b": 2, "c": 3}
+}
+```
+
+### 20.7 Negative Step Slicing
+```bayan
+hybrid {
+    nums = [1, 2, 3, 4, 5]
+    print(nums[::-1])  # [5, 4, 3, 2, 1]
+}
+```
+
+### 20.8 Global Variables
+```bayan
+hybrid {
+    counter = 0
+
+    def increment(): {
+        global counter
+        counter = counter + 1
+    }
+
+    increment()
+    increment()
+    print(counter)  # 2
+}
+```
+
+### 20.9 Nullish Coalescing
+```bayan
+hybrid {
+    x = None
+    y = x ?? 10
+    print(y)  # 10
+}
+```
+
+### 20.10 Chained Comparisons
+```bayan
+hybrid {
+    x = 5
+    if 0 < x < 10: {
+        print("x is between 0 and 10")
+    }
+}
+```
+
+### 20.11 F-Strings
+```bayan
+hybrid {
+    name = "Ahmed"
+    age = 25
+    print(f"Name: {name}, Age: {age}")
+}
+```
+
+### 20.12 Enhanced Exceptions
+```bayan
+hybrid {
+    def divide(a, b): {
+        if b == 0: {
+            raise ValueError("Cannot divide by zero")
+        }
+        return a / b
+    }
+
+    try: {
+        result = divide(10, 0)
+    } except ValueError as e: {
+        print("Error:", str(e))
+    }
+}
+```
+
+---
+
+> **Note**: For more details, see [ADVANCED_FEATURES_2025.md](../../ADVANCED_FEATURES_2025.md)
+
+> Quick Nav: [PART1](02_PROCEDURAL_OOP_EN_PART1.md) | [PART2](02_PROCEDURAL_OOP_EN_PART2.md) | [PART3](02_PROCEDURAL_OOP_EN_PART3.md) | [PART4](02_PROCEDURAL_OOP_EN_PART4.md)

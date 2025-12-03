@@ -205,9 +205,10 @@ class EntityEngine:
         # fallback
         return self._default_typeinfo('fuzzy')
 
-    def _coerce_value_and_type(self, raw: Any, default_kind: str = 'fuzzy') -> Tuple[float, Dict[str, Any]]:
+    def _coerce_value_and_type(self, raw: Any, default_kind: str = 'fuzzy') -> Tuple[Any, Dict[str, Any]]:
         """Accept numeric or typed-dict like {'type': 'numeric'|'fuzzy'|{'bounded':[a,b]}, 'value': x}
         Also accepts Arabic keys: 'نوع', 'قيمة'.
+        Also accepts string values for non-numeric properties.
         Returns (value, typeinfo)
         """
         if isinstance(raw, dict):
@@ -224,7 +225,21 @@ class EntityEngine:
             if val is None:
                 # If dict had no value, but was actually a bounds dict, default value 0.0
                 val = 0.0
-            return float(val), tinfo
+            # Try to convert to float, but keep as-is if it's a string
+            try:
+                return float(val), tinfo
+            except (ValueError, TypeError):
+                # Keep string values as-is with 'string' type
+                return val, {'kind': 'string'}
+        # Handle string values (non-numeric properties)
+        if isinstance(raw, str):
+            # Try to convert to float first
+            try:
+                tinfo = self._default_typeinfo(default_kind)
+                return float(raw), tinfo
+            except ValueError:
+                # Keep as string
+                return raw, {'kind': 'string'}
         # plain number: default to fuzzy (to preserve existing semantics)
         tinfo = self._default_typeinfo(default_kind)
         return float(raw), tinfo
@@ -232,13 +247,19 @@ class EntityEngine:
     def _get_typemap(self, ent: _Entity, is_state: bool) -> Dict[str, Dict[str, Any]]:
         return ent.state_types if is_state else ent.property_types
 
-    def _apply_bounds(self, ent: _Entity, is_state: bool, key: str, value: float) -> float:
+    def _apply_bounds(self, ent: _Entity, is_state: bool, key: str, value: Any) -> Any:
         tmap = self._get_typemap(ent, is_state)
         tinfo = tmap.get(key)
         if not tinfo:
+            # Check if value is a string - don't try to clamp strings
+            if isinstance(value, str):
+                return value
             # default semantics: fuzzy clamp
             return _clamp(value)
         kind = tinfo.get('kind', 'fuzzy')
+        if kind == 'string':
+            # String values are returned as-is
+            return value
         if kind == 'numeric':
             return float(value)
         # fuzzy or bounded
@@ -246,8 +267,8 @@ class EntityEngine:
         mx = float(tinfo.get('max', 1.0))
         return max(mn, min(mx, float(value)))
 
-    def _normalize_initial_map(self, ent: _Entity, src: Optional[Dict[str, Any]], *, is_state: bool, default_kind: str = 'fuzzy') -> Dict[str, float]:
-        result: Dict[str, float] = {}
+    def _normalize_initial_map(self, ent: _Entity, src: Optional[Dict[str, Any]], *, is_state: bool, default_kind: str = 'fuzzy') -> Dict[str, Any]:
+        result: Dict[str, Any] = {}
         if not src:
             return result
         tmap = self._get_typemap(ent, is_state)
@@ -280,11 +301,19 @@ class EntityEngine:
         # states
         for k, v in ent.states.items():
             self._retractall('state', ent.name, k, None)
-            self._assert_fact('state', ent.name, k, float(v))
+            # Handle both numeric and string values
+            try:
+                self._assert_fact('state', ent.name, k, float(v))
+            except (ValueError, TypeError):
+                self._assert_fact('state', ent.name, k, v)
         # properties
         for k, v in ent.properties.items():
             self._retractall('property', ent.name, k, None)
-            self._assert_fact('property', ent.name, k, float(v))
+            # Handle both numeric and string values
+            try:
+                self._assert_fact('property', ent.name, k, float(v))
+            except (ValueError, TypeError):
+                self._assert_fact('property', ent.name, k, v)
 
     # ------------- API -------------
     def create_entity(self, name: str, *, states: Optional[Dict[str, Any]] = None,

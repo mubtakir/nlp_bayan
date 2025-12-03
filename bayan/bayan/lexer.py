@@ -13,6 +13,7 @@ class TokenType(Enum):
     IDENTIFIER = auto()
     NUMBER = auto()
     STRING = auto()
+    FSTRING = auto()  # f-string (formatted string literal)
     OPERATOR = auto()
     ASSIGN = auto()
     LPAREN = auto()
@@ -71,10 +72,14 @@ class TokenType(Enum):
     RULE = auto()
     IS = auto()  # Arithmetic evaluation operator
     CUT = auto()  # Cut operator (!)
+    QUESTION = auto()  # Query terminator (?)
 
     # Async tokens
     ASYNC = auto()
     AWAIT = auto()
+
+    # Lambda token
+    LAMBDA = auto()
 
     # Hybrid tokens
     HYBRID = auto()
@@ -103,6 +108,10 @@ class TokenType(Enum):
     REQUIRES = auto()
     ENSURES = auto()
     INVARIANT = auto()
+
+    # Scope keywords
+    GLOBAL = auto()
+    NONLOCAL = auto()
 
     # Pattern matching tokens (MATCH already defined above for match...in...as)
     CASE = auto()
@@ -152,6 +161,8 @@ class TokenType(Enum):
     # Semantic Programming & Knowledge Management
     MEANING = auto()
     SEMANTIC_QUERY = auto()
+    SEMANTIC_NETWORK = auto()
+    INFER_FROM_TEXT = auto()
     # QUERY already defined in logical tokens
     INFORMATION = auto()
     CONTENT = auto()
@@ -269,6 +280,42 @@ class TokenType(Enum):
     MOVES_TO = auto()
     AFFECTED_BY = auto()
 
+    # Type System tokens (نظام الأنواع)
+    TYPE_INT = auto()       # int / صحيح
+    TYPE_FLOAT = auto()     # float / عشري
+    TYPE_STR = auto()       # str / نص
+    TYPE_BOOL = auto()      # bool / منطقي
+    TYPE_LIST = auto()      # list / قائمة
+    TYPE_DICT = auto()      # dict / قاموس
+    TYPE_SET = auto()       # set / مجموعة
+    TYPE_TUPLE = auto()     # tuple / صف
+    TYPE_OPTIONAL = auto()  # Optional / اختياري
+    TYPE_UNION = auto()     # Union / اتحاد
+    TYPE_ANY = auto()       # Any / أي
+    TYPE_NONE = auto()      # None / لاشيء (as type)
+    TYPE_CALLABLE = auto()  # Callable / قابل_للاستدعاء
+    TYPE_SELF = auto()      # Self / ذاتي (for return type)
+    ENUM = auto()           # enum / تعداد
+    INTERFACE = auto()      # interface / واجهة
+    IMPLEMENTS = auto()     # implements / ينفذ
+    EXTENDS = auto()        # extends / يرث
+    ABSTRACT = auto()       # abstract / مجرد
+    OVERRIDE = auto()       # override / تجاوز
+    FINAL = auto()          # final / نهائي
+    CONST = auto()          # const / ثابت
+    STATIC = auto()         # static / ساكن
+    PRIVATE = auto()        # private / خاص
+    PUBLIC = auto()         # public / عام
+    PROTECTED = auto()      # protected / محمي
+    READONLY = auto()       # readonly / للقراءة_فقط
+
+    # Additional language features
+    ASSERT = auto()         # assert / تأكد
+    QUESTION_DOT = auto()   # ?. Optional chaining
+    NULLISH = auto()        # ?? Null coalescing
+    STAR_STAR = auto()      # ** for dict unpacking
+    WALRUS = auto()         # := assignment expression
+
     # Special
     NEWLINE = auto()
     WHITESPACE = auto()
@@ -291,26 +338,71 @@ class HybridLexer:
     """Hybrid lexer for Bayan language"""
 
     KEYWORDS = {
+        # Function definition (تعريف الدالة)
         'def': TokenType.DEF,
+        'دالة': TokenType.DEF,
+        'عرف': TokenType.DEF,
+        # Class definition (تعريف الصنف)
         'class': TokenType.CLASS,
+        'صنف': TokenType.CLASS,
+        'فئة': TokenType.CLASS,
+        # Control flow (التحكم في التدفق)
         'if': TokenType.IF,
+        'إذا': TokenType.IF,
+        'لو': TokenType.IF,
         'else': TokenType.ELSE,
+        'وإلا': TokenType.ELSE,
+        'غير_ذلك': TokenType.ELSE,
         'elif': TokenType.ELIF,
+        'وإلا_إذا': TokenType.ELIF,
+        'أو_إذا': TokenType.ELIF,
+        # Loops (الحلقات)
         'for': TokenType.FOR,
+        'لكل': TokenType.FOR,
+        'كرر': TokenType.FOR,
         'while': TokenType.WHILE,
+        'طالما': TokenType.WHILE,
+        'بينما': TokenType.WHILE,
         'in': TokenType.IN,
+        # I/O (الإدخال والإخراج)
         'print': TokenType.PRINT,
+        'اطبع': TokenType.PRINT,
+        # Function control (التحكم في الدوال)
         'return': TokenType.RETURN,
+        'أرجع': TokenType.RETURN,
+        'ارجع': TokenType.RETURN,
         'yield': TokenType.YIELD,
+        'أنتج': TokenType.YIELD,
+        'انتج': TokenType.YIELD,
+        # Loop control (التحكم في الحلقات)
         'break': TokenType.BREAK,
+        'اكسر': TokenType.BREAK,
+        'توقف': TokenType.BREAK,
         'continue': TokenType.CONTINUE,
+        'استمر': TokenType.CONTINUE,
+        'تابع': TokenType.CONTINUE,
         'pass': TokenType.PASS,
+        'مرر': TokenType.PASS,
+        'تجاوز': TokenType.PASS,
+        # Boolean values (القيم المنطقية)
         'True': TokenType.TRUE,
+        'صحيح': TokenType.TRUE,
+        'صح': TokenType.TRUE,
         'False': TokenType.FALSE,
+        'خطأ': TokenType.FALSE,
+        'خاطئ': TokenType.FALSE,
         'None': TokenType.NONE,
+        'لاشيء': TokenType.NONE,
+        'فارغ': TokenType.NONE,
+        'عدم': TokenType.NONE,
+        # Logical operators (العوامل المنطقية)
         'and': TokenType.AND,
+        'و': TokenType.AND,
         'or': TokenType.OR,
+        'أو': TokenType.OR,
         'not': TokenType.NOT,
+        'ليس': TokenType.NOT,
+        'لا': TokenType.NOT,
         # Hybrid logic block (bilingual)
         'hybrid': TokenType.HYBRID,
         'هجين': TokenType.HYBRID,
@@ -320,19 +412,58 @@ class HybridLexer:
         'حقيقة': TokenType.FACT,
         'rule': TokenType.RULE,
         'قاعدة': TokenType.RULE,
+        # Object-oriented (البرمجة الكائنية)
         'self': TokenType.SELF,
+        'ذاتي': TokenType.SELF,
+        'نفسي': TokenType.SELF,
         'super': TokenType.SUPER,
+        'أب': TokenType.SUPER,
+        'الأب': TokenType.SUPER,
+        # Import/Export (الاستيراد والتصدير)
         'import': TokenType.IMPORT,
+        'استورد': TokenType.IMPORT,
         'from': TokenType.FROM,
+        'من': TokenType.FROM,
         'as': TokenType.AS,
+        'كـ': TokenType.AS,
+        # Exception handling (معالجة الاستثناءات)
         'try': TokenType.TRY,
+        'حاول': TokenType.TRY,
+        'جرب': TokenType.TRY,
         'except': TokenType.EXCEPT,
+        'استثنِ': TokenType.EXCEPT,
+        'استثن': TokenType.EXCEPT,
+        'عدا': TokenType.EXCEPT,
         'finally': TokenType.FINALLY,
+        'أخيراً': TokenType.FINALLY,
+        'في_النهاية': TokenType.FINALLY,
         'raise': TokenType.RAISE,
+        'أطلق_خطأ': TokenType.RAISE,
+        'ارفع': TokenType.RAISE,
+        # Identity operator (عامل الهوية)
         'is': TokenType.IS,
+        'هو': TokenType.IS,
+        'يكون': TokenType.IS,
+        # Async/Await (البرمجة غير المتزامنة)
         'async': TokenType.ASYNC,
+        'غير_متزامن': TokenType.ASYNC,
+        'متزامن_لا': TokenType.ASYNC,
         'await': TokenType.AWAIT,
+        'انتظر': TokenType.AWAIT,
+        # Context manager (مدير السياق)
         'with': TokenType.WITH,
+        'مع': TokenType.WITH,
+        'باستخدام': TokenType.WITH,
+        # Lambda (تعبير الدالة)
+        'lambda': TokenType.LAMBDA,
+        'تعبير_دالة': TokenType.LAMBDA,
+        'دالة_مختصرة': TokenType.LAMBDA,
+        # Scope (نطاق المتغيرات)
+        'global': TokenType.GLOBAL,
+        'عام': TokenType.GLOBAL,
+        'عمومي': TokenType.GLOBAL,
+        'nonlocal': TokenType.NONLOCAL,
+        'محلي_خارجي': TokenType.NONLOCAL,
         # Entity/Action keywords (bilingual)
         'entity': TokenType.ENTITY,
         'كيان': TokenType.ENTITY,
@@ -376,7 +507,8 @@ class HybridLexer:
         'ثم': TokenType.THEN,
         'lastly': TokenType.LASTLY,
         'أخيرا': TokenType.LASTLY,
-        'أخيراً': TokenType.LASTLY,
+        'ختاماً': TokenType.LASTLY,
+        'في_الختام': TokenType.LASTLY,
         # Constraint keywords
         'where': TokenType.WHERE,
         'حيث': TokenType.WHERE,
@@ -390,8 +522,7 @@ class HybridLexer:
         'ثابت': TokenType.INVARIANT,
         'ثوابت': TokenType.INVARIANT,
         # Pattern matching keywords
-        'match': TokenType.MATCH,
-        'طابق': TokenType.MATCH,
+        # 'match' and 'طابق' already defined above
         'case': TokenType.CASE,
         'حالة': TokenType.CASE,
         'default': TokenType.DEFAULT,
@@ -457,7 +588,11 @@ class HybridLexer:
         'meaning': TokenType.MEANING,
         'معنى': TokenType.MEANING,
         'semantic_query': TokenType.SEMANTIC_QUERY,
-        'query': TokenType.QUERY,
+        'semantic_network': TokenType.SEMANTIC_NETWORK,
+        'شبكة_معاني': TokenType.SEMANTIC_NETWORK,
+        'استدل_من': TokenType.INFER_FROM_TEXT,
+        'infer_from_text': TokenType.INFER_FROM_TEXT,
+        # 'query' already defined above
         'استعلام': TokenType.QUERY,
         'information': TokenType.INFORMATION,
         'معلومة': TokenType.INFORMATION,
@@ -469,7 +604,8 @@ class HybridLexer:
         'الشرط': TokenType.CONDITION,
         'النتيجة': TokenType.EFFECT_RESULT,
         'السبب': TokenType.CAUSE,
-        'إذا': TokenType.IF_CONDITION,
+        'إذا_شرط': TokenType.IF_CONDITION,
+        'شرط_إذا': TokenType.IF_CONDITION,
         'فإن': TokenType.THEN_RESULT,
         'القوة': TokenType.STRENGTH,
         'المجال': TokenType.DOMAIN,
@@ -487,7 +623,7 @@ class HybridLexer:
         'يقين': TokenType.CERTAINTY,
         'inference_rule': TokenType.INFERENCE_RULE,
         'قاعدة_استدلال': TokenType.INFERENCE_RULE,
-        'infer_from': TokenType.INFER_FROM,
+        'infer': TokenType.INFER_FROM,
         'استنتج': TokenType.INFER_FROM,
         'استنتج_من': TokenType.INFER_FROM,
         'contradiction': TokenType.CONTRADICTION,
@@ -497,6 +633,7 @@ class HybridLexer:
         'resolve': TokenType.RESOLVE,
         'حل': TokenType.RESOLVE,
         'evolving_knowledge': TokenType.EVOLVING_KNOWLEDGE,
+        'معرفة_متطورة': TokenType.EVOLVING_KNOWLEDGE,
         'knowledge': TokenType.KNOWLEDGE,
         'معرفة': TokenType.KNOWLEDGE,
         'current_value': TokenType.CURRENT_VALUE,
@@ -513,6 +650,8 @@ class HybridLexer:
         'تصنيف': TokenType.TAXONOMY,
         'memory': TokenType.MEMORY,
         'ذاكرة': TokenType.MEMORY,
+        'semantic_memory': TokenType.MEMORY,
+        'ذاكرة_دلالية': TokenType.MEMORY,
         'store': TokenType.STORE,
         'احفظ': TokenType.STORE,
         'retrieve': TokenType.RETRIEVE,
@@ -549,7 +688,7 @@ class HybridLexer:
         'أبعاد': TokenType.DIMENSIONS,
         'spatial': TokenType.SPATIAL,
         'مكاني': TokenType.SPATIAL,
-        'temporal': TokenType.TEMPORAL,
+        # 'temporal' already defined above
         'زماني': TokenType.TEMPORAL,
         'domain_specific': TokenType.DOMAIN_SPECIFIC,
         'مجالي': TokenType.DOMAIN_SPECIFIC,
@@ -615,14 +754,13 @@ class HybridLexer:
         'الآن': TokenType.NOW,
 
         # Prepositions (حروف الجر)
-        'in': TokenType.IN,
+        # 'in' already defined above for loops
         'في': TokenType.IN,
         'on': TokenType.ON,
         'على': TokenType.ON,
         'to': TokenType.TO,
         'إلى': TokenType.TO,
-        'from': TokenType.FROM,
-        'من': TokenType.FROM,
+        # 'from' and 'من' already defined above for imports
         'at': TokenType.AT,
         'عند': TokenType.AT,
 
@@ -700,6 +838,73 @@ class HybridLexer:
         'affected_by': TokenType.AFFECTED_BY,
         'يتأثر_بـ': TokenType.AFFECTED_BY,
         'يتأثر_ب': TokenType.AFFECTED_BY,
+
+        # Type System keywords (كلمات نظام الأنواع)
+        'int': TokenType.TYPE_INT,
+        'عدد_صحيح': TokenType.TYPE_INT,
+        'نوع_صحيح': TokenType.TYPE_INT,
+        'float': TokenType.TYPE_FLOAT,
+        'عشري': TokenType.TYPE_FLOAT,
+        'عدد_عشري': TokenType.TYPE_FLOAT,
+        'str': TokenType.TYPE_STR,
+        'نص': TokenType.TYPE_STR,
+        'سلسلة': TokenType.TYPE_STR,
+        'bool': TokenType.TYPE_BOOL,
+        'منطقي': TokenType.TYPE_BOOL,
+        'list': TokenType.TYPE_LIST,
+        'قائمة': TokenType.TYPE_LIST,
+        'dict': TokenType.TYPE_DICT,
+        'قاموس': TokenType.TYPE_DICT,
+        'set': TokenType.TYPE_SET,
+        'مجموعة_نوع': TokenType.TYPE_SET,
+        'tuple': TokenType.TYPE_TUPLE,
+        'صف': TokenType.TYPE_TUPLE,
+        'Optional': TokenType.TYPE_OPTIONAL,
+        'اختياري': TokenType.TYPE_OPTIONAL,
+        'Union': TokenType.TYPE_UNION,
+        'اتحاد': TokenType.TYPE_UNION,
+        'Any': TokenType.TYPE_ANY,
+        'أي': TokenType.TYPE_ANY,
+        'Callable': TokenType.TYPE_CALLABLE,
+        'قابل_للاستدعاء': TokenType.TYPE_CALLABLE,
+        'Self': TokenType.TYPE_SELF,
+        'ذاتي_نوع': TokenType.TYPE_SELF,
+        'enum': TokenType.ENUM,
+        'تعداد': TokenType.ENUM,
+        'interface': TokenType.INTERFACE,
+        'واجهة': TokenType.INTERFACE,
+        'implements': TokenType.IMPLEMENTS,
+        'ينفذ': TokenType.IMPLEMENTS,
+        'يطبق': TokenType.IMPLEMENTS,
+        'abstract': TokenType.ABSTRACT,
+        'مجرد': TokenType.ABSTRACT,
+        'override': TokenType.OVERRIDE,
+        'تخطي': TokenType.OVERRIDE,
+        'استبدال': TokenType.OVERRIDE,
+        'final': TokenType.FINAL,
+        'نهائي': TokenType.FINAL,
+        'const': TokenType.CONST,
+        'ثابت_قيمة': TokenType.CONST,
+        'قيمة_ثابتة': TokenType.CONST,
+        'static': TokenType.STATIC,
+        'staticmethod': TokenType.STATIC,
+        'ساكن': TokenType.STATIC,
+        'private': TokenType.PRIVATE,
+        'خاص': TokenType.PRIVATE,
+        'public': TokenType.PUBLIC,
+        'علني': TokenType.PUBLIC,
+        'عامة': TokenType.PUBLIC,
+        'protected': TokenType.PROTECTED,
+        'محمي': TokenType.PROTECTED,
+        'readonly': TokenType.READONLY,
+        'للقراءة_فقط': TokenType.READONLY,
+        'extends': TokenType.EXTENDS,
+        'يرث': TokenType.EXTENDS,
+        'يمتد': TokenType.EXTENDS,
+        # Assert keyword
+        'assert': TokenType.ASSERT,
+        'تأكد': TokenType.ASSERT,
+        'أكد': TokenType.ASSERT,
     }
 
     def __init__(self, code):
@@ -736,13 +941,79 @@ class HybridLexer:
                 self.position += 1
                 self.line += 1
                 self.column = 1
-            # Handle comments
+            # Handle single-line comments (# or //)
             elif self.code[self.position] == '#':
                 while self.position < len(self.code) and self.code[self.position] != '\n':
                     self.position += 1
+            elif self.code[self.position:self.position + 2] == '//':
+                while self.position < len(self.code) and self.code[self.position] != '\n':
+                    self.position += 1
+            # Handle multi-line comments /* ... */
+            elif self.code[self.position:self.position + 2] == '/*':
+                self.position += 2
+                self.column += 2
+                while self.position < len(self.code) - 1:
+                    if self.code[self.position:self.position + 2] == '*/':
+                        self.position += 2
+                        self.column += 2
+                        break
+                    elif self.code[self.position] == '\n':
+                        self.position += 1
+                        self.line += 1
+                        self.column = 1
+                    else:
+                        self.position += 1
+                        self.column += 1
             else:
                 break
 
+
+    def _match_fstring(self):
+        """Match an f-string (formatted string literal).
+
+        Supports: f"..." or f'...'
+        """
+        # Check for f" or f'
+        if self.position + 1 >= len(self.code):
+            return False
+
+        if self.code[self.position] != 'f':
+            return False
+
+        next_char = self.code[self.position + 1]
+        if next_char not in '"\'':
+            return False
+
+        start_pos = self.position
+        start_line = self.line
+        start_col = self.column
+        quote = next_char
+
+        # Skip 'f' and opening quote
+        self.position += 2
+        self.column += 2
+
+        # Find closing quote (handle escaped quotes)
+        while self.position < len(self.code):
+            ch = self.code[self.position]
+            if ch == '\\' and self.position + 1 < len(self.code):
+                # Skip escaped character
+                self.position += 2
+                self.column += 2
+            elif ch == quote:
+                # Found closing quote
+                self.position += 1
+                self.column += 1
+                lexeme = self.code[start_pos:self.position]
+                self.tokens.append(Token(TokenType.FSTRING, lexeme, start_line, start_col))
+                return True
+            elif ch == '\n':
+                raise SyntaxError(f"Unterminated f-string at {start_line}:{start_col}")
+            else:
+                self.position += 1
+                self.column += 1
+
+        raise SyntaxError(f"Unterminated f-string at {start_line}:{start_col}")
 
     def _match_triple_string(self):
         """Match a triple-quoted string supporting newlines."""
@@ -786,7 +1057,9 @@ class HybridLexer:
         if self._match_pattern(r'\?[a-zA-Z_\u0600-\u06FF][a-zA-Z0-9_\u0600-\u06FF]*', TokenType.VARIABLE):
             return True
 
-        # Strings (triple-quoted first)
+        # Strings (f-strings first, then triple-quoted, then regular)
+        if self._match_fstring():
+            return True
         if self._match_triple_string():
             return True
         if self._match_pattern(r'"[^"]*"', TokenType.STRING) or self._match_pattern(r"'[^']*'", TokenType.STRING):
@@ -814,10 +1087,28 @@ class HybridLexer:
         # Approximate equality operators first to avoid splitting '~='
         if self._match_pattern(r'~=|≈', TokenType.OPERATOR):
             return True
+        # Arrow operator -> (must be before - operator to avoid splitting)
+        if self._match_pattern(r'->', TokenType.ARROW):
+            return True
+        # Prolog-style negation as failure \+ (must be before other backslash operators)
+        if self._match_pattern(r'\\[+]', TokenType.NOT):
+            return True
+        # Prolog-style not-equal \= (must be before other operators)
+        if self._match_pattern(r'\\=', TokenType.OPERATOR):
+            return True
         if self._match_pattern(r'==|!=|<=|>=|<|>', TokenType.OPERATOR):
             return True
+        # Walrus operator := (assignment expression)
+        if self._match_pattern(r':=', TokenType.WALRUS):
+            return True
+        # Nullish coalescing operator ??
+        if self._match_pattern(r'\?\?', TokenType.NULLISH):
+            return True
+        # Optional chaining ?. (must be before DOT)
+        if self._match_pattern(r'\?\.', TokenType.QUESTION_DOT):
+            return True
         # Match ** before * to avoid splitting it
-        if self._match_pattern(r'\*\*', TokenType.OPERATOR):
+        if self._match_pattern(r'\*\*', TokenType.STAR_STAR):
             return True
         if self._match_pattern(r'[+\-*/%]', TokenType.OPERATOR):
             return True
@@ -846,13 +1137,16 @@ class HybridLexer:
             return True
         if self._match_pattern(r'\]', TokenType.RBRACKET):
             return True
-        if self._match_pattern(r'->', TokenType.ARROW):
-            return True
         if self._match_pattern(r'\|', TokenType.PIPE):
+            return True
+        # Prolog-style term comparison operators @<, @>, @=<, @>=
+        if self._match_pattern(r'@=<|@>=|@<|@>', TokenType.OPERATOR):
             return True
         if self._match_pattern(r'@', TokenType.AT):
             return True
         if self._match_pattern(r'!', TokenType.CUT):
+            return True
+        if self._match_pattern(r'\?', TokenType.QUESTION):
             return True
 
         return False

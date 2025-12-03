@@ -139,9 +139,9 @@ hybrid {
             
             # Apply random variation based on strength
             for i in (range(len(self.alpha))) {
-                self.alpha[i] = self.alpha[i] + random.normal(0, strength)
-                self.k[i] = self.k[i] + random.normal(0, strength * 0.5)
-                self.beta[i] = self.beta[i] + random.normal(0, strength * 0.1)
+                self.alpha[i] = self.alpha[i] + random.gauss(0, strength)
+                self.k[i] = self.k[i] + random.gauss(0, strength * 0.5)
+                self.beta[i] = self.beta[i] + random.gauss(0, strength * 0.1)
             }
             
             # Ensure Zero Duality (Balance)

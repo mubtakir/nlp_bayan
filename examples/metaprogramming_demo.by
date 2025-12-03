@@ -1,0 +1,141 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Bayan Metaprogramming Demo - عرض البرمجة الوصفية
+# ═══════════════════════════════════════════════════════════════════════════════
+# This demo shows how Bayan code can modify itself at runtime
+# هذا العرض يوضح كيف يمكن لكود بيان تعديل نفسه أثناء التشغيل
+
+print("═" * 60)
+print("🔮 Bayan Metaprogramming Demo - عرض البرمجة الوصفية 🔮")
+print("═" * 60)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 1. eval - تقييم التعبيرات ديناميكياً
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n📐 1. eval() - Dynamic Expression Evaluation:")
+print("-" * 40)
+
+# Simple expression
+result1 = eval("1 + 2 * 3")
+print(f"   eval('1 + 2 * 3') = {result1}")
+
+# Expression with variables
+x = 10
+y = 5
+result2 = eval("x + y")
+print(f"   eval('x + y') with x=10, y=5 = {result2}")
+
+# Mathematical expression
+expr = "3.14159 * 2 * 2"
+area = eval(expr)
+print(f"   Area of circle (r=2): {area}")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2. exec - تنفيذ كود ديناميكياً
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n⚡ 2. exec() - Dynamic Code Execution:")
+print("-" * 40)
+
+# Execute simple code
+exec("message = 'Hello from dynamic code!'")
+print(f"   {message}")
+
+# Execute code block
+code = """
+sum_result = 0
+for i in range(1, 6): {
+    sum_result = sum_result + i
+}
+"""
+exec(code)
+print(f"   Sum of 1 to 5 = {sum_result}")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 3. create_function - إنشاء دوال ديناميكياً
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n🔧 3. create_function() - Dynamic Function Creation:")
+print("-" * 40)
+
+# Create a simple function
+create_function("square", ["n"], "return n * n")
+print(f"   square(7) = {square(7)}")
+
+# Create a more complex function
+create_function("greet", ["name", "lang"], """
+if lang == "ar": {
+    return "مرحباً " + name
+} else: {
+    return "Hello " + name
+}
+""")
+print(f"   greet('أحمد', 'ar') = {greet('أحمد', 'ar')}")
+print(f"   greet('John', 'en') = {greet('John', 'en')}")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 4. compile - ترجمة مسبقة للكود
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n📦 4. compile() - Pre-compilation:")
+print("-" * 40)
+
+# Compile code once, execute multiple times
+compiled = compile("counter = counter + 1")
+counter = 0
+exec_compiled(compiled)
+exec_compiled(compiled)
+exec_compiled(compiled)
+print(f"   Counter after 3 executions: {counter}")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 5. introspect - تأمل الكائنات
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n🔍 5. introspect() - Object Introspection:")
+print("-" * 40)
+
+info = introspect([1, 2, 3])
+print(f"   List type: {info['type']} ({info['type_ar']})")
+
+info2 = introspect("مرحباً")
+print(f"   String type: {info2['type']} ({info2['type_ar']})")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 6. Self-Modifying Code - كود يعدل نفسه
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n🧬 6. Self-Modifying Code Example:")
+print("-" * 40)
+
+# Create a function that creates other functions!
+def function_factory(op_name, op_symbol): {
+    body = f"return a {op_symbol} b"
+    create_function(op_name, ["a", "b"], body)
+    return op_name + " created!"
+}
+
+# Use the factory to create math operations
+function_factory("add", "+")
+function_factory("subtract", "-")
+function_factory("multiply", "*")
+
+print(f"   add(10, 5) = {add(10, 5)}")
+print(f"   subtract(10, 5) = {subtract(10, 5)}")
+print(f"   multiply(10, 5) = {multiply(10, 5)}")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 7. list_functions - قائمة الدوال
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\n📋 7. list_functions() - List Defined Functions:")
+print("-" * 40)
+funcs = list_functions()
+# Show only functions we created
+target_funcs = ["square", "greet", "add", "subtract", "multiply", "function_factory"]
+our_funcs = []
+for f in funcs: {
+    if f in target_funcs: {
+        our_funcs.append(f)
+    }
+}
+print(f"   Our functions: {our_funcs}")
+
+print("\n" + "═" * 60)
+print("✅ Metaprogramming Demo Complete!")
+print("   الكود يستطيع الآن تعديل نفسه! 🚀")
+print("═" * 60)
+

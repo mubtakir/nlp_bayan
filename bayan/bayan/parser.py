@@ -71,6 +71,60 @@ class HybridParser:
                 out.append('\\' + esc)
         return ''.join(out)
 
+    def _parse_fstring_parts(self, s: str) -> list:
+        """Parse f-string content into parts.
+
+        Returns a list of tuples: (is_expr, content)
+        - is_expr=False: literal text
+        - is_expr=True: expression string to be evaluated
+        """
+        parts = []
+        i = 0
+        L = len(s)
+        current_text = []
+
+        while i < L:
+            ch = s[i]
+            if ch == '{':
+                # Check for escaped brace {{
+                if i + 1 < L and s[i + 1] == '{':
+                    current_text.append('{')
+                    i += 2
+                    continue
+                # Start of expression
+                if current_text:
+                    parts.append((False, ''.join(current_text)))
+                    current_text = []
+                # Find matching closing brace
+                i += 1
+                brace_count = 1
+                expr_start = i
+                while i < L and brace_count > 0:
+                    if s[i] == '{':
+                        brace_count += 1
+                    elif s[i] == '}':
+                        brace_count -= 1
+                    i += 1
+                if brace_count != 0:
+                    raise SyntaxError("Unmatched '{' in f-string")
+                expr = s[expr_start:i-1]
+                parts.append((True, expr))
+            elif ch == '}':
+                # Check for escaped brace }}
+                if i + 1 < L and s[i + 1] == '}':
+                    current_text.append('}')
+                    i += 2
+                    continue
+                raise SyntaxError("Single '}' in f-string")
+            else:
+                current_text.append(ch)
+                i += 1
+
+        if current_text:
+            parts.append((False, ''.join(current_text)))
+
+        return parts
+
     def peek_ahead(self, offset=1):
         """Peek ahead at token at position + offset"""
         peek_pos = self.position + offset
@@ -95,7 +149,11 @@ class HybridParser:
         if token.type == TokenType.IDENTIFIER:
             return True
         # Check keywords allowed in eat_attribute_name
-        return token.type in (
+        return token.type in self._keywords_as_identifiers()
+
+    def _keywords_as_identifiers(self):
+        """Return set of token types that can be used as identifiers"""
+        return (
             TokenType.SIMILARITY, TokenType.BASED_ON, TokenType.DOMAIN,
             TokenType.MEMORY, TokenType.KNOWLEDGE, TokenType.PATTERN,
             TokenType.CONCEPT, TokenType.ROLE, TokenType.DEGREE,
@@ -106,30 +164,51 @@ class HybridParser:
             TokenType.TIME, TokenType.PLACE, TokenType.SOURCE, TokenType.CERTAINTY,
             TokenType.CURRENT_VALUE, TokenType.HISTORY, TokenType.FUTURE_PREDICTION,
             TokenType.ROOT, TokenType.TAXONOMY, TokenType.CHARACTERS, TokenType.EVENT,
-            TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT
+            TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT, TokenType.NOW,
+            TokenType.RELATION, TokenType.INFORMATION,
+            # Type keywords can also be used as identifiers in certain contexts
+            TokenType.TYPE_INT, TokenType.TYPE_FLOAT, TokenType.TYPE_STR,
+            TokenType.TYPE_BOOL, TokenType.TYPE_LIST, TokenType.TYPE_DICT,
+            TokenType.TYPE_SET, TokenType.TYPE_TUPLE, TokenType.TYPE_ANY,
+            TokenType.TYPE_OPTIONAL, TokenType.TYPE_UNION, TokenType.TYPE_CALLABLE,
         )
+
+    def _is_keyword_as_identifier(self):
+        """Check if current token is a keyword that can be used as identifier"""
+        if not self.current_token:
+            return False
+        return self.current_token.type in self._keywords_as_identifiers()
 
     def eat_attribute_name(self):
         """Consume an attribute/method name - can be IDENTIFIER or certain reserved keywords"""
         if self.match(TokenType.IDENTIFIER):
             return self.eat(TokenType.IDENTIFIER)
-        # Allow semantic programming keywords as attribute names
-        elif self.match(TokenType.SIMILARITY, TokenType.BASED_ON, TokenType.DOMAIN,
-                        TokenType.MEMORY, TokenType.KNOWLEDGE, TokenType.PATTERN,
-                        TokenType.CONCEPT, TokenType.ROLE, TokenType.DEGREE,
-                        TokenType.STATE_CHANGES, TokenType.ENTITIES, TokenType.RESULT,
-                        TokenType.PARTICIPANTS, TokenType.STRENGTH, TokenType.TRANSFORM,
-                        TokenType.REACTIONS, TokenType.STRUCTURE, TokenType.EXPRESS,
-                        TokenType.LINGUISTIC_FORMS, TokenType.CONTENT, TokenType.CONTEXT,
-                        TokenType.TIME, TokenType.PLACE, TokenType.SOURCE, TokenType.CERTAINTY,
-                        TokenType.CURRENT_VALUE, TokenType.HISTORY, TokenType.FUTURE_PREDICTION,
-                        TokenType.ROOT, TokenType.TAXONOMY, TokenType.CHARACTERS, TokenType.EVENT,
-                        TokenType.DEFAULT, TokenType.MATCH, TokenType.LIMIT, TokenType.RELATION):
+        # Allow semantic programming keywords and type keywords as attribute names
+        elif self.current_token and self.current_token.type in self._keywords_as_identifiers():
+            tok = self.current_token
+            self.advance()
+            return tok
+        elif self.match(TokenType.DELAY):  # Keep DELAY separately as it's not in the main list
             tok = self.current_token
             self.advance()
             return tok
         else:
             raise SyntaxError(f"Expected attribute name, got {self.current_token}")
+
+    def _eat_identifier_or_keyword(self):
+        """Consume an identifier or a keyword that can be used as an identifier in certain contexts.
+
+        This is used for parameter names, variable names in certain contexts, etc.
+        Many keywords can be used as identifiers when the context is clear.
+        """
+        if self.match(TokenType.IDENTIFIER):
+            return self.eat(TokenType.IDENTIFIER)
+        elif self.current_token and self.current_token.type in self._keywords_as_identifiers():
+            tok = self.current_token
+            self.advance()
+            return tok
+        else:
+            raise SyntaxError(f"Expected TokenType.IDENTIFIER, got {self.current_token.type}")
 
     def _with_pos(self, node, tok):
         """Attach source position from token to node if supported"""
@@ -137,6 +216,102 @@ class HybridParser:
             node.with_pos(getattr(tok, 'line', None), getattr(tok, 'column', None), getattr(self, 'filename', None))
         return node
 
+    # ============ Type System Parsing (تحليل نظام الأنواع) ============
+
+    def _is_type_token(self):
+        """Check if current token is a type keyword"""
+        if not self.current_token:
+            return False
+        return self.current_token.type in (
+            TokenType.TYPE_INT, TokenType.TYPE_FLOAT, TokenType.TYPE_STR,
+            TokenType.TYPE_BOOL, TokenType.TYPE_LIST, TokenType.TYPE_DICT,
+            TokenType.TYPE_SET, TokenType.TYPE_TUPLE, TokenType.TYPE_ANY,
+            TokenType.TYPE_OPTIONAL, TokenType.TYPE_UNION, TokenType.TYPE_CALLABLE,
+            TokenType.TYPE_NONE, TokenType.TYPE_SELF,
+        )
+
+    def _get_type_name(self, token_type):
+        """Convert token type to type name string"""
+        type_map = {
+            TokenType.TYPE_INT: 'int',
+            TokenType.TYPE_FLOAT: 'float',
+            TokenType.TYPE_STR: 'str',
+            TokenType.TYPE_BOOL: 'bool',
+            TokenType.TYPE_LIST: 'list',
+            TokenType.TYPE_DICT: 'dict',
+            TokenType.TYPE_SET: 'set',
+            TokenType.TYPE_TUPLE: 'tuple',
+            TokenType.TYPE_ANY: 'Any',
+            TokenType.TYPE_OPTIONAL: 'Optional',
+            TokenType.TYPE_UNION: 'Union',
+            TokenType.TYPE_CALLABLE: 'Callable',
+            TokenType.TYPE_NONE: 'None',
+            TokenType.TYPE_SELF: 'Self',
+        }
+        return type_map.get(token_type, str(token_type))
+
+    def parse_type_annotation(self):
+        """Parse a type annotation: int, str, List[int], Dict[str, int], etc.
+        تحليل تعليق النوع
+        """
+        if self._is_type_token():
+            type_tok = self.current_token
+            base_type = self._get_type_name(type_tok.type)
+            self.advance()
+        elif self.match(TokenType.IDENTIFIER):
+            # Custom type or generic type parameter (T, K, V, etc.)
+            type_tok = self.eat(TokenType.IDENTIFIER)
+            base_type = type_tok.value
+        else:
+            raise SyntaxError(f"Expected type annotation, got {self.current_token}")
+
+        # Check for generic parameters: List[int], Dict[str, int], etc.
+        type_params = []
+        if self.match(TokenType.LBRACKET):
+            self.advance()  # consume '['
+            # Parse first type parameter
+            type_params.append(self.parse_type_annotation())
+            # Parse additional type parameters
+            while self.match(TokenType.COMMA):
+                self.advance()  # consume ','
+                type_params.append(self.parse_type_annotation())
+            self.eat(TokenType.RBRACKET)
+
+        # Check for Union type with | operator: int | str
+        if self.match(TokenType.PIPE):
+            types = [TypeAnnotation(base_type, type_params)]
+            while self.match(TokenType.PIPE):
+                self.advance()  # consume '|'
+                types.append(self.parse_type_annotation())
+            return UnionType(types)
+
+        return TypeAnnotation(base_type, type_params)
+
+    def parse_optional_type_annotation(self):
+        """Parse optional type annotation after ':'
+        Returns None if no type annotation present
+        """
+        if self.match(TokenType.COLON):
+            # Check if this is a type annotation or just a block start
+            next_tok = self.peek()
+            if next_tok and (self._is_type_token_at(next_tok) or
+                            (next_tok.type == TokenType.IDENTIFIER and
+                             next_tok.value[0].isupper())):  # Type names usually start with uppercase
+                self.advance()  # consume ':'
+                return self.parse_type_annotation()
+        return None
+
+    def _is_type_token_at(self, token):
+        """Check if a specific token is a type keyword"""
+        if not token:
+            return False
+        return token.type in (
+            TokenType.TYPE_INT, TokenType.TYPE_FLOAT, TokenType.TYPE_STR,
+            TokenType.TYPE_BOOL, TokenType.TYPE_LIST, TokenType.TYPE_DICT,
+            TokenType.TYPE_SET, TokenType.TYPE_TUPLE, TokenType.TYPE_ANY,
+            TokenType.TYPE_OPTIONAL, TokenType.TYPE_UNION, TokenType.TYPE_CALLABLE,
+            TokenType.TYPE_NONE, TokenType.TYPE_SELF,
+        )
 
     def parse(self):
         """Parse the entire program"""
@@ -160,6 +335,15 @@ class HybridParser:
             return self.parse_hybrid_block()
         elif self.match(TokenType.ASYNC):
             return self.parse_async_function_def(decorators)
+        elif self.match(TokenType.STATIC):
+            # Handle 'static def' for static methods
+            self.advance()  # consume 'static'
+            if self.match(TokenType.DEF):
+                # Add @staticmethod decorator
+                decorators.append(Decorator('staticmethod', []))
+                return self.parse_function_def(decorators)
+            else:
+                raise SyntaxError(f"Expected 'def' after 'static', got {self.current_token}")
         elif self.match(TokenType.DEF):
             return self.parse_function_def(decorators)
         elif self.match(TokenType.CLASS):
@@ -186,6 +370,10 @@ class HybridParser:
         elif self.match(TokenType.CONTINUE):
             self.advance()
             return ContinueStatement()
+        elif self.match(TokenType.GLOBAL):
+            return self.parse_global_statement()
+        elif self.match(TokenType.NONLOCAL):
+            return self.parse_nonlocal_statement()
         elif self.match(TokenType.PRINT):
             return self.parse_print_statement()
         elif self.match(TokenType.QUERY):
@@ -221,6 +409,8 @@ class HybridParser:
             return self.parse_cognitive_entity()
         elif self.match(TokenType.COGNITIVE_EVENT):
             return self.parse_cognitive_event()
+        elif self.match(TokenType.EVENT):
+            return self.parse_event_def()
         elif self.match(TokenType.TRIGGER):
             return self.parse_trigger_event()
         elif self.match(TokenType.CONCURRENT):
@@ -242,18 +432,31 @@ class HybridParser:
             return self.parse_inference_rule()
         elif self.match(TokenType.INFER_FROM):
             return self.parse_infer_from()
+        elif self.match(TokenType.SEMANTIC_NETWORK):
+            return self.parse_semantic_network()
+        elif self.match(TokenType.INFER_FROM_TEXT):
+            return self.parse_infer_from_text()
         elif self.match(TokenType.CONTRADICTION):
             return self.parse_contradiction()
-        elif self.match(TokenType.KNOWLEDGE):
+        elif self.match(TokenType.KNOWLEDGE, TokenType.EVOLVING_KNOWLEDGE):
             return self.parse_evolving_knowledge()
         elif self.match(TokenType.ONTOLOGY):
             return self.parse_ontology()
+        # Type System constructs
+        elif self.match(TokenType.ENUM):
+            return self.parse_enum_def()
+        elif self.match(TokenType.INTERFACE):
+            return self.parse_interface_def()
+        elif self.match(TokenType.MATCH):
+            return self.parse_match_statement()
         elif self.match(TokenType.NARRATIVE):
             return self.parse_narrative()
         elif self.match(TokenType.GENERATE_NARRATIVE):
             return self.parse_generate_narrative()
         elif self.match(TokenType.CURRENT_CONTEXT):
             return self.parse_current_context()
+        elif self.match(TokenType.MEMORY):
+            return self.parse_semantic_memory()
         # Existential Model
         elif self.match(TokenType.DOMAIN):
             return self.parse_domain()
@@ -344,7 +547,14 @@ class HybridParser:
             return self.parse_schedule_block()
         elif self.match(TokenType.DELAY):
             return self.parse_delay_statement()
+        elif self.match(TokenType.ASSERT):
+            return self.parse_assert_statement()
         elif self.match(TokenType.IDENTIFIER):
+            # Check for special 'function:' or 'assert_fact:' syntax
+            if self.current_token.value in ('function', 'دالة') and self.peek() and self.peek().type == TokenType.COLON:
+                return self._parse_function_colon_syntax()
+            elif self.current_token.value in ('assert_fact', 'تأكيد_حقيقة') and self.peek() and self.peek().type == TokenType.COLON:
+                return self._parse_assert_fact_colon_syntax()
             # Delegate to expression statement; it will also handle assignment forms
             return self.parse_expression_statement()
         elif self.match(TokenType.SELF):
@@ -475,7 +685,11 @@ class HybridParser:
         return PhraseStatement(text, relation)
 
     def is_logical_fact(self):
-        """Check if the current token is a logical fact (identifier/keyword followed by parentheses and dot)"""
+        """Check if the current token is a logical fact (identifier/keyword followed by parentheses and dot)
+
+        A logical fact is like: predicate(arg1, arg2, ...).
+        It should NOT contain operators like +, -, *, / in arguments (those are function calls).
+        """
         if not self.current_token:
             return False
 
@@ -494,17 +708,23 @@ class HybridParser:
             self.advance()  # Skip identifier/keyword
             if self.current_token and self.current_token.type == TokenType.LPAREN:
                 # Count parentheses to find the matching closing paren
+                # Also check for operators which would indicate a function call, not a logical fact
                 paren_count = 1
+                has_operator = False
                 self.advance()
                 while self.current_token and paren_count > 0:
                     if self.current_token.type == TokenType.LPAREN:
                         paren_count += 1
                     elif self.current_token.type == TokenType.RPAREN:
                         paren_count -= 1
+                    elif self.current_token.type == TokenType.OPERATOR and paren_count == 1:
+                        # Found operator at top level of arguments - this is a function call
+                        has_operator = True
                     self.advance()
 
-                # Check if followed by DOT
-                result = self.current_token and self.current_token.type == TokenType.DOT
+                # Check if followed by DOT and has no operators
+                result = (self.current_token and self.current_token.type == TokenType.DOT
+                          and not has_operator)
                 self.position = saved_pos
                 self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
                 return result
@@ -556,6 +776,62 @@ class HybridParser:
         self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
         return False
 
+    def _parse_function_colon_syntax(self):
+        """Parse 'function: name(args) { body }' syntax (alternative function definition)"""
+        func_tok = self.eat(TokenType.IDENTIFIER)  # 'function' or 'دالة'
+        self.eat(TokenType.COLON)
+
+        # Parse function name
+        name_tok = self.eat(TokenType.IDENTIFIER)
+        name = name_tok.value
+
+        # Parse parameters
+        self.eat(TokenType.LPAREN)
+        params = self.parse_parameter_list()
+        self.eat(TokenType.RPAREN)
+
+        # Parse body (block with braces)
+        body = self.parse_block()
+
+        return self._with_pos(FunctionDef(name, params, body, []), func_tok)
+
+    def _parse_assert_fact_colon_syntax(self):
+        """Parse 'assert_fact: predicate(args)' syntax"""
+        assert_tok = self.eat(TokenType.IDENTIFIER)  # 'assert_fact' or 'تأكيد_حقيقة'
+        self.eat(TokenType.COLON)
+
+        # Parse predicate
+        predicate = self.parse_logical_predicate()
+
+        return self._with_pos(AssertFact(predicate), assert_tok)
+
+    def _parse_rule_colon_syntax(self):
+        """Parse 'rule: head :- body.' syntax"""
+        rule_tok = self.eat(TokenType.IDENTIFIER)  # 'rule' or 'قاعدة'
+        self.eat(TokenType.COLON)
+
+        # Parse rule head
+        head = self.parse_logical_predicate()
+
+        # Expect :-
+        if not (self.match(TokenType.RULE_OP) or
+                (self.match(TokenType.COLON) and self.peek() and self.peek().value == '-')):
+            raise SyntaxError(f"Expected ':-' after rule head, got {self.current_token}")
+
+        if self.match(TokenType.RULE_OP):
+            self.eat(TokenType.RULE_OP)
+        else:
+            self.eat(TokenType.COLON)
+            self.eat(TokenType.OPERATOR)  # consume '-'
+
+        # Parse body
+        body_goals = self.parse_logical_body()
+
+        # Expect . at end
+        self.eat(TokenType.DOT)
+
+        return self._with_pos(RuleDef(head, body_goals), rule_tok)
+
     def parse_function_def(self, decorators=None):
         """Parse a function definition (with optional requires/ensures)
 
@@ -583,6 +859,13 @@ class HybridParser:
         self.eat(TokenType.LPAREN)
         params = self.parse_parameter_list()
         self.eat(TokenType.RPAREN)
+
+        # Parse optional return type annotation: -> int
+        return_type = None
+        if self.match(TokenType.ARROW):
+            self.advance()  # consume '->'
+            return_type = self.parse_type_annotation()
+
         self.eat(TokenType.COLON)
 
         # Parse optional requires/ensures clauses before body
@@ -601,32 +884,358 @@ class HybridParser:
 
         body = self.parse_block()
 
+        # Create function definition with optional return type
+        func_def = self._with_pos(FunctionDef(name, params, body, decorators), def_tok)
+        func_def.return_type = return_type
+
         # Wrap body with contract checks if needed
         if requires_clauses or ensures_clauses:
-            # Store contracts in function for runtime checking
-            func_def = self._with_pos(FunctionDef(name, params, body, decorators), def_tok)
             func_def.requires = requires_clauses
             func_def.ensures = ensures_clauses
-            return func_def
 
-        return self._with_pos(FunctionDef(name, params, body, decorators), def_tok)
+        return func_def
+
+    def parse_assert_statement(self):
+        """Parse an assert statement: assert condition, message
+        تحليل جملة التأكد: تأكد الشرط، الرسالة
+        """
+        assert_tok = self.eat(TokenType.ASSERT)
+
+        # Parse condition
+        condition = self.parse_or_expression()
+
+        # Optional message after comma
+        message = None
+        if self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            message = self.parse_expression()
+
+        return self._with_pos(AssertStatement(condition, message), assert_tok)
 
     def parse_decorator(self):
-        """Parse a decorator: @name or @name(args)"""
+        """Parse a decorator: @name or @name.setter or @name(args) or @name(key=value)"""
         at_tok = self.eat(TokenType.AT)
-        name = self.eat(TokenType.IDENTIFIER).value
+
+        # Allow identifiers and special keywords as decorator names
+        # Handle special tokens that are common as decorators
+        if self.match(TokenType.IDENTIFIER):
+            name = self.eat(TokenType.IDENTIFIER).value
+        elif self.match(TokenType.STATIC):
+            # @staticmethod or @ساكن -> convert to 'staticmethod'
+            name = 'staticmethod'
+            self.advance()
+        elif self.match(TokenType.ABSTRACT):
+            # @abstract or @مجرد
+            name = self.current_token.value
+            self.advance()
+        else:
+            # Try to get any keyword as decorator name
+            name = self.current_token.value
+            self.advance()
+
+        # Support @name.setter or @name.getter or @name.deleter
+        while self.match(TokenType.DOT):
+            self.eat(TokenType.DOT)
+            if self.match(TokenType.IDENTIFIER):
+                name = name + '.' + self.eat(TokenType.IDENTIFIER).value
+            else:
+                # Handle keywords like 'setter', 'getter' that might be identifiers
+                next_tok = self.current_token
+                if next_tok:
+                    self.position += 1
+                    self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                    name = name + '.' + next_tok.value
 
         args = []
+        named_args = {}
         if self.match(TokenType.LPAREN):
             self.eat(TokenType.LPAREN)
             if not self.match(TokenType.RPAREN):
-                args.append(self.parse_expression())
-                while self.match(TokenType.COMMA):
-                    self.eat(TokenType.COMMA)
-                    args.append(self.parse_expression())
+                # Use parse_argument_list to support named arguments
+                args, named_args = self.parse_argument_list()
             self.eat(TokenType.RPAREN)
 
-        return self._with_pos(Decorator(name, args), at_tok)
+        decorator = self._with_pos(Decorator(name, args), at_tok)
+        decorator.named_args = named_args  # Store named args for later use
+        return decorator
+
+    def parse_enum_def(self):
+        """Parse an enum definition: enum Color { RED, GREEN, BLUE }
+        تحليل تعريف التعداد
+        """
+        enum_tok = self.eat(TokenType.ENUM)
+
+        # Get enum name
+        if self.match(TokenType.IDENTIFIER):
+            name = self.eat(TokenType.IDENTIFIER).value
+        else:
+            raise SyntaxError(f"Expected enum name, got {self.current_token}")
+
+        # Optional colon before brace
+        if self.match(TokenType.COLON):
+            self.advance()
+
+        self.eat(TokenType.LBRACE)
+
+        members = []
+        while not self.match(TokenType.RBRACE):
+            # Parse member name
+            if self.match(TokenType.IDENTIFIER):
+                member_name = self.eat(TokenType.IDENTIFIER).value
+            else:
+                member_tok = self._eat_identifier_or_keyword()
+                member_name = member_tok.value
+
+            # Check for optional value: RED = 1
+            member_value = None
+            if self.match(TokenType.ASSIGN):
+                self.advance()
+                member_value = self.parse_expression()
+
+            members.append((member_name, member_value))
+
+            # Optional comma between members
+            if self.match(TokenType.COMMA):
+                self.advance()
+
+        self.eat(TokenType.RBRACE)
+
+        return self._with_pos(EnumDef(name, members), enum_tok)
+
+    def parse_match_statement(self):
+        """Parse a match/case statement (Pattern Matching)
+        تحليل عبارة المطابقة
+
+        Syntax:
+            match value: {
+                case pattern1: { ... }
+                case pattern2 if guard: { ... }
+                case _: { ... }  # default case
+            }
+        """
+        match_tok = self.eat(TokenType.MATCH)
+
+        # Parse the subject expression
+        subject = self.parse_expression()
+
+        # Optional colon before brace
+        if self.match(TokenType.COLON):
+            self.advance()
+
+        self.eat(TokenType.LBRACE)
+
+        cases = []
+        while not self.match(TokenType.RBRACE):
+            if self.match(TokenType.CASE):
+                self.eat(TokenType.CASE)
+
+                # Parse pattern - can be literal, variable, or wildcard (_)
+                pattern = self.parse_match_pattern()
+
+                # Optional guard: case x if x > 0 OR case x when x > 0
+                guard = None
+                if self.match(TokenType.IF) or self.match(TokenType.WHEN):
+                    self.advance()
+                    guard = self.parse_expression()
+
+                # Colon before body
+                if self.match(TokenType.COLON):
+                    self.advance()
+
+                # Parse body
+                body = self.parse_block()
+
+                cases.append(MatchCase(pattern, body, guard))
+            elif self.match(TokenType.DEFAULT):
+                # default: is equivalent to case _:
+                self.eat(TokenType.DEFAULT)
+
+                # Colon before body
+                if self.match(TokenType.COLON):
+                    self.advance()
+
+                # Parse body
+                body = self.parse_block()
+
+                # Create wildcard pattern
+                pattern = Variable('_')
+                cases.append(MatchCase(pattern, body, None))
+            else:
+                raise SyntaxError(f"Expected 'case' or 'default' in match statement, got {self.current_token}")
+
+        self.eat(TokenType.RBRACE)
+
+        return self._with_pos(MatchStatement(subject, cases), match_tok)
+
+    def parse_match_pattern(self):
+        """Parse a pattern in a match case
+        تحليل نمط في حالة المطابقة
+        """
+        # Wildcard pattern: _
+        if self.match(TokenType.IDENTIFIER) and self.current_token.value == '_':
+            self.advance()
+            return Variable('_')
+
+        # Literal patterns: numbers, strings, booleans
+        if self.match(TokenType.NUMBER):
+            tok = self.eat(TokenType.NUMBER)
+            return Number(tok.value)
+
+        if self.match(TokenType.STRING):
+            tok = self.eat(TokenType.STRING)
+            return String(tok.value)
+
+        if self.match(TokenType.TRUE):
+            self.advance()
+            return Boolean(True)
+
+        if self.match(TokenType.FALSE):
+            self.advance()
+            return Boolean(False)
+
+        if self.match(TokenType.NONE):
+            self.advance()
+            return NoneValue()
+
+        # Tuple pattern: (a, b, c)
+        if self.match(TokenType.LPAREN):
+            self.eat(TokenType.LPAREN)
+            elements = []
+            if not self.match(TokenType.RPAREN):
+                elements.append(self.parse_match_pattern())
+                while self.match(TokenType.COMMA):
+                    self.advance()
+                    if self.match(TokenType.RPAREN):
+                        break
+                    elements.append(self.parse_match_pattern())
+            self.eat(TokenType.RPAREN)
+            return Tuple(elements)
+
+        # List pattern: [a, b, c]
+        if self.match(TokenType.LBRACKET):
+            self.eat(TokenType.LBRACKET)
+            elements = []
+            if not self.match(TokenType.RBRACKET):
+                elements.append(self.parse_match_pattern())
+                while self.match(TokenType.COMMA):
+                    self.advance()
+                    if self.match(TokenType.RBRACKET):
+                        break
+                    elements.append(self.parse_match_pattern())
+            self.eat(TokenType.RBRACKET)
+            return List(elements)
+
+        # Dict pattern: {"name": n, "age": a}
+        if self.match(TokenType.LBRACE):
+            self.eat(TokenType.LBRACE)
+            keys = []
+            patterns = []
+            if not self.match(TokenType.RBRACE):
+                # Parse first key-pattern pair
+                if self.match(TokenType.STRING):
+                    key = self.eat(TokenType.STRING).value
+                    # Remove quotes
+                    if (key.startswith('"') and key.endswith('"')) or \
+                       (key.startswith("'") and key.endswith("'")):
+                        key = key[1:-1]
+                else:
+                    key = self.eat(TokenType.IDENTIFIER).value
+                keys.append(key)
+                self.eat(TokenType.COLON)
+                patterns.append(self.parse_match_pattern())
+
+                while self.match(TokenType.COMMA):
+                    self.advance()
+                    if self.match(TokenType.RBRACE):
+                        break
+                    if self.match(TokenType.STRING):
+                        key = self.eat(TokenType.STRING).value
+                        if (key.startswith('"') and key.endswith('"')) or \
+                           (key.startswith("'") and key.endswith("'")):
+                            key = key[1:-1]
+                    else:
+                        key = self.eat(TokenType.IDENTIFIER).value
+                    keys.append(key)
+                    self.eat(TokenType.COLON)
+                    patterns.append(self.parse_match_pattern())
+            self.eat(TokenType.RBRACE)
+            return DictPattern(keys, patterns)
+
+        # Variable binding pattern: just an identifier
+        if self.match(TokenType.IDENTIFIER):
+            name = self.eat(TokenType.IDENTIFIER).value
+            return Variable(name)
+
+        raise SyntaxError(f"Invalid pattern in match case: {self.current_token}")
+
+    def parse_interface_def(self):
+        """Parse an interface definition: interface Drawable { def draw(): ... }
+        تحليل تعريف الواجهة
+        """
+        interface_tok = self.eat(TokenType.INTERFACE)
+
+        # Get interface name
+        if self.match(TokenType.IDENTIFIER):
+            name = self.eat(TokenType.IDENTIFIER).value
+        else:
+            raise SyntaxError(f"Expected interface name, got {self.current_token}")
+
+        # Check for extends: interface Child extends Parent
+        extends = []
+        if self.match(TokenType.EXTENDS):
+            self.advance()
+            extends.append(self.eat(TokenType.IDENTIFIER).value)
+            while self.match(TokenType.COMMA):
+                self.advance()
+                extends.append(self.eat(TokenType.IDENTIFIER).value)
+
+        self.eat(TokenType.LBRACE)
+
+        methods = []
+        while not self.match(TokenType.RBRACE):
+            # Parse method signature: def method(param: int) -> str
+            if self.match(TokenType.DEF):
+                self.advance()
+                method_name = self.eat(TokenType.IDENTIFIER).value
+                self.eat(TokenType.LPAREN)
+
+                # Parse parameters
+                params = []
+                if not self.match(TokenType.RPAREN):
+                    # First parameter
+                    param_name = self._eat_identifier_or_keyword().value
+                    param_type = None
+                    if self.match(TokenType.COLON):
+                        self.advance()
+                        param_type = self.parse_type_annotation()
+                    params.append((param_name, param_type))
+
+                    while self.match(TokenType.COMMA):
+                        self.advance()
+                        param_name = self._eat_identifier_or_keyword().value
+                        param_type = None
+                        if self.match(TokenType.COLON):
+                            self.advance()
+                            param_type = self.parse_type_annotation()
+                        params.append((param_name, param_type))
+
+                self.eat(TokenType.RPAREN)
+
+                # Parse return type
+                return_type = None
+                if self.match(TokenType.ARROW):
+                    self.advance()
+                    return_type = self.parse_type_annotation()
+
+                methods.append(MethodSignature(method_name, params, return_type))
+
+            # Skip any trailing colons or newlines
+            if self.match(TokenType.COLON):
+                self.advance()
+
+        self.eat(TokenType.RBRACE)
+
+        return self._with_pos(InterfaceDef(name, methods, extends), interface_tok)
 
     def parse_async_function_def(self, decorators=None):
         """Parse an async function definition: async def name(params): body
@@ -658,74 +1267,66 @@ class HybridParser:
         return self._with_pos(func_def, async_tok)
 
     def parse_parameter_list(self):
-        """Parse function parameters with support for default values, *args, and **kwargs"""
+        """Parse function parameters with support for type annotations, default values, *args, and **kwargs
+        دعم تعليقات الأنواع والقيم الافتراضية
+        """
         params = []
 
         if not self.match(TokenType.RPAREN):
             # Parse first parameter
-            is_varargs = False
-            is_kwargs = False
-
-            # Check for **kwargs or *args
-            if self.match(TokenType.OPERATOR):
-                if self.current_token.value == '**':
-                    self.advance()  # consume **
-                    is_kwargs = True
-                elif self.current_token.value == '*':
-                    self.advance()  # consume *
-                    is_varargs = True
-
-            # Get parameter name (could be 'self' or identifier)
-            if self.match(TokenType.SELF):
-                param_name = self.eat(TokenType.SELF).value
-            else:
-                param_name = self.eat(TokenType.IDENTIFIER).value
-
-            default_value = None
-
-            # Check for default value (not allowed for *args/**kwargs)
-            if not is_varargs and not is_kwargs and self.match(TokenType.ASSIGN):
-                self.eat(TokenType.ASSIGN)
-                default_value = self.parse_expression()
-
-            params.append(Parameter(param_name, default_value, is_varargs, is_kwargs))
+            param = self._parse_single_parameter()
+            params.append(param)
 
             # Parse remaining parameters
             while self.match(TokenType.COMMA):
                 self.eat(TokenType.COMMA)
-
-                is_varargs = False
-                is_kwargs = False
-
-                # Check for **kwargs or *args
-                if self.match(TokenType.OPERATOR):
-                    if self.current_token.value == '**':
-                        self.advance()  # consume **
-                        is_kwargs = True
-                    elif self.current_token.value == '*':
-                        self.advance()  # consume *
-                        is_varargs = True
-
-                # Could be 'self' or identifier or semantic keyword
-                if self.match(TokenType.SELF):
-                    param_name = self.eat(TokenType.SELF).value
-                elif self.match(TokenType.IDENTIFIER):
-                    param_name = self.eat(TokenType.IDENTIFIER).value
-                else:
-                    # Allow semantic keywords as parameter names
-                    param_tok = self.eat_attribute_name()
-                    param_name = param_tok.value
-
-                default_value = None
-
-                # Check for default value (not allowed for *args/**kwargs)
-                if not is_varargs and not is_kwargs and self.match(TokenType.ASSIGN):
-                    self.eat(TokenType.ASSIGN)
-                    default_value = self.parse_expression()
-
-                params.append(Parameter(param_name, default_value, is_varargs, is_kwargs))
+                param = self._parse_single_parameter()
+                params.append(param)
 
         return params
+
+    def _parse_single_parameter(self):
+        """Parse a single parameter with optional type annotation and default value
+        تحليل معامل واحد مع تعليق النوع الاختياري والقيمة الافتراضية
+        """
+        is_varargs = False
+        is_kwargs = False
+
+        # Check for **kwargs first (STAR_STAR token)
+        if self.match(TokenType.STAR_STAR):
+            self.advance()  # consume **
+            is_kwargs = True
+        # Check for *args (OPERATOR with value '*')
+        elif self.match(TokenType.OPERATOR) and self.current_token.value == '*':
+            self.advance()  # consume *
+            is_varargs = True
+
+        # Get parameter name (could be 'self' or identifier or keyword used as identifier)
+        if self.match(TokenType.SELF):
+            param_name = self.eat(TokenType.SELF).value
+        elif self.match(TokenType.IDENTIFIER):
+            param_name = self.eat(TokenType.IDENTIFIER).value
+        else:
+            # Allow keywords to be used as parameter names (e.g., source, dest, time, etc.)
+            param_tok = self._eat_identifier_or_keyword()
+            param_name = param_tok.value
+
+        # Check for type annotation: param: int
+        type_annotation = None
+        if self.match(TokenType.COLON):
+            self.advance()  # consume ':'
+            type_annotation = self.parse_type_annotation()
+
+        default_value = None
+
+        # Check for default value (not allowed for *args/**kwargs)
+        if not is_varargs and not is_kwargs and self.match(TokenType.ASSIGN):
+            self.eat(TokenType.ASSIGN)
+            default_value = self.parse_expression()
+
+        param = Parameter(param_name, default_value, is_varargs, is_kwargs)
+        param.type_annotation = type_annotation
+        return param
 
     def parse_block(self):
         """Parse a block of statements"""
@@ -739,6 +1340,22 @@ class HybridParser:
 
         self.eat(TokenType.RBRACE)
         return Block(statements)
+
+    def parse_indented_block(self):
+        """Parse a Python-style indented block (single statement or multiple statements).
+
+        For simplicity, we parse a single statement following the colon.
+        In a full implementation, this would track indentation levels.
+        """
+        # Skip newlines
+        while self.match(TokenType.NEWLINE):
+            self.eat(TokenType.NEWLINE)
+
+        # Parse a single statement (the common case for simple if/else)
+        stmt = self.parse_statement()
+        if stmt:
+            return Block([stmt])
+        return Block([])
 
     def parse_class_def(self, decorators=None):
         """Parse a class definition"""
@@ -767,28 +1384,70 @@ class HybridParser:
         return self._with_pos(ClassDef(name, base_class, body, base_classes=base_classes, decorators=decorators), class_tok)
 
     def parse_if_statement(self):
-        """Parse an if statement with optional elif chain and else"""
+        """Parse an if statement with optional elif chain and else
+
+        Supports multiple syntaxes:
+        - if (condition) { ... }   (C-style with parens)
+        - if condition { ... }     (Bayan-style without parens)
+        - if condition: ...        (Python-style with colon)
+        """
         if_tok = self.eat(TokenType.IF)
-        self.eat(TokenType.LPAREN)
+
+        # Parse condition - it can be any expression including (walrus) > value
         condition = self.parse_expression()
-        self.eat(TokenType.RPAREN)
-        then_branch = self.parse_block()
+
+        # Check what follows: { for brace-style, : for Python-style
+        if self.match(TokenType.LBRACE):
+            then_branch = self.parse_block()
+        elif self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+            # Check if { follows the colon (mixed syntax: if cond: { })
+            if self.match(TokenType.LBRACE):
+                then_branch = self.parse_block()
+            else:
+                then_branch = self.parse_indented_block()
+        else:
+            raise SyntaxError(f"Expected '{{' or ':' after if condition, got {self.current_token}")
 
         # Collect zero or more elif branches
         elif_branches = []
         while self.match(TokenType.ELIF):
             self.eat(TokenType.ELIF)
-            self.eat(TokenType.LPAREN)
             elif_cond = self.parse_expression()
-            self.eat(TokenType.RPAREN)
-            elif_block = self.parse_block()
+            if self.match(TokenType.LBRACE):
+                elif_block = self.parse_block()
+            elif self.match(TokenType.COLON):
+                self.eat(TokenType.COLON)
+                # Check if { follows the colon
+                if self.match(TokenType.LBRACE):
+                    elif_block = self.parse_block()
+                else:
+                    elif_block = self.parse_indented_block()
+            else:
+                raise SyntaxError(f"Expected '{{' or ':' after elif condition, got {self.current_token}")
             elif_branches.append((elif_cond, elif_block))
 
-        # Optional else branch
+        # Optional else branch (supports 'else if' as well as 'else')
         else_branch = None
         if self.match(TokenType.ELSE):
             self.eat(TokenType.ELSE)
-            else_branch = self.parse_block()
+            if self.match(TokenType.IF):
+                # 'else if' - parse as nested if statement
+                else_branch = self.parse_if_statement()
+            elif self.match(TokenType.LBRACE):
+                # Brace-style else { }
+                else_branch = self.parse_block()
+            elif self.match(TokenType.COLON):
+                # Python-style else:
+                self.eat(TokenType.COLON)
+                # Check if { follows the colon
+                if self.match(TokenType.LBRACE):
+                    else_branch = self.parse_block()
+                else:
+                    else_branch = self.parse_indented_block()
+            else:
+                # Default to brace-style
+                else_branch = self.parse_block()
 
         # Build nested IfStatements for elif chain (right-associative)
         current_else = else_branch
@@ -798,22 +1457,76 @@ class HybridParser:
         return self._with_pos(IfStatement(condition, then_branch, current_else), if_tok)
 
     def parse_for_loop(self):
-        """Parse a for loop (with optional invariants)"""
-        for_tok = self.eat(TokenType.FOR)
-        var_name = self.eat(TokenType.IDENTIFIER).value
-        self.eat(TokenType.IN)
-        self.eat(TokenType.LPAREN)
-        iterable = self.parse_expression()
-        self.eat(TokenType.RPAREN)
+        """Parse a for loop (with optional invariants)
 
-        # Parse optional invariants before body
+        Supports multiple syntaxes:
+        - for x in (iterable) { ... }   (C-style with parens)
+        - for x in iterable { ... }     (Bayan-style without parens)
+        - for x in iterable: ...        (Python-style with colon)
+        - for x in iterable: invariant ... { ... }  (Python-style with invariants)
+        - for k, v in iterable { ... }  (Tuple unpacking)
+        """
+        for_tok = self.eat(TokenType.FOR)
+
+        # Parse variable(s) - could be single or tuple unpacking (k, v)
+        var_names = []
+
+        # Allow keywords to be used as variable names in for loops
+        if self.match(TokenType.IDENTIFIER):
+            var_names.append(self.eat(TokenType.IDENTIFIER).value)
+        else:
+            # Accept certain keywords as variable names
+            var_names.append(self.current_token.value)
+            self.advance()
+
+        # Check for tuple unpacking: for k, v in ...
+        while self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            if self.match(TokenType.IDENTIFIER):
+                var_names.append(self.eat(TokenType.IDENTIFIER).value)
+            else:
+                var_names.append(self.current_token.value)
+                self.advance()
+
+        # If single variable, keep as string; otherwise use list for unpacking
+        var_name = var_names if len(var_names) > 1 else var_names[0]
+
+        self.eat(TokenType.IN)
+
+        # Support both: for x in (iterable) and for x in iterable
+        has_parens = self.match(TokenType.LPAREN)
+        if has_parens:
+            self.eat(TokenType.LPAREN)
+
+        iterable = self.parse_expression()
+
+        if has_parens:
+            self.eat(TokenType.RPAREN)
+
+        # Parse optional invariants before body (before colon or brace)
         invariants = []
         while self.match(TokenType.INVARIANT):
             self.advance()  # consume 'invariant'
             condition = self.parse_or_expression()
             invariants.append(InvariantClause(condition))
 
-        body = self.parse_block()
+        # Check what follows: { for brace-style, : for Python-style
+        if self.match(TokenType.LBRACE):
+            body = self.parse_block()
+        elif self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+            # After colon, check for invariants (Python-style with invariants)
+            while self.match(TokenType.INVARIANT):
+                self.advance()  # consume 'invariant'
+                condition = self.parse_or_expression()
+                invariants.append(InvariantClause(condition))
+            # Check if { follows (mixed syntax: for x in y: { } or for x in y: invariant ... { })
+            if self.match(TokenType.LBRACE):
+                body = self.parse_block()
+            else:
+                body = self.parse_indented_block()
+        else:
+            body = self.parse_block()
 
         # Store invariants in loop for runtime checking
         loop = self._with_pos(ForLoop(var_name, iterable, body), for_tok)
@@ -822,20 +1535,43 @@ class HybridParser:
         return loop
 
     def parse_while_loop(self):
-        """Parse a while loop (with optional invariants)"""
-        while_tok = self.eat(TokenType.WHILE)
-        self.eat(TokenType.LPAREN)
-        condition = self.parse_expression()
-        self.eat(TokenType.RPAREN)
+        """Parse a while loop (with optional invariants)
 
-        # Parse optional invariants before body
+        Supports multiple syntaxes:
+        - while (condition) { ... }   (C-style with parens)
+        - while condition { ... }     (Bayan-style without parens)
+        - while condition: ...        (Python-style with colon)
+        - while condition: invariant ... { ... }  (Python-style with invariants)
+        """
+        while_tok = self.eat(TokenType.WHILE)
+
+        # Parse condition - supports expressions like (n := value) > x
+        condition = self.parse_expression()
+
+        # Parse optional invariants before body (before colon or brace)
         invariants = []
         while self.match(TokenType.INVARIANT):
             self.advance()  # consume 'invariant'
             inv_condition = self.parse_or_expression()
             invariants.append(InvariantClause(inv_condition))
 
-        body = self.parse_block()
+        # Check what follows: { for brace-style, : for Python-style
+        if self.match(TokenType.LBRACE):
+            body = self.parse_block()
+        elif self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+            # After colon, check for invariants (Python-style with invariants)
+            while self.match(TokenType.INVARIANT):
+                self.advance()  # consume 'invariant'
+                inv_condition = self.parse_or_expression()
+                invariants.append(InvariantClause(inv_condition))
+            # Check if { follows (mixed syntax: while cond: { } or while cond: invariant ... { })
+            if self.match(TokenType.LBRACE):
+                body = self.parse_block()
+            else:
+                body = self.parse_indented_block()
+        else:
+            body = self.parse_block()
 
         # Store invariants in loop for runtime checking
         loop = self._with_pos(WhileLoop(condition, body), while_tok)
@@ -923,22 +1659,61 @@ class HybridParser:
         pr_tok = self.eat(TokenType.PRINT)
         self.eat(TokenType.LPAREN)
 
-        # Parse first expression
-        values = [self.parse_expression()]
+        values = []
 
-        # Parse additional expressions separated by commas
-        while self.match(TokenType.COMMA):
-            self.eat(TokenType.COMMA)
+        # Check if there are any arguments
+        if not self.match(TokenType.RPAREN):
+            # Parse first expression
             values.append(self.parse_expression())
+
+            # Parse additional expressions separated by commas
+            while self.match(TokenType.COMMA):
+                self.eat(TokenType.COMMA)
+                if self.match(TokenType.RPAREN):
+                    break
+                values.append(self.parse_expression())
 
         self.eat(TokenType.RPAREN)
 
+        # If no values, print empty line
+        if len(values) == 0:
+            return self._with_pos(PrintStatement(String("")), pr_tok)
         # If single value, use old behavior
-        if len(values) == 1:
+        elif len(values) == 1:
             return self._with_pos(PrintStatement(values[0]), pr_tok)
         else:
             # Multiple values - return a PrintStatement with a list
             return self._with_pos(PrintStatement(values), pr_tok)
+
+    def parse_global_statement(self):
+        """Parse global statement: global x, y, z"""
+        global_tok = self.eat(TokenType.GLOBAL)
+        names = []
+
+        # Parse first name
+        names.append(self.eat(TokenType.IDENTIFIER).value)
+
+        # Parse remaining names
+        while self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            names.append(self.eat(TokenType.IDENTIFIER).value)
+
+        return self._with_pos(GlobalStatement(names), global_tok)
+
+    def parse_nonlocal_statement(self):
+        """Parse nonlocal statement: nonlocal x, y"""
+        nonlocal_tok = self.eat(TokenType.NONLOCAL)
+        names = []
+
+        # Parse first name
+        names.append(self.eat(TokenType.IDENTIFIER).value)
+
+        # Parse remaining names
+        while self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            names.append(self.eat(TokenType.IDENTIFIER).value)
+
+        return self._with_pos(NonlocalStatement(names), nonlocal_tok)
 
     def parse_assignment(self):
         """Parse an assignment target and value
@@ -998,6 +1773,63 @@ class HybridParser:
             value = self.parse_expression()
             return Assignment(name_tok.value, value)
 
+        # Check for typed variable declaration: x: int = 5
+        if self.match(TokenType.IDENTIFIER) or self._is_keyword_as_identifier():
+            next_tok = self.peek()
+            if next_tok and next_tok.type == TokenType.COLON:
+                # Look ahead to see if this is a type annotation
+                pos = self.position + 2
+                if pos < len(self.tokens):
+                    after_colon = self.tokens[pos]
+                    if self._is_type_token_at(after_colon) or (after_colon.type == TokenType.IDENTIFIER and after_colon.value[0].isupper()):
+                        # This is a typed variable declaration
+                        name_tok = self.current_token
+                        self.advance()  # consume name
+                        self.advance()  # consume ':'
+                        type_annotation = self.parse_type_annotation()
+
+                        value = None
+                        if self.match(TokenType.ASSIGN):
+                            self.advance()  # consume '='
+                            value = self.parse_expression()
+
+                        typed_var = TypedVariable(name_tok.value, type_annotation, value)
+                        return typed_var
+
+        # Check for tuple unpacking: a, b, c = values
+        if self.match(TokenType.IDENTIFIER):
+            # Look ahead to see if this is tuple unpacking (id, id, ... = value)
+            # Check if next token is comma
+            if self.peek() and self.peek().type == TokenType.COMMA:
+                saved_pos = self.position
+                first_tok = self.current_token
+                targets = []
+
+                try:
+                    # Try to parse as tuple unpacking
+                    while True:
+                        if not self.match(TokenType.IDENTIFIER):
+                            break
+                        targets.append(self.eat(TokenType.IDENTIFIER).value)
+                        if self.match(TokenType.COMMA):
+                            self.eat(TokenType.COMMA)
+                        else:
+                            break
+
+                    # Check if followed by ASSIGN and we have multiple targets
+                    if len(targets) > 1 and self.match(TokenType.ASSIGN):
+                        self.eat(TokenType.ASSIGN)
+                        value = self.parse_tuple_or_expression()
+                        return self._with_pos(TupleUnpacking(targets, value), first_tok)
+                    else:
+                        # Not tuple unpacking, restore position
+                        self.position = saved_pos
+                        self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                except:
+                    # Restore position on any error
+                    self.position = saved_pos
+                    self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+
         expr = self.parse_expression()
 
         # Sample assignment sugar: <var> ~ Dist(args)
@@ -1053,6 +1885,15 @@ class HybridParser:
                 return AttributeAssignment(expr.object_expr, expr.attribute_name, value)
             elif isinstance(expr, SubscriptAccess):
                 return SubscriptAssignment(expr.object_expr, expr.index_expr, value)
+            elif isinstance(expr, Tuple):
+                # Tuple unpacking: a, b, c = values
+                targets = []
+                for elem in expr.elements:
+                    if isinstance(elem, Variable):
+                        targets.append(elem.name)
+                    else:
+                        raise SyntaxError(f"Invalid unpacking target: {elem}")
+                return TupleUnpacking(targets, value)
             else:
                 raise SyntaxError(f"Invalid assignment target: {expr}")
 
@@ -1079,6 +1920,25 @@ class HybridParser:
 
         return expr
 
+    def parse_tuple_or_expression(self):
+        """Parse a tuple expression (1, 2, 3) or single expression
+        Used for tuple unpacking RHS: a, b = 1, 2
+        """
+        first_tok = self.current_token
+        first_expr = self.parse_expression()
+
+        # Check if this is a tuple (comma-separated values)
+        if self.match(TokenType.COMMA):
+            elements = [first_expr]
+            while self.match(TokenType.COMMA):
+                self.eat(TokenType.COMMA)
+                if self.match(TokenType.EOF) or self.match(TokenType.NEWLINE):
+                    break
+                elements.append(self.parse_expression())
+            return self._with_pos(Tuple(elements), first_tok)
+
+        return first_expr
+
     def parse_pipeline_expression(self):
         """Parse pipeline expression: value |> function |> function2"""
         left = self.parse_composition_expression()
@@ -1093,25 +1953,80 @@ class HybridParser:
 
     def parse_composition_expression(self):
         """Parse function composition: f >> g >> h"""
-        left = self.parse_or_expression()
+        left = self.parse_ternary_expression()
 
         while self.match(TokenType.COMPOSE):
             tok = self.current_token
             self.advance()
-            right = self.parse_or_expression()
+            right = self.parse_ternary_expression()
             left = self._with_pos(ComposeOp(left, right), tok)
 
         return left
 
+    def parse_ternary_expression(self):
+        """Parse Python-style ternary expression: value if condition else alternative
+
+        This handles expressions like:
+            x = a if b > 0 else c
+            result = value1 if condition else value2
+
+        Note: We need to distinguish between:
+            - Ternary: `x = a if b else c` (if is part of expression)
+            - If statement: `if (cond) { ... }` (if starts a statement)
+
+        The key difference is that in ternary, there's always a value before 'if'.
+        """
+        # Parse the "true" value first
+        true_value = self.parse_or_expression()
+
+        # Check for 'if' keyword (ternary expression)
+        # Only treat as ternary if 'if' is on the same line as the true_value
+        # This prevents `if (cond) { ... }` from being parsed as ternary
+        if self.match(TokenType.IF):
+            if_tok = self.current_token
+            # Check if 'if' is on the same line as the previous token
+            # If true_value has position info, use it
+            prev_line = getattr(true_value, 'line', None)
+            if prev_line is None and hasattr(true_value, 'pos_line'):
+                prev_line = true_value.pos_line
+
+            # If we can't determine the line, or if 'if' is on the same line, treat as ternary
+            if prev_line is not None and if_tok.line > prev_line:
+                # 'if' is on a different line - this is likely an if statement, not ternary
+                return true_value
+
+            self.eat(TokenType.IF)
+            # Parse the condition
+            condition = self.parse_or_expression()
+            # Expect 'else'
+            self.eat(TokenType.ELSE)
+            # Parse the "false" value (can be another ternary)
+            false_value = self.parse_ternary_expression()
+            return self._with_pos(TernaryOp(condition, true_value, false_value), if_tok)
+
+        return true_value
+
     def parse_or_expression(self):
         """Parse logical OR expression"""
-        left = self.parse_and_expression()
+        left = self.parse_nullish_expression()
 
         while self.match(TokenType.OR):
             tok = self.current_token
             self.advance()
-            right = self.parse_and_expression()
+            right = self.parse_nullish_expression()
             left = self._with_pos(BinaryOp('or', left, right), tok)
+
+        return left
+
+    def parse_nullish_expression(self):
+        """Parse nullish coalescing expression: a ?? b"""
+        left = self.parse_and_expression()
+
+        while self.match(TokenType.NULLISH):
+            tok = self.current_token
+            self.advance()
+            right = self.parse_and_expression()
+            left = self._with_pos(NullishCoalescing(left, right), tok)
 
         return left
 
@@ -1128,19 +2043,39 @@ class HybridParser:
         return left
 
     def parse_comparison(self):
-        """Parse comparison expression"""
+        """Parse comparison expression with support for chained comparisons.
+
+        Supports: 1 < x < 10, a <= b <= c, etc.
+        """
         left = self.parse_additive()
 
-        while self.match(TokenType.OPERATOR) or self.match(TokenType.IN):
-            if self.match(TokenType.IN):
-                tok_in = self.eat(TokenType.IN)
-                right = self.parse_additive()
-                left = self._with_pos(BinaryOp('in', left, right), tok_in)
-            else:
+        # Check if this is a comparison operator
+        comparison_ops = ['<', '>', '<=', '>=', '==', '!=']
+
+        if self.match(TokenType.OPERATOR) and self.current_token.value in comparison_ops:
+            # Collect all operands and operators for chained comparison
+            operands = [left]
+            operators = []
+            first_tok = self.current_token
+
+            while self.match(TokenType.OPERATOR) and self.current_token.value in comparison_ops:
                 op_tok = self.eat(TokenType.OPERATOR)
-                op = op_tok.value
+                operators.append(op_tok.value)
                 right = self.parse_additive()
-                left = self._with_pos(BinaryOp(op, left, right), op_tok)
+                operands.append(right)
+
+            # If only one comparison, return simple BinaryOp
+            if len(operators) == 1:
+                return self._with_pos(BinaryOp(operators[0], operands[0], operands[1]), first_tok)
+            else:
+                # Multiple comparisons - return ChainedComparison
+                return self._with_pos(ChainedComparison(operands, operators), first_tok)
+
+        # Handle 'in' operator
+        while self.match(TokenType.IN):
+            tok_in = self.eat(TokenType.IN)
+            right = self.parse_additive()
+            left = self._with_pos(BinaryOp('in', left, right), tok_in)
 
         return left
 
@@ -1206,6 +2141,20 @@ class HybridParser:
             inner = self._unescape_string(inner)
             return self._with_pos(String(inner), tok)
 
+        elif self.match(TokenType.FSTRING):
+            tok = self.eat(TokenType.FSTRING)
+            value = tok.value
+            # Remove f prefix and quotes: f"..." -> ...
+            if value.startswith('f"') and value.endswith('"'):
+                inner = value[2:-1]
+            elif value.startswith("f'") and value.endswith("'"):
+                inner = value[2:-1]
+            else:
+                inner = value
+            # Parse f-string parts (text and expressions)
+            parts = self._parse_fstring_parts(inner)
+            return self._with_pos(FString(inner, parts), tok)
+
         elif self.match(TokenType.TRUE):
             tok = self.eat(TokenType.TRUE)
             return self._with_pos(Boolean(True), tok)
@@ -1246,23 +2195,8 @@ class HybridParser:
                 return self._with_pos(Variable(name), name_tok)
 
         # Allow cognitive-semantic and semantic programming keywords as identifiers in dict context
-        elif self.match(TokenType.ROLE) or self.match(TokenType.DEGREE) or \
-             self.match(TokenType.STATE_CHANGES) or self.match(TokenType.ENTITIES) or \
-             self.match(TokenType.RESULT) or self.match(TokenType.PARTICIPANTS) or \
-             self.match(TokenType.STRENGTH) or self.match(TokenType.TRANSFORM) or \
-             self.match(TokenType.REACTIONS) or self.match(TokenType.STRUCTURE) or \
-             self.match(TokenType.EXPRESS) or self.match(TokenType.LINGUISTIC_FORMS) or \
-             self.match(TokenType.CONTENT) or self.match(TokenType.CONTEXT) or \
-             self.match(TokenType.TIME) or self.match(TokenType.PLACE) or \
-             self.match(TokenType.SOURCE) or self.match(TokenType.CERTAINTY) or \
-             self.match(TokenType.CURRENT_VALUE) or self.match(TokenType.HISTORY) or \
-             self.match(TokenType.FUTURE_PREDICTION) or self.match(TokenType.ROOT) or \
-             self.match(TokenType.TAXONOMY) or self.match(TokenType.CHARACTERS) or \
-             self.match(TokenType.EVENT) or self.match(TokenType.DOMAIN) or \
-             self.match(TokenType.MEMORY) or self.match(TokenType.KNOWLEDGE) or \
-             self.match(TokenType.PATTERN) or self.match(TokenType.CONCEPT) or \
-             self.match(TokenType.DEFAULT) or self.match(TokenType.WHERE) or \
-             self.match(TokenType.FROM) or self.match(TokenType.FIRST):
+        elif self._is_keyword_as_identifier() or \
+             self.match(TokenType.WHERE) or self.match(TokenType.FROM) or self.match(TokenType.FIRST):
             # Allow these keywords as identifiers (for dict keys)
             name_tok = self.current_token
             self.advance()
@@ -1380,17 +2314,21 @@ class HybridParser:
                         expr = self._with_pos(SubscriptAccess(expr, index_expr), lb_tok)
 
                 return expr
-            elif self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
+            elif self.match(TokenType.DOT) or self.match(TokenType.QUESTION_DOT) or self.match(TokenType.LBRACKET):
                 # Attribute access or method call starting from a variable
                 expr = self._with_pos(Variable(name), name_tok)
 
-                while self.match(TokenType.DOT) or self.match(TokenType.LBRACKET):
-                    if self.match(TokenType.DOT):
+                while self.match(TokenType.DOT) or self.match(TokenType.QUESTION_DOT) or self.match(TokenType.LBRACKET):
+                    if self.match(TokenType.DOT) or self.match(TokenType.QUESTION_DOT):
+                        is_optional = self.match(TokenType.QUESTION_DOT)
                         if self.peek() and self.current_token and self.peek().line > self.current_token.line:
                             break
                         if not self._can_start_attribute(self.peek()):
                             break
-                        self.eat(TokenType.DOT)
+                        if is_optional:
+                            self.eat(TokenType.QUESTION_DOT)
+                        else:
+                            self.eat(TokenType.DOT)
                         attr_tok = self.eat_attribute_name()
                         attr_name = attr_tok.value
 
@@ -1401,8 +2339,11 @@ class HybridParser:
                             self.eat(TokenType.RPAREN)
                             expr = self._with_pos(MethodCall(expr, attr_name, args, named_args), attr_tok)
                         else:
-                            # Attribute access
-                            expr = self._with_pos(AttributeAccess(expr, attr_name), attr_tok)
+                            # Attribute access (optional or regular)
+                            if is_optional:
+                                expr = self._with_pos(OptionalChain(expr, attr_name), attr_tok)
+                            else:
+                                expr = self._with_pos(AttributeAccess(expr, attr_name), attr_tok)
                     else:
                         # Subscription: expr[index] or expr[start:end:step]
                         lb_tok = self.eat(TokenType.LBRACKET)
@@ -1485,6 +2426,21 @@ class HybridParser:
             if self.match(TokenType.RPAREN):
                 self.eat(TokenType.RPAREN)
                 return self._with_pos(Tuple([]), lp_tok)
+
+            # Check for walrus operator: (name := value)
+            if self.match(TokenType.IDENTIFIER):
+                saved_pos = self.position
+                name_tok = self.current_token
+                self.advance()
+                if self.match(TokenType.WALRUS):
+                    self.eat(TokenType.WALRUS)
+                    value = self.parse_expression()
+                    self.eat(TokenType.RPAREN)
+                    return self._with_pos(WalrusAssignment(name_tok.value, value), name_tok)
+                else:
+                    # Restore position and continue normal parsing
+                    self.position = saved_pos
+                    self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
 
             # Parse first expression
             first_expr = self.parse_expression()
@@ -1582,6 +2538,49 @@ class HybridParser:
             self.eat(TokenType.COLON)
             config = self.parse_entity_body()
             return self._with_pos(ExistentialQuery(config), tok)
+
+        # Query as expression: query predicate(...) where condition?
+        elif self.match(TokenType.QUERY):
+            tok = self.eat(TokenType.QUERY)
+            goal = self.parse_logical_predicate()
+
+            # Optional where clause
+            where_clause = None
+            if self.match(TokenType.WHERE):
+                self.eat(TokenType.WHERE)
+                where_clause = self.parse_expression()
+
+            # Optional trailing ? or .
+            if self.match(TokenType.QUESTION):
+                self.eat(TokenType.QUESTION)
+            elif self.match(TokenType.DOT):
+                self.eat(TokenType.DOT)
+
+            return self._with_pos(QueryExpression(goal, where_clause), tok)
+
+        # Lambda expression: lambda x: x + 1 or lambda x, y: x + y
+        elif self.match(TokenType.LAMBDA):
+            tok = self.eat(TokenType.LAMBDA)
+
+            # Parse parameters
+            params = []
+            if not self.match(TokenType.COLON):
+                # First parameter
+                param_tok = self.eat(TokenType.IDENTIFIER)
+                params.append(param_tok.value)
+
+                # Additional parameters
+                while self.match(TokenType.COMMA):
+                    self.eat(TokenType.COMMA)
+                    param_tok = self.eat(TokenType.IDENTIFIER)
+                    params.append(param_tok.value)
+
+            self.eat(TokenType.COLON)
+
+            # Parse body expression
+            body = self.parse_expression()
+
+            return self._with_pos(LambdaExpression(params, body), tok)
 
         else:
             raise SyntaxError(f"Unexpected token: {self.current_token}")
@@ -1702,7 +2701,8 @@ class HybridParser:
                                TokenType.CONTEXT, TokenType.TIME, TokenType.PLACE, TokenType.SOURCE,
                                TokenType.CERTAINTY, TokenType.CURRENT_VALUE, TokenType.HISTORY,
                                TokenType.FUTURE_PREDICTION, TokenType.ROOT, TokenType.TAXONOMY,
-                               TokenType.CHARACTERS, TokenType.EVENT))
+                               TokenType.CHARACTERS, TokenType.EVENT, TokenType.DELAY,
+                               TokenType.NOW, TokenType.INFORMATION))
 
         def parse_pair_if_any():
             # Lookahead for IDENTIFIER|KEYWORD|STRING followed by ':'
@@ -1728,8 +2728,21 @@ class HybridParser:
                 return KeyValuePair(key_node, value)
             return None
 
-        if not self.match(TokenType.RPAREN):
-            # Parse first argument
+        def parse_single_argument():
+            """Parse a single argument, which can be *args, **kwargs, named, or positional"""
+            # Check for **kwargs spread: **dict_var
+            if self.match(TokenType.STAR_STAR):
+                star_tok = self.eat(TokenType.STAR_STAR)
+                expr = self.parse_expression()
+                return ('spread_dict', self._with_pos(SpreadOperator(expr, is_dict=True), star_tok))
+
+            # Check for *args spread: *list_var
+            if self.match(TokenType.OPERATOR) and self.current_token.value == '*':
+                star_tok = self.current_token
+                self.advance()
+                expr = self.parse_expression()
+                return ('spread_list', self._with_pos(SpreadOperator(expr, is_dict=False), star_tok))
+
             # Check if it's a named argument (identifier/keyword followed by '=')
             if is_keyword_or_identifier() and self.peek() and self.peek().type == TokenType.ASSIGN:
                 if self.match(TokenType.IDENTIFIER):
@@ -1738,33 +2751,40 @@ class HybridParser:
                     name = self.eat_attribute_name().value
                 self.eat(TokenType.ASSIGN)
                 value = self.parse_expression()
-                named_args[name] = value
-            else:
-                pair = parse_pair_if_any()
-                if pair is not None:
-                    args.append(pair)
-                else:
-                    args.append(self.parse_expression())
+                return ('named', name, value)
+
+            # Check for key:value pair
+            pair = parse_pair_if_any()
+            if pair is not None:
+                return ('positional', pair)
+
+            # Regular positional argument
+            return ('positional', self.parse_expression())
+
+        if not self.match(TokenType.RPAREN):
+            # Parse first argument
+            result = parse_single_argument()
+            if result[0] == 'named':
+                named_args[result[1]] = result[2]
+            elif result[0] == 'spread_list':
+                args.append(result[1])
+            elif result[0] == 'spread_dict':
+                args.append(result[1])
+            else:  # positional
+                args.append(result[1])
 
             # Parse remaining arguments
             while self.match(TokenType.COMMA):
                 self.eat(TokenType.COMMA)
-
-                # Check if it's a named argument
-                if is_keyword_or_identifier() and self.peek() and self.peek().type == TokenType.ASSIGN:
-                    if self.match(TokenType.IDENTIFIER):
-                        name = self.eat(TokenType.IDENTIFIER).value
-                    else:
-                        name = self.eat_attribute_name().value
-                    self.eat(TokenType.ASSIGN)
-                    value = self.parse_expression()
-                    named_args[name] = value
-                else:
-                    pair = parse_pair_if_any()
-                    if pair is not None:
-                        args.append(pair)
-                    else:
-                        args.append(self.parse_expression())
+                result = parse_single_argument()
+                if result[0] == 'named':
+                    named_args[result[1]] = result[2]
+                elif result[0] == 'spread_list':
+                    args.append(result[1])
+                elif result[0] == 'spread_dict':
+                    args.append(result[1])
+                else:  # positional
+                    args.append(result[1])
 
         return args, named_args
 
@@ -1788,9 +2808,16 @@ class HybridParser:
         return '.'.join(parts)
 
     def parse_import_statement(self):
-        """Parse 'import module [as alias]'"""
+        """Parse 'import module [as alias]' or 'import "path/to/file.by"'"""
         imp_tok = self.eat(TokenType.IMPORT)
-        module_name = self.parse_dotted_name()
+
+        # Support string-based imports: import "path/to/file.by"
+        if self.match(TokenType.STRING):
+            str_tok = self.eat(TokenType.STRING)
+            module_name = str_tok.value[1:-1]  # Remove quotes
+        else:
+            module_name = self.parse_dotted_name()
+
         alias = None
         if self.match(TokenType.AS):
             self.eat(TokenType.AS)
@@ -1816,38 +2843,53 @@ class HybridParser:
         elements = []
 
         if not self.match(TokenType.RBRACKET):
-            first_expr = self.parse_expression()
-
-            # Check for list pattern [H|T] or [H1, H2, ...|T]
-            if self.match(TokenType.PIPE):
-                self.eat(TokenType.PIPE)
-                tail = self.parse_expression()
-                self.eat(TokenType.RBRACKET)
-                # Create a ListPattern node with head elements and tail
-                return self._with_pos(ListPattern([first_expr], tail), lb_tok)
-
-            # Check for list comprehension: [expr for var in iterable (if cond)?]
-            elif self.match(TokenType.FOR):
-                self.eat(TokenType.FOR)
-                var_name = self.eat(TokenType.IDENTIFIER).value
-                self.eat(TokenType.IN)
-                iterable = self.parse_expression()
-                condition = None
-                if self.match(TokenType.IF):
-                    self.eat(TokenType.IF)
-                    condition = self.parse_expression()
-                self.eat(TokenType.RBRACKET)
-                return self._with_pos(ListComprehension(first_expr, var_name, iterable, condition), lb_tok)
+            # Check for spread operator *expr at beginning
+            if self.match(TokenType.OPERATOR) and self.current_token.value == '*':
+                self.advance()
+                spread_expr = self.parse_expression()
+                elements.append(SpreadOperator(spread_expr, is_dict=False))
             else:
-                elements.append(first_expr)
-                while self.match(TokenType.COMMA):
-                    self.eat(TokenType.COMMA)
-                    # Check if this is [H1, H2, ...|T] pattern (after comma)
-                    if self.match(TokenType.PIPE):
-                        self.eat(TokenType.PIPE)
-                        tail = self.parse_expression()
-                        self.eat(TokenType.RBRACKET)
-                        return self._with_pos(ListPattern(elements, tail), lb_tok)
+                first_expr = self.parse_expression()
+
+                # Check for list pattern [H|T] or [H1, H2, ...|T]
+                if self.match(TokenType.PIPE):
+                    self.eat(TokenType.PIPE)
+                    tail = self.parse_expression()
+                    self.eat(TokenType.RBRACKET)
+                    # Create a ListPattern node with head elements and tail
+                    return self._with_pos(ListPattern([first_expr], tail), lb_tok)
+
+                # Check for list comprehension: [expr for var in iterable (if cond)?]
+                elif self.match(TokenType.FOR):
+                    self.eat(TokenType.FOR)
+                    var_name = self.eat(TokenType.IDENTIFIER).value
+                    self.eat(TokenType.IN)
+                    iterable = self.parse_expression()
+                    condition = None
+                    if self.match(TokenType.IF):
+                        self.eat(TokenType.IF)
+                        condition = self.parse_expression()
+                    self.eat(TokenType.RBRACKET)
+                    return self._with_pos(ListComprehension(first_expr, var_name, iterable, condition), lb_tok)
+                else:
+                    elements.append(first_expr)
+
+            while self.match(TokenType.COMMA):
+                self.eat(TokenType.COMMA)
+                if self.match(TokenType.RBRACKET):
+                    break
+                # Check if this is [H1, H2, ...|T] pattern (after comma)
+                if self.match(TokenType.PIPE):
+                    self.eat(TokenType.PIPE)
+                    tail = self.parse_expression()
+                    self.eat(TokenType.RBRACKET)
+                    return self._with_pos(ListPattern(elements, tail), lb_tok)
+                # Check for spread operator
+                if self.match(TokenType.OPERATOR) and self.current_token.value == '*':
+                    self.advance()
+                    spread_expr = self.parse_expression()
+                    elements.append(SpreadOperator(spread_expr, is_dict=False))
+                else:
                     # Otherwise, parse next element
                     next_expr = self.parse_expression()
                     elements.append(next_expr)
@@ -1862,7 +2904,7 @@ class HybridParser:
         return self._with_pos(List(elements), lb_tok)
 
     def parse_dict(self):
-        """Parse a dictionary literal or set literal"""
+        """Parse a dictionary literal, set literal, or comprehension"""
         lb_tok = self.eat(TokenType.LBRACE)
 
         # Empty dict: {}
@@ -1870,56 +2912,123 @@ class HybridParser:
             self.eat(TokenType.RBRACE)
             return self._with_pos(Dict([]), lb_tok)
 
-        # Parse first expression
-        first_expr = self.parse_expression()
+        pairs = []
+        is_dict = False
+        is_set = False
+        elements = []  # For set
 
-        # Check if this is a dict (has colon) or set (has comma or just one element)
-        if self.match(TokenType.COLON):
-            # This is a dictionary
-            pairs = []
-            self.eat(TokenType.COLON)
-            value = self.parse_expression()
-            pairs.append((first_expr, value))
+        # Check for dict spread at beginning: {**dict1, ...}
+        if self.match(TokenType.STAR_STAR):
+            is_dict = True
+            self.advance()  # consume **
+            spread_expr = self.parse_expression()
+            pairs.append((SpreadOperator(spread_expr, is_dict=True), None))
+        else:
+            # Parse first expression
+            first_expr = self.parse_expression()
 
-            while self.match(TokenType.COMMA):
-                self.eat(TokenType.COMMA)
-                # Allow trailing comma
-                if self.match(TokenType.RBRACE):
-                    break
+            # Check if this is a dict (has colon) or set (has comma or just one element)
+            if self.match(TokenType.COLON):
+                is_dict = True
+                # This is a dictionary or dict comprehension
+                self.eat(TokenType.COLON)
+                value = self.parse_expression()
+
+                # Check for dict comprehension: {key: val for var in iterable}
+                if self.match(TokenType.FOR):
+                    self.eat(TokenType.FOR)
+                    var_name = self.eat(TokenType.IDENTIFIER).value
+                    self.eat(TokenType.IN)
+                    # Use parse_or_expression to avoid ternary consuming 'if' clause
+                    iterable = self.parse_or_expression()
+                    condition = None
+                    if self.match(TokenType.IF):
+                        self.eat(TokenType.IF)
+                        condition = self.parse_or_expression()
+                    self.eat(TokenType.RBRACE)
+                    return self._with_pos(DictComprehension(first_expr, value, var_name, iterable, condition), lb_tok)
+
+                # Regular dictionary
+                pairs.append((first_expr, value))
+            elif self.match(TokenType.FOR):
+                # Set comprehension: {expr for var in iterable if cond}
+                self.eat(TokenType.FOR)
+                var_name = self.eat(TokenType.IDENTIFIER).value
+                self.eat(TokenType.IN)
+                # Use parse_or_expression to avoid ternary consuming 'if' clause
+                iterable = self.parse_or_expression()
+                condition = None
+                if self.match(TokenType.IF):
+                    self.eat(TokenType.IF)
+                    condition = self.parse_or_expression()
+                self.eat(TokenType.RBRACE)
+                return self._with_pos(SetComprehension(first_expr, var_name, iterable, condition), lb_tok)
+            else:
+                is_set = True
+                elements.append(first_expr)
+
+        # Parse remaining elements/pairs
+        while self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            # Allow trailing comma
+            if self.match(TokenType.RBRACE):
+                break
+
+            # Check for dict spread: **dict
+            if self.match(TokenType.STAR_STAR):
+                is_dict = True
+                self.advance()
+                spread_expr = self.parse_expression()
+                pairs.append((SpreadOperator(spread_expr, is_dict=True), None))
+            elif is_dict:
                 key = self.parse_expression()
                 self.eat(TokenType.COLON)
                 value = self.parse_expression()
                 pairs.append((key, value))
-
-            self.eat(TokenType.RBRACE)
-            return self._with_pos(Dict(pairs), lb_tok)
-        else:
-            # This is a set
-            elements = [first_expr]
-            while self.match(TokenType.COMMA):
-                self.eat(TokenType.COMMA)
-                # Allow trailing comma
-                if self.match(TokenType.RBRACE):
-                    break
+            else:
                 elements.append(self.parse_expression())
 
-            self.eat(TokenType.RBRACE)
+        self.eat(TokenType.RBRACE)
+
+        if is_dict:
+            return self._with_pos(Dict(pairs), lb_tok)
+        else:
             return self._with_pos(Set(elements), lb_tok)
 
     def parse_query(self):
-        """Parse a logical query"""
+        """Parse a logical query. Supports query: predicate(args). syntax.
+        Also supports compound queries: query: pred1(args), pred2(args), Var > 50."""
         self.eat(TokenType.QUERY)
-        goal = self.parse_logical_predicate()
+        # Optional colon after query keyword (query: predicate(...))
+        if self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+
+        # Parse goals using parse_logical_goal to support comparisons
+        goals = [self.parse_logical_goal()]
+
+        # Parse additional goals separated by comma
+        while self.match(TokenType.COMMA):
+            self.eat(TokenType.COMMA)
+            goals.append(self.parse_logical_goal())
+
         if self.current_token and self.current_token.type == TokenType.DOT:
             self.eat(TokenType.DOT)
-        return LogicalQuery(goal)
+
+        # If multiple goals, wrap in _and predicate
+        if len(goals) == 1:
+            return LogicalQuery(goals[0])
+        return LogicalQuery(Predicate('_and', goals))
 
     def parse_fact(self):
         """Parse a logical fact or sugar statement inside hybrid blocks.
-        Supports optional probability: fact[0.8] p(args)."""
+        Supports optional probability: fact[0.8] p(args).
+        Also supports fact: predicate(args). syntax."""
         prob_expr = None
         if self.match(TokenType.FACT):
             self.eat(TokenType.FACT)
+            # Optional colon after fact keyword (fact: predicate(...))
+            if self.match(TokenType.COLON):
+                self.eat(TokenType.COLON)
             # Optional probability in brackets: fact[prob]
             if self.current_token and self.current_token.type == TokenType.LBRACKET:
                 self.eat(TokenType.LBRACKET)
@@ -1938,9 +3047,14 @@ class HybridParser:
         return LogicalFact(pred_or_sugar, probability=prob_expr)
 
     def parse_rule(self):
-        """Parse a logical rule"""
+        """Parse a logical rule.
+        Supports rule: head :- body. syntax.
+        Also supports rule: fact. syntax (treated as fact)."""
         if self.match(TokenType.RULE):
             self.eat(TokenType.RULE)
+            # Optional colon after rule keyword (rule: head :- body)
+            if self.match(TokenType.COLON):
+                self.eat(TokenType.COLON)
 
         head = self.parse_logical_predicate()
 
@@ -1949,6 +3063,10 @@ class HybridParser:
             self.eat(TokenType.IMPLIES)
         elif self.match(TokenType.ARROW):
             self.eat(TokenType.ARROW)
+        elif self.match(TokenType.DOT):
+            # This is actually a fact, not a rule (rule: predicate(args).)
+            self.eat(TokenType.DOT)
+            return LogicalFact(head)
         else:
             raise SyntaxError(f"Expected :- or ← in rule, got {self.current_token}")
 
@@ -2104,7 +3222,11 @@ class HybridParser:
     def parse_entity_def(self):
         """Parse an entity definition: entity <name> { ... } or entity <name>: { ... }"""
         ent_tok = self.eat(TokenType.ENTITY)
-        name = self.eat(TokenType.IDENTIFIER).value
+        # Name can be identifier or string
+        if self.match(TokenType.STRING):
+            name = self.eat(TokenType.STRING).value
+        else:
+            name = self.eat(TokenType.IDENTIFIER).value
         # Colon is optional
         if self.match(TokenType.COLON):
             self.eat(TokenType.COLON)
@@ -2295,7 +3417,8 @@ class HybridParser:
 
 
     def parse_logical_predicate(self):
-        """Parse a logical predicate or similarity sugar inside hybrid logic."""
+        """Parse a logical predicate or similarity sugar inside hybrid logic.
+        Supports predicates with or without arguments: pred(args) or pred"""
         # Allow any token with a value as predicate name (identifier or keyword)
         if not self.current_token or self.current_token.type in (TokenType.LPAREN, TokenType.RPAREN,
                                                                   TokenType.LBRACE, TokenType.RBRACE,
@@ -2310,6 +3433,12 @@ class HybridParser:
         name_tok = self.current_token
         name = name_tok.value
         self.advance()
+
+        # Check if predicate has arguments (followed by LPAREN)
+        if not self.match(TokenType.LPAREN):
+            # Predicate without arguments (e.g., fair_distribution)
+            return Predicate(name, [])
+
         self.eat(TokenType.LPAREN)
 
         # Try to parse similarity sugar: key:value pairs
@@ -2371,7 +3500,7 @@ class HybridParser:
         return args
 
     def parse_logical_term(self):
-        """Parse a logical term (including list patterns)"""
+        """Parse a logical term (including list patterns and expressions)"""
         if self.match(TokenType.VARIABLE):
             var_name = self.eat(TokenType.VARIABLE).value[1:]  # Remove ?
             return Term(var_name, is_variable=True)
@@ -2389,26 +3518,249 @@ class HybridParser:
             value = self.eat(TokenType.NUMBER).value
             return Term(value, is_variable=False)
 
-        elif self.match(TokenType.IDENTIFIER):
-            value = self.eat(TokenType.IDENTIFIER).value
-            return Term(value, is_variable=False)
+        elif self.match(TokenType.OPERATOR) and self.current_token.value == '-':
+            # Handle unary minus for negative numbers: -5
+            self.eat(TokenType.OPERATOR)
+            if self.match(TokenType.NUMBER):
+                value = '-' + self.eat(TokenType.NUMBER).value
+                return Term(value, is_variable=False)
+            else:
+                raise SyntaxError(f"Expected number after unary minus, got {self.current_token}")
+
+        elif self.match(TokenType.IDENTIFIER) or self._is_keyword_as_identifier():
+            # Check if this is a complex expression (e.g., rec[0]) or a predicate (e.g., pred(args))
+            # Also allow certain keywords to be used as identifiers (e.g., 'relation' in array access)
+            saved_pos = self.position
+            if self.match(TokenType.IDENTIFIER):
+                id_tok = self.eat(TokenType.IDENTIFIER)
+            else:
+                # Treat keyword as identifier
+                id_tok = self.current_token
+                self.advance()
+
+            if self.match(TokenType.LBRACKET):
+                # This is a subscript expression like rec[0]
+                self.position = saved_pos
+                self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                expr = self.parse_expression()
+                # Wrap expression in a special term that will be evaluated at runtime
+                return ExpressionTerm(expr)
+            elif self.match(TokenType.LPAREN):
+                # This is a predicate call like recommended_food(UserId, Food, _)
+                self.position = saved_pos
+                self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                return self.parse_logical_predicate()
+            else:
+                # Simple identifier - treat as variable if capitalized (Prolog convention)
+                if id_tok.value[0].isupper():
+                    return Term(id_tok.value, is_variable=True)
+                return Term(id_tok.value, is_variable=False)
 
         elif self.match(TokenType.LBRACKET):
             # Parse list or list pattern
             return self.parse_list()
 
+        elif self.match(TokenType.LPAREN):
+            # Parse compound goal as a term (for findall, etc.)
+            # This handles: findall(X, (goal1, goal2), Result), findall(X, (g1; g2), Result)
+            # and if-then-else: (cond -> then ; else)
+            self.eat(TokenType.LPAREN)
+
+            # Parse first goal or conjunction - stop at semicolon for if-then-else support
+            inner_goals = self._parse_if_then_else_body()
+
+            # Check for if-then-else: (cond -> then ; else)
+            if self.match(TokenType.ARROW) or (self.current_token and self.current_token.value == '->'):
+                if self.current_token.value == '->':
+                    self.eat(self.current_token.type)
+                else:
+                    self.eat(TokenType.ARROW)
+                then_goals = self._parse_if_then_else_body()
+                else_goals = []
+                if self.match(TokenType.SEMICOLON):
+                    self.eat(TokenType.SEMICOLON)
+                    # Check for nested if-then-else in else branch
+                    else_goals = self._parse_else_branch()
+                self.eat(TokenType.RPAREN)
+                # Return as if-then-else predicate
+                return Predicate('_if_then_else', [inner_goals, then_goals, else_goals])
+
+            # Check for disjunction (;)
+            elif self.match(TokenType.SEMICOLON):
+                # This is a disjunction: (goal1; goal2; ...)
+                all_branches = [inner_goals]
+                while self.match(TokenType.SEMICOLON):
+                    self.eat(TokenType.SEMICOLON)
+                    all_branches.append(self._parse_if_then_else_body())
+                self.eat(TokenType.RPAREN)
+                return Predicate('_or', all_branches)
+
+            else:
+                self.eat(TokenType.RPAREN)
+                # Return as compound goal predicate
+                if len(inner_goals) == 1:
+                    return inner_goals[0]
+                return Predicate('_and', inner_goals)
+
         else:
             raise SyntaxError(f"Unexpected token in logical term: {self.current_token}")
 
-    def parse_logical_body(self):
-        """Parse the body of a logical rule (predicates, comparisons, is expressions)"""
+    def parse_logical_arithmetic_expression(self):
+        """Parse arithmetic expression in logical context.
+        Supports = as comparison and ?: as C-style ternary."""
+        return self._parse_logical_ternary()
+
+    def _parse_logical_ternary(self):
+        """Parse C-style ternary: condition ? true_value : false_value"""
+        left = self._parse_logical_comparison()
+        if self.match(TokenType.QUESTION):
+            self.eat(TokenType.QUESTION)
+            true_val = self._parse_logical_ternary()
+            self.eat(TokenType.COLON)
+            false_val = self._parse_logical_ternary()
+            return TernaryOp(left, true_val, false_val)
+        return left
+
+    def _parse_logical_comparison(self):
+        """Parse comparison with = as equality"""
+        left = self._parse_logical_additive()
+        while self.match(TokenType.ASSIGN) or (self.match(TokenType.OPERATOR) and self.current_token.value in ['==', '!=', '>', '<', '>=', '<=', '=:=', '=\\=']):
+            if self.match(TokenType.ASSIGN):
+                self.eat(TokenType.ASSIGN)
+                right = self._parse_logical_additive()
+                left = BinaryOp('==', left, right)
+            else:
+                op = self.eat(TokenType.OPERATOR).value
+                right = self._parse_logical_additive()
+                left = BinaryOp(op, left, right)
+        return left
+
+    def _parse_logical_additive(self):
+        """Parse + and -"""
+        left = self._parse_logical_multiplicative()
+        while self.match(TokenType.OPERATOR) and self.current_token.value in ['+', '-']:
+            op = self.eat(TokenType.OPERATOR).value
+            right = self._parse_logical_multiplicative()
+            left = BinaryOp(op, left, right)
+        return left
+
+    def _parse_logical_multiplicative(self):
+        """Parse *, /, //, mod"""
+        left = self._parse_logical_unary()
+        while self.match(TokenType.OPERATOR) and self.current_token.value in ['*', '/', '//', 'mod', '%']:
+            op = self.eat(TokenType.OPERATOR).value
+            right = self._parse_logical_unary()
+            left = BinaryOp(op, left, right)
+        return left
+
+    def _parse_logical_unary(self):
+        """Parse unary - and +"""
+        if self.match(TokenType.OPERATOR) and self.current_token.value in ['-', '+']:
+            op = self.eat(TokenType.OPERATOR).value
+            operand = self._parse_logical_unary()
+            return UnaryOp(op, operand)
+        return self._parse_logical_primary()
+
+    def _parse_logical_primary(self):
+        """Parse primary in logical arithmetic context"""
+        if self.match(TokenType.NUMBER):
+            return Number(float(self.eat(TokenType.NUMBER).value))
+        elif self.match(TokenType.STRING):
+            return String(self.eat(TokenType.STRING).value[1:-1])
+        elif self.match(TokenType.IDENTIFIER):
+            name = self.eat(TokenType.IDENTIFIER).value
+            if self.match(TokenType.LPAREN):
+                # Function call
+                self.eat(TokenType.LPAREN)
+                args = []
+                if not self.match(TokenType.RPAREN):
+                    args.append(self.parse_logical_arithmetic_expression())
+                    while self.match(TokenType.COMMA):
+                        self.eat(TokenType.COMMA)
+                        args.append(self.parse_logical_arithmetic_expression())
+                self.eat(TokenType.RPAREN)
+                return FunctionCall(name, args)
+            return Variable(name)
+        elif self.match(TokenType.VARIABLE):
+            var = self.eat(TokenType.VARIABLE).value
+            return Variable(var[1:] if var.startswith('?') else var)
+        elif self.match(TokenType.LPAREN):
+            self.eat(TokenType.LPAREN)
+            expr = self.parse_logical_arithmetic_expression()
+            self.eat(TokenType.RPAREN)
+            return expr
+        else:
+            raise SyntaxError(f"Unexpected token in logical arithmetic: {self.current_token}")
+
+    def parse_logical_body(self, stop_at_semicolon=False):
+        """Parse the body of a logical rule (predicates, comparisons, is expressions).
+        Handles both conjunction (,) and disjunction (;) at the body level.
+
+        Args:
+            stop_at_semicolon: If True, stop at semicolon without treating it as disjunction.
+                              Used inside if-then-else to let the caller handle ';'.
+        """
         goals = [self.parse_logical_goal()]
 
         while self.match(TokenType.COMMA):
             self.eat(TokenType.COMMA)
             goals.append(self.parse_logical_goal())
 
+        # Check for disjunction at body level: goal1, goal2; goal3, goal4
+        # But NOT if we're inside if-then-else (stop_at_semicolon=True)
+        if not stop_at_semicolon and self.match(TokenType.SEMICOLON):
+            # Wrap current goals as first disjunct
+            first_disjunct = goals if len(goals) > 1 else goals[0]
+            if len(goals) > 1:
+                first_disjunct = Predicate('_and', goals)
+
+            disjuncts = [first_disjunct]
+            while self.match(TokenType.SEMICOLON):
+                self.eat(TokenType.SEMICOLON)
+                # Parse next disjunct (may be a conjunction)
+                next_goals = [self.parse_logical_goal()]
+                while self.match(TokenType.COMMA):
+                    self.eat(TokenType.COMMA)
+                    next_goals.append(self.parse_logical_goal())
+                disjuncts.append(next_goals[0] if len(next_goals) == 1 else Predicate('_and', next_goals))
+
+            # Return as a single disjunction goal wrapped in a list
+            return [Predicate('_or', disjuncts)]
+
         return goals
+
+    def _parse_if_then_else_body(self):
+        """Parse the body of an if-then-else branch (condition, then, or else).
+        Stops at semicolon to let the if-then-else parser handle it."""
+        return self.parse_logical_body(stop_at_semicolon=True)
+
+    def _parse_else_branch(self):
+        """Parse else branch which may contain nested if-then-else.
+
+        Handles patterns like:
+        - Activity = "sedentary" -> Multiplier = 1.2
+        - Activity = "moderate" -> Multiplier = 1.55
+        - Activity = "active" -> Multiplier = 1.725
+        - Multiplier = 1.9
+        """
+        # Parse the first goal(s) - stop at semicolon to handle nested if-then-else
+        else_goals = self._parse_if_then_else_body()
+
+        # Check for nested if-then-else: goal -> then ; else
+        if self.match(TokenType.ARROW) or (self.current_token and self.current_token.value == '->'):
+            if self.current_token.value == '->':
+                self.eat(self.current_token.type)
+            else:
+                self.eat(TokenType.ARROW)
+            then_goals = self._parse_if_then_else_body()
+            nested_else = []
+            if self.match(TokenType.SEMICOLON):
+                self.eat(TokenType.SEMICOLON)
+                nested_else = self._parse_else_branch()
+            # Return as if-then-else predicate
+            return [Predicate('_if_then_else', [else_goals, then_goals, nested_else])]
+
+        return else_goals
 
     def parse_logical_goal(self):
         """Parse a single goal in logical body (predicate, comparison, is expression, or cut)"""
@@ -2416,6 +3768,49 @@ class HybridParser:
         if self.match(TokenType.CUT):
             self.eat(TokenType.CUT)
             return Cut()
+
+        # Check for negation as failure: \+ goal or not(goal)
+        if self.match(TokenType.NOT):
+            self.eat(TokenType.NOT)
+            # Parse the goal to negate
+            negated_goal = self.parse_logical_goal()
+            return Predicate('not', [negated_goal])
+
+        # Check for parenthesized compound goal: (goal1, goal2) or (cond -> then ; else)
+        if self.match(TokenType.LPAREN):
+            self.eat(TokenType.LPAREN)
+            # Parse the first goal - use _parse_if_then_else_body to stop at semicolon
+            inner_goals = self._parse_if_then_else_body()
+
+            # Check for if-then-else: (cond -> then ; else)
+            if self.match(TokenType.ARROW) or (self.current_token and self.current_token.value == '->'):
+                if self.current_token.value == '->':
+                    self.eat(self.current_token.type)
+                else:
+                    self.eat(TokenType.ARROW)
+                then_goals = self._parse_if_then_else_body()
+                else_goals = []
+                if self.match(TokenType.SEMICOLON):
+                    self.eat(TokenType.SEMICOLON)
+                    # Check for nested if-then-else in else branch
+                    else_goals = self._parse_else_branch()
+                self.eat(TokenType.RPAREN)
+                # Return as if-then-else predicate
+                return Predicate('_if_then_else', [inner_goals, then_goals, else_goals])
+            # Check for disjunction: (goal1 ; goal2)
+            elif self.match(TokenType.SEMICOLON):
+                all_branches = [inner_goals]
+                while self.match(TokenType.SEMICOLON):
+                    self.eat(TokenType.SEMICOLON)
+                    all_branches.append(self._parse_if_then_else_body())
+                self.eat(TokenType.RPAREN)
+                return Predicate('_or', all_branches)
+            else:
+                self.eat(TokenType.RPAREN)
+                # Return as compound goal
+                if len(inner_goals) == 1:
+                    return inner_goals[0]
+                return Predicate('_and', inner_goals)
 
         # Check if this is an 'is' expression or comparison: ?X is Expression or ?X > ?Y
         if self.match(TokenType.VARIABLE):
@@ -2426,20 +3821,20 @@ class HybridParser:
             if self.match(TokenType.IS):
                 # This is an 'is' expression
                 self.eat(TokenType.IS)
-                expr = self.parse_additive()  # Parse arithmetic expression
+                expr = self.parse_logical_arithmetic_expression()  # Parse with = as comparison and ?: ternary
                 var_name = var_token.value[1:]  # Remove ?
                 return IsExpression(Term(var_name, is_variable=True), expr)
             elif self.match(TokenType.OPERATOR):
                 # This might be a comparison: ?X > ?Y
                 op_tok = self.eat(TokenType.OPERATOR)
                 op = op_tok.value
-                if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=']:
+                if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=', '@<', '@>', '@=<', '@>=']:
                     # Restore and parse as comparison
                     self.position = saved_pos
                     self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
                     left = self.parse_logical_term()
                     op_tok = self.eat(TokenType.OPERATOR)
-                    right = self.parse_logical_term()
+                    right = self.parse_additive()
                     # Represent comparisons as special predicates handled by the logical engine
                     return Predicate(f'_compare_{op_tok.value}', [left, right])
                 else:
@@ -2455,26 +3850,65 @@ class HybridParser:
 
         # Check for comparison expressions: ?X > 5, ?Y < 10, etc.
         elif self.match(TokenType.IDENTIFIER):
-            # Check if this is a predicate (followed by '(') or a comparison
+            # Check if this is a predicate (followed by '(') or a comparison or 'is' expression
             saved_pos = self.position
             if self.peek_ahead(1) and self.peek_ahead(1).type == TokenType.LPAREN:
                 # This is a predicate call
                 return self.parse_logical_predicate()
             else:
-                # Try to parse as comparison
-                left = self.parse_logical_term()
+                # Check if this is an 'is' expression (Prolog-style: Var is Expr)
+                id_token = self.eat(TokenType.IDENTIFIER)
 
-                # Check for comparison operators
-                if self.match(TokenType.OPERATOR):
+                if self.match(TokenType.IS):
+                    # This is an 'is' expression: Ratio is Amount / AvgAmount
+                    self.eat(TokenType.IS)
+                    expr = self.parse_logical_arithmetic_expression()  # Parse with = as comparison and ?: ternary
+                    # Treat identifier as a variable (Prolog convention: capitalized = variable)
+                    return IsExpression(Term(id_token.value, is_variable=True), expr)
+                elif self.match(TokenType.ASSIGN):
+                    # This is a unification: Probability = Prob or Var = term(args)
+                    self.eat(TokenType.ASSIGN)
+                    # Check if right side is a compound term (identifier followed by parentheses)
+                    if self.match(TokenType.IDENTIFIER) and self.peek_ahead(1) and self.peek_ahead(1).type == TokenType.LPAREN:
+                        # Parse as predicate (compound term)
+                        right = self.parse_logical_predicate()
+                    else:
+                        right = self.parse_logical_term()
+                    left = Term(id_token.value, is_variable=True)
+                    return Predicate('_unify', [left, right])
+                elif self.match(TokenType.OPERATOR):
+                    # This might be a comparison: Ratio > 5 or Ratio > Expr + 1 or X @< "06:00"
                     op_tok = self.eat(TokenType.OPERATOR)
                     op = op_tok.value
-                    if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=']:
-                        right = self.parse_logical_term()
-                        # Return a comparison as a special predicate
+                    if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=', '\\=', '@<', '@>', '@=<', '@>=']:
+                        # Parse right side as arithmetic expression to handle Expr + 1
+                        right = self.parse_additive()
+                        # Treat identifier as a variable
+                        left = Term(id_token.value, is_variable=True)
                         return Predicate(f'_compare_{op}', [left, right])
+                    else:
+                        # Not a comparison, restore and parse as predicate
+                        self.position = saved_pos
+                        self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                        return self.parse_logical_predicate()
+                else:
+                    # Restore and try to parse as predicate
+                    self.position = saved_pos
+                    self.current_token = self.tokens[self.position] if self.position < len(self.tokens) else None
+                    # Try to parse as comparison
+                    left = self.parse_logical_term()
 
-                # If no comparison, this should be a predicate - error
-                raise SyntaxError(f"Expected predicate or comparison, got: {left}")
+                    # Check for comparison operators
+                    if self.match(TokenType.OPERATOR):
+                        op_tok = self.eat(TokenType.OPERATOR)
+                        op = op_tok.value
+                        if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=', '\\=', '@<', '@>', '@=<', '@>=']:
+                            right = self.parse_additive()
+                            # Return a comparison as a special predicate
+                            return Predicate(f'_compare_{op}', [left, right])
+
+                    # If no comparison, this should be a predicate - error
+                    raise SyntaxError(f"Expected predicate or comparison, got: {left}")
 
         elif self.match(TokenType.NUMBER):
             # Must be a comparison
@@ -2482,8 +3916,8 @@ class HybridParser:
             if self.match(TokenType.OPERATOR):
                 op_tok = self.eat(TokenType.OPERATOR)
                 op = op_tok.value
-                if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=']:
-                    right = self.parse_logical_term()
+                if op in ['>', '<', '>=', '<=', '=<', '==', '!=', '=:=', '=\\=', '@<', '@>', '@=<', '@>=']:
+                    right = self.parse_additive()
                     return Predicate(f'_compare_{op}', [left, right])
             raise SyntaxError(f"Expected comparison operator after number")
 
@@ -2501,7 +3935,7 @@ class HybridParser:
 
         # Try to parse first expression (could be start of slice or just index)
         first_expr = None
-        if not self.match(TokenType.COLON):
+        if not self.match(TokenType.COLON) and not self.match(TokenType.IMPLIES):
             first_expr = self.parse_expression()
 
         # Check if we have a colon (indicating slice)
@@ -2512,7 +3946,16 @@ class HybridParser:
 
             # Parse end (optional)
             end = None
-            if not self.match(TokenType.COLON) and not self.match(TokenType.RBRACKET):
+            # Handle ::-1 case where IMPLIES token appears
+            if self.match(TokenType.IMPLIES):
+                # This is actually :-N which means ::(-N)
+                self.advance()  # consume IMPLIES
+                # Parse the number after it as a negative step
+                if self.match(TokenType.NUMBER):
+                    num_val = self.eat(TokenType.NUMBER).value
+                    step = Number('-' + str(num_val))
+                    return Slice(start, end, step)
+            elif not self.match(TokenType.COLON) and not self.match(TokenType.RBRACKET):
                 end = self.parse_expression()
 
             # Parse step (optional)
@@ -2522,6 +3965,18 @@ class HybridParser:
                 if not self.match(TokenType.RBRACKET):
                     step = self.parse_expression()
 
+            return Slice(start, end, step)
+        elif self.match(TokenType.IMPLIES):
+            # Handle ::-1 where first : already consumed and we see :-
+            start = first_expr
+            self.advance()  # consume IMPLIES
+            end = None
+            # The number after :- is the step (as negative)
+            if self.match(TokenType.NUMBER):
+                num_val = self.eat(TokenType.NUMBER).value
+                step = Number('-' + str(num_val))
+            else:
+                step = None
             return Slice(start, end, step)
         else:
             # This is just a regular index
@@ -2556,8 +4011,11 @@ class HybridParser:
 
             self.eat(TokenType.COLON)
 
-            # Parse statement
-            stmt = self.parse_statement()
+            # Parse statement or block
+            if self.match(TokenType.LBRACE):
+                stmt = self.parse_block()
+            else:
+                stmt = self.parse_statement()
             steps.append((label, stmt))
 
             # Optional comma
@@ -2667,178 +4125,6 @@ class HybridParser:
             raise SyntaxError(f"Expected time unit (seconds/ثانية, minutes/دقيقة, hours/ساعة), got {self.current_token}")
 
         return self._with_pos(DelayStatement(duration, unit), delay_tok)
-
-    def parse_match_statement(self):
-        """Parse match statement for pattern matching
-
-        Syntax:
-            match value:
-            {
-                case pattern1: { body1 }
-                case pattern2 when guard: { body2 }
-                default: { default_body }
-            }
-
-        Arabic:
-            طابق قيمة:
-            {
-                حالة نمط1: { جسم1 }
-                حالة نمط2 عندما شرط: { جسم2 }
-                افتراضي: { جسم_افتراضي }
-            }
-        """
-        match_tok = self.eat(TokenType.MATCH)
-
-        # Parse value to match
-        value = self.parse_expression()
-
-        # Expect colon
-        self.eat(TokenType.COLON)
-
-        # Expect opening brace
-        self.eat(TokenType.LBRACE)
-
-        # Parse cases
-        cases = []
-        while self.current_token and not self.match(TokenType.RBRACE):
-            if self.match(TokenType.CASE):
-                cases.append(self.parse_case_clause())
-            elif self.match(TokenType.DEFAULT):
-                cases.append(self.parse_default_clause())
-            else:
-                raise SyntaxError(f"Expected 'case' or 'default' in match statement, got {self.current_token}")
-
-        # Expect closing brace
-        self.eat(TokenType.RBRACE)
-
-        return self._with_pos(MatchStatement(value, cases), match_tok)
-
-    def parse_case_clause(self):
-        """Parse case clause in match statement
-
-        Syntax:
-            case pattern: { body }
-            case pattern when guard: { body }
-        """
-        self.eat(TokenType.CASE)
-
-        # Parse pattern
-        pattern = self.parse_pattern()
-
-        # Check for guard (when clause)
-        guard = None
-        if self.match(TokenType.WHEN):
-            self.advance()
-            guard = self.parse_expression()
-
-        # Expect colon
-        self.eat(TokenType.COLON)
-
-        # Parse body
-        body = self.parse_block()
-
-        return CaseClause(pattern, body, guard)
-
-    def parse_default_clause(self):
-        """Parse default clause in match statement
-
-        Syntax:
-            default: { body }
-        """
-        self.eat(TokenType.DEFAULT)
-
-        # Expect colon
-        self.eat(TokenType.COLON)
-
-        # Parse body
-        body = self.parse_block()
-
-        return DefaultClause(body)
-
-    def parse_pattern(self):
-        """Parse a pattern for pattern matching
-
-        Patterns can be:
-        - Literals: 1, "hello", True
-        - Variables: x, name
-        - Lists: [x, y, z]
-        - Dicts: {"name": n, "age": a}
-        """
-        if self.match(TokenType.LBRACKET):
-            # List pattern
-            return self.parse_list_pattern()
-        elif self.match(TokenType.LBRACE):
-            # Dict pattern
-            return self.parse_dict_pattern()
-        else:
-            # Literal or variable
-            return self.parse_expression()
-
-    def parse_list_pattern(self):
-        """Parse list pattern for destructuring
-
-        Syntax:
-            [x, y, z]
-            [first, second]
-        """
-        self.eat(TokenType.LBRACKET)
-
-        elements = []
-        while self.current_token and not self.match(TokenType.RBRACKET):
-            elements.append(self.parse_pattern())
-
-            if self.match(TokenType.COMMA):
-                self.advance()
-            elif not self.match(TokenType.RBRACKET):
-                raise SyntaxError(f"Expected ',' or ']' in list pattern, got {self.current_token}")
-
-        self.eat(TokenType.RBRACKET)
-
-        return ListPattern(elements)
-
-    def parse_dict_pattern(self):
-        """Parse dictionary pattern for destructuring
-
-        Syntax:
-            {"name": n, "age": a}
-        """
-        self.eat(TokenType.LBRACE)
-
-        keys = []
-        patterns = []
-
-        while self.current_token and not self.match(TokenType.RBRACE):
-            # Parse key (must be string or identifier)
-            if self.match(TokenType.STRING):
-                key = self.current_token.value
-                # Remove quotes from string
-                if key.startswith('"') and key.endswith('"'):
-                    key = key[1:-1]
-                elif key.startswith("'") and key.endswith("'"):
-                    key = key[1:-1]
-                self.advance()
-            elif self.match(TokenType.IDENTIFIER):
-                key = self.current_token.value
-                self.advance()
-            else:
-                raise SyntaxError(f"Expected string or identifier as dict key in pattern, got {self.current_token}")
-
-            keys.append(key)
-
-            # Expect colon
-            self.eat(TokenType.COLON)
-
-            # Parse pattern for this key
-            patterns.append(self.parse_pattern())
-
-            if self.match(TokenType.COMMA):
-                self.advance()
-            elif not self.match(TokenType.RBRACE):
-                raise SyntaxError(f"Expected ',' or '}}' in dict pattern, got {self.current_token}")
-
-        self.eat(TokenType.RBRACE)
-
-        return DictPattern(keys, patterns)
 
     # ========================================================================
     # Reactive Programming Parsing - تحليل البرمجة التفاعلية
@@ -3024,6 +4310,20 @@ class HybridParser:
         if self.match(TokenType.COLON):
             self.eat(TokenType.COLON)
         config = self.parse_entity_body()  # Reuse entity body parser
+        return self._with_pos(CognitiveEvent(name, config), tok)
+
+    def parse_event_def(self):
+        """Parse event definition: event "name": {...}"""
+        tok = self.eat(TokenType.EVENT)
+        # Name can be identifier or string
+        if self.match(TokenType.STRING):
+            name = self.eat(TokenType.STRING).value
+        else:
+            name = self.eat(TokenType.IDENTIFIER).value
+        # Colon is optional
+        if self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+        config = self.parse_entity_body()
         return self._with_pos(CognitiveEvent(name, config), tok)
 
     def parse_conceptual_blueprint(self):
@@ -3272,6 +4572,34 @@ class HybridParser:
         statement = self.parse_expression()
         return self._with_pos(InferFrom(statement), tok)
 
+    def parse_semantic_network(self):
+        """Parse semantic network definition
+
+        Syntax:
+            semantic_network "name":
+            {
+                "nodes": [...],
+                "edges": [...]
+            }
+        """
+        tok = self.eat(TokenType.SEMANTIC_NETWORK)
+        name = self.eat(TokenType.STRING).value
+        self.eat(TokenType.COLON)
+        config = self.parse_entity_body()
+        return self._with_pos(SemanticNetwork(name, config), tok)
+
+    def parse_infer_from_text(self):
+        """Parse infer from text statement
+
+        Syntax:
+            استدل_من: "text"
+            infer_from: "text"
+        """
+        tok = self.eat(TokenType.INFER_FROM_TEXT)
+        self.eat(TokenType.COLON)
+        text = self.parse_expression()
+        return self._with_pos(InferFromText(text), tok)
+
     def parse_contradiction(self):
         """Parse contradiction detection
 
@@ -3300,13 +4628,19 @@ class HybridParser:
 
         Syntax:
             knowledge "<name>":
+            evolving_knowledge "<name>":
+            معرفة_متطورة "<name>":
             {
                 current_value: ...,
                 history: [...],
                 future_prediction: {...}
             }
         """
-        tok = self.eat(TokenType.KNOWLEDGE)
+        # Accept both KNOWLEDGE and EVOLVING_KNOWLEDGE tokens
+        if self.match(TokenType.EVOLVING_KNOWLEDGE):
+            tok = self.eat(TokenType.EVOLVING_KNOWLEDGE)
+        else:
+            tok = self.eat(TokenType.KNOWLEDGE)
 
         if self.match(TokenType.STRING):
             name = self.eat(TokenType.STRING).value
@@ -3316,6 +4650,19 @@ class HybridParser:
         self.eat(TokenType.COLON)
         config = self.parse_entity_body()
         return self._with_pos(EvolvingKnowledge(name, config), tok)
+
+    def parse_semantic_memory(self):
+        """Parse semantic memory definition: memory "<name>": {...} or ذاكرة_دلالية "<name>": {...}"""
+        tok = self.eat(TokenType.MEMORY)
+        if self.match(TokenType.STRING):
+            name = self.eat(TokenType.STRING).value
+        else:
+            name = self.eat(TokenType.IDENTIFIER).value
+        # Colon is optional
+        if self.match(TokenType.COLON):
+            self.eat(TokenType.COLON)
+        config = self.parse_entity_body()
+        return self._with_pos(SemanticMemory(name, config), tok)
 
     def parse_ontology(self):
         """Parse ontology definition
@@ -3424,15 +4771,26 @@ class HybridParser:
 
         Syntax:
             environment "name" in_domain "domain": {...}
+            environment "name" of_type "type" in_domain "domain": {...}
             بيئة "اسم" في_مجال "مجال": {...}
+            بيئة "اسم" من_نوع "نوع" في_مجال "مجال": {...}
         """
         tok = self.eat(TokenType.ENVIRONMENT)
         name = self.eat(TokenType.STRING).value
+
+        # Optional of_type clause
+        env_type = None
+        if self.match(TokenType.OF_TYPE):
+            self.eat(TokenType.OF_TYPE)
+            env_type = self.eat(TokenType.STRING).value
+
         self.eat(TokenType.IN_DOMAIN)
         domain = self.eat(TokenType.STRING).value
         self.eat(TokenType.COLON)
         config = self.parse_entity_body()
-        return self._with_pos(GenericEnvironment(name, domain, config), tok)
+        env = self._with_pos(GenericEnvironment(name, domain, config), tok)
+        env.env_type = env_type  # Store the optional type
+        return env
 
     def parse_existential_being(self):
         """Parse existential being definition

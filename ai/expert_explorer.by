@@ -18,7 +18,7 @@ hybrid {
             self.output = output
             self.feedback = feedback
             self.score = score
-            self.timestamp = time.now()
+            self.timestamp = time.time()
         }
     }
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تصور العلاقات بين العناصر</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }
+        h1 { text-align: center; color: #333; }
+        .mermaid { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>تصور العلاقات بين العناصر</h1>
+    <div class="mermaid">
+graph LR
+    N56736["صوديوم"]
+    N62857["كلور"]
+    N40753["ذهب"]
+    N56736 -->|"يتفاعل_مع"| N62857
+    N62857 -->|"يتفاعل_مع"| N56736
+    </div>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>

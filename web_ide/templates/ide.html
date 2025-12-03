@@ -127,14 +127,23 @@
         'and|as|assert|async|await|break|class|continue|def|del|elif|else|except|'
         + 'False|finally|for|from|global|if|import|include|in|is|lambda|None|nonlocal|'
         + 'not|or|pass|raise|return|True|try|while|with|yield|hybrid|fact|rule|query|assertz|retract|entity|apply|'
-        + 'إذا|وإلا|لكل|بينما|حقيقة|قاعدة|استعلام|كيان|طبق|إدراج|استيراد'
+        + 'إذا|وإلا|لكل|بينما|حقيقة|قاعدة|استعلام|كيان|طبق|إدراج|استيراد|'
+        + 'دالة|صنف|أرجع|اطبع|متغير|ثابت|صحيح|خطأ|لاشيء|و|أو|ليس|في|هو|'
+        + 'حاول|التقط|أخيراً|ارفع|أكد|مع|أنتج|غير_متزامن|انتظر|عام|محلي|'
+        + 'قيّم|نفّذ|ترجم|أنشئ_دالة|عدّل_دالة|احذف_دالة|معلومات_دالة|قائمة_الدوال|تأمل|'
+        + 'eval|exec|compile|create_function|modify_function|delete_function|get_function_info|list_functions|introspect'
+      );
+      var builtins = (
+        'print|len|range|type|str|int|float|list|dict|set|tuple|bool|abs|max|min|sum|sorted|reversed|enumerate|zip|map|filter|'
+        + 'اطبع|طول|مدى|نوع|نص|صحيح|عشري|قائمة|قاموس|مجموعة|صف|منطقي|مطلق|أقصى|أدنى|مجموع|مرتب|معكوس|عدد|ضم|خريطة|رشح'
       );
       this.$rules = { start: [
         { token: 'comment.line.number-sign.bayan', regex: '#.*$' },
         { token: 'string.quoted.single.bayan', regex: "'(?:[^'\\\\]|\\\\.)*'" },
         { token: 'string.quoted.double.bayan', regex: '"(?:[^"\\\\]|\\\\.)*"' },
         { token: 'constant.numeric.bayan', regex: /\b[0-9]+(?:\.[0-9]+)?\b/ },
-        { token: 'keyword.control.bayan', regex: new RegExp('\\b(' + keywords + ')\\b') }
+        { token: 'keyword.control.bayan', regex: new RegExp('\\b(' + keywords + ')\\b') },
+        { token: 'support.function.bayan', regex: new RegExp('\\b(' + builtins + ')\\b') }
       ]};
     };
     oop.inherits(BayanHighlightRules, TextHighlightRules);

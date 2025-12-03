@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تصور البيئة المائية</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }
+        h1 { text-align: center; color: #333; }
+        .mermaid { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>تصور البيئة المائية</h1>
+    <div class="mermaid">
+graph TD
+    ENV["محلول_مائي<br/>البيئة"]
+    DOMAIN["المجال: كيمياء_بسيطة"]
+    ENV --> DOMAIN
+    SPATIAL["🧭 أبعاد مكانية<br/>Spatial Dimensions"]
+    ENV --> SPATIAL
+    SPATIAL --> S3794["حجم: 1 لتر"]
+    SPATIAL --> S2732["درجة_حرارة: 25 درجة مئوية"]
+    TEMPORAL["⏰ أبعاد زمانية<br/>Temporal Dimensions"]
+    ENV --> TEMPORAL
+    TEMPORAL --> T8603["زمن_التفاعل: 10 دقائق"]
+    DSPECIFIC["🔬 أبعاد مجالية<br/>Domain-Specific Dimensions"]
+    ENV --> DSPECIFIC
+    DSPECIFIC --> D2033["pH: 7.0"]
+    DSPECIFIC --> D229["تركيز: 1 مولار"]
+    </div>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>

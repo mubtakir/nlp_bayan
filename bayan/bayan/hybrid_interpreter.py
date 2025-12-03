@@ -10,10 +10,18 @@ from .entity_engine import EntityEngine
 from .gse import GSEModel, generalized_sigmoid, linear_component, approximate_gate
 from .arabic_adapter import ArabicNLPAdapter
 
+# Bytecode compilation support
+try:
+    from .bytecode.codegen import CodeGenerator, compile_to_bytecode
+    from .bytecode.vm import BytecodeVM
+    BYTECODE_AVAILABLE = True
+except ImportError:
+    BYTECODE_AVAILABLE = False
+
 class HybridInterpreter:
     """Hybrid interpreter combining traditional and logical programming"""
 
-    def __init__(self):
+    def __init__(self, use_bytecode=False):
         self.traditional = TraditionalInterpreter()
         self.logical = LogicalEngine()
         self.arabic_adapter = ArabicNLPAdapter()
@@ -62,6 +70,18 @@ class HybridInterpreter:
             os.path.join(cwd, 'bayan', 'libraries'),  # Add libraries directory
             os.path.join(cwd, 'ai'),  # Add ai directory for morphology
         ]
+
+        # Bytecode compilation support
+        self.use_bytecode = use_bytecode and BYTECODE_AVAILABLE
+        self.bytecode_vm = None
+        self.code_generator = None
+        if self.use_bytecode:
+            self.bytecode_vm = BytecodeVM()
+            self.code_generator = CodeGenerator()
+            # Share globals between VM and traditional interpreter
+            self.bytecode_vm.globals = self.traditional.global_env
+            # Share logical engine
+            self.bytecode_vm.logical_engine = self.logical
 
         # Action-centric helper API (no grammar changes needed)
         def _perform_api(action_name, participants, states=None, properties=None, action_value=1.0):
@@ -502,8 +522,68 @@ class HybridInterpreter:
         env['عرّف_قالب_رأس'] = _define_head_template
 
 
-    def interpret(self, node):
-        """Interpret an AST node"""
+    def _is_bytecode_compatible(self, node):
+        """Check if a node can be compiled to bytecode.
+
+        Bytecode compilation is supported for simple imperative code:
+        - Arithmetic expressions
+        - Variable assignments
+        - If/else statements
+        - While loops
+        - Function definitions and calls
+        - Print statements
+
+        Not supported (falls back to traditional):
+        - Logical programming (facts, rules, queries)
+        - Entity definitions
+        - Phrase statements
+        - Import statements
+        - Class definitions (complex OOP)
+        """
+        # Types that require traditional interpretation
+        non_bytecode_types = (
+            LogicalFact, LogicalRule, LogicalQuery, LogicalIfStatement,
+            QueryExpression, PhraseStatement, CauseEffectStatement,
+            RelationStatement, EntityDef, ConceptDef, ApplyActionStmt,
+            ImportStatement, FromImportStatement, HybridBlock
+        )
+
+        if isinstance(node, non_bytecode_types):
+            return False
+
+        # For Program, check if all statements are compatible
+        if isinstance(node, Program):
+            return all(self._is_bytecode_compatible(stmt) for stmt in node.statements)
+
+        # For lists, check all items
+        if isinstance(node, list):
+            return all(self._is_bytecode_compatible(item) for item in node)
+
+        return True
+
+    def interpret_with_bytecode(self, node):
+        """Interpret using bytecode compilation for performance.
+
+        Falls back to traditional interpretation for unsupported constructs.
+        """
+        if not self.use_bytecode or not self._is_bytecode_compatible(node):
+            return self.interpret_traditional(node)
+
+        try:
+            # Compile to bytecode
+            code_obj = self.code_generator.generate(node, optimize=True)
+            # Execute on VM
+            result = self.bytecode_vm.execute(code_obj)
+            # Sync globals back to traditional interpreter
+            self.traditional.global_env.update(self.bytecode_vm.globals)
+            return result
+        except Exception as e:
+            # Fall back to traditional interpretation on any error
+            # This ensures compatibility with all Bayan features
+            return self.interpret_traditional(node)
+
+    def interpret_traditional(self, node):
+        """Traditional AST interpretation (original behavior)."""
         if isinstance(node, Program):
             return self.visit_program(node)
         elif isinstance(node, HybridBlock):
@@ -538,6 +618,16 @@ class HybridInterpreter:
             # Delegate to traditional interpreter
             return self.traditional.interpret(node)
 
+    def interpret(self, node):
+        """Interpret an AST node.
+
+        Uses bytecode compilation when enabled and compatible,
+        otherwise falls back to traditional interpretation.
+        """
+        if self.use_bytecode:
+            return self.interpret_with_bytecode(node)
+        return self.interpret_traditional(node)
+
     def visit_phrase_statement(self, node):
         """Evaluate grammar-sugar nominal phrase by delegating to phrase/عبارة env function."""
         env = self.traditional.global_env
@@ -560,7 +650,7 @@ class HybridInterpreter:
             # Functions
             if name in self._mod.functions:
                 func_def = self._mod.functions[name]
-                def _fn(*args):
+                def _fn(*args, **kwargs):
                     old_local = self._mod.local_env
                     self._mod.local_env = {}
                     try:
@@ -579,6 +669,10 @@ class HybridInterpreter:
                         for i, arg in enumerate(args):
                             if i < len(param_names):
                                 self._mod.local_env[param_names[i]] = arg
+
+                        # Bind keyword arguments
+                        for key, value in kwargs.items():
+                            self._mod.local_env[key] = value
 
                         # Bind default values for missing parameters
                         for param in func_def.parameters:
@@ -603,6 +697,16 @@ class HybridInterpreter:
 
     def _find_bayan_module_path(self, module_name):
         import os
+        # Handle module names that already have extensions
+        if module_name.endswith('.by') or module_name.endswith('.bayan'):
+            # Direct path with extension
+            for base in self._bayan_module_paths:
+                candidate = os.path.join(base, module_name)
+                if os.path.isfile(candidate):
+                    return candidate
+            return None
+
+        # Replace dots with path separators for module-style imports
         rel_base = module_name.replace('.', os.sep)
         for base in self._bayan_module_paths:
             for ext in ('.bayan', '.by'):
@@ -638,27 +742,24 @@ class HybridInterpreter:
         # Try Bayan module first
         loaded = self._load_bayan_module(node.module_name)
         if loaded:
-            _, proxy = loaded
+            mod_interp, proxy = loaded
             name = node.alias if node.alias else node.module_name
             # If module name contains slashes or dots, use the last part as default alias
             if not node.alias and ('/' in name or '.' in name):
                 name = name.replace('/', '.').split('.')[-1]
-            
+
             env = self.traditional.local_env if self.traditional.local_env is not None else self.traditional.global_env
             env[name] = proxy
-            
-            # Also register functions directly if it's a simple import (optional, but helpful for 'include' style)
-            # Actually, 'include' is different. 'import' should namespace.
-            # But wait, the test uses `apply_pattern` directly without namespace.
-            # The test uses `include "ai/morphology.bayan"`.
-            # `include` is handled by TraditionalInterpreter._include which executes in current scope.
-            # So why did it fail?
-            # Ah, `include` in TraditionalInterpreter uses `self.interpret(ast)`.
-            # `self` is TraditionalInterpreter.
-            # But `ast` contains `FunctionDef`.
-            # `TraditionalInterpreter.visit_function_def` registers function in `self.functions`.
-            # So it should work.
-            
+
+            # Also register all classes and functions from the module directly
+            # This allows using them without namespace prefix (like Python's 'from X import *')
+            for cls_name, cls_def in mod_interp.traditional.classes.items():
+                self.traditional.classes[cls_name] = cls_def
+                self.class_system.register_class(cls_def)
+
+            for func_name, func_def in mod_interp.traditional.functions.items():
+                self.traditional.functions[func_name] = func_def
+
             return None
         # Fallback to Python import via traditional interpreter
         return self.traditional.visit_import_statement(node)
@@ -694,23 +795,21 @@ class HybridInterpreter:
 
     def visit_hybrid_block(self, node):
         """Visit a hybrid block"""
-        # First, execute traditional statements
+        # First, add logical rules and facts (so they're available for queries)
+        for stmt in node.logical_stmts:
+            self.interpret(stmt)
+
+        # Then, execute traditional statements (which may include queries)
         traditional_result = None
         for stmt in node.traditional_stmts:
             traditional_result = self.interpret(stmt)
-
-        # Then, add logical rules and facts
-        for stmt in node.logical_stmts:
-            self.interpret(stmt)
 
         return traditional_result
 
     def visit_logical_fact(self, node):
         """Visit a logical fact (supports optional probability via fact[prob])"""
         # Convert AST LogicalPredicate to logical_engine Predicate
-        print(f"DEBUG: Visiting LogicalFact: {node.predicate} (Type: {type(node.predicate)})")
         predicate = self.traditional._convert_to_predicate(node.predicate)
-        print(f"DEBUG: Converted predicate: {predicate}")
         if not predicate:
             return None
             
@@ -814,7 +913,7 @@ class HybridInterpreter:
     def visit_logical_query(self, node):
         """Visit a logical query"""
         from .logical_engine import Predicate
-        
+
         # Check if goal is already a Predicate (from parser) or needs conversion
         if isinstance(node.goal, Predicate):
             goal = node.goal
@@ -823,7 +922,7 @@ class HybridInterpreter:
             goal = self.traditional._convert_to_predicate(node.goal)
             if not goal:
                 return []
-            
+
         solutions = self.logical.query(goal)
 
         # Convert solutions to dictionaries (include '__prob')
@@ -877,6 +976,15 @@ class HybridInterpreter:
             # Do not fail execution because of display issues
             pass
 
+        # Register the first result's variables in the global environment
+        # This allows using ?var in subsequent print statements
+        if results:
+            first_result = results[0]
+            for var_name, value in first_result.items():
+                if var_name != '__prob':
+                    # Register with ? prefix for logic variable access
+                    self.traditional.global_env[f"?{var_name}"] = value
+
         return results
 
     def visit_logical_if_statement(self, node):
@@ -904,14 +1012,18 @@ class HybridInterpreter:
 
     def visit_query_expression(self, node):
         """Visit a query expression"""
-        solutions = self.logical.query(node.goal)
+        solutions = list(self.logical.query(node.goal))
 
         # Convert solutions to dictionaries (include '__prob')
         results = []
         for substitution in solutions:
             result_dict = {}
             for var_name, value in substitution.bindings.items():
-                result_dict[var_name] = value
+                # Convert Term to its value
+                if hasattr(value, 'value'):
+                    result_dict['?' + var_name] = value.value
+                else:
+                    result_dict['?' + var_name] = value
             result_dict['__prob'] = float(getattr(substitution, 'probability', 1.0))
             results.append(result_dict)
         return results
@@ -952,6 +1064,12 @@ class HybridInterpreter:
                     power = spec.get('قوة', 1.0)
                 effects = spec.get('effects') or spec.get('تأثيرات') or []
                 engine.define_action(name, act_name, power=float(power), effects=effects)
+
+        # Register the entity as a variable in the global environment
+        # This allows accessing entity properties like: طالب["اسم"]
+        entity_dict = dict(body)  # Copy the body as the entity's accessible properties
+        self.traditional.global_env[name] = entity_dict
+
         return None
 
     def visit_apply_action_stmt(self, node):
@@ -965,17 +1083,16 @@ class HybridInterpreter:
         if isinstance(node.target_expr, String):
             target_name = node.target_expr.value
         elif isinstance(node.target_expr, Variable):
-            # Try to resolve variable from env; fallback to its symbol
-            if self.traditional.local_env and node.target_expr.name in self.traditional.local_env:
-                target_name = self.traditional.local_env[node.target_expr.name]
-            elif node.target_expr.name in self.traditional.global_env:
-                target_name = self.traditional.global_env[node.target_expr.name]
-            else:
-                target_name = node.target_expr.name
+            # For entity actions, use the variable name directly as the entity name
+            # This is because entities are registered by name (e.g., "أحمد")
+            target_name = node.target_expr.name
         else:
             # Evaluate to a value and stringify
             val = self.traditional.interpret(node.target_expr)
-            target_name = str(val)
+            if isinstance(val, str):
+                target_name = val
+            else:
+                target_name = str(val)
         # Named args
         action_value = 1.0
         if node.named_args:

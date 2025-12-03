@@ -61,6 +61,19 @@ class UnaryOp(ASTNode):
     def __repr__(self):
         return f"UnaryOp({self.operator}, {self.operand})"
 
+class TernaryOp(ASTNode):
+    """Ternary conditional expression: value if condition else alternative
+
+    Python-style ternary: true_value if condition else false_value
+    """
+    def __init__(self, condition, true_value, false_value):
+        self.condition = condition
+        self.true_value = true_value
+        self.false_value = false_value
+
+    def __repr__(self):
+        return f"TernaryOp({self.condition}, {self.true_value}, {self.false_value})"
+
 class Number(ASTNode):
     """Numeric literal"""
     def __init__(self, value):
@@ -76,6 +89,18 @@ class String(ASTNode):
 
     def __repr__(self):
         return f"String({repr(self.value)})"
+
+class FString(ASTNode):
+    """F-string (formatted string literal)
+
+    Stores the raw f-string content and parsed parts for interpolation.
+    """
+    def __init__(self, raw_value, parts=None):
+        self.raw_value = raw_value  # The raw f-string content (without f prefix and quotes)
+        self.parts = parts or []     # List of (is_expr, content) tuples
+
+    def __repr__(self):
+        return f"FString({repr(self.raw_value)})"
 
 class Boolean(ASTNode):
     """Boolean literal"""
@@ -117,6 +142,32 @@ class ListComprehension(ASTNode):
 
     def __repr__(self):
         return f"ListComprehension({self.var_name} in ...)"
+
+
+class DictComprehension(ASTNode):
+    """Dict comprehension: {key_expr: val_expr for var in iterable if cond}"""
+    def __init__(self, key_expr, val_expr, var_name, iterable, condition=None):
+        self.key_expr = key_expr
+        self.val_expr = val_expr
+        self.var_name = var_name
+        self.iterable = iterable
+        self.condition = condition
+
+    def __repr__(self):
+        return f"DictComprehension({self.var_name} in ...)"
+
+
+class SetComprehension(ASTNode):
+    """Set comprehension: {expr for var in iterable if cond}"""
+    def __init__(self, expr, var_name, iterable, condition=None):
+        self.expr = expr
+        self.var_name = var_name
+        self.iterable = iterable
+        self.condition = condition
+
+    def __repr__(self):
+        return f"SetComprehension({self.var_name} in ...)"
+
 
 class ListPattern(ASTNode):
     """List pattern for Prolog-style matching: [H|T] or [H1, H2|T]
@@ -204,6 +255,126 @@ class WithStatement(ASTNode):
     def __repr__(self):
         return f"WithStatement({self.context_expr} as {self.target_var})"
 
+
+# ============ Type System Nodes (نظام الأنواع) ============
+
+class TypeAnnotation(ASTNode):
+    """Type annotation: int, str, List[int], etc.
+    تعليق النوع: صحيح، نص، قائمة[صحيح]، إلخ
+    """
+    def __init__(self, base_type, type_params=None):
+        self.base_type = base_type  # "int", "str", "List", etc.
+        self.type_params = type_params or []  # For generic types like List[int]
+
+    def __repr__(self):
+        if self.type_params:
+            params = ", ".join(str(p) for p in self.type_params)
+            return f"TypeAnnotation({self.base_type}[{params}])"
+        return f"TypeAnnotation({self.base_type})"
+
+
+class GenericType(ASTNode):
+    """Generic type parameter: T, K, V
+    معامل نوع عام
+    """
+    def __init__(self, name, bound=None):
+        self.name = name  # e.g., "T"
+        self.bound = bound  # Optional constraint, e.g., T extends Comparable
+
+    def __repr__(self):
+        if self.bound:
+            return f"GenericType({self.name} extends {self.bound})"
+        return f"GenericType({self.name})"
+
+
+class UnionType(ASTNode):
+    """Union type: int | str or Union[int, str]
+    نوع اتحاد
+    """
+    def __init__(self, types):
+        self.types = types  # List of TypeAnnotation
+
+    def __repr__(self):
+        types_str = " | ".join(str(t) for t in self.types)
+        return f"UnionType({types_str})"
+
+
+class OptionalType(ASTNode):
+    """Optional type: Optional[int] or int?
+    نوع اختياري
+    """
+    def __init__(self, inner_type):
+        self.inner_type = inner_type
+
+    def __repr__(self):
+        return f"OptionalType({self.inner_type})"
+
+
+class CallableType(ASTNode):
+    """Callable type: Callable[[int, str], bool]
+    نوع قابل للاستدعاء
+    """
+    def __init__(self, param_types, return_type):
+        self.param_types = param_types  # List of TypeAnnotation
+        self.return_type = return_type  # TypeAnnotation
+
+    def __repr__(self):
+        params = ", ".join(str(p) for p in self.param_types)
+        return f"CallableType(({params}) -> {self.return_type})"
+
+
+class TypedVariable(ASTNode):
+    """Variable with type annotation: x: int = 5
+    متغير مع تعليق النوع
+    """
+    def __init__(self, name, type_annotation, value=None):
+        self.name = name
+        self.type_annotation = type_annotation
+        self.value = value
+
+    def __repr__(self):
+        if self.value:
+            return f"TypedVariable({self.name}: {self.type_annotation} = {self.value})"
+        return f"TypedVariable({self.name}: {self.type_annotation})"
+
+
+class EnumDef(ASTNode):
+    """Enum definition: enum Color { RED, GREEN, BLUE }
+    تعريف تعداد
+    """
+    def __init__(self, name, members):
+        self.name = name
+        self.members = members  # List of (name, value) tuples
+
+    def __repr__(self):
+        return f"EnumDef({self.name}, {len(self.members)} members)"
+
+
+class InterfaceDef(ASTNode):
+    """Interface definition: interface Drawable { def draw(): ... }
+    تعريف واجهة
+    """
+    def __init__(self, name, methods, extends=None):
+        self.name = name
+        self.methods = methods  # List of method signatures
+        self.extends = extends or []  # List of parent interface names
+
+    def __repr__(self):
+        return f"InterfaceDef({self.name}, {len(self.methods)} methods)"
+
+
+class MethodSignature(ASTNode):
+    """Method signature for interfaces: def method(param: int) -> str
+    توقيع الدالة للواجهات
+    """
+    def __init__(self, name, params, return_type=None):
+        self.name = name
+        self.params = params  # List of (name, type) tuples
+        self.return_type = return_type
+
+    def __repr__(self):
+        return f"MethodSignature({self.name})"
+
 class Cut(ASTNode):
     """Cut operator: ! (prevents backtracking in logic programming)"""
     def __init__(self):
@@ -222,6 +393,33 @@ class Decorator(ASTNode):
         if self.args:
             return f"Decorator(@{self.name}({len(self.args)} args))"
         return f"Decorator(@{self.name})"
+
+class PropertyDescriptor:
+    """Property descriptor for @property decorated methods"""
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+        self.fget = fget  # Getter function
+        self.fset = fset  # Setter function
+        self.fdel = fdel  # Deleter function
+        self.__doc__ = doc
+
+    def getter(self, fget):
+        return PropertyDescriptor(fget, self.fset, self.fdel, self.__doc__)
+
+    def setter(self, fset):
+        return PropertyDescriptor(self.fget, fset, self.fdel, self.__doc__)
+
+    def deleter(self, fdel):
+        return PropertyDescriptor(self.fget, self.fset, fdel, self.__doc__)
+
+class DataclassField(ASTNode):
+    """A field in a dataclass"""
+    def __init__(self, name, type_annotation=None, default_value=None):
+        self.name = name
+        self.type_annotation = type_annotation
+        self.default_value = default_value
+
+    def __repr__(self):
+        return f"DataclassField({self.name})"
 
 class Dict(ASTNode):
     """Dictionary literal: {key: value}"""
@@ -382,6 +580,15 @@ class FunctionDef(ASTNode):
     def __repr__(self):
         dec_str = f", {len(self.decorators)} decorators" if self.decorators else ""
         return f"FunctionDef({self.name}, {len(self.parameters)} params{dec_str})"
+
+class LambdaExpression(ASTNode):
+    """Lambda expression: lambda x, y: x + y"""
+    def __init__(self, parameters, body):
+        self.parameters = parameters  # List of parameter names
+        self.body = body  # Expression node
+
+    def __repr__(self):
+        return f"LambdaExpression({self.parameters})"
 
 class ClassDef(ASTNode):
     """Class definition with support for decorators"""
@@ -607,6 +814,18 @@ class LogicalQuery(ASTNode):
     def __repr__(self):
         return f"LogicalQuery({self.goal})"
 
+class QueryExpression(ASTNode):
+    """Query as expression: query predicate(...) where condition?
+    Returns list of matching bindings."""
+    def __init__(self, goal, where_clause=None):
+        self.goal = goal
+        self.where_clause = where_clause
+
+    def __repr__(self):
+        if self.where_clause:
+            return f"QueryExpression({self.goal} where {self.where_clause})"
+        return f"QueryExpression({self.goal})"
+
 class LogicalPredicate(ASTNode):
     """Logical predicate: parent(X, Y)"""
     def __init__(self, name, arguments):
@@ -623,6 +842,14 @@ class LogicalVariable(ASTNode):
 
     def __repr__(self):
         return f"LogicalVariable(?{self.name})"
+
+class ExpressionTerm(ASTNode):
+    """Wrapper for expressions used as logical terms (e.g., rec[0] in query)"""
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __repr__(self):
+        return f"ExpressionTerm({self.expression})"
 
 class LogicalConstant(ASTNode):
     """Logical constant: atom, number, string"""
@@ -708,14 +935,6 @@ class LogicalIfStatement(ASTNode):
     def __repr__(self):
         return f"LogicalIfStatement(condition, then, else={self.else_branch is not None})"
 
-class QueryExpression(ASTNode):
-    """Query expression in traditional code: query parent(?X, john)"""
-    def __init__(self, goal):
-        self.goal = goal
-
-    def __repr__(self):
-        return f"QueryExpression({self.goal})"
-
 
 # ============ Entity System Nodes ============
 
@@ -751,6 +970,16 @@ class ApplyActionStmt(ASTNode):
     def __repr__(self):
         return f"ApplyActionStmt({self.actor_name}.{self.action_name}(...))"
 
+
+# ============ Assert Fact Node ============
+
+class AssertFact(ASTNode):
+    """Assert fact statement: assert_fact: predicate(args)"""
+    def __init__(self, predicate):
+        self.predicate = predicate
+
+    def __repr__(self):
+        return f"AssertFact({self.predicate})"
 
 # ============ Once and Limit Nodes ============
 
@@ -1396,6 +1625,38 @@ class InferFrom(ASTNode):
         return f"InferFrom({self.statement})"
 
 
+class SemanticNetwork(ASTNode):
+    """Define semantic network with nodes and edges
+
+    Syntax:
+        semantic_network "name":
+        {
+            "nodes": [...],
+            "edges": [...]
+        }
+    """
+    def __init__(self, name, config):
+        self.name = name
+        self.config = config
+
+    def __repr__(self):
+        return f"SemanticNetwork({self.name})"
+
+
+class InferFromText(ASTNode):
+    """Infer from text using inference rules
+
+    Syntax:
+        استدل_من: "text"
+        infer_from: "text"
+    """
+    def __init__(self, text):
+        self.text = text
+
+    def __repr__(self):
+        return f"InferFromText({self.text})"
+
+
 class Contradiction(ASTNode):
     """Detect contradiction between information
 
@@ -1851,3 +2112,210 @@ class ExistentialQuery(ASTNode):
         return f"ExistentialQuery()"
 
 
+# ============ Advanced Language Features ============
+
+class AssertStatement(ASTNode):
+    """Assert statement: assert condition, message
+    تأكد الشرط، الرسالة
+    """
+    def __init__(self, condition, message=None):
+        self.condition = condition
+        self.message = message
+
+    def __repr__(self):
+        return f"AssertStatement({self.condition}, {self.message})"
+
+
+class OptionalChain(ASTNode):
+    """Optional chaining: obj?.attr or obj?.method()
+    الوصول الاختياري
+    """
+    def __init__(self, object_expr, attribute_name):
+        self.object_expr = object_expr
+        self.attribute_name = attribute_name
+
+    def __repr__(self):
+        return f"OptionalChain({self.object_expr}?.{self.attribute_name})"
+
+
+class NullishCoalescing(ASTNode):
+    """Nullish coalescing: value ?? default
+    القيمة الافتراضية عند None
+    """
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+
+    def __repr__(self):
+        return f"NullishCoalescing({self.left} ?? {self.right})"
+
+
+class WalrusAssignment(ASTNode):
+    """Walrus operator / Assignment expression: (x := value)
+    تعبير الإسناد
+    """
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        return f"WalrusAssignment({self.name} := {self.value})"
+
+
+class SpreadOperator(ASTNode):
+    """Spread operator: *list or **dict
+    عامل النشر
+    """
+    def __init__(self, expression, is_dict=False):
+        self.expression = expression
+        self.is_dict = is_dict  # True for **, False for *
+
+    def __repr__(self):
+        op = "**" if self.is_dict else "*"
+        return f"SpreadOperator({op}{self.expression})"
+
+
+class ChainedComparison(ASTNode):
+    """Chained comparison: 1 < x < 10
+    مقارنة متسلسلة
+    """
+    def __init__(self, operands, operators):
+        self.operands = operands  # [1, x, 10]
+        self.operators = operators  # ['<', '<']
+
+    def __repr__(self):
+        return f"ChainedComparison({self.operands}, {self.operators})"
+
+
+class NamedTupleType(ASTNode):
+    """Named tuple type definition
+    تعريف صف مسمى
+    """
+    def __init__(self, name, fields):
+        self.name = name
+        self.fields = fields  # [(field_name, type), ...]
+
+    def __repr__(self):
+        return f"NamedTupleType({self.name}, {self.fields})"
+
+
+class AbstractMethod(ASTNode):
+    """Abstract method declaration (no body)
+    دالة مجردة
+    """
+    def __init__(self, name, parameters, return_type=None):
+        self.name = name
+        self.parameters = parameters
+        self.return_type = return_type
+
+    def __repr__(self):
+        return f"AbstractMethod({self.name})"
+
+
+class TupleUnpacking(ASTNode):
+    """Tuple/List unpacking: a, b, c = iterable
+    تفكيك الصف/القائمة
+    """
+    def __init__(self, targets, value):
+        self.targets = targets  # List of variable names
+        self.value = value  # The iterable expression
+
+    def __repr__(self):
+        return f"TupleUnpacking({self.targets} = {self.value})"
+
+
+class MatchStatement(ASTNode):
+    """Match/Case statement (Pattern Matching)
+    عبارة المطابقة
+    """
+    def __init__(self, subject, cases):
+        self.subject = subject  # Expression to match
+        self.cases = cases  # List of (pattern, guard, body) tuples
+
+    def __repr__(self):
+        return f"MatchStatement({self.subject}, {len(self.cases)} cases)"
+
+
+class MatchCase(ASTNode):
+    """A single case in a match statement
+    حالة في عبارة المطابقة
+    """
+    def __init__(self, pattern, body, guard=None):
+        self.pattern = pattern  # Pattern to match
+        self.body = body  # Body to execute if matched
+        self.guard = guard  # Optional guard condition (if clause)
+
+    def __repr__(self):
+        return f"MatchCase({self.pattern})"
+
+
+class EnumDef(ASTNode):
+    """Enum definition
+    تعريف التعداد
+    """
+    def __init__(self, name, members):
+        self.name = name  # Enum name
+        self.members = members  # List of (name, value) tuples
+
+    def __repr__(self):
+        return f"EnumDef({self.name}, {len(self.members)} members)"
+
+
+class NamedTupleDef(ASTNode):
+    """Named tuple definition
+    تعريف الصف المسمى
+    """
+    def __init__(self, name, fields):
+        self.name = name  # Tuple type name
+        self.fields = fields  # List of field names or (name, type) tuples
+
+    def __repr__(self):
+        return f"NamedTupleDef({self.name}, {self.fields})"
+
+
+class SliceExpression(ASTNode):
+    """Slice expression: [start:stop:step]
+    تعبير الشريحة
+    """
+    def __init__(self, start, stop, step=None):
+        self.start = start
+        self.stop = stop
+        self.step = step
+
+    def __repr__(self):
+        return f"SliceExpression({self.start}:{self.stop}:{self.step})"
+
+
+class StarExpression(ASTNode):
+    """Star expression for unpacking: *args, **kwargs
+    تعبير النجمة للتفكيك
+    """
+    def __init__(self, expression, is_double=False):
+        self.expression = expression
+        self.is_double = is_double  # True for **kwargs
+
+    def __repr__(self):
+        stars = "**" if self.is_double else "*"
+        return f"StarExpression({stars}{self.expression})"
+
+
+class GlobalStatement(ASTNode):
+    """Global variable declaration: global x, y, z
+    إعلان متغير عام
+    """
+    def __init__(self, names):
+        self.names = names  # List of variable names
+
+    def __repr__(self):
+        return f"GlobalStatement({', '.join(self.names)})"
+
+
+class NonlocalStatement(ASTNode):
+    """Nonlocal variable declaration: nonlocal x, y
+    إعلان متغير غير محلي
+    """
+    def __init__(self, names):
+        self.names = names  # List of variable names
+
+    def __repr__(self):
+        return f"NonlocalStatement({', '.join(self.names)})"

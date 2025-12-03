@@ -144,8 +144,7 @@ print(f"\nالتشابه الدلالي بين الصوديوم والكلور: 
 # ============================================================================
 
 # تعريف كيانات معرفية من الكائنات الوجودية
-entity "sodium_entity":
-{
+sodium_entity = {
     "type": "chemical_element",
     "properties": {
         "name": "صوديوم",
@@ -155,8 +154,7 @@ entity "sodium_entity":
     "dynamic": 1
 }
 
-entity "chlorine_entity":
-{
+chlorine_entity = {
     "type": "chemical_element",
     "properties": {
         "name": "كلور",

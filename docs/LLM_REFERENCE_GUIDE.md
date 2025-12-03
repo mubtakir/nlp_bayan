@@ -1441,6 +1441,110 @@ hybrid {
 
 ---
 
+## Advanced Features (2025 Update)
+
+Bayan now supports many advanced Python-like features:
+
+### Match/Case Pattern Matching
+```bayan
+hybrid {
+    x = 2
+    match x: {
+        case 1: { print("one") }
+        case 2: { print("two") }
+        case _: { print("other") }
+    }
+}
+```
+
+### Enums
+```bayan
+hybrid {
+    enum Color: {
+        RED = 1
+        GREEN = 2
+        BLUE = 3
+    }
+    print(Color.RED)  # 1
+}
+```
+
+### Ternary Operator
+```bayan
+hybrid {
+    result = "big" if x > 5 else "small"
+}
+```
+
+### Tuple Unpacking
+```bayan
+hybrid {
+    a, b, c = 1, 2, 3
+    a, b = b, a  # Swap
+}
+```
+
+### Spread Operator
+```bayan
+hybrid {
+    # Lists
+    merged = [*list1, *list2]
+
+    # Dicts
+    merged_dict = {**dict1, **dict2}
+}
+```
+
+### Negative Step Slicing
+```bayan
+hybrid {
+    reversed = nums[::-1]
+}
+```
+
+### Global/Nonlocal
+```bayan
+hybrid {
+    counter = 0
+    def increment(): {
+        global counter
+        counter = counter + 1
+    }
+}
+```
+
+### Nullish Coalescing
+```bayan
+hybrid {
+    value = x ?? default_value
+}
+```
+
+### F-Strings
+```bayan
+hybrid {
+    print(f"Name: {name}, Age: {age}")
+}
+```
+
+### Enhanced Exceptions
+```bayan
+hybrid {
+    try: {
+        raise ValueError("error message")
+    } except ValueError as e: {
+        print("Caught:", str(e))
+    }
+}
+```
+
+### Built-in Exceptions
+Available: `Exception`, `ValueError`, `TypeError`, `KeyError`, `IndexError`,
+`AttributeError`, `RuntimeError`, `ZeroDivisionError`, `FileNotFoundError`,
+`IOError`, `StopIteration`, `AssertionError`, `NotImplementedError`, `NameError`
+
+---
+
 ## Tips for Writing Clean Bayan Code
 
 1. **Always use meaningful variable names** (Arabic or English)
@@ -1451,10 +1555,95 @@ hybrid {
 6. **Use OOP** for data structures and encapsulation
 7. **Use imperative** for sequential operations
 8. **Use probabilistic reasoning** for uncertainty and decision-making
-9. **Use causal networks** for building theories and reasoning systems (NEW! 🎯)
-10. **Test your code** with different inputs
+9. **Use causal networks** for building theories and reasoning systems
+10. **Use pattern matching** for complex conditionals (NEW! 🎯)
+11. **Use spread operators** for merging collections (NEW! 🎯)
+12. **Test your code** with different inputs
 
 ---
 
 **These examples demonstrate the full power of Bayan. Use them as templates when generating code!**
 
+---
+
+## Letter Semiotics System (NEW! 🧠)
+
+Bayan includes an intelligent letter semiotics system that can:
+- **Infer meanings** from letters based on shape, sound, name, and lexical patterns
+- **Generate words** from meanings (meaning → word)
+- **Analyze words** to understand their semantic components
+
+```python
+# Import the extension
+from bayan.letter_semiotics_extension import create_enhanced_interpreter
+
+interpreter = create_enhanced_interpreter(use_hybrid=True)
+env = interpreter.traditional.global_env
+
+# Infer word meaning
+result = env['استنبط_كلمة']('حكمة')
+print(result['المعنى_المركب'])
+
+# Infer letter meanings
+meanings = env['استنبط_حرف']('ب')
+for m in meanings:
+    print(f"{m['المعنى']} - {m['الطريقة']}")
+```
+
+---
+
+## Bayan Brain - Unified Intelligence (NEW! 🧠🧠)
+
+Bayan Brain integrates two hemispheres:
+1. **Logical Hemisphere**: Letter semiotics, inference engines, word generation
+2. **Mathematical Hemisphere**: Baserah AI, adaptive equations, revolutionary theories
+
+### Brain Functions
+
+```python
+from bayan.brain_extension import inject_brain_functions
+
+env = {}
+inject_brain_functions(env)
+
+# Think using both hemispheres
+result = env['فكّر_في']('بيان')
+print(f"Confidence: {result['الثقة']}")
+
+# Convert letter to equation
+eq = env['حرف_إلى_معادلة']('ب')
+print(f"alpha={eq['alpha']}, k={eq['k']}")
+
+# Compare two words
+comparison = env['قارن_كلمتين']('نور', 'ظلام')
+print(f"Similarity: {comparison['التشابه']}")
+
+# Get brain status
+status = env['حالة_العقل']()
+print(f"Active hemisphere: {status['الفص_النشط']}")
+```
+
+### Baserah AI Functions
+
+```python
+from bayan.baserah_extension import inject_baserah_functions
+
+env = {}
+inject_baserah_functions(env)
+
+# Create adaptive equation
+eq = env['أنشئ_معادلة_متكيفة']('test', [0.5], [2.0], [0.1])
+
+# Apply zero duality theory
+result = env['طبّق_ثنائية_الصفر'](5.0)
+
+# Draw shapes
+circle = env['ارسم_شكلاً']('دائرة', 1.0)
+
+# Create thinking core
+core = env['أنشئ_نواة_تفكير']()
+```
+
+---
+
+**Last Updated**: 2025-12-03

@@ -26,7 +26,11 @@ results = query factorial(5, ?F)?
 print("Query: factorial(5, ?F)")
 print("Results:", results)
 if results:
-    print("5! =", results[0]['F'])
+    # Try both key formats
+    if '?F' in results[0]:
+        print("5! =", results[0]['?F'])
+    elif 'F' in results[0]:
+        print("5! =", results[0]['F'])
 print()
 
 # حساب مضروب 0
@@ -35,7 +39,10 @@ results = query factorial(0, ?F)?
 print("Query: factorial(0, ?F)")
 print("Results:", results)
 if results:
-    print("0! =", results[0]['F'])
+    if '?F' in results[0]:
+        print("0! =", results[0]['?F'])
+    elif 'F' in results[0]:
+        print("0! =", results[0]['F'])
 print()
 
 # حساب مضروب 6
@@ -44,7 +51,10 @@ results = query factorial(6, ?F)?
 print("Query: factorial(6, ?F)")
 print("Results:", results)
 if results:
-    print("6! =", results[0]['F'])
+    if '?F' in results[0]:
+        print("6! =", results[0]['?F'])
+    elif 'F' in results[0]:
+        print("6! =", results[0]['F'])
 print()
 
 # حساب مضروب 10
@@ -53,5 +63,8 @@ results = query factorial(10, ?F)?
 print("Query: factorial(10, ?F)")
 print("Results:", results)
 if results:
-    print("10! =", results[0]['F'])
+    if '?F' in results[0]:
+        print("10! =", results[0]['?F'])
+    elif 'F' in results[0]:
+        print("10! =", results[0]['F'])
 

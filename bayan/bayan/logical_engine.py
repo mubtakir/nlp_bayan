@@ -143,12 +143,9 @@ class LogicalEngine:
                 # Key is all args except the last one
                 key = tuple(str(arg) for arg in fact.predicate.args[:-1])
                 val = str(fact.predicate.args[-1])
-                
-                print(f"DEBUG: Checking fact {fact.predicate} Key={key} Val={val}")
 
                 if key in seen_args:
                     existing_val, existing_fact = seen_args[key]
-                    print(f"DEBUG: Found existing {existing_fact.predicate} Val={existing_val}")
                     if existing_val != val:
                         # Potential contradiction found!
                         # We need to be careful. color(car, red) and color(car, blue) might be valid if it's multi-colored.
@@ -419,8 +416,35 @@ class LogicalEngine:
                 solutions.append(result)
             return solutions
 
+        # Handle unification predicate: _unify(X, Y) - Prolog-style X = Y
+        if isinstance(goal, Predicate) and goal.name == '_unify':
+            if len(goal.args) == 2:
+                left = goal.args[0]
+                right = goal.args[1]
+                # Apply current substitution to both sides
+                left_val = self._apply_substitution(left, substitution)
+                right_val = self._apply_substitution(right, substitution)
+                # Try to unify
+                new_sub = self._unify(left_val, right_val, substitution)
+                if new_sub is not None:
+                    solutions.append(new_sub)
+            return solutions
+
         # Handle built-in predicates
         if isinstance(goal, Predicate):
+            # Handle compound goal predicates: _and, _or, _if_then_else
+            if goal.name == '_and' and len(goal.args) >= 1:
+                # Execute all goals in sequence (conjunction)
+                return self._handle_and(goal.args, substitution)
+
+            if goal.name == '_or' and len(goal.args) >= 1:
+                # Execute any goal (disjunction)
+                return self._handle_or(goal.args, substitution)
+
+            if goal.name == '_if_then_else' and len(goal.args) == 3:
+                # (cond -> then ; else)
+                return self._handle_if_then_else(goal.args[0], goal.args[1], goal.args[2], substitution)
+
             # Handle findall/3: findall(?Template, ?Goal, ?Result)
             if goal.name == 'findall' and len(goal.args) == 3:
                 return self._handle_findall(goal, substitution)
@@ -1035,6 +1059,106 @@ class LogicalEngine:
             return [substitution]
         return []
 
+    def _handle_and(self, goals, substitution):
+        """Handle conjunction: execute all goals in sequence.
+
+        goals is a list of goal lists (each from parse_logical_body).
+        """
+        current_subs = [substitution]
+        for goal_list in goals:
+            if isinstance(goal_list, list):
+                # It's a list of goals from parse_logical_body
+                for goal in goal_list:
+                    next_subs = []
+                    for sub in current_subs:
+                        next_subs.extend(self._solve_goal(goal, sub))
+                    current_subs = next_subs
+                    if not current_subs:
+                        return []
+            else:
+                # It's a single goal
+                next_subs = []
+                for sub in current_subs:
+                    next_subs.extend(self._solve_goal(goal_list, sub))
+                current_subs = next_subs
+                if not current_subs:
+                    return []
+        return current_subs
+
+    def _handle_or(self, branches, substitution):
+        """Handle disjunction: execute any branch.
+
+        branches is a list of goal lists.
+        """
+        all_solutions = []
+        for branch in branches:
+            if isinstance(branch, list):
+                # Execute all goals in the branch
+                branch_subs = [substitution]
+                for goal in branch:
+                    next_subs = []
+                    for sub in branch_subs:
+                        next_subs.extend(self._solve_goal(goal, sub))
+                    branch_subs = next_subs
+                    if not branch_subs:
+                        break
+                all_solutions.extend(branch_subs)
+            else:
+                all_solutions.extend(self._solve_goal(branch, substitution))
+        return all_solutions
+
+    def _handle_if_then_else(self, cond_goals, then_goals, else_goals, substitution):
+        """Handle if-then-else: (cond -> then ; else)
+
+        If cond succeeds, execute then goals with cond's bindings.
+        If cond fails, execute else goals.
+        """
+        # Try condition
+        cond_subs = [substitution]
+        if isinstance(cond_goals, list):
+            for goal in cond_goals:
+                next_subs = []
+                for sub in cond_subs:
+                    next_subs.extend(self._solve_goal(goal, sub))
+                cond_subs = next_subs
+                if not cond_subs:
+                    break
+        else:
+            cond_subs = self._solve_goal(cond_goals, substitution)
+
+        if cond_subs:
+            # Condition succeeded, execute then branch
+            all_solutions = []
+            for cond_sub in cond_subs:
+                then_subs = [cond_sub]
+                if isinstance(then_goals, list):
+                    for goal in then_goals:
+                        next_subs = []
+                        for sub in then_subs:
+                            next_subs.extend(self._solve_goal(goal, sub))
+                        then_subs = next_subs
+                        if not then_subs:
+                            break
+                else:
+                    then_subs = self._solve_goal(then_goals, cond_sub)
+                all_solutions.extend(then_subs)
+            return all_solutions
+        else:
+            # Condition failed, execute else branch
+            if not else_goals:
+                return []
+            else_subs = [substitution]
+            if isinstance(else_goals, list):
+                for goal in else_goals:
+                    next_subs = []
+                    for sub in else_subs:
+                        next_subs.extend(self._solve_goal(goal, sub))
+                    else_subs = next_subs
+                    if not else_subs:
+                        break
+            else:
+                else_subs = self._solve_goal(else_goals, substitution)
+            return else_subs
 
     def export_proof_graph(self, proofs):
         """Export proof tree as D3 graph"""

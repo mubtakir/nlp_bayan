@@ -8,6 +8,7 @@ import re
 import asyncio
 import inspect
 import json
+import math
 
 from .ast_nodes import *
 from .object_system import ClassSystem, BayanObject
@@ -173,6 +174,22 @@ class TraditionalInterpreter:
         self.global_env['set'] = set
         self.global_env['type'] = type
         self.global_env['object'] = object
+
+        # Register built-in exceptions
+        self.global_env['Exception'] = Exception
+        self.global_env['ValueError'] = ValueError
+        self.global_env['TypeError'] = TypeError
+        self.global_env['KeyError'] = KeyError
+        self.global_env['IndexError'] = IndexError
+        self.global_env['AttributeError'] = AttributeError
+        self.global_env['RuntimeError'] = RuntimeError
+        self.global_env['ZeroDivisionError'] = ZeroDivisionError
+        self.global_env['FileNotFoundError'] = FileNotFoundError
+        self.global_env['IOError'] = IOError
+        self.global_env['StopIteration'] = StopIteration
+        self.global_env['AssertionError'] = AssertionError
+        self.global_env['NotImplementedError'] = NotImplementedError
+        self.global_env['NameError'] = NameError
         # Conceptual blueprint registry for conceptual LM tooling
         self.global_env['_conceptual_blueprints'] = self._conceptual_blueprints
 
@@ -181,6 +198,22 @@ class TraditionalInterpreter:
         self.global_env['uniform'] = lambda a, b: self._rng.uniform(float(a), float(b))
         self.global_env['normal'] = lambda mu, sigma: self._rng.gauss(float(mu), float(sigma))
         self.global_env['bernoulli'] = lambda p: 1 if self._rng.random() < float(p) else 0
+
+        # Register Python modules for direct access
+        import time as time_module
+        self.global_env['random'] = random  # random module
+        self.global_env['time'] = time_module  # time module
+        self.global_env['math'] = math  # math module
+
+        # Register common math functions directly
+        self.global_env['exp'] = math.exp
+        self.global_env['log'] = math.log
+        self.global_env['sqrt'] = math.sqrt
+        self.global_env['sin'] = math.sin
+        self.global_env['cos'] = math.cos
+        self.global_env['tan'] = math.tan
+        self.global_env['pi'] = math.pi
+        self.global_env['e'] = math.e
 
         # Include function for importing files
         def _include(filename):
@@ -396,6 +429,30 @@ class TraditionalInterpreter:
         self.global_env['what_if'] = _what_if
         self.global_env['how'] = _explain
 
+        def _apply_event(event_name):
+            """Apply an event by name, triggering its transformations"""
+            # Check if event is defined in cognitive events
+            if event_name in self._cognitive_events:
+                event_config = self._cognitive_events[event_name]
+                self._execute_cognitive_event(event_name, event_config, {})
+                return True
+            # Check if event is defined in global environment
+            elif event_name in self.global_env:
+                event_config = self.global_env[event_name]
+                if isinstance(event_config, dict):
+                    # Apply transformations if present
+                    transformations = event_config.get('transformations') or event_config.get('تحويلات', {})
+                    for entity_name, changes in transformations.items():
+                        if entity_name in self.global_env:
+                            entity = self.global_env[entity_name]
+                            if isinstance(entity, dict) and isinstance(changes, dict):
+                                entity.update(changes)
+                    return True
+            return False
+
+        self.global_env['apply_event'] = _apply_event
+        self.global_env['طبق_حدث'] = _apply_event
+
         def _categorical(mapping: dict):
             """Sample from categorical distribution: Categorical({"A": 0.6, "B": 0.3, "C": 0.1})"""
             items = list(mapping.items())
@@ -576,6 +633,763 @@ class TraditionalInterpreter:
         self.global_env['match'] = _match_template
         self.global_env['render'] = _render_template
 
+        # NamedTuple support
+        def _namedtuple(name, fields):
+            """Create a named tuple class
+            إنشاء صنف tuple مسمى
+
+            Usage:
+                Point = namedtuple("Point", ["x", "y"])
+                p = Point(10, 20)
+                print(p.x, p.y)
+            """
+            if isinstance(fields, str):
+                fields = fields.replace(',', ' ').split()
+            fields = list(fields)
+
+            class NamedTupleClass:
+                __slots__ = fields
+                _fields = tuple(fields)
+                _name = name
+
+                def __init__(self, *args, **kwargs):
+                    if len(args) > len(fields):
+                        raise TypeError(f"{name}() takes {len(fields)} positional arguments but {len(args)} were given")
+
+                    # Bind positional arguments
+                    for i, arg in enumerate(args):
+                        setattr(self, fields[i], arg)
+
+                    # Bind keyword arguments
+                    for key, value in kwargs.items():
+                        if key not in fields:
+                            raise TypeError(f"{name}() got an unexpected keyword argument '{key}'")
+                        setattr(self, key, value)
+
+                    # Check all fields are set
+                    for field in fields:
+                        if not hasattr(self, field):
+                            raise TypeError(f"{name}() missing required argument: '{field}'")
+
+                def __repr__(self):
+                    values = ', '.join(f"{f}={getattr(self, f)!r}" for f in fields)
+                    return f"{name}({values})"
+
+                def __iter__(self):
+                    return iter(getattr(self, f) for f in fields)
+
+                def __getitem__(self, index):
+                    return getattr(self, fields[index])
+
+                def __len__(self):
+                    return len(fields)
+
+                def __eq__(self, other):
+                    if isinstance(other, NamedTupleClass):
+                        return all(getattr(self, f) == getattr(other, f) for f in fields)
+                    if isinstance(other, (tuple, list)):
+                        return list(self) == list(other)
+                    return False
+
+                def _asdict(self):
+                    return {f: getattr(self, f) for f in fields}
+
+                def _replace(self, **kwargs):
+                    current = self._asdict()
+                    current.update(kwargs)
+                    return NamedTupleClass(**current)
+
+            NamedTupleClass.__name__ = name
+            NamedTupleClass.__qualname__ = name
+            return NamedTupleClass
+
+        self.global_env['namedtuple'] = _namedtuple
+        self.global_env['صف_مسمى'] = _namedtuple
+
+        # TypedDict support
+        def _TypedDict(name, fields=None, **kwargs):
+            """Create a TypedDict class
+            إنشاء قاموس مكتوب
+
+            Usage:
+                Person = TypedDict("Person", {"name": str, "age": int})
+                # or
+                Person = TypedDict("Person", name=str, age=int)
+
+                p: Person = {"name": "Ahmed", "age": 25}
+            """
+            if fields is None:
+                fields = kwargs
+            elif isinstance(fields, dict):
+                fields = {**fields, **kwargs}
+
+            class TypedDictClass(dict):
+                __annotations__ = fields
+                _name = name
+                _fields = fields
+                _required_keys = frozenset(fields.keys())
+                _optional_keys = frozenset()
+
+                def __init__(self, *args, **kw):
+                    if args:
+                        if len(args) == 1 and isinstance(args[0], dict):
+                            kw = {**args[0], **kw}
+                        else:
+                            raise TypeError(f"{name}() takes 0 positional arguments but {len(args)} were given")
+
+                    # Validate keys
+                    for key in kw:
+                        if key not in fields:
+                            raise TypeError(f"{name}() got an unexpected keyword argument '{key}'")
+
+                    # Check required keys
+                    for key in fields:
+                        if key not in kw:
+                            raise TypeError(f"{name}() missing required argument: '{key}'")
+
+                    super().__init__(**kw)
+
+                def __repr__(self):
+                    items = ', '.join(f"{k}={v!r}" for k, v in self.items())
+                    return f"{name}({{{items}}})"
+
+            TypedDictClass.__name__ = name
+            TypedDictClass.__qualname__ = name
+            return TypedDictClass
+
+        self.global_env['TypedDict'] = _TypedDict
+        self.global_env['قاموس_مكتوب'] = _TypedDict
+
+        # Protocol support (Structural Typing)
+        class Protocol:
+            """Base class for structural typing protocols
+            الصنف الأساسي للبروتوكولات الهيكلية
+
+            Usage:
+                class Drawable(Protocol):
+                    def draw(self): ...
+
+                class Circle:
+                    def draw(self):
+                        print("Drawing circle")
+
+                # Circle is a Drawable because it has draw()
+                def render(obj: Drawable):
+                    obj.draw()
+            """
+            _is_protocol = True
+
+            @classmethod
+            def __subclasshook__(cls, C):
+                if cls._is_protocol:
+                    # Check if C has all required methods
+                    required_methods = [m for m in dir(cls)
+                                       if not m.startswith('_') and callable(getattr(cls, m, None))]
+                    for method in required_methods:
+                        if not hasattr(C, method):
+                            return False
+                        if not callable(getattr(C, method, None)):
+                            return False
+                    return True
+                return NotImplemented
+
+            @classmethod
+            def _check_protocol(cls, obj):
+                """Check if an object implements this protocol"""
+                required_methods = [m for m in dir(cls)
+                                   if not m.startswith('_') and callable(getattr(cls, m, None))]
+                for method in required_methods:
+                    if not hasattr(obj, method):
+                        return False
+                    if not callable(getattr(obj, method, None)):
+                        return False
+                return True
+
+        self.global_env['Protocol'] = Protocol
+        self.global_env['بروتوكول'] = Protocol
+
+        # runtime_checkable decorator for protocols
+        def runtime_checkable(cls):
+            """Mark a protocol as runtime checkable
+            تحديد البروتوكول كقابل للفحص وقت التشغيل
+            """
+            cls._runtime_checkable = True
+            return cls
+
+        self.global_env['runtime_checkable'] = runtime_checkable
+        self.global_env['قابل_للفحص'] = runtime_checkable
+
+        # Unit Testing Framework
+        class TestCase:
+            """Base class for unit tests
+            الصنف الأساسي لاختبارات الوحدة
+            """
+            def __init__(self):
+                self._test_results = []
+                self._passed = 0
+                self._failed = 0
+
+            def assertEqual(self, a, b, msg=None):
+                """Assert that a == b"""
+                if a != b:
+                    error_msg = msg or f"Expected {a!r} to equal {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} == {b!r}"))
+
+            def assertNotEqual(self, a, b, msg=None):
+                """Assert that a != b"""
+                if a == b:
+                    error_msg = msg or f"Expected {a!r} to not equal {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} != {b!r}"))
+
+            def assertTrue(self, x, msg=None):
+                """Assert that x is True"""
+                if not x:
+                    error_msg = msg or f"Expected {x!r} to be True"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{x!r} is True"))
+
+            def assertFalse(self, x, msg=None):
+                """Assert that x is False"""
+                if x:
+                    error_msg = msg or f"Expected {x!r} to be False"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{x!r} is False"))
+
+            def assertIsNone(self, x, msg=None):
+                """Assert that x is None"""
+                if x is not None:
+                    error_msg = msg or f"Expected {x!r} to be None"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{x!r} is None"))
+
+            def assertIsNotNone(self, x, msg=None):
+                """Assert that x is not None"""
+                if x is None:
+                    error_msg = msg or f"Expected value to not be None"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{x!r} is not None"))
+
+            def assertIn(self, a, b, msg=None):
+                """Assert that a is in b"""
+                if a not in b:
+                    error_msg = msg or f"Expected {a!r} to be in {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} in {b!r}"))
+
+            def assertNotIn(self, a, b, msg=None):
+                """Assert that a is not in b"""
+                if a in b:
+                    error_msg = msg or f"Expected {a!r} to not be in {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} not in {b!r}"))
+
+            def assertGreater(self, a, b, msg=None):
+                """Assert that a > b"""
+                if not (a > b):
+                    error_msg = msg or f"Expected {a!r} > {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} > {b!r}"))
+
+            def assertLess(self, a, b, msg=None):
+                """Assert that a < b"""
+                if not (a < b):
+                    error_msg = msg or f"Expected {a!r} < {b!r}"
+                    self._failed += 1
+                    self._test_results.append(('FAIL', error_msg))
+                    raise AssertionError(error_msg)
+                self._passed += 1
+                self._test_results.append(('PASS', f"{a!r} < {b!r}"))
+
+            def run_tests(self):
+                """Run all test methods"""
+                test_methods = [m for m in dir(self) if m.startswith('test')]
+                print(f"\n{'='*50}")
+                print(f"Running {len(test_methods)} tests...")
+                print(f"{'='*50}\n")
+
+                for method_name in test_methods:
+                    method = getattr(self, method_name)
+                    try:
+                        method()
+                        print(f"✅ {method_name}: PASSED")
+                    except AssertionError as e:
+                        print(f"❌ {method_name}: FAILED - {e}")
+                    except Exception as e:
+                        print(f"💥 {method_name}: ERROR - {e}")
+
+                print(f"\n{'='*50}")
+                print(f"Results: {self._passed} passed, {self._failed} failed")
+                print(f"{'='*50}\n")
+
+        self.global_env['TestCase'] = TestCase
+        self.global_env['حالة_اختبار'] = TestCase
+
+        # Context Variables support
+        class ContextVar:
+            """Context variable for managing context-local state
+            متغير السياق لإدارة الحالة المحلية للسياق
+
+            Usage:
+                user_id = ContextVar("user_id", default=0)
+                token = user_id.set(42)
+                print(user_id.get())  # 42
+                user_id.reset(token)
+            """
+            def __init__(self, name, default=None):
+                self.name = name
+                self.default = default
+                self._values = []
+                self._tokens = []
+
+            def get(self, default=None):
+                """Get the current value"""
+                if self._values:
+                    return self._values[-1]
+                if default is not None:
+                    return default
+                if self.default is not None:
+                    return self.default
+                raise LookupError(f"ContextVar '{self.name}' has no value")
+
+            def set(self, value):
+                """Set a new value and return a token for reset"""
+                token = len(self._values)
+                self._values.append(value)
+                self._tokens.append(token)
+                return token
+
+            def reset(self, token):
+                """Reset to the value before the token was created"""
+                if token < 0 or token >= len(self._values):
+                    raise ValueError("Invalid token")
+                self._values = self._values[:token]
+                self._tokens = self._tokens[:token]
+
+            def __repr__(self):
+                return f"<ContextVar name={self.name!r}>"
+
+        self.global_env['ContextVar'] = ContextVar
+        self.global_env['متغير_سياق'] = ContextVar
+
+        # Partial function application
+        class partial:
+            """Partial function application
+            تطبيق جزئي للدوال
+
+            Usage:
+                def add(a, b):
+                    return a + b
+                add5 = partial(add, 5)
+                print(add5(3))  # 8
+            """
+            def __init__(self, func, *args, **kwargs):
+                self.func = func
+                self.args = args
+                self.kwargs = kwargs
+
+            def __call__(self, *args, **kwargs):
+                new_args = self.args + args
+                new_kwargs = {**self.kwargs, **kwargs}
+                return self.func(*new_args, **new_kwargs)
+
+            def __repr__(self):
+                return f"partial({self.func}, {self.args}, {self.kwargs})"
+
+        self.global_env['partial'] = partial
+        self.global_env['جزئي'] = partial
+
+        # reduce function
+        def _reduce(func, iterable, initial=None):
+            """Reduce an iterable to a single value
+            تقليص قائمة إلى قيمة واحدة
+
+            Usage:
+                result = reduce(lambda a, b: a + b, [1, 2, 3, 4])  # 10
+            """
+            it = iter(iterable)
+            if initial is None:
+                try:
+                    value = next(it)
+                except StopIteration:
+                    raise TypeError("reduce() of empty sequence with no initial value")
+            else:
+                value = initial
+
+            for element in it:
+                value = func(value, element)
+            return value
+
+        self.global_env['reduce'] = _reduce
+        self.global_env['قلص'] = _reduce
+
+        # filter function (enhanced)
+        def _filter(func, iterable):
+            """Filter elements based on a function
+            تصفية العناصر بناءً على دالة
+            """
+            if func is None:
+                return [x for x in iterable if x]
+            return [x for x in iterable if func(x)]
+
+        self.global_env['filter'] = _filter
+        self.global_env['صفي'] = _filter
+
+        # map function (enhanced)
+        def _map(func, *iterables):
+            """Apply function to each element
+            تطبيق دالة على كل عنصر
+            """
+            if len(iterables) == 1:
+                return [func(x) for x in iterables[0]]
+            return [func(*args) for args in zip(*iterables)]
+
+        self.global_env['map'] = _map
+        self.global_env['خريطة'] = _map
+
+        # zip function
+        def _zip(*iterables):
+            """Zip multiple iterables together
+            دمج عدة قوائم معاً
+            """
+            return list(zip(*iterables))
+
+        self.global_env['zip'] = _zip
+        self.global_env['ادمج'] = _zip
+
+        # enumerate function
+        def _enumerate(iterable, start=0):
+            """Enumerate with index
+            ترقيم مع الفهرس
+            """
+            return list(enumerate(iterable, start))
+
+        self.global_env['enumerate'] = _enumerate
+        self.global_env['رقم'] = _enumerate
+
+        # all and any functions
+        def _all(iterable):
+            """Return True if all elements are truthy"""
+            return all(iterable)
+
+        def _any(iterable):
+            """Return True if any element is truthy"""
+            return any(iterable)
+
+        self.global_env['all'] = _all
+        self.global_env['الكل'] = _all
+        self.global_env['any'] = _any
+        self.global_env['أي'] = _any
+
+        # Visualization functions for existential model
+        def _visualize_environment(env_name):
+            """Visualize an environment - returns Mermaid diagram code"""
+            try:
+                from .visualization import ExistentialVisualizer
+                visualizer = ExistentialVisualizer(self)
+                return visualizer.visualize_environment(env_name)
+            except ImportError:
+                return f"graph TD\n    A[{env_name}]"
+
+        def _visualize_relations(domain_name=None):
+            """Visualize relations between beings"""
+            try:
+                from .visualization import ExistentialVisualizer
+                visualizer = ExistentialVisualizer(self)
+                return visualizer.visualize_relations(domain_name)
+            except ImportError:
+                return "graph TD\n    A[Relations]"
+
+        def _visualize_being(being_name):
+            """Visualize a being with its context"""
+            try:
+                from .visualization import ExistentialVisualizer
+                visualizer = ExistentialVisualizer(self)
+                return visualizer.visualize_being(being_name)
+            except ImportError:
+                return f"graph TD\n    A[{being_name}]"
+
+        self.global_env['visualize_environment'] = _visualize_environment
+        self.global_env['تصور_بيئة'] = _visualize_environment
+        self.global_env['visualize_relations'] = _visualize_relations
+        self.global_env['تصور_علاقات'] = _visualize_relations
+        self.global_env['visualize_being'] = _visualize_being
+        self.global_env['تصور_كائن'] = _visualize_being
+
+        # Semantic network query function
+        def _query_semantic_network(name, entity=None, query_type=None):
+            """Query a semantic network
+            Args:
+                name: Network name
+                entity: Entity to query (optional)
+                query_type: Type of query - 'all', 'relations', etc. (optional)
+            """
+            if hasattr(self, '_semantic_networks') and name in self._semantic_networks:
+                network = self._semantic_networks[name]
+                if entity is None:
+                    return network
+                # Query for specific entity
+                if isinstance(network, dict):
+                    if entity in network:
+                        return network[entity]
+                    # Search in relations
+                    relations = []
+                    for key, value in network.items():
+                        if isinstance(value, dict) and entity in str(value):
+                            relations.append({key: value})
+                        elif isinstance(value, list):
+                            for item in value:
+                                if entity in str(item):
+                                    relations.append(item)
+                    return relations
+                return network.get(entity, []) if hasattr(network, 'get') else []
+            return []
+
+        self.global_env['query_semantic_network'] = _query_semantic_network
+        self.global_env['استعلام_شبكة_معانية'] = _query_semantic_network
+
+        # Semantic similarity function
+        def _semantic_similarity(network_name, entity1, entity2):
+            """Calculate semantic similarity between two entities"""
+            # Simple similarity based on shared relations
+            if hasattr(self, '_semantic_networks') and network_name in self._semantic_networks:
+                network = self._semantic_networks[network_name]
+                # Basic similarity calculation
+                if isinstance(network, dict):
+                    e1_data = network.get(entity1, {})
+                    e2_data = network.get(entity2, {})
+                    if isinstance(e1_data, dict) and isinstance(e2_data, dict):
+                        shared = set(e1_data.keys()) & set(e2_data.keys())
+                        total = set(e1_data.keys()) | set(e2_data.keys())
+                        if total:
+                            return len(shared) / len(total)
+            return 0.0
+
+        self.global_env['semantic_similarity'] = _semantic_similarity
+        self.global_env['تشابه_دلالي'] = _semantic_similarity
+
+        # Visualization save function
+        def _save_visualization(content, filename=None, title=None):
+            """Save visualization content to file
+            Args:
+                content: The visualization content (Mermaid diagram, etc.)
+                filename: Output filename (optional)
+                title: Title for the visualization (optional)
+            """
+            if filename is None:
+                # Just print if no filename
+                print(content)
+                return True
+            try:
+                # Create HTML wrapper if title is provided
+                if title:
+                    html_content = f"""<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>{title}</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {{ font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }}
+        h1 {{ text-align: center; color: #333; }}
+        .mermaid {{ text-align: center; }}
+    </style>
+</head>
+<body>
+    <h1>{title}</h1>
+    <div class="mermaid">
+{content}
+    </div>
+    <script>mermaid.initialize({{startOnLoad:true}});</script>
+</body>
+</html>"""
+                    with open(filename, 'w', encoding='utf-8') as f:
+                        f.write(html_content)
+                else:
+                    with open(filename, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                return True
+            except Exception as e:
+                print(f"Error saving visualization: {e}")
+                return False
+
+        self.global_env['save_visualization'] = _save_visualization
+        self.global_env['حفظ_تصور'] = _save_visualization
+
+        # Visualize domain function
+        def _visualize_domain(domain_name):
+            """Generate a visualization of an entire domain"""
+            if not hasattr(self, '_domains') or domain_name not in self._domains:
+                return f"graph TD\n    D[\"{domain_name}\"]\n    D --> |\"لا توجد بيانات\"| EMPTY[\"فارغ\"]"
+
+            domain = self._domains[domain_name]
+            lines = ["graph TD"]
+            lines.append(f'    DOMAIN["{domain_name}<br/>المجال"]')
+
+            # Add domain properties
+            if isinstance(domain, dict):
+                for key, value in domain.items():
+                    if key.startswith('_'):
+                        continue
+                    node_id = f"N{abs(hash(key)) % 10000}"
+                    if isinstance(value, list):
+                        val_str = ", ".join(str(v) for v in value[:3])
+                        if len(value) > 3:
+                            val_str += "..."
+                    else:
+                        val_str = str(value)[:30]
+                    lines.append(f'    DOMAIN --> {node_id}["{key}: {val_str}"]')
+
+            return "\n".join(lines)
+
+        self.global_env['visualize_domain'] = _visualize_domain
+        self.global_env['تصور_مجال'] = _visualize_domain
+
+        # ═══════════════════════════════════════════════════════════════
+        # Metaprogramming Functions - البرمجة الوصفية
+        # ═══════════════════════════════════════════════════════════════
+
+        from .metaprogramming import MetaprogrammingEngine, CompiledCode, FunctionInfo
+
+        # Create metaprogramming engine instance
+        self._meta_engine = MetaprogrammingEngine(self)
+
+        def _bayan_eval(expression, local_vars=None):
+            """
+            Evaluate a Bayan expression and return its value.
+            تقييم تعبير بيان وإرجاع قيمته.
+
+            Example:
+                result = eval("1 + 2 * 3")  # returns 7
+                result = قيّم("س + ص", {"س": 10, "ص": 5})  # returns 15
+            """
+            return self._meta_engine.eval(expression, local_vars)
+
+        self.global_env['eval'] = _bayan_eval
+        self.global_env['قيّم'] = _bayan_eval
+        self.global_env['قيم'] = _bayan_eval
+
+        def _bayan_exec(code, local_vars=None, filename="<exec>"):
+            """
+            Execute Bayan code dynamically.
+            تنفيذ كود بيان ديناميكياً.
+
+            Example:
+                exec("x = 5\\nprint(x * 2)")  # prints 10
+                نفّذ("س = 10\\nاطبع(س)")
+            """
+            return self._meta_engine.exec(code, local_vars, filename)
+
+        self.global_env['exec'] = _bayan_exec
+        self.global_env['نفّذ'] = _bayan_exec
+        self.global_env['نفذ'] = _bayan_exec
+
+        def _bayan_compile(code, filename="<compile>"):
+            """
+            Compile Bayan code to AST without executing.
+            ترجمة كود بيان إلى AST بدون تنفيذ.
+
+            Example:
+                compiled = compile("x = 1 + 2")
+                exec_compiled(compiled)
+            """
+            return self._meta_engine.compile(code, filename)
+
+        self.global_env['compile'] = _bayan_compile
+        self.global_env['ترجم'] = _bayan_compile
+
+        def _exec_compiled(compiled, local_vars=None):
+            """Execute pre-compiled code. تنفيذ كود مترجم مسبقاً."""
+            return self._meta_engine.exec_compiled(compiled, local_vars)
+
+        self.global_env['exec_compiled'] = _exec_compiled
+        self.global_env['نفذ_مترجم'] = _exec_compiled
+
+        def _create_function(name, params, body, decorators=None):
+            """
+            Create a new function dynamically.
+            إنشاء دالة جديدة ديناميكياً.
+
+            Example:
+                create_function("double", ["x"], "return x * 2")
+                print(double(5))  # prints 10
+            """
+            return self._meta_engine.create_function(name, params, body, decorators)
+
+        self.global_env['create_function'] = _create_function
+        self.global_env['أنشئ_دالة'] = _create_function
+
+        def _modify_function(name, new_body=None, new_params=None):
+            """
+            Modify an existing function.
+            تعديل دالة موجودة.
+            """
+            return self._meta_engine.modify_function(name, new_body, new_params)
+
+        self.global_env['modify_function'] = _modify_function
+        self.global_env['عدّل_دالة'] = _modify_function
+
+        def _delete_function(name):
+            """Delete a function. حذف دالة."""
+            return self._meta_engine.delete_function(name)
+
+        self.global_env['delete_function'] = _delete_function
+        self.global_env['احذف_دالة'] = _delete_function
+
+        def _get_function_info(name):
+            """Get information about a function. الحصول على معلومات عن دالة."""
+            return self._meta_engine.get_function_info(name)
+
+        self.global_env['get_function_info'] = _get_function_info
+        self.global_env['معلومات_دالة'] = _get_function_info
+
+        def _list_functions():
+            """List all defined functions. قائمة بجميع الدوال المعرفة."""
+            return self._meta_engine.list_functions()
+
+        self.global_env['list_functions'] = _list_functions
+        self.global_env['قائمة_الدوال'] = _list_functions
+
+        def _introspect(obj):
+            """Introspect an object. تأمل كائن."""
+            return self._meta_engine.introspect(obj)
+
+        self.global_env['introspect'] = _introspect
+        self.global_env['تأمل'] = _introspect
+
+        # Expose types for type checking
+        self.global_env['CompiledCode'] = CompiledCode
+        self.global_env['كود_مترجم'] = CompiledCode
+        self.global_env['FunctionInfo'] = FunctionInfo
+        self.global_env['معلومات_دالة_نوع'] = FunctionInfo
 
     def set_source(self, code: str, filename: str | None = None):
         """Set current source buffer for error code-frames."""
@@ -739,14 +1553,28 @@ class TraditionalInterpreter:
         elif isinstance(node, UnaryOp):
             return self.visit_unary_op(node)
         elif isinstance(node, Number):
-            return node.value
+            val = node.value
+            # Convert string to int/float if needed
+            if isinstance(val, str):
+                try:
+                    if '.' in val:
+                        return float(val)
+                    else:
+                        return int(val)
+                except ValueError:
+                    return val
+            return val
         elif isinstance(node, String):
             return node.value
+        elif isinstance(node, FString):
+            return self.visit_fstring(node)
         elif isinstance(node, Boolean):
             return node.value
         elif isinstance(node, NoneLiteral):
             # Bayan None literal maps directly to Python None
             return None
+        elif isinstance(node, TernaryOp):
+            return self.visit_ternary_op(node)
 
         elif isinstance(node, CollectExpr):
             return self.visit_collect_expr(node)
@@ -764,6 +1592,10 @@ class TraditionalInterpreter:
             return self.visit_list(node)
         elif isinstance(node, ListComprehension):
             return self.visit_list_comprehension(node)
+        elif isinstance(node, DictComprehension):
+            return self.visit_dict_comprehension(node)
+        elif isinstance(node, SetComprehension):
+            return self.visit_set_comprehension(node)
         elif isinstance(node, Dict):
             return self.visit_dict(node)
         elif isinstance(node, Tuple):
@@ -860,6 +1692,8 @@ class TraditionalInterpreter:
             return self.visit_pipeline_op(node)
         elif isinstance(node, ComposeOp):
             return self.visit_compose_op(node)
+        elif isinstance(node, EntityDef):
+            return self.visit_entity_def(node)
         elif isinstance(node, CognitiveEntity):
             return self.visit_cognitive_entity(node)
         elif isinstance(node, CognitiveEvent):
@@ -920,6 +1754,11 @@ class TraditionalInterpreter:
             return self.visit_domain_law(node)
         elif isinstance(node, ExistentialQuery):
             return self.visit_existential_query(node)
+        # Semantic Programming nodes
+        elif isinstance(node, SemanticNetwork):
+            return self.visit_semantic_network(node)
+        elif isinstance(node, InferFromText):
+            return self.visit_infer_from_text(node)
         # Logical programming nodes
         elif isinstance(node, LogicalFact):
             return self.visit_logical_fact(node)
@@ -927,6 +1766,40 @@ class TraditionalInterpreter:
             return self.visit_logical_rule(node)
         elif isinstance(node, LogicalQuery):
             return self.visit_logical_query(node)
+        elif isinstance(node, QueryExpression):
+            return self.visit_query_expression(node)
+        elif isinstance(node, LambdaExpression):
+            return self.visit_lambda_expression(node)
+        # Type system nodes
+        elif isinstance(node, TypedVariable):
+            return self.visit_typed_variable(node)
+        elif isinstance(node, EnumDef):
+            return self.visit_enum_def(node)
+        elif isinstance(node, InterfaceDef):
+            return self.visit_interface_def(node)
+        # Advanced language features
+        elif isinstance(node, AssertStatement):
+            return self.visit_assert_statement(node)
+        elif isinstance(node, OptionalChain):
+            return self.visit_optional_chain(node)
+        elif isinstance(node, NullishCoalescing):
+            return self.visit_nullish_coalescing(node)
+        elif isinstance(node, WalrusAssignment):
+            return self.visit_walrus_assignment(node)
+        elif isinstance(node, SpreadOperator):
+            return self.visit_spread_operator(node)
+        elif isinstance(node, ChainedComparison):
+            return self.visit_chained_comparison(node)
+        elif isinstance(node, TupleUnpacking):
+            return self.visit_tuple_unpacking(node)
+        elif isinstance(node, MatchStatement):
+            return self.visit_match_statement(node)
+        elif isinstance(node, EnumDef):
+            return self.visit_enum_def(node)
+        elif isinstance(node, GlobalStatement):
+            return self.visit_global_statement(node)
+        elif isinstance(node, NonlocalStatement):
+            return self.visit_nonlocal_statement(node)
         else:
             raise RuntimeError(f"Unknown node type: {type(node)}")
 
@@ -946,10 +1819,25 @@ class TraditionalInterpreter:
 
     def visit_assignment(self, node):
         """Visit an assignment node"""
+        from .ast_nodes import AttributeAccess
         value = self.interpret(node.value)
 
-        # Check if this is an attribute assignment (obj.attr = value)
-        if '.' in node.name:
+        # Check if this is an AttributeAccess node (self.attr = value)
+        if isinstance(node.name, AttributeAccess):
+            obj = self.interpret(node.name.object_expr)
+            attr_name = node.name.attribute_name
+            if isinstance(obj, BayanObject):
+                obj.set_attribute(attr_name, value)
+                return value
+            elif isinstance(obj, dict):
+                obj[attr_name] = value
+                return value
+            else:
+                setattr(obj, attr_name, value)
+                return value
+
+        # Check if this is an attribute assignment (obj.attr = value) via string
+        if isinstance(node.name, str) and '.' in node.name:
             parts = node.name.split('.')
             obj_name = parts[0]
             attr_name = parts[1]
@@ -969,6 +1857,35 @@ class TraditionalInterpreter:
         # Use set_variable to trigger reactive updates
         self.set_variable(node.name, value)
         return value
+
+    def visit_typed_variable(self, node):
+        """Visit a typed variable declaration: x: int = 5"""
+        value = None
+        if node.value:
+            value = self.interpret(node.value)
+        # Store the variable (type annotation is for static checking only)
+        self.set_variable(node.name, value)
+        return value
+
+    def visit_enum_def(self, node):
+        """Visit an enum definition"""
+        # Create an enum-like object
+        enum_dict = {}
+        for i, (name, value_node) in enumerate(node.members):
+            if value_node:
+                enum_dict[name] = self.interpret(value_node)
+            else:
+                enum_dict[name] = i
+        # Store as a class-like object
+        self.global_env[node.name] = type(node.name, (), enum_dict)
+        return None
+
+    def visit_interface_def(self, node):
+        """Visit an interface definition"""
+        # Interfaces are for static type checking only
+        # Store as a marker in the environment
+        self.global_env[node.name] = {'__interface__': True, 'methods': [m.name for m in node.methods]}
+        return None
 
     def visit_binary_op(self, node):
         """Visit a binary operation node"""
@@ -1013,13 +1930,38 @@ class TraditionalInterpreter:
             return res if res is not None else (left < right)
         elif node.operator == '>':
             res = _try_dunder(left, right, '__gt__')
-            return res if res is not None else (left > right)
+            if res is not None:
+                return res
+            # Fallback: try right.__lt__(left) for a > b
+            if isinstance(right, BayanObject) and right.has_method('__lt__'):
+                return right.call_method('__lt__', [left])
+            return left > right
         elif node.operator == '<=':
             res = _try_dunder(left, right, '__le__')
-            return res if res is not None else (left <= right)
+            if res is not None:
+                return res
+            # Fallback: try (left < right) or (left == right)
+            lt_res = _try_dunder(left, right, '__lt__')
+            eq_res = _try_dunder(left, right, '__eq__')
+            if lt_res is not None and eq_res is not None:
+                return lt_res or eq_res
+            if lt_res is not None:
+                return lt_res or (left == right)
+            return left <= right
         elif node.operator == '>=':
             res = _try_dunder(left, right, '__ge__')
-            return res if res is not None else (left >= right)
+            if res is not None:
+                return res
+            # Fallback: try (left > right) or (left == right)
+            gt_res = _try_dunder(left, right, '__gt__')
+            if gt_res is None and isinstance(right, BayanObject) and right.has_method('__lt__'):
+                gt_res = right.call_method('__lt__', [left])
+            eq_res = _try_dunder(left, right, '__eq__')
+            if gt_res is not None and eq_res is not None:
+                return gt_res or eq_res
+            if gt_res is not None:
+                return gt_res or (left == right)
+            return left >= right
         elif node.operator in ('~=','≈'):
             approx = self.global_env.get('approx_eq')
             if not callable(approx):
@@ -1151,9 +2093,28 @@ class TraditionalInterpreter:
         return False
 
 
+    def visit_ternary_op(self, node):
+        """Visit a ternary conditional expression: value if condition else alternative"""
+        condition = self.interpret(node.condition)
+        if condition:
+            return self.interpret(node.true_value)
+        else:
+            return self.interpret(node.false_value)
+
     def visit_list(self, node):
         """Visit a list node"""
-        return [self.interpret(elem) for elem in node.elements]
+        result = []
+        for elem in node.elements:
+            if isinstance(elem, SpreadOperator):
+                # Spread the iterable
+                spread_val = self.interpret(elem.expression)
+                if hasattr(spread_val, '__iter__'):
+                    result.extend(spread_val)
+                else:
+                    raise TypeError(f"Cannot spread non-iterable: {type(spread_val)}")
+            else:
+                result.append(self.interpret(elem))
+        return result
 
     def visit_tuple(self, node):
         """Visit a tuple node"""
@@ -1190,14 +2151,87 @@ class TraditionalInterpreter:
             result.append(self.interpret(node.expr))
         return result
 
+    def visit_dict_comprehension(self, node):
+        """Evaluate a dict comprehension: {k: v for x in iterable if cond}"""
+        iterable = self._to_iterable(self.interpret(node.iterable))
+        result = {}
+        env = self.local_env if self.local_env is not None else self.global_env
+        for value in iterable:
+            env[node.var_name] = value
+            if node.condition is not None:
+                cond = self.interpret(node.condition)
+                if not cond:
+                    continue
+            key = self.interpret(node.key_expr)
+            val = self.interpret(node.val_expr)
+            result[key] = val
+        return result
+
+    def visit_set_comprehension(self, node):
+        """Evaluate a set comprehension: {x for x in iterable if cond}"""
+        iterable = self._to_iterable(self.interpret(node.iterable))
+        result = set()
+        env = self.local_env if self.local_env is not None else self.global_env
+        for value in iterable:
+            env[node.var_name] = value
+            if node.condition is not None:
+                cond = self.interpret(node.condition)
+                if not cond:
+                    continue
+            result.add(self.interpret(node.expr))
+        return result
+
     def visit_dict(self, node):
         """Visit a dict node"""
         result = {}
         for key_node, value_node in node.pairs:
-            key = self.interpret(key_node)
-            value = self.interpret(value_node)
-            result[key] = value
+            # Check for dict spread: **dict
+            if isinstance(key_node, SpreadOperator) and key_node.is_dict:
+                spread_val = self.interpret(key_node.expression)
+                if isinstance(spread_val, dict):
+                    result.update(spread_val)
+                else:
+                    raise TypeError(f"Cannot spread non-dict: {type(spread_val)}")
+            else:
+                key = self.interpret(key_node)
+                value = self.interpret(value_node)
+                result[key] = value
         return result
+
+    def _evaluate_arguments(self, node_arguments, node_named_arguments=None):
+        """Evaluate function call arguments with support for *args and **kwargs spread
+        تقييم وسائط استدعاء الدالة مع دعم نشر *args و **kwargs
+        """
+        from .ast_nodes import SpreadOperator
+
+        args = []
+        named_args = {}
+
+        # Evaluate positional arguments (may contain SpreadOperator)
+        for arg in node_arguments:
+            if isinstance(arg, SpreadOperator):
+                spread_val = self.interpret(arg.expression)
+                if arg.is_dict:
+                    # **kwargs spread - add to named_args
+                    if isinstance(spread_val, dict):
+                        named_args.update(spread_val)
+                    else:
+                        raise TypeError(f"Cannot spread non-dict with **: {type(spread_val)}")
+                else:
+                    # *args spread - extend args list
+                    if hasattr(spread_val, '__iter__') and not isinstance(spread_val, (str, dict)):
+                        args.extend(spread_val)
+                    else:
+                        raise TypeError(f"Cannot spread non-iterable with *: {type(spread_val)}")
+            else:
+                args.append(self.interpret(arg))
+
+        # Evaluate named arguments
+        if node_named_arguments:
+            for name, value in node_named_arguments.items():
+                named_args[name] = self.interpret(value)
+
+        return args, named_args
 
     def visit_function_call(self, node):
         """Visit a function call node"""
@@ -1502,6 +2536,18 @@ class TraditionalInterpreter:
 
         # Check if this is a class (object instantiation)
         if node.name in self.classes:
+            class_def = self.classes[node.name]
+
+            # Check if class is abstract - cannot instantiate abstract classes
+            if hasattr(class_def, '_is_abstract') and class_def._is_abstract:
+                raise TypeError(f"Cannot instantiate abstract class '{node.name}'")
+
+            # Check for unimplemented abstract methods from parent classes
+            abstract_methods = self._get_unimplemented_abstract_methods(class_def)
+            if abstract_methods:
+                methods_str = ', '.join(abstract_methods)
+                raise TypeError(f"Cannot instantiate class '{node.name}' with abstract methods: {methods_str}")
+
             args = [self.interpret(arg) for arg in node.arguments]
             # Handle named arguments
             named_args = {}
@@ -1517,11 +2563,11 @@ class TraditionalInterpreter:
             target = env[node.name] if node.name in env else self.global_env[node.name]
             # Check if it's a decorated function (callable)
             if callable(target) and not isinstance(target, type):
-                args = [self.interpret(arg) for arg in node.arguments]
-                kwargs = {}
-                if hasattr(node, 'named_arguments') and node.named_arguments:
-                    for name, value in node.named_arguments.items():
-                        kwargs[name] = self.interpret(value)
+                # Use _evaluate_arguments for spread support
+                args, kwargs = self._evaluate_arguments(
+                    node.arguments,
+                    node.named_arguments if hasattr(node, 'named_arguments') else None
+                )
                 if isinstance(target, BayanObject) and target.has_method('__call__'):
                     # For Bayan objects, pass positional only
                     return target.call_method('__call__', args)
@@ -1530,26 +2576,20 @@ class TraditionalInterpreter:
         # User-defined functions
         if node.name in self.functions:
             func_def = self.functions[node.name]
-            args = [self.interpret(arg) for arg in node.arguments]
+            # Use _evaluate_arguments for spread support
+            args, named_args = self._evaluate_arguments(
+                node.arguments,
+                node.named_arguments if hasattr(node, 'named_arguments') else None
+            )
 
             # Check if function is async - return a coroutine
             if node.name in self._async_functions:
-                named_args = {}
-                if hasattr(node, 'named_arguments'):
-                    for name, value in node.named_arguments.items():
-                        named_args[name] = self.interpret(value)
                 return self.BayanCoroutine(self, func_def, args, named_args)
 
             # Check if function contains yield (is a generator)
             if self._contains_yield(func_def.body):
                 # Return a generator
-                return self._create_generator(func_def, args, node.named_arguments if hasattr(node, 'named_arguments') else {})
-
-            # Evaluate named arguments
-            named_args = {}
-            if hasattr(node, 'named_arguments'):
-                for name, value in node.named_arguments.items():
-                    named_args[name] = self.interpret(value)
+                return self._create_generator(func_def, args, named_args)
 
             # Create new local environment
             old_local_env = self.local_env
@@ -1732,6 +2772,42 @@ class TraditionalInterpreter:
 
             env = self.local_env if self.local_env is not None else self.global_env
 
+            # Check for special built-in decorators
+            for decorator in node.decorators:
+                dec_name = decorator.name
+                # Handle @property / @خاصية
+                if dec_name in ('property', 'خاصية'):
+                    from .ast_nodes import PropertyDescriptor
+                    prop = PropertyDescriptor(fget=node)
+                    # Store property descriptor
+                    if not hasattr(self, '_property_descriptors'):
+                        self._property_descriptors = {}
+                    self._property_descriptors[node.name] = prop
+                    env[node.name] = prop
+                    return None
+
+                # Handle @name.setter / @name.حدد
+                if '.' in dec_name:
+                    parts = dec_name.split('.')
+                    if len(parts) == 2 and parts[1] in ('setter', 'حدد'):
+                        prop_name = parts[0]
+                        if hasattr(self, '_property_descriptors') and prop_name in self._property_descriptors:
+                            prop = self._property_descriptors[prop_name]
+                            prop.fset = node
+                            env[prop_name] = prop
+                        return None
+
+                # Handle @staticmethod / @ساكن
+                if dec_name in ('staticmethod', 'ساكن'):
+                    # Mark as static method
+                    node._is_static = True
+                    return None
+
+                # Handle @classmethod / @صنفي
+                if dec_name in ('classmethod', 'صنفي'):
+                    node._is_classmethod = True
+                    return None
+
             # Start with the original function
             func_name = node.name
             func_node = self.functions[func_name]
@@ -1747,6 +2823,13 @@ class TraditionalInterpreter:
 
             # Apply decorators in reverse order (bottom decorator first)
             for decorator in reversed(node.decorators):
+                dec_name = decorator.name
+                # Skip already-handled built-in decorators
+                if dec_name in ('property', 'خاصية', 'staticmethod', 'ساكن', 'classmethod', 'صنفي'):
+                    continue
+                if '.' in dec_name and dec_name.split('.')[1] in ('setter', 'حدد'):
+                    continue
+
                 # Check if decorator has arguments
                 if hasattr(decorator, 'args') and decorator.args:
                     # Decorator with arguments: @decorator(arg1, arg2)
@@ -1785,7 +2868,7 @@ class TraditionalInterpreter:
             # Store the final decorated function
             env[node.name] = current_func
             return None
-        
+
         return None
     def _execute_function(self, func_def, args, closure=None):
         """Helper method to execute a Bayan function with given arguments
@@ -1804,23 +2887,39 @@ class TraditionalInterpreter:
         else:
             self.local_env = {}
 
-        # Bind parameters
+        # Bind parameters with support for *args and **kwargs
         param_names = []
+        varargs_param = None
+        kwargs_param = None
+
         for param in func_def.parameters:
             if isinstance(param, Parameter):
-                param_names.append(param.name)
+                if param.is_kwargs:
+                    kwargs_param = param.name
+                elif param.is_varargs:
+                    varargs_param = param.name
+                else:
+                    param_names.append(param.name)
             else:
                 param_names.append(param)
 
+        # Bind positional arguments
         for i, arg in enumerate(args):
             if i < len(param_names):
                 self.local_env[param_names[i]] = arg
+            elif varargs_param:
+                # Extra positional arguments go to *args
+                if varargs_param not in self.local_env:
+                    self.local_env[varargs_param] = []
+                self.local_env[varargs_param].append(arg)
 
-                # If the argument is a callable (e.g., a decorated function),
-                # also make it available for function calls
-                if callable(arg) and not isinstance(arg, (int, float, str, bool, list, dict, type)):
-                    # This allows calling the function from within Bayan code
-                    pass  # Already stored in local_env
+        # Initialize *args if it exists and wasn't populated
+        if varargs_param and varargs_param not in self.local_env:
+            self.local_env[varargs_param] = []
+
+        # Initialize **kwargs if it exists
+        if kwargs_param and kwargs_param not in self.local_env:
+            self.local_env[kwargs_param] = {}
 
         try:
             # Check requires clauses (preconditions)
@@ -1974,7 +3073,19 @@ class TraditionalInterpreter:
         env = self.local_env if self.local_env is not None else self.global_env
 
         for value in iterable:
-            env[node.variable] = value
+            # Support tuple unpacking: for k, v in items
+            if isinstance(node.variable, list):
+                # Unpack the value into multiple variables
+                try:
+                    unpacked = list(value)
+                    if len(unpacked) != len(node.variable):
+                        raise ValueError(f"Cannot unpack {len(unpacked)} values into {len(node.variable)} variables")
+                    for var_name, val in zip(node.variable, unpacked):
+                        env[var_name] = val
+                except TypeError:
+                    raise TypeError(f"Cannot unpack non-iterable value: {value}")
+            else:
+                env[node.variable] = value
 
             # Check invariants at start of each iteration
             if hasattr(node, 'invariants') and node.invariants:
@@ -2038,8 +3149,15 @@ class TraditionalInterpreter:
 
     def visit_raise_statement(self, node):
         """Visit a raise statement node"""
-        value = self.interpret(node.value) if node.value is not None else None
-        raise BayanException(value)
+        if node.value is not None:
+            value = self.interpret(node.value)
+            # If value is a Python exception, raise it directly
+            if isinstance(value, BaseException):
+                raise value
+            # Otherwise wrap in BayanException
+            raise BayanException(value)
+        else:
+            raise BayanException(None)
 
     def visit_try_except_finally(self, node):
         """Visit a try/except/finally node"""
@@ -2054,13 +3172,21 @@ class TraditionalInterpreter:
             handled = False
             env = self.local_env if self.local_env is not None else self.global_env
 
-            # Extract the actual exception value
+            # Extract the actual exception value and class name
             if isinstance(e, BayanException):
                 exc_value = e.value
+                exc_class_name = type(e.value).__name__ if e.value else 'BayanException'
             elif isinstance(e, BayanRuntimeError):
-                exc_value = str(e)
+                # BayanRuntimeError wraps other exceptions - extract original type
+                exc_str = str(e)
+                if ':' in exc_str:
+                    exc_class_name = exc_str.split(':')[0].strip()
+                else:
+                    exc_class_name = 'RuntimeError'
+                exc_value = e
             else:
-                exc_value = str(e)
+                exc_value = e
+                exc_class_name = e.__class__.__name__
 
             for handler in node.handlers:
                 match = False
@@ -2078,8 +3204,13 @@ class TraditionalInterpreter:
                         if handler.type_name in ('Exception', 'BaseException'):
                             match = True
                         # Also match specific Python exception types
-                        elif handler.type_name == e.__class__.__name__:
+                        elif handler.type_name == exc_class_name:
                             match = True
+                        # Also match if the exception is an instance of the handler type
+                        elif handler.type_name in self.global_env:
+                            handler_type = self.global_env[handler.type_name]
+                            if isinstance(handler_type, type) and isinstance(e, handler_type):
+                                match = True
                 if match:
                     handled = True
                     if handler.alias:
@@ -2108,6 +3239,38 @@ class TraditionalInterpreter:
             value = self.interpret(node.value)
             print(value)
         return None
+
+    def visit_fstring(self, node):
+        """Visit an f-string node and evaluate its expressions.
+
+        F-strings contain a mix of literal text and expressions in {}.
+        """
+        result_parts = []
+        for is_expr, content in node.parts:
+            if is_expr:
+                # Evaluate the expression
+                # We need to parse and interpret the expression string
+                from .lexer import HybridLexer
+                from .parser import HybridParser
+                try:
+                    lexer = HybridLexer(content)
+                    tokens = lexer.tokenize()
+                    parser = HybridParser(tokens)
+                    expr_ast = parser.parse_expression()
+                    value = self.interpret(expr_ast)
+                    result_parts.append(str(value))
+                except Exception as e:
+                    # If parsing fails, try direct variable lookup
+                    env = self.local_env if self.local_env is not None else self.global_env
+                    if content in env:
+                        result_parts.append(str(env[content]))
+                    elif content in self.global_env:
+                        result_parts.append(str(self.global_env[content]))
+                    else:
+                        result_parts.append(f"{{{content}}}")
+            else:
+                result_parts.append(content)
+        return ''.join(result_parts)
 
     def visit_similarity_decl(self, node):
         """Handle SimilarityDecl sugar by asserting similar facts (including reverse)."""
@@ -2289,9 +3452,224 @@ class TraditionalInterpreter:
 
     def visit_class_def(self, node):
         """Visit a class definition node"""
+        # Check for @dataclass decorator
+        is_abstract = False
+        if node.decorators:
+            for dec in node.decorators:
+                if dec.name in ('dataclass', 'فئة_بيانات'):
+                    self._apply_dataclass(node)
+                elif dec.name in ('abstract', 'مجرد', 'abstractclass', 'صنف_مجرد'):
+                    is_abstract = True
+                    node._is_abstract = True
+
+        # Mark abstract methods
+        if node.body and hasattr(node.body, 'statements'):
+            from .ast_nodes import FunctionDef
+            for stmt in node.body.statements:
+                if isinstance(stmt, FunctionDef) and hasattr(stmt, 'decorators') and stmt.decorators:
+                    for dec in stmt.decorators:
+                        if dec.name in ('abstract', 'مجرد', 'abstractmethod', 'دالة_مجردة'):
+                            stmt._is_abstract = True
+
         self.classes[node.name] = node
         self.class_system.register_class(node)
+
+        # Create a class proxy for static/class method access
+        class_proxy = self._create_class_proxy(node)
+        self.global_env[node.name] = class_proxy
+
         return None
+
+    def _get_unimplemented_abstract_methods(self, class_def):
+        """Get list of abstract methods that are not implemented in the class
+        الحصول على قائمة الدوال المجردة غير المنفذة في الصنف
+        """
+        from .ast_nodes import FunctionDef
+
+        # Get all methods defined in this class
+        implemented_methods = set()
+        if class_def.body and hasattr(class_def.body, 'statements'):
+            for stmt in class_def.body.statements:
+                if isinstance(stmt, FunctionDef):
+                    implemented_methods.add(stmt.name)
+
+        # Get abstract methods from parent classes
+        abstract_methods = set()
+        # Support both base_classes (list) and base_class (single)
+        parent_names = []
+        if hasattr(class_def, 'base_classes') and class_def.base_classes:
+            parent_names = class_def.base_classes
+        elif hasattr(class_def, 'base_class') and class_def.base_class:
+            parent_names = [class_def.base_class]
+
+        for parent_name in parent_names:
+            if parent_name in self.classes:
+                parent_def = self.classes[parent_name]
+                # Recursively get abstract methods from parent
+                parent_abstract = self._get_abstract_methods(parent_def)
+                abstract_methods.update(parent_abstract)
+
+        # Return abstract methods that are not implemented
+        return abstract_methods - implemented_methods
+
+    def _get_abstract_methods(self, class_def):
+        """Get all abstract methods in a class (including inherited ones)
+        الحصول على جميع الدوال المجردة في الصنف
+        """
+        from .ast_nodes import FunctionDef
+
+        abstract_methods = set()
+
+        # Get abstract methods from this class
+        if class_def.body and hasattr(class_def.body, 'statements'):
+            for stmt in class_def.body.statements:
+                if isinstance(stmt, FunctionDef):
+                    if hasattr(stmt, '_is_abstract') and stmt._is_abstract:
+                        abstract_methods.add(stmt.name)
+
+        # Get abstract methods from parent classes
+        parent_names = []
+        if hasattr(class_def, 'base_classes') and class_def.base_classes:
+            parent_names = class_def.base_classes
+        elif hasattr(class_def, 'base_class') and class_def.base_class:
+            parent_names = [class_def.base_class]
+
+        for parent_name in parent_names:
+            if parent_name in self.classes:
+                parent_def = self.classes[parent_name]
+                parent_abstract = self._get_abstract_methods(parent_def)
+                abstract_methods.update(parent_abstract)
+
+        return abstract_methods
+
+    def _create_class_proxy(self, class_node):
+        """Create a proxy object that allows accessing class attributes and static/class methods
+        إنشاء كائن وكيل للوصول إلى سمات الصنف والدوال الثابتة
+        """
+        interpreter = self
+
+        class ClassProxy:
+            def __init__(self, node):
+                self._class_node = node
+                self._class_name = node.name
+                self._static_methods = {}
+                self._class_methods = {}
+                self._class_attrs = {}
+
+                # Scan class body for static/class methods and class attributes
+                if node.body and hasattr(node.body, 'statements'):
+                    from .ast_nodes import FunctionDef, Assignment, TypedVariable
+                    for stmt in node.body.statements:
+                        if isinstance(stmt, FunctionDef):
+                            # Check for @staticmethod or @classmethod decorators
+                            if hasattr(stmt, 'decorators') and stmt.decorators:
+                                for dec in stmt.decorators:
+                                    if dec.name in ('staticmethod', 'ساكن'):
+                                        self._static_methods[stmt.name] = stmt
+                                    elif dec.name in ('classmethod', 'صنفي'):
+                                        self._class_methods[stmt.name] = stmt
+                        elif isinstance(stmt, Assignment):
+                            # Class-level assignment: counter = 0
+                            if hasattr(stmt, 'name'):
+                                self._class_attrs[stmt.name] = interpreter.interpret(stmt.value)
+                        elif isinstance(stmt, TypedVariable):
+                            # Typed class attribute
+                            if stmt.value is not None:
+                                self._class_attrs[stmt.name] = interpreter.interpret(stmt.value)
+                            else:
+                                self._class_attrs[stmt.name] = None
+
+            def __getattr__(self, name):
+                # Check static methods
+                if name in self._static_methods:
+                    method_node = self._static_methods[name]
+                    def static_method(*args, **kwargs):
+                        return interpreter._execute_function(method_node, list(args))
+                    return static_method
+
+                # Check class methods
+                if name in self._class_methods:
+                    method_node = self._class_methods[name]
+                    def class_method(*args, **kwargs):
+                        # Pass the class proxy as first argument (cls)
+                        return interpreter._execute_function(method_node, [self] + list(args))
+                    return class_method
+
+                # Check class attributes
+                if name in self._class_attrs:
+                    return self._class_attrs[name]
+
+                raise AttributeError(f"Class '{self._class_name}' has no attribute '{name}'")
+
+            def __setattr__(self, name, value):
+                if name.startswith('_'):
+                    object.__setattr__(self, name, value)
+                else:
+                    self._class_attrs[name] = value
+
+            def __repr__(self):
+                return f"<class '{self._class_name}'>"
+
+        return ClassProxy(class_node)
+
+    def _apply_dataclass(self, node):
+        """Apply dataclass behavior: auto-generate __init__, __repr__, __eq__"""
+        from .ast_nodes import FunctionDef, Parameter, Block, Assignment, \
+            AttributeAccess, Variable, BinaryOp, String
+
+        # Extract fields from class body (typed variables)
+        fields = []
+        if node.body and hasattr(node.body, 'statements'):
+            from .ast_nodes import TypedVariable
+            for stmt in node.body.statements:
+                if isinstance(stmt, TypedVariable):
+                    # TypedVariable has: name, type_annotation, value
+                    default_val = stmt.value
+                    fields.append((stmt.name, stmt.type_annotation, default_val))
+
+        # Check if __init__ already exists
+        has_init = False
+        if node.body and hasattr(node.body, 'statements'):
+            for stmt in node.body.statements:
+                if isinstance(stmt, FunctionDef) and stmt.name == '__init__':
+                    has_init = True
+                    break
+
+        if not has_init and fields:
+            # Generate __init__ method
+            params = [Parameter('self')]
+            init_body_stmts = []
+
+            for fname, ftype, fdefault in fields:
+                params.append(Parameter(fname, default_value=fdefault))
+                # self.fname = fname
+                init_body_stmts.append(
+                    Assignment(
+                        AttributeAccess(Variable('self'), fname),
+                        Variable(fname)
+                    )
+                )
+
+            init_method = FunctionDef('__init__', params, Block(init_body_stmts))
+            if not node.body:
+                node.body = Block([])
+            node.body.statements.insert(0, init_method)
+
+        # Generate __repr__ if not exists
+        has_repr = False
+        if node.body and hasattr(node.body, 'statements'):
+            for stmt in node.body.statements:
+                if isinstance(stmt, FunctionDef) and stmt.name == '__repr__':
+                    has_repr = True
+                    break
+
+        if not has_repr and fields:
+            # Simple repr: ClassName(field1=val1, field2=val2)
+            # Store repr info for runtime generation
+            node._dataclass_fields = [f[0] for f in fields]
+
+        # Mark as dataclass
+        node._is_dataclass = True
 
     def visit_super_call(self, node):
         """Visit a super(...) call inside a method using MRO"""
@@ -3066,9 +4444,24 @@ class TraditionalInterpreter:
 
     def set_variable(self, name, value):
         """Set a variable and trigger reactive updates if needed"""
-        env = self.local_env if self.local_env is not None else self.global_env
-        old_value = env.get(name)
-        env[name] = value
+        # Check if this is a global variable
+        if hasattr(self, '_global_vars') and name in self._global_vars:
+            old_value = self.global_env.get(name)
+            self.global_env[name] = value
+        # Check if this is a nonlocal variable
+        elif hasattr(self, '_nonlocal_vars') and name in self._nonlocal_vars:
+            # Find the variable in enclosing scopes
+            if hasattr(self, '_enclosing_env') and self._enclosing_env is not None:
+                old_value = self._enclosing_env.get(name)
+                self._enclosing_env[name] = value
+            else:
+                # Fallback to global if no enclosing scope
+                old_value = self.global_env.get(name)
+                self.global_env[name] = value
+        else:
+            env = self.local_env if self.local_env is not None else self.global_env
+            old_value = env.get(name)
+            env[name] = value
 
         # If this is a reactive variable and value changed, trigger updates
         if name in self._reactive_vars and old_value != value:
@@ -3213,6 +4606,25 @@ class TraditionalInterpreter:
         return composed
 
     # ============ Cognitive-Semantic Model Visitors ============
+
+    def visit_entity_def(self, node):
+        """Visit entity definition (entity "name": {...})
+
+        Creates an entity and stores it in the global environment.
+        """
+        # Evaluate body dict
+        body = self.interpret(node.body)
+
+        if not isinstance(body, dict):
+            raise RuntimeError(f"Entity body must be a dict, got {type(body)}")
+
+        # Store entity in global environment
+        self.global_env[node.name] = body
+
+        # Also store in cognitive entities for compatibility
+        self._cognitive_entities[node.name] = body
+
+        return None
 
     def visit_cognitive_entity(self, node):
         """Visit cognitive entity definition
@@ -3687,11 +5099,41 @@ class TraditionalInterpreter:
 
     def visit_semantic_memory(self, node):
         """Visit semantic memory operation"""
-        if node.operation == "store" or node.operation == "احفظ":
+        operation = node.operation
+
+        # Handle named memory definition: ذاكرة_دلالية "name": {...}
+        # In this case, operation is the name and data is the config
+        if isinstance(node.data, dict) or (hasattr(node.data, '__class__') and 'Dict' in node.data.__class__.__name__):
+            # This is a memory definition with config
+            config = self.interpret(node.data) if hasattr(node.data, '__class__') else node.data
+            name = operation
+
+            # Process the config
+            if isinstance(config, dict):
+                # Handle store operation
+                if "تخزين" in config or "store" in config:
+                    store_data = config.get("تخزين") or config.get("store")
+                    if isinstance(store_data, dict):
+                        for key, value in store_data.items():
+                            self._semantic_memory.append({key: value})
+
+                # Handle retrieve operation
+                if "استرجاع" in config or "retrieve" in config:
+                    query_key = config.get("استرجاع") or config.get("retrieve")
+                    for memory in self._semantic_memory:
+                        if isinstance(memory, dict) and query_key in memory:
+                            return memory[query_key]
+
+            # Store the memory config with its name
+            self.global_env[name] = config
+            return config
+
+        # Handle operation-based memory: memory.store({...}) or memory.retrieve(query)
+        if operation == "store" or operation == "احفظ":
             data = self.interpret(node.data)
             self._semantic_memory.append(data)
             return None
-        elif node.operation == "retrieve" or node.operation == "استرجع":
+        elif operation == "retrieve" or operation == "استرجع":
             query = self.interpret(node.data)
             # Simple retrieval by matching properties
             results = []
@@ -3707,7 +5149,10 @@ class TraditionalInterpreter:
                         results.append(memory)
             return results
         else:
-            raise RuntimeError(f"Unknown memory operation: {node.operation}")
+            # Treat as a named memory definition
+            data = self.interpret(node.data) if hasattr(node.data, '__class__') else node.data
+            self.global_env[operation] = data
+            return data
 
     def visit_semantic_similarity(self, node):
         """Visit semantic similarity calculation"""
@@ -3852,6 +5297,47 @@ class TraditionalInterpreter:
 
         else:
             raise RuntimeError(f"Unknown semantic query: {query_name}")
+
+    # ========================================================================
+    # SEMANTIC NETWORK VISITORS
+    # ========================================================================
+
+    def visit_semantic_network(self, node):
+        """Visit semantic network definition"""
+        config = self.interpret(node.config)
+        if not isinstance(config, dict):
+            raise RuntimeError(f"Semantic network config must be a dict")
+
+        # Remove quotes from name if present
+        name = node.name.strip('"').strip("'") if isinstance(node.name, str) else node.name
+
+        # Store semantic network
+        if not hasattr(self, '_semantic_networks'):
+            self._semantic_networks = {}
+        self._semantic_networks[name] = config
+        self.global_env[name] = config
+
+        return None
+
+    def visit_infer_from_text(self, node):
+        """Visit infer from text statement"""
+        text = self.interpret(node.text)
+        if not isinstance(text, str):
+            raise RuntimeError(f"Infer from text requires a string, got {type(text)}")
+
+        # Simple text inference - extract entities and relationships
+        # This is a basic implementation that can be extended
+        results = {
+            'text': text,
+            'inferred': []
+        }
+
+        # Store in semantic memory if available
+        if hasattr(self, '_semantic_memory'):
+            # _semantic_memory is a list, so append the results directly
+            self._semantic_memory.append({'type': 'inference', 'data': results})
+
+        return results
 
     # ========================================================================
     # EXISTENTIAL MODEL VISITORS (النموذج الوجودي)
@@ -4335,15 +5821,418 @@ class TraditionalInterpreter:
         """Visit a logical query"""
         if not self.logical_engine:
             return []
-        
+
         # Convert AST goal to logical_engine Predicate
         goal = self._convert_to_predicate(node.goal)
         if not goal:
             return []
-            
+
         solutions = self.logical_engine.query(goal)
         # Return generator of solutions
         return solutions
+
+    def visit_query_expression(self, node):
+        """Visit a query expression (query ... where ... ?)
+        Returns a list of matching bindings as dictionaries."""
+        if not self.logical_engine:
+            return []
+
+        # Convert AST goal to logical_engine Predicate
+        goal = self._convert_to_predicate(node.goal)
+        if not goal:
+            return []
+
+        # Get all solutions
+        solutions = list(self.logical_engine.query(goal))
+
+        # Convert Substitution objects to dictionaries
+        def convert_value(val):
+            """Convert a logical value to a Python value"""
+            from .ast_nodes import List as ASTList
+            if hasattr(val, 'value'):
+                inner = val.value
+                # If the inner value is an AST node, interpret it
+                if isinstance(inner, ASTList):
+                    return self.interpret(inner)
+                # Try to convert numeric strings to numbers
+                if isinstance(inner, str):
+                    try:
+                        if '.' in inner:
+                            return float(inner)
+                        return int(inner)
+                    except ValueError:
+                        pass
+                return inner
+            elif isinstance(val, ASTList):
+                return self.interpret(val)
+            # Try to convert numeric strings to numbers
+            if isinstance(val, str):
+                try:
+                    if '.' in val:
+                        return float(val)
+                    return int(val)
+                except ValueError:
+                    pass
+            return val
+
+        def substitution_to_dict(sub):
+            result = {}
+            for var_name, value in sub.bindings.items():
+                result['?' + var_name] = convert_value(value)
+            result['__prob'] = float(getattr(sub, 'probability', 1.0))
+            return result
+
+        # If there's a where clause, filter the results
+        if node.where_clause:
+            filtered = []
+            for solution in solutions:
+                result_dict = substitution_to_dict(solution)
+                # Create a temporary environment with the solution bindings
+                old_local = self.local_env
+                self.local_env = dict(self.local_env) if self.local_env else {}
+
+                # Add solution bindings to environment
+                for var_name, value in result_dict.items():
+                    if var_name != '__prob':
+                        self.local_env[var_name] = value
+
+                try:
+                    # Evaluate the where clause
+                    condition_result = self.interpret(node.where_clause)
+                    if condition_result:
+                        filtered.append(result_dict)
+                finally:
+                    self.local_env = old_local
+
+            return filtered
+
+        return [substitution_to_dict(s) for s in solutions]
+
+    def visit_lambda_expression(self, node):
+        """Visit a lambda expression and return a callable"""
+        # Capture the current environment for closure
+        captured_env = dict(self.local_env) if self.local_env else {}
+        captured_global = self.global_env
+        interpreter = self
+
+        def lambda_func(*args):
+            # Create new local environment with captured closure
+            old_local = interpreter.local_env
+            interpreter.local_env = dict(captured_env)
+
+            # Bind parameters to arguments
+            for i, param in enumerate(node.parameters):
+                if i < len(args):
+                    interpreter.local_env[param] = args[i]
+                else:
+                    interpreter.local_env[param] = None
+
+            try:
+                result = interpreter.interpret(node.body)
+                return result
+            finally:
+                interpreter.local_env = old_local
+
+        return lambda_func
+
+    # ============ Advanced Language Features ============
+
+    def visit_assert_statement(self, node):
+        """Visit an assert statement: assert condition, message
+        تنفيذ جملة التأكد
+        """
+        condition = self.interpret(node.condition)
+        if not condition:
+            if node.message:
+                message = self.interpret(node.message)
+                raise AssertionError(f"تأكيد فاشل / Assertion failed: {message}")
+            else:
+                raise AssertionError("تأكيد فاشل / Assertion failed")
+        return None
+
+    def visit_optional_chain(self, node):
+        """Visit optional chaining: obj?.attr
+        الوصول الاختياري - يعيد None إذا كان الكائن None
+        """
+        obj = self.interpret(node.object_expr)
+        if obj is None:
+            return None
+
+        attr_name = node.attribute_name
+
+        if isinstance(obj, BayanObject):
+            return obj.get_attribute(attr_name)
+        elif isinstance(obj, dict):
+            return obj.get(attr_name)
+        elif hasattr(obj, attr_name):
+            return getattr(obj, attr_name)
+        else:
+            return None
+
+    def visit_nullish_coalescing(self, node):
+        """Visit nullish coalescing: a ?? b
+        يعيد b إذا كان a هو None
+        """
+        left = self.interpret(node.left)
+        if left is None:
+            return self.interpret(node.right)
+        return left
+
+    def visit_walrus_assignment(self, node):
+        """Visit walrus operator: (x := value)
+        تعبير الإسناد - يسند ويعيد القيمة
+        """
+        value = self.interpret(node.value)
+        self.set_variable(node.name, value)
+        return value
+
+    def visit_spread_operator(self, node):
+        """Visit spread operator: *list or **dict
+        عامل النشر
+        """
+        value = self.interpret(node.expression)
+        # The actual spreading happens in the context (list/dict creation)
+        # Here we just return a marker
+        return ('**spread**', value, node.is_dict)
+
+    def visit_chained_comparison(self, node):
+        """Visit chained comparison: 1 < x < 10
+        مقارنة متسلسلة
+        """
+        # Evaluate all operands
+        values = [self.interpret(op) for op in node.operands]
+
+        # Check all comparisons
+        for i, operator in enumerate(node.operators):
+            left = values[i]
+            right = values[i + 1]
+
+            if operator == '<':
+                if not (left < right):
+                    return False
+            elif operator == '<=':
+                if not (left <= right):
+                    return False
+            elif operator == '>':
+                if not (left > right):
+                    return False
+            elif operator == '>=':
+                if not (left >= right):
+                    return False
+            elif operator == '==':
+                if not (left == right):
+                    return False
+            elif operator == '!=':
+                if not (left != right):
+                    return False
+
+        return True
+
+    def visit_tuple_unpacking(self, node):
+        """Visit tuple/list unpacking: a, b, c = iterable
+        تفكيك الصف/القائمة
+        """
+        value = self.interpret(node.value)
+
+        if not hasattr(value, '__iter__'):
+            raise ValueError(f"Cannot unpack non-iterable: {type(value)}")
+
+        values = list(value)
+        targets = node.targets
+
+        if len(values) != len(targets):
+            raise ValueError(f"Cannot unpack {len(values)} values into {len(targets)} variables")
+
+        for target, val in zip(targets, values):
+            self.set_variable(target, val)
+
+        return None
+
+    def visit_global_statement(self, node):
+        """Visit global statement: global x, y, z
+        تنفيذ عبارة المتغير العام
+        """
+        # Mark these variables as global in the current scope
+        if not hasattr(self, '_global_vars'):
+            self._global_vars = set()
+
+        for name in node.names:
+            self._global_vars.add(name)
+
+        return None
+
+    def visit_nonlocal_statement(self, node):
+        """Visit nonlocal statement: nonlocal x, y
+        تنفيذ عبارة المتغير غير المحلي
+        """
+        # Mark these variables as nonlocal in the current scope
+        if not hasattr(self, '_nonlocal_vars'):
+            self._nonlocal_vars = set()
+
+        for name in node.names:
+            self._nonlocal_vars.add(name)
+
+        return None
+
+    def visit_match_statement(self, node):
+        """Visit match/case statement (Pattern Matching)
+        تنفيذ عبارة المطابقة
+        """
+        subject = self.interpret(node.subject)
+
+        for case in node.cases:
+            # Try to match the pattern
+            bindings = self._match_pattern(case.pattern, subject)
+
+            if bindings is not None:
+                # Pattern matched! Check guard if present
+                if case.guard is not None:
+                    # Create temporary scope with bindings
+                    old_env = self.local_env.copy() if self.local_env else {}
+                    for name, value in bindings.items():
+                        self.set_variable(name, value)
+
+                    guard_result = self.interpret(case.guard)
+
+                    if not guard_result:
+                        # Guard failed, restore env and try next case
+                        self.local_env = old_env
+                        continue
+
+                # Apply bindings and execute body
+                for name, value in bindings.items():
+                    self.set_variable(name, value)
+
+                return self.interpret(case.body)
+
+        # No case matched
+        return None
+
+    def _match_pattern(self, pattern, value):
+        """Try to match a pattern against a value
+        Returns dict of bindings if match, None if no match
+        """
+        # Wildcard pattern: _ matches anything
+        if isinstance(pattern, Variable) and pattern.name == '_':
+            return {}
+
+        # Variable binding: captures the value
+        if isinstance(pattern, Variable):
+            return {pattern.name: value}
+
+        # Literal patterns
+        if isinstance(pattern, Number):
+            # Convert pattern value to number for comparison
+            pattern_val = pattern.value
+            if isinstance(pattern_val, str):
+                try:
+                    if '.' in pattern_val:
+                        pattern_val = float(pattern_val)
+                    else:
+                        pattern_val = int(pattern_val)
+                except ValueError:
+                    pass
+            if value == pattern_val:
+                return {}
+            return None
+
+        if isinstance(pattern, String):
+            # Handle quoted strings
+            pattern_val = pattern.value
+            if isinstance(pattern_val, str):
+                if (pattern_val.startswith('"') and pattern_val.endswith('"')) or \
+                   (pattern_val.startswith("'") and pattern_val.endswith("'")):
+                    pattern_val = pattern_val[1:-1]
+            if value == pattern_val:
+                return {}
+            return None
+
+        if isinstance(pattern, Boolean):
+            if value == pattern.value:
+                return {}
+            return None
+
+        if isinstance(pattern, NoneLiteral):
+            if value is None:
+                return {}
+            return None
+
+        # Tuple pattern
+        if isinstance(pattern, Tuple):
+            if not isinstance(value, (tuple, list)):
+                return None
+            if len(pattern.elements) != len(value):
+                return None
+
+            bindings = {}
+            for p, v in zip(pattern.elements, value):
+                sub_bindings = self._match_pattern(p, v)
+                if sub_bindings is None:
+                    return None
+                bindings.update(sub_bindings)
+            return bindings
+
+        # List pattern
+        if isinstance(pattern, List):
+            if not isinstance(value, (tuple, list)):
+                return None
+            if len(pattern.elements) != len(value):
+                return None
+
+            bindings = {}
+            for p, v in zip(pattern.elements, value):
+                sub_bindings = self._match_pattern(p, v)
+                if sub_bindings is None:
+                    return None
+                bindings.update(sub_bindings)
+            return bindings
+
+        # Dict pattern
+        if isinstance(pattern, DictPattern):
+            if not isinstance(value, dict):
+                return None
+
+            bindings = {}
+            for key, pat in zip(pattern.keys, pattern.patterns):
+                if key not in value:
+                    return None
+                sub_bindings = self._match_pattern(pat, value[key])
+                if sub_bindings is None:
+                    return None
+                bindings.update(sub_bindings)
+            return bindings
+
+        return None
+
+    def visit_enum_def(self, node):
+        """Visit enum definition
+        تنفيذ تعريف التعداد
+        """
+        # Create an enum class
+        enum_dict = {}
+        for i, (member_name, member_value) in enumerate(node.members):
+            if member_value is not None:
+                value = self.interpret(member_value)
+            else:
+                value = i  # Auto-assign integer value
+            enum_dict[member_name] = value
+
+        # Create a simple enum-like object
+        class EnumType:
+            def __init__(self, name, members):
+                self._name = name
+                self._members = members
+                for k, v in members.items():
+                    setattr(self, k, v)
+
+            def __repr__(self):
+                return f"<enum '{self._name}'>"
+
+        enum_obj = EnumType(node.name, enum_dict)
+        self.set_variable(node.name, enum_obj)
+
+        return enum_obj
+
 
 class GeneratorInterpreter(TraditionalInterpreter):
     """
@@ -4564,10 +6453,10 @@ class GeneratorInterpreter(TraditionalInterpreter):
             value = context.__enter__()
         else:
             value = context
-            
+
         if node.var_name:
             self.local_env[node.var_name] = value
-            
+
         try:
             result = self.interpret(node.body)
             if inspect.isgenerator(result):

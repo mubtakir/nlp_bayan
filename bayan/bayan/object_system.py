@@ -91,14 +91,36 @@ class BayanObject:
                 self.interpreter.local_env = old_env
 
     def get_attribute(self, name):
-        """Get an attribute value"""
+        """Get an attribute value, checking for property descriptors"""
+        # Check if it's a property (getter)
+        if hasattr(self, '_properties') and name in self._properties:
+            prop = self._properties[name]
+            if prop.fget:
+                # Call the getter method
+                return self.call_method(prop.fget.name, [])
+
         if name in self.attributes:
             return self.attributes[name]
         return None
 
     def set_attribute(self, name, value):
-        """Set an attribute value"""
+        """Set an attribute value, checking for property descriptors"""
+        # Check if it's a property (setter)
+        if hasattr(self, '_properties') and name in self._properties:
+            prop = self._properties[name]
+            if prop.fset:
+                # Call the setter method
+                return self.call_method(prop.fset.name, [value])
+            else:
+                raise AttributeError(f"Property '{name}' has no setter")
+
         self.attributes[name] = value
+
+    def register_property(self, name, descriptor):
+        """Register a property descriptor"""
+        if not hasattr(self, '_properties'):
+            self._properties = {}
+        self._properties[name] = descriptor
 
     def call_method(self, method_name, arguments, named_arguments=None):
         """Call a method on this object using class MRO with support for named arguments"""
