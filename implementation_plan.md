@@ -1,42 +1,40 @@
-# خطة تطوير نظام الصرف العربي (Arabic Morphology Expansion)
+# Implementation Plan - Proposal 2: Advanced Parser
 
-## الهدف
-توسيع قدرات المعالجة الصرفية العربية في `ai/morphology.bayan` باستخدام مكتبة `camel-tools` المفتوحة المصدر (إذا توفرت) مع الحفاظ على تنفيذ احتياطي (Fallback) بلغة Bayan، لتلبية ملاحظات المطورين وجعل النظام أكثر قوة وواقعية.
+The goal is to upgrade the `IstinbatEngine` to support complex sentence structures beyond the simple Subject-Verb-Object (SVO) pattern. This includes handling prepositions, adverbs, adjectives, and conditional statements.
 
-## التغييرات المقترحة
+## User Review Required
 
-### 1. التكامل مع `camel-tools` (Python Integration)
-*   **تعديل `bayan/bayan/hybrid_interpreter.py`**:
-    *   محاولة استيراد `camel_tools`.
-    *   إضافة دوال native (`native_conjugate`, `native_extract_root`) إلى بيئة Bayan إذا كانت المكتبة متوفرة.
-    *   إضافة متغير `HAS_ADVANCED_MORPHOLOGY` للتحقق من التوفر.
+> [!IMPORTANT]
+> This change introduces `AdvancedArabicParser` which uses Regex patterns to identify sentence structures. It will replace the simple split-based parsing in `LinguisticEquationParser`.
 
-### 2. تحسين تصريف الأفعال (`conjugate_arabic_verb`)
-*   **تحديث `ai/morphology.bayan`**:
-    *   استخدام `native_conjugate` إذا كان `HAS_ADVANCED_MORPHOLOGY` صحيحاً.
-    *   **الخطة الاحتياطية (Fallback)**: تحسين التنفيذ اليدوي الحالي لدعم:
-        *   المثنى (Dual).
-        *   صيغة الأمر (Imperative).
+## Proposed Changes
 
-### 2. إضافة نظام الجذور والأوزان (Roots & Patterns) - [جديد]
-*   **دالة `apply_pattern(root, pattern)`**:
-    *   تأخذ جذراً ثلاثياً (مثل "كتب") ووزناً (مثل "فاعل").
-    *   تنتج الكلمة (مثل "كاتب").
-    *   دعم الأوزان الشائعة: فاعل، مفعول، فعّال، افتعل، استفعال، إلخ.
+### Core Logic
 
-### 4. استخراج الجذور (Root Extraction) - [جديد]
-*   **دالة `extract_root(word)`**:
-    *   استخدام `native_extract_root` (عبر `camel-tools`) إذا توفرت.
-    *   تحسين الخوارزمية اليدوية (Heuristic) كبديل.
+#### [NEW] [advanced_arabic_parser.py](file:///home/al-mubtakir/Documents/bayan_python_ide1/bayan/bayan/advanced_arabic_parser.py)
+- Create `AdvancedArabicParser` class.
+- **Regex Patterns**:
+    - **Prepositional**: `Subject + Verb + Preposition + Object` (e.g., "محمد ذهب إلى المدرسة").
+    - **Adverbial**: `Subject + Verb + Object + Time/Place` (e.g., "أحمد أكل التفاحة صباحاً").
+    - **Descriptive**: `Subject + Verb + Object + Adjective` (e.g., "الرجل ضرب الكرة الكبيرة").
+    - **Conditional**: `If + Condition + Then + Result` (e.g., "إذا درس الطالب فإن الطالب ينجح").
 
-### 4. التكامل مع المنطق (Logic Integration)
-*   إضافة أمثلة توضح كيف يمكن استخدام هذه الدوال داخل القواعد المنطقية (Logical Rules).
+#### [MODIFY] [istinbat_engine.py](file:///home/al-mubtakir/Documents/bayan_python_ide1/bayan/bayan/istinbat_engine.py)
+- Import `AdvancedArabicParser`.
+- Replace `LinguisticEquationParser` with `AdvancedArabicParser` in `__init__`.
 
-## ملفات للتعديل
-*   `ai/morphology.bayan`
-*   `bayan/bayan/hybrid_interpreter.py`
+#### [MODIFY] [linguistic_equation.py](file:///home/al-mubtakir/Documents/bayan_python_ide1/bayan/bayan/linguistic_equation.py)
+- Update `LinguisticEquation` class to support new fields: `preposition`, `adverb`, `adjective`, `condition`.
 
-## خطة التحقق
-1.  إنشاء سكريبت اختبار `tests/test_morphology.bayan`.
-2.  تجربة توليد كلمات مختلفة من جذور مختلفة.
-3.  التحقق من صحة التصريفات الجديدة.
+## Verification Plan
+
+### Automated Tests
+- Create `tests/test_advanced_parser.py`:
+    - **Preposition**: Test "ذهب إلى المدرسة" -> Verify `preposition="إلى"`, `object="المدرسة"`.
+    - **Adverb**: Test "أكل صباحاً" -> Verify `time="صباحاً"`.
+    - **Adjective**: Test "الكرة الكبيرة" -> Verify `adjective="الكبيرة"`.
+    - **Conditional**: Test "إذا درس نجح" -> Verify causal link.
+
+### Manual Verification
+- Run `tests/test_advanced_parser.py` and verify output.
+

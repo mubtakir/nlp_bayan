@@ -99,7 +99,51 @@ https://raw.githubusercontent.com/mubtakir/nlp_bayan/main/ULTIMATE_BAYAN_CHALLEN
 - **[docs/تعليمية/](docs/تعليمية/)** - 42 tutorial files (21 AR + 21 EN)
 - **[bayan/bayan/](bayan/bayan/)** - Core interpreter (23 Python files)
 - **[ai/](ai/)** - AI/ML libraries (21 Bayan files)
+- **[extensions/](extensions/)** - 🆕 Extension layer (dialects, visualization, tutor, dialogue)
 - **[tests/](tests/)** - 622 passing tests
+
+---
+
+## 🆕 Extensions Layer (v0.6.0)
+
+New middleware layer providing advanced features without modifying core files:
+
+| Module | Description |
+|--------|-------------|
+| **🤖 AI Code Assistant** | Smart programming assistant (error explanation, code completion, optimization) |
+| `dialect_adapter.py` | 🌍 Arabic dialect converter (Egyptian, Gulf, Levantine, Moroccan) |
+| `equation_visualizer.py` | 📊 SVG visualization for linguistic equations |
+| `bayan_tutor.py` | 🎓 Interactive learning system with exercises |
+| `dialogue_system.py` | 🤖 Intelligent dialogue with intent/emotion detection |
+| `extended_istinbat.py` | 🧠 Extended inference engine with dialect support |
+
+```python
+from extensions import DialectAdapter, EquationVisualizer, BayanTutor, IntelligentDialogueSystem, AICodeAssistant
+
+# Convert Egyptian dialect to MSA
+adapter = DialectAdapter()
+result = adapter.convert_to_standard("أحمد عايز ياكل تفاحة")
+# → "أحمد يريد ياكل تفاحة"
+
+# Visualize equation as SVG
+viz = EquationVisualizer()
+svg = viz.visualize_equation("أحمد", "أكل", "تفاحة")
+
+# Interactive learning
+tutor = BayanTutor()
+tutor.start_lesson("intro")
+
+# Intelligent chat
+dialogue = IntelligentDialogueSystem()
+response = dialogue.chat("مرحباً، أنا محمد")
+
+# AI Code Assistant
+assistant = AICodeAssistant()
+error = assistant.explain_error("NameError: name 'x' is not defined")
+print(error.explanation)  # "المتغير 'x' غير معرّف..."
+```
+
+**[📖 Full Extensions Guide →](دليل_الطبقة_الوسيطة.md)** | **[🤖 AI Assistant API →](docs/AI_CODE_ASSISTANT_API.md)**
 
 ---
 

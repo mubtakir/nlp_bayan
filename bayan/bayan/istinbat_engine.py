@@ -1,35 +1,74 @@
 from typing import List, Dict, Any, Optional
-from .linguistic_equation import LinguisticEquationParser, KnowledgeBase, LinguisticEquation, Role
+from .linguistic_equation import KnowledgeBase, LinguisticEquation, Role
+from .advanced_arabic_parser import AdvancedArabicParser
 from .entity_engine import EntityEngine
 from .dynamic_builder import DynamicCircuitBuilder, Atom
 from .logical_engine import LogicalEngine
+from .smart_knowledge_base import SmartKnowledgeBase
+from .dialect_adapter import DialectAdapter, Dialect
 
 class DeductionResult:
     """Holds the result of a deep inference process."""
-    def __init__(self, equation: LinguisticEquation, consequences: List[Any], circuit: Dict[str, Any]):
+    def __init__(self, equation: LinguisticEquation, consequences: List[Any], circuit: Dict[str, Any],
+                 original_text: str = None, dialect: str = None, converted_text: str = None):
         self.equation = equation
         self.consequences = consequences
         self.circuit = circuit
+        # معلومات اللهجة
+        self.original_text = original_text
+        self.dialect = dialect
+        self.converted_text = converted_text
 
     def __repr__(self):
-        return f"DeductionResult(Event={self.equation.event}, Consequences={len(self.consequences)})"
+        dialect_info = f", Dialect={self.dialect}" if self.dialect else ""
+        return f"DeductionResult(Event={self.equation.event}, Consequences={len(self.consequences)}{dialect_info})"
 
 class IstinbatEngine:
     """
     The Unified Brain (محرك الاستنباط).
     Orchestrates the flow from Text -> Equation -> Causal Inference -> Entity State -> Logical Thought.
+
+    الميزات الجديدة:
+    - دعم اللهجات العربية (مصرية، خليجية، شامية، مغربية)
+    - تحويل تلقائي من اللهجة إلى الفصحى
     """
-    def __init__(self):
+    def __init__(self, enable_dialect_support: bool = True):
         self.logical_engine = LogicalEngine()
         self.entity_engine = EntityEngine(self.logical_engine)
-        self.kb = KnowledgeBase()
-        self.parser = LinguisticEquationParser(self.kb)
+        self.kb = SmartKnowledgeBase()
+        self.parser = AdvancedArabicParser(self.kb)
         self.circuit_builder = DynamicCircuitBuilder()
 
-    def process(self, text: str) -> Optional[DeductionResult]:
+        # دعم اللهجات
+        self.enable_dialect_support = enable_dialect_support
+        self.dialect_adapter = DialectAdapter() if enable_dialect_support else None
+
+    def process(self, text: str, dialect: Optional[str] = None) -> Optional[DeductionResult]:
         """
         Main entry point: Text -> Deep Deduction.
+
+        Args:
+            text: النص المراد تحليله (يمكن أن يكون بأي لهجة)
+            dialect: اللهجة (اختياري - None = اكتشاف تلقائي)
+
+        Returns:
+            نتيجة الاستنباط أو None
         """
+        original_text = text
+        detected_dialect = None
+        converted_text = None
+
+        # 0. تحويل من اللهجة إلى الفصحى (إذا مفعّل)
+        if self.enable_dialect_support and self.dialect_adapter:
+            conversion = self.dialect_adapter.convert_to_standard(text, dialect)
+            if conversion.dialect != Dialect.STANDARD and conversion.changes:
+                detected_dialect = conversion.dialect.value
+                converted_text = conversion.converted
+                text = converted_text
+                print(f"   🌍 اللهجة المكتشفة: {detected_dialect}")
+                print(f"   📝 النص الأصلي: {original_text}")
+                print(f"   ✨ النص المحول: {converted_text}")
+
         # 1. Parse Text into Linguistic Equation
         equation = self._parse_equation(text)
         if not equation:
@@ -44,7 +83,12 @@ class IstinbatEngine:
         # 4. Synthesize Final Thought (Dynamic Circuit)
         circuit = self._synthesize_thought(equation, consequences)
 
-        return DeductionResult(equation, consequences, circuit)
+        return DeductionResult(
+            equation, consequences, circuit,
+            original_text=original_text,
+            dialect=detected_dialect,
+            converted_text=converted_text
+        )
 
     def _parse_equation(self, text: str) -> Optional[LinguisticEquation]:
         return self.parser.parse(text)

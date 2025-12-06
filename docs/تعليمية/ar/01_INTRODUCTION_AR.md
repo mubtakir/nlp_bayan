@@ -605,6 +605,57 @@ interpreter.traditional.global_env['custom_func'] = my_custom_function
   - `ai/AI_LIBRARY_GUIDE.md` — دليل مكتبة الذكاء الاصطناعي ومعالجة اللغة `ai.nlp` و`ai.ml`.
   - `docs/CONCEPTUAL_LM_BLUEPRINT.md` — مخطط معماري عالي المستوى لطبقات النموذج اللغوي التصوّري.
   - `docs/CONCEPTUAL_LM_AI_HANDOVER.md` — دليل استلام/تسليم لتطوير طبقات الـ Conceptual LM للمطور أو النموذج التالي.
+- **🆕 الطبقة الوسيطية** (`extensions/`):
+  - `دليل_الطبقة_الوسيطة.md` — دليل شامل للميزات الجديدة
+
+---
+
+## 🆕 الطبقة الوسيطية (الإصدار 0.4.0)
+
+تم إضافة طبقة وسيطية جديدة توفر ميزات متقدمة:
+
+### 🌍 محول اللهجات العربية
+```python
+from extensions import DialectAdapter
+
+adapter = DialectAdapter()
+
+# تحويل من المصرية للفصحى
+result = adapter.convert_to_standard("أحمد عايز ياكل تفاحة")
+print(result.converted)  # "أحمد يريد ياكل تفاحة"
+
+# اكتشاف اللهجة
+dialect, confidence = adapter.detect_dialect("شلون حالك")
+print(dialect)  # Dialect.GULF
+```
+
+### 📊 تصور المعادلات اللغوية
+```python
+from extensions import EquationVisualizer
+
+viz = EquationVisualizer()
+svg = viz.visualize_equation("أحمد", "أكل", "تفاحة")
+viz.save_to_file(svg, "equation.html")
+```
+
+### 🎓 النظام التعليمي التفاعلي
+```python
+from extensions import BayanTutor
+
+tutor = BayanTutor()
+tutor.start_lesson("intro")
+exercise = tutor.get_exercise(0)
+result = tutor.check_answer(0, "فاعل + فعل → مفعول")
+```
+
+### 🤖 نظام الحوار الذكي
+```python
+from extensions import IntelligentDialogueSystem
+
+system = IntelligentDialogueSystem()
+response = system.chat("مرحباً، أنا محمد")
+print(response)  # "مرحباً! سعيد بالتحدث معك."
+```
 
 ---
 
@@ -613,6 +664,7 @@ interpreter.traditional.global_env['custom_func'] = my_custom_function
 - **الوثائق**: مجلّد `docs/` داخل المشروع
 - **الأمثلة**: مجلّد `examples/` الذي يحتوي على برامج جاهزة
 - **الاختبارات**: مجلّد `tests/` لاختبار صحة اللغة والمكتبات
+- **الطبقة الوسيطية**: مجلّد `extensions/` للميزات الجديدة
 
 ---
 

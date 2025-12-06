@@ -172,7 +172,58 @@ hybrid {
 
 ---
 
-## 6. Where to go next
+## 6. Extensions Layer (v0.4.0) 🆕
+
+A new middleware layer providing advanced features without modifying core files:
+
+### 🌍 Arabic Dialect Adapter
+```python
+from extensions import DialectAdapter
+
+adapter = DialectAdapter()
+
+# Convert Egyptian dialect to MSA
+result = adapter.convert_to_standard("أحمد عايز ياكل تفاحة")
+print(result.converted)  # "أحمد يريد ياكل تفاحة"
+
+# Detect dialect
+dialect, confidence = adapter.detect_dialect("شلون حالك")
+print(dialect)  # Dialect.GULF
+```
+
+### 📊 Equation Visualizer
+```python
+from extensions import EquationVisualizer
+
+viz = EquationVisualizer()
+svg = viz.visualize_equation("أحمد", "أكل", "تفاحة")
+viz.save_to_file(svg, "equation.html")
+```
+
+### 🎓 Interactive Tutor
+```python
+from extensions import BayanTutor
+
+tutor = BayanTutor()
+tutor.start_lesson("intro")
+exercise = tutor.get_exercise(0)
+result = tutor.check_answer(0, "فاعل + فعل → مفعول")
+```
+
+### 🤖 Intelligent Dialogue System
+```python
+from extensions import IntelligentDialogueSystem
+
+system = IntelligentDialogueSystem()
+response = system.chat("مرحباً، أنا محمد")
+print(response)  # "مرحباً! سعيد بالتحدث معك."
+```
+
+**Full documentation**: `دليل_الطبقة_الوسيطة.md`
+
+---
+
+## 7. Where to go next
 
 If you are new to Bayan, a good learning path is:
 
@@ -190,6 +241,8 @@ If you are new to Bayan, a good learning path is:
    - `ai/AI_LIBRARY_GUIDE.md` — overview of `ai.nlp` and `ai.ml` building blocks.
    - `docs/CONCEPTUAL_LM_BLUEPRINT.md` — high-level architecture of the conceptual LM.
    - `docs/CONCEPTUAL_LM_AI_HANDOVER.md` — developer handover guide for extending the conceptual LM layers.
+6. **🆕 Extensions Layer**:
+   - `دليل_الطبقة_الوسيطة.md` — comprehensive guide for new features
 
 Both language tracks aim to stay in sync so that readers of Arabic and English get the **same capabilities and mental model** of Bayan.
 

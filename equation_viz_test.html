@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تصور المعادلة اللغوية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             width="900" height="500"
+             viewBox="0 0 900 500"
+             style="background: #ecf0f1; direction: rtl;">
+
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                    refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50"/>
+            </marker>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+            </filter>
+        </defs>
+
+        <g class="node" transform="translate(225, 250)">
+            <circle r="60" fill="#3498db" filter="url(#shadow)" opacity="0.9"/>
+            <text y="5" text-anchor="middle" fill="white"
+                  font-size="18" font-family="Arial, sans-serif" font-weight="bold">
+                أحمد
+            </text>
+            <text y="80" text-anchor="middle" fill="#7f8c8d"
+                  font-size="12" font-family="Arial, sans-serif">
+                الفاعل
+            </text>
+        </g>
+
+        <line x1="295" y1="250" x2="390" y2="250"
+              stroke="#2c3e50" stroke-width="3"
+              marker-end="url(#arrowhead)"/>
+
+        <g class="node" transform="translate(450, 250)">
+            <rect x="-60.0" y="-30.0" width="120" height="60"
+                  rx="10" fill="#2ecc71" filter="url(#shadow)" opacity="0.9"/>
+            <text y="5" text-anchor="middle" fill="white"
+                  font-size="18" font-family="Arial, sans-serif" font-weight="bold">
+                أكل
+            </text>
+            <text y="50.0" text-anchor="middle" fill="#7f8c8d"
+                  font-size="12" font-family="Arial, sans-serif">
+                الحدث
+            </text>
+        </g>
+
+        <line x1="520" y1="250" x2="605" y2="250"
+              stroke="#2c3e50" stroke-width="3"
+              marker-end="url(#arrowhead)"/>
+
+        <g class="node" transform="translate(675, 250)">
+            <circle r="60" fill="#e74c3c" filter="url(#shadow)" opacity="0.9"/>
+            <text y="5" text-anchor="middle" fill="white"
+                  font-size="18" font-family="Arial, sans-serif" font-weight="bold">
+                تفاحة
+            </text>
+            <text y="80" text-anchor="middle" fill="#7f8c8d"
+                  font-size="12" font-family="Arial, sans-serif">
+                المفعول به
+            </text>
+        </g>
+<g transform="translate(675, 350)">
+
+            <text x="0" y="0" text-anchor="middle" fill="#9b59b6"
+                  font-size="16" font-family="Arial, sans-serif" font-weight="bold">
+                ↓ النتائج
+            </text>
+        
+
+                <text x="0" y="25" text-anchor="middle" fill="#7f8c8d"
+                      font-size="14" font-family="Arial, sans-serif">
+                    أحمد: طاقة: +0.5
+                </text>
+            
+
+                <text x="0" y="45" text-anchor="middle" fill="#7f8c8d"
+                      font-size="14" font-family="Arial, sans-serif">
+                    تفاحة: موجود: False
+                </text>
+            
+</g>
+
+            <text x="450" y="40" 
+                  text-anchor="middle" 
+                  class="title"
+                  font-size="24" 
+                  fill="#2c3e50"
+                  font-family="Arial, sans-serif">
+                المعادلة اللغوية
+            </text>
+        
+
+            <text x="450" y="470" 
+                  text-anchor="middle"
+                  font-size="18"
+                  fill="#7f8c8d"
+                  font-family="Arial, sans-serif">
+                أحمد + أكل → تفاحة
+            </text>
+        
+</svg>
+    </div>
+</body>
+</html>

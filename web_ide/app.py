@@ -834,6 +834,146 @@ def debugger_page():
     from flask import render_template
     return render_template('debugger.html')
 
+# ========================================
+# AI Code Assistant API
+# ========================================
+
+# إضافة مسار extensions للاستيراد
+EXTENSIONS_DIR = os.path.join(PROJECT_ROOT, 'extensions')
+if EXTENSIONS_DIR not in sys.path:
+    sys.path.insert(0, EXTENSIONS_DIR)
+
+try:
+    from ai_code_assistant import AICodeAssistant
+    ai_assistant = AICodeAssistant(language="ar")
+    HAS_AI_ASSISTANT = True
+except ImportError:
+    ai_assistant = None
+    HAS_AI_ASSISTANT = False
+
+@app.route('/api/ai/status')
+def api_ai_status():
+    """حالة المساعد الذكي"""
+    return jsonify({
+        'available': HAS_AI_ASSISTANT,
+        'features': ['completion', 'error_explain', 'optimization', 'analysis', 'generation'] if HAS_AI_ASSISTANT else []
+    })
+
+@app.route('/api/ai/complete', methods=['POST'])
+def api_ai_complete():
+    """إكمال الكود"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    code = data.get('code', '')
+
+    suggestions = ai_assistant.suggest_completion(code)
+    return jsonify({
+        'suggestions': [
+            {
+                'text': s.text,
+                'description': s.description_ar,
+                'confidence': s.confidence
+            } for s in suggestions
+        ]
+    })
+
+@app.route('/api/ai/explain-error', methods=['POST'])
+def api_ai_explain_error():
+    """شرح الخطأ"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    error = data.get('error', '')
+    context = data.get('context', '')
+
+    explanation = ai_assistant.explain_error(error, context)
+    return jsonify({
+        'error_type': explanation.error_type,
+        'explanation': explanation.explanation_ar,
+        'fix': explanation.fix_suggestion,
+        'example': explanation.example_fix,
+        'concepts': explanation.related_concepts
+    })
+
+@app.route('/api/ai/optimize', methods=['POST'])
+def api_ai_optimize():
+    """اقتراح تحسينات"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    code = data.get('code', '')
+
+    suggestions = ai_assistant.suggest_optimization(code)
+    return jsonify({
+        'suggestions': [
+            {
+                'title': s.text,
+                'description': s.description_ar,
+                'type': s.suggestion_type.value,
+                'priority': s.priority
+            } for s in suggestions
+        ]
+    })
+
+@app.route('/api/ai/analyze', methods=['POST'])
+def api_ai_analyze():
+    """تحليل الكود"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    code = data.get('code', '')
+
+    analysis = ai_assistant.analyze_code(code)
+    return jsonify({
+        'language': analysis.language.value,
+        'lines': analysis.lines_count,
+        'functions': analysis.functions_count,
+        'classes': analysis.classes_count,
+        'imports': analysis.imports_count,
+        'complexity': analysis.complexity_score,
+        'issues': analysis.issues,
+        'suggestions': [
+            {
+                'title': s.text,
+                'description': s.description_ar
+            } for s in analysis.suggestions
+        ]
+    })
+
+@app.route('/api/ai/generate', methods=['POST'])
+def api_ai_generate():
+    """توليد كود"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    description = data.get('description', '')
+    template = data.get('template', None)
+
+    code = ai_assistant.generate_code(description, template)
+    return jsonify({
+        'code': code
+    })
+
+@app.route('/api/ai/chat', methods=['POST'])
+def api_ai_chat():
+    """محادثة مع المساعد"""
+    if not HAS_AI_ASSISTANT:
+        return jsonify({'error': 'AI Assistant not available'}), 503
+
+    data = request.get_json() or {}
+    message = data.get('message', '')
+
+    response = ai_assistant.chat(message)
+    return jsonify({
+        'response': response
+    })
+
 if __name__ == '__main__':
     # Use port 5001 to avoid collisions
     app.run(host='127.0.0.1', port=5000, debug=True)

@@ -104,6 +104,10 @@ class LinguisticEquation:
     # السياق
     location: Optional[str] = None
     time: Optional[str] = None
+    preposition: Optional[str] = None  # حرف الجر
+    adverb: Optional[str] = None       # الظرف
+    adjective: Optional[str] = None    # الصفة
+    condition: Optional[str] = None    # الشرط
     conditions: List[str] = field(default_factory=list)
     
     # النتائج

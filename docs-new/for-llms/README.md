@@ -2,6 +2,8 @@
 
 Documentation specifically designed for Large Language Models.
 
+**Last Updated**: 2025-12-05 | **Version**: 0.4.0
+
 ---
 
 ## 📋 Contents
@@ -12,6 +14,35 @@ Documentation specifically designed for Large Language Models.
 - [Model Links](model-links.md) - Links to documentation
 - [Test Prompts](test-prompts.md) - Testing prompts
 - **[Advanced Features 2025](../../docs/ADVANCED_FEATURES_2025.md)** - New features reference
+- **[Extensions Layer](../../دليل_الطبقة_الوسيطة.md)** - 🆕 New middleware layer (v0.4.0)
+
+---
+
+## 🆕 Extensions Layer (v0.4.0)
+
+New middleware features without modifying core files:
+
+| Module | Description | Example |
+|--------|-------------|---------|
+| `DialectAdapter` | Arabic dialect → MSA | `adapter.convert_to_standard("عايز أكل")` |
+| `EquationVisualizer` | SVG equation visualization | `viz.visualize_equation("أحمد", "أكل", "تفاحة")` |
+| `BayanTutor` | Interactive learning | `tutor.start_lesson("intro")` |
+| `IntelligentDialogueSystem` | Smart chat with memory | `system.chat("مرحباً")` |
+| `ExtendedIstinbatEngine` | Dialect-aware inference | `engine.process("عايز أفهم")` |
+
+```python
+from extensions import DialectAdapter, IntelligentDialogueSystem
+
+# Convert Egyptian dialect
+adapter = DialectAdapter()
+result = adapter.convert_to_standard("أحمد عايز ياكل")
+# → "أحمد يريد ياكل"
+
+# Smart dialogue
+system = IntelligentDialogueSystem()
+response = system.chat("مرحباً أنا محمد")
+# → "مرحباً! سعيد بالتحدث معك."
+```
 
 ---
 
@@ -120,4 +151,4 @@ For complete documentation of all features:
 
 [← Back to Index](../README.md)
 
-**Last Updated**: 2025-12-01
+**Last Updated**: 2025-12-05 | **Version**: 0.4.0

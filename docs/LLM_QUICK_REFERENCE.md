@@ -1,6 +1,6 @@
 # Bayan Language - Quick Reference for LLMs
 
-**Last Updated**: 2025-12-03
+**Last Updated**: 2025-12-05 | **Version**: 0.4.0
 
 **Project Status**:
 - ✅ 74/74 example files working (100%) 🎉
@@ -13,6 +13,11 @@
 - ✅ Unified Letter Semiotics System (28 Arabic + 26 English letters)
 - ✅ Intelligent Meaning Inference System (4 engines: Shape, Sound, Name, Lexical) 🧠
 - ✅ Word Generator from Meanings (meaning → word)
+- 🆕 Extensions Layer (v0.4.0):
+  - ✅ Arabic Dialect Adapter (Egyptian, Gulf, Levantine, Moroccan)
+  - ✅ Equation Visualizer (SVG)
+  - ✅ Interactive Tutor System
+  - ✅ Intelligent Dialogue System
 
 ---
 
@@ -506,7 +511,54 @@ close(?X, ?Y, ?Kind)
 
 ---
 
+## 🆕 Extensions Layer (v0.4.0)
+
+### Arabic Dialect Adapter
+```python
+from extensions import DialectAdapter
+
+adapter = DialectAdapter()
+# Convert Egyptian → MSA
+result = adapter.convert_to_standard("أحمد عايز ياكل")
+# → "أحمد يريد ياكل"
+
+# Detect dialect
+dialect, confidence = adapter.detect_dialect("كيفك يا صاحبي")
+# → LEVANTINE, 1.0
+```
+
+### Equation Visualizer
+```python
+from extensions import EquationVisualizer
+
+viz = EquationVisualizer()
+svg = viz.visualize_equation("أحمد", "أكل", "تفاحة")
+viz.save_to_file(svg, "equation.html")
+```
+
+### Interactive Tutor
+```python
+from extensions import BayanTutor
+
+tutor = BayanTutor()
+tutor.start_lesson("intro")
+exercise = tutor.get_exercise(0)
+result = tutor.check_answer(0, "فاعل + فعل → مفعول")
+```
+
+### Intelligent Dialogue
+```python
+from extensions import IntelligentDialogueSystem
+
+system = IntelligentDialogueSystem()
+response = system.chat("مرحباً أنا محمد")
+# → "مرحباً! سعيد بالتحدث معك."
+```
+
+---
+
 **Use this reference when generating Bayan code. Follow the syntax strictly!**
 
-**For more details**: See `docs/تعليمية/README.md` for 42 comprehensive tutorial files.
-
+**For more details**:
+- See `docs/تعليمية/README.md` for 42 comprehensive tutorial files.
+- See `دليل_الطبقة_الوسيطة.md` for extensions layer documentation.

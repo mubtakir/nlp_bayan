@@ -6,15 +6,15 @@
       <div class="card-header d-flex align-items-center justify-content-between">
         <strong>الملفات</strong>
         <div class="btn-group btn-group-sm" role="group">
-          <a class="btn btn-primary" id="btn-new">+ جديد</a>
-          <a class="btn btn-secondary" id="btn-refresh">تحديث</a>
+          <button type="button" class="btn btn-primary" id="btn-new">+ جديد</button>
+          <button type="button" class="btn btn-secondary" id="btn-refresh">تحديث</button>
         </div>
       </div>
       <div class="px-3 py-2">
         <div class="btn-group btn-group-sm" role="group">
-          <a class="btn btn-outline-light" id="btn-save-as">حفظ كـ</a>
-          <a class="btn btn-outline-warning" id="btn-rename">إعادة تسمية</a>
-          <a class="btn btn-outline-danger" id="btn-delete">حذف</a>
+          <button type="button" class="btn btn-outline-light" id="btn-save-as">حفظ كـ</button>
+          <button type="button" class="btn btn-outline-warning" id="btn-rename">إعادة تسمية</button>
+          <button type="button" class="btn btn-outline-danger" id="btn-delete">حذف</button>
         </div>
       </div>
         <div id="file-list" class="list-group list-group-flush" style="max-height: 60vh; overflow:auto"></div>
@@ -28,15 +28,15 @@
           <span class="badge text-bg-dark" id="current-file">غير محفوظ</span>
         </div>
         <div class="d-flex gap-2 align-items-center">
-          <a class="btn btn-sm btn-primary" id="btn-run">تشغيل</a>
-          <a class="btn btn-sm btn-secondary" id="btn-run-selection">تشغيل التحديد</a>
-          <a class="btn btn-sm btn-success" id="btn-save">حفظ</a>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-run">تشغيل</button>
+          <button type="button" class="btn btn-sm btn-secondary" id="btn-run-selection">تشغيل التحديد</button>
+          <button type="button" class="btn btn-sm btn-success" id="btn-save">حفظ</button>
         </div>
       </div>
       <div class="px-3 py-2 d-flex flex-wrap align-items-center gap-2">
         <label class="form-label m-0 me-1">أمثلة</label>
         <select id="sel-examples" class="form-select form-select-sm" style="width:auto; min-width: 220px"></select>
-        <a class="btn btn-sm btn-outline-info" id="btn-load-example">تحميل</a>
+        <button type="button" class="btn btn-sm btn-outline-info" id="btn-load-example">تحميل</button>
 <input id="inp-example-filter" class="form-control form-control-sm" style="width: 160px" placeholder="بحث..." />
         <label class="form-label m-0 me-1">مجال الأمثلة</label>
         <select id="sel-examples-domain" class="form-select form-select-sm" style="width:auto">
@@ -109,12 +109,62 @@
 
         <div id="preview" class="p-2 rounded" style="background:#ffffff; border:1px solid #1f2a44; min-height: 18vh"></div>
       </div>
+
+      <!-- المساعد الذكي -->
+      <div class="card-footer">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-primary">🤖 المساعد الذكي</span>
+          <button type="button" class="btn btn-sm btn-outline-info" id="btn-ai-analyze">تحليل</button>
+          <button type="button" class="btn btn-sm btn-outline-warning" id="btn-ai-optimize">تحسين</button>
+          <button type="button" class="btn btn-sm btn-outline-success" id="btn-ai-generate" data-bs-toggle="modal" data-bs-target="#aiGenerateModal">توليد</button>
+        </div>
+        <div id="ai-output" class="p-2 rounded small" style="background:#0f172a; border:1px solid #1f2a44; max-height: 150px; overflow-y: auto; display: none;"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ace.js" integrity="sha512-ycHu2LvbZqBz7lR71QwFIfuA0S1YxC4+NpiJziG52iMm7W/gQ6I+ttcSzopwGtSDAm0F1RG8WzUuZ6s0OqYoYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ext-language_tools.min.js" integrity="sha512-uXK1r6n6mGm0mQ0qJx/fekxR6oT9vHBt4D9p6VQKQ9YJXw1S6Vboy3V3uFqg+Kc9pFfz9wV2mL4ZtbnJ0H1pLw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- نافذة توليد الكود -->
+<div class="modal fade" id="aiGenerateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title">🤖 توليد كود</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">صِف ما تريد إنشاءه:</label>
+        <textarea id="ai-generate-input" class="form-control bg-dark text-light" rows="3" placeholder="مثال: أنشئ دالة لحساب مجموع قائمة أرقام"></textarea>
+        <div class="mt-2">
+          <label class="form-label">القالب (اختياري):</label>
+          <select id="ai-generate-template" class="form-select bg-dark text-light">
+            <option value="">تلقائي</option>
+            <option value="دالة">دالة</option>
+            <option value="صنف">صنف</option>
+            <option value="حلقة">حلقة</option>
+            <option value="شرط">شرط</option>
+            <option value="hybrid">كتلة هجينة</option>
+            <option value="منطق">منطق</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-primary" id="btn-ai-generate-submit">توليد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ace.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.6/ext-language_tools.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+// تحقق من تحميل Ace
+if (typeof ace === 'undefined') {
+  document.getElementById('editor').innerHTML = '<div style="color:red;padding:20px;">⚠️ فشل تحميل محرر Ace - تأكد من اتصال الإنترنت</div>';
+  throw new Error('Ace Editor not loaded');
+}
+</script>
 <script>
   // Minimal Bayan mode (keywords + comments)
   ace.define('ace/mode/bayan', function(require, exports, module) {
@@ -837,13 +887,37 @@
   }
 
 
-  // Buttons
-  document.getElementById('btn-refresh').onclick = refreshFiles;
-  document.getElementById('btn-new').onclick = () => { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('',1); updateDirty(); };
-  document.getElementById('btn-save').onclick = () => saveFile(false);
-  document.getElementById('btn-save-as').onclick = () => saveFile(true);
-  document.getElementById('btn-rename').onclick = async () => {
-    if (!currentFile) return alert('لا يوجد ملف مفتوح');
+  // Buttons - مع معالجة الأخطاء
+  function safeClick(id, handler) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.onclick = function(e) {
+        e.preventDefault();
+        try {
+          handler();
+        } catch (err) {
+          console.error('خطأ في ' + id + ':', err);
+          alert('حدث خطأ: ' + err.message);
+        }
+      };
+    } else {
+      console.warn('لم يُعثر على العنصر: ' + id);
+    }
+  }
+
+  safeClick('btn-refresh', refreshFiles);
+  safeClick('btn-new', () => {
+    currentFile = null;
+    currentFileBadge.textContent = 'غير محفوظ';
+    editor.setValue('# ملف جديد\n\nprint("مرحباً بيان!")\n', 1);
+    editor.session.getUndoManager().markClean();
+    updateDirty();
+    console.log('تم إنشاء ملف جديد');
+  });
+  safeClick('btn-save', () => saveFile(false));
+  safeClick('btn-save-as', () => saveFile(true));
+  safeClick('btn-rename', async () => {
+    if (!currentFile) { alert('لا يوجد ملف مفتوح'); return; }
     const name = prompt('اسم جديد:', currentFile);
     if (!name || name === currentFile) return;
     const res = await fetch('/api/ide/rename', {
@@ -851,50 +925,257 @@
       body: JSON.stringify({ old_name: currentFile, new_name: name })
     });
     if (res.ok) { currentFile = name; currentFileBadge.textContent = name; refreshFiles(); }
-  };
-  document.getElementById('btn-delete').onclick = async () => {
-    if (!currentFile) return alert('لا يوجد ملف مفتوح');
+  });
+  safeClick('btn-delete', async () => {
+    if (!currentFile) { alert('لا يوجد ملف مفتوح'); return; }
     if (!confirm('حذف الملف؟')) return;
     const res = await fetch(`/api/ide/file?name=${encodeURIComponent(currentFile)}`, { method: 'DELETE' });
     if (res.ok) { currentFile = null; currentFileBadge.textContent = 'غير محفوظ'; editor.setValue('',1); refreshFiles(); }
-  };
-  document.getElementById('btn-run').onclick = () => run(editor.getValue());
-  document.getElementById('btn-run-selection').onclick = () => {
+  });
+  safeClick('btn-run', () => run(editor.getValue()));
+  safeClick('btn-run-selection', () => {
     const sel = editor.session.getTextRange(editor.getSelectionRange());
     run(sel || editor.getValue());
-  };
+  });
 
   // Toolbar handlers
-  document.getElementById('btn-load-example').onclick = async () => {
+  safeClick('btn-load-example', async () => {
     const sel = document.getElementById('sel-examples');
     const name = sel.value;
-    if (!name) return;
-    const r = await fetch(`/api/ide/example?name=${encodeURIComponent(name)}`);
-    if (r.ok) {
-
-      const data = await r.json();
-      editor.setValue(data.code, 1);
-      currentFile = null;
-      currentFileBadge.textContent = 'غير محفوظ';
-      editor.session.getUndoManager().markClean();
-      updateDirty();
+    if (!name) { alert('اختر مثالاً أولاً'); return; }
+    try {
+      const r = await fetch(`/api/ide/example?name=${encodeURIComponent(name)}`);
+      if (r.ok) {
+        const data = await r.json();
+        editor.setValue(data.code, 1);
+        currentFile = null;
+        currentFileBadge.textContent = 'غير محفوظ';
+        editor.session.getUndoManager().markClean();
+        updateDirty();
+        console.log('تم تحميل المثال: ' + name);
+      } else {
+        alert('فشل تحميل المثال');
+      }
+    } catch (err) {
+      console.error('خطأ في تحميل المثال:', err);
+      alert('خطأ: ' + err.message);
     }
-  };
-  document.getElementById('sel-theme').onchange = (e) => editor.setTheme(e.target.value);
-  document.getElementById('sel-fontsize').onchange = (e) => editor.setFontSize(parseInt(e.target.value, 10) || 14);
+  });
 
-  document.getElementById('sel-ac-domain').onchange = (e) => { completionDomainMode = e.target.value; };
-  document.getElementById('sel-ac-lang').onchange = (e) => { completionLangMode = e.target.value; };
-  document.getElementById('sel-examples-domain').onchange = applyExamplesFilter;
-  document.getElementById('inp-example-filter').oninput = applyExamplesFilter;
-  document.getElementById('sel-examples').onchange = updateExampleInfo;
+  const selTheme = document.getElementById('sel-theme');
+  if (selTheme) selTheme.onchange = (e) => editor.setTheme(e.target.value);
+
+  const selFontsize = document.getElementById('sel-fontsize');
+  if (selFontsize) selFontsize.onchange = (e) => editor.setFontSize(parseInt(e.target.value, 10) || 14);
+
+  const selAcDomain = document.getElementById('sel-ac-domain');
+  if (selAcDomain) selAcDomain.onchange = (e) => { completionDomainMode = e.target.value; };
+
+  const selAcLang = document.getElementById('sel-ac-lang');
+  if (selAcLang) selAcLang.onchange = (e) => { completionLangMode = e.target.value; };
+
+  const selExDomain = document.getElementById('sel-examples-domain');
+  if (selExDomain) selExDomain.onchange = applyExamplesFilter;
+
+  const inpExFilter = document.getElementById('inp-example-filter');
+  if (inpExFilter) inpExFilter.oninput = applyExamplesFilter;
+
+  const selExamples = document.getElementById('sel-examples');
+  if (selExamples) selExamples.onchange = updateExampleInfo;
+
   setupAutocompleteInfo();
 
 
   // init
+  console.log('🚀 بدء تهيئة محرر بيان...');
   refreshFiles();
   refreshExamples();
   setupShortcuts();
+
+  // ========================================
+  // المساعد الذكي
+  // ========================================
+
+  const aiOutput = document.getElementById('ai-output');
+
+  function showAiOutput(content, isHtml = false) {
+    if (aiOutput) {
+      aiOutput.style.display = 'block';
+      if (isHtml) {
+        aiOutput.innerHTML = content;
+      } else {
+        aiOutput.textContent = content;
+      }
+    }
+  }
+
+  // تحليل الكود
+  safeClick('btn-ai-analyze', async () => {
+    const code = editor.getValue();
+    if (!code.trim()) {
+      showAiOutput('⚠️ لا يوجد كود للتحليل');
+      return;
+    }
+
+    showAiOutput('⏳ جاري التحليل...');
+
+    try {
+      const res = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code})
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showAiOutput('❌ ' + data.error);
+        return;
+      }
+
+      let html = `<div class="text-light">
+        <strong>📊 تحليل الكود:</strong><br>
+        • اللغة: ${data.language}<br>
+        • الأسطر: ${data.lines}<br>
+        • الدوال: ${data.functions}<br>
+        • الأصناف: ${data.classes}<br>
+        • التعقيد: ${data.complexity.toFixed(1)}/10<br>`;
+
+      if (data.issues && data.issues.length > 0) {
+        html += '<br><strong>⚠️ المشاكل:</strong><br>';
+        data.issues.slice(0, 5).forEach(issue => {
+          html += `• سطر ${issue.line}: ${issue.message_ar}<br>`;
+        });
+      }
+
+      if (data.suggestions && data.suggestions.length > 0) {
+        html += '<br><strong>💡 اقتراحات:</strong><br>';
+        data.suggestions.forEach(s => {
+          html += `• ${s.description}<br>`;
+        });
+      }
+
+      html += '</div>';
+      showAiOutput(html, true);
+    } catch (err) {
+      showAiOutput('❌ خطأ: ' + err.message);
+    }
+  });
+
+  // تحسين الكود
+  safeClick('btn-ai-optimize', async () => {
+    const code = editor.getValue();
+    if (!code.trim()) {
+      showAiOutput('⚠️ لا يوجد كود للتحسين');
+      return;
+    }
+
+    showAiOutput('⏳ جاري البحث عن تحسينات...');
+
+    try {
+      const res = await fetch('/api/ai/optimize', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code})
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        showAiOutput('❌ ' + data.error);
+        return;
+      }
+
+      if (!data.suggestions || data.suggestions.length === 0) {
+        showAiOutput('✅ الكود جيد! لا توجد اقتراحات للتحسين.');
+        return;
+      }
+
+      let html = '<div class="text-light"><strong>💡 اقتراحات التحسين:</strong><br><br>';
+      data.suggestions.forEach((s, i) => {
+        html += `<strong>${i+1}. ${s.title}</strong><br>${s.description}<br><br>`;
+      });
+      html += '</div>';
+      showAiOutput(html, true);
+    } catch (err) {
+      showAiOutput('❌ خطأ: ' + err.message);
+    }
+  });
+
+  // توليد الكود
+  safeClick('btn-ai-generate-submit', async () => {
+    const description = document.getElementById('ai-generate-input').value;
+    const template = document.getElementById('ai-generate-template').value;
+
+    if (!description.trim()) {
+      alert('أدخل وصفاً لما تريد إنشاءه');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({description, template: template || null})
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        alert('❌ ' + data.error);
+        return;
+      }
+
+      // إضافة الكود المولّد للمحرر
+      const currentCode = editor.getValue();
+      const newCode = currentCode + (currentCode.trim() ? '\n\n' : '') + data.code;
+      editor.setValue(newCode, 1);
+      editor.gotoLine(editor.session.getLength());
+
+      // إغلاق النافذة
+      const modal = bootstrap.Modal.getInstance(document.getElementById('aiGenerateModal'));
+      if (modal) modal.hide();
+
+      showAiOutput('✅ تم توليد الكود بنجاح!');
+    } catch (err) {
+      alert('❌ خطأ: ' + err.message);
+    }
+  });
+
+  // شرح الأخطاء تلقائياً عند التشغيل
+  const originalRunCode = window.runCode;
+  if (typeof originalRunCode === 'function') {
+    window.runCode = async function() {
+      await originalRunCode();
+
+      // التحقق من وجود خطأ في المخرجات
+      const output = document.getElementById('output').textContent;
+      if (output.includes('Error') || output.includes('خطأ')) {
+        try {
+          const res = await fetch('/api/ai/explain-error', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({error: output, context: editor.getValue()})
+          });
+          const data = await res.json();
+
+          if (!data.error && data.explanation) {
+            let html = `<div class="text-light">
+              <strong>🔍 شرح الخطأ:</strong><br>
+              ${data.explanation}<br><br>
+              <strong>💡 الحل:</strong><br>
+              ${data.fix}<br>`;
+            if (data.example) {
+              html += `<br><strong>📝 مثال:</strong><br><code>${data.example.replace(/\n/g, '<br>')}</code>`;
+            }
+            html += '</div>';
+            showAiOutput(html, true);
+          }
+        } catch (e) {
+          console.log('AI error explanation failed:', e);
+        }
+      }
+    };
+  }
+
+  console.log('✅ تم تهيئة محرر بيان بنجاح!');
 
 </script>
 {% endblock %}
