@@ -63,8 +63,12 @@ This unique combination makes Bayan revolutionary.
 
 > **For Language Models & AI Assistants**: Start here for complete project understanding
 
+### 🔥 ONE FILE TO UNDERSTAND EVERYTHING
+> **[📖 BAYAN_FOR_AI_MODELS.md](BAYAN_FOR_AI_MODELS.md)** - Complete guide with syntax, examples, and rules (500 lines)
+
 ### 📖 Essential Reading (Priority Order)
-1. **[PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)** ⭐⭐⭐ (837 lines)
+1. **[BAYAN_FOR_AI_MODELS.md](BAYAN_FOR_AI_MODELS.md)** ⭐⭐⭐ (Complete Guide - START HERE!)
+2. **[PROJECT_ARCHITECTURE_GUIDE.md](PROJECT_ARCHITECTURE_GUIDE.md)** ⭐⭐⭐ (837 lines)
    - Complete architecture overview with diagrams
    - All 10+ AI systems explained
    - File structure and statistics
@@ -879,6 +883,7 @@ All graphics modules have Arabic wrappers:
 - **[VISUALIZATION_GUIDE.md](docs/VISUALIZATION_GUIDE.md)** - Visualization
 
 #### For AI/LLM Models
+- **[BAYAN_FOR_AI_MODELS.md](BAYAN_FOR_AI_MODELS.md)** ⭐ - **START HERE!** Complete guide
 - **[AI_MODEL_LINKS.md](docs/AI_MODEL_LINKS.md)** - Direct links for AI models
 - **[LLM_SYSTEM_PROMPT.txt](docs/LLM_SYSTEM_PROMPT.txt)** - System prompt
 - **[LLM_QUICK_REFERENCE.md](docs/LLM_QUICK_REFERENCE.md)** - Quick reference
