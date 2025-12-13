@@ -12,7 +12,9 @@ import sys as _sys
 
 _submods = [
     'lexer', 'parser', 'logical_engine', 'hybrid_interpreter', 'traditional_interpreter',
-    'ast_nodes', 'object_system', 'import_system', 'builtins', 'entity_engine', 'visualization'
+    'ast_nodes', 'object_system', 'import_system', 'entity_engine'
+    # Removed 'builtins' and 'visualization' - they import heavy dependencies (matplotlib)
+    # and cause ~10s startup delay. Import them explicitly when needed.
 ]
 for _name in _submods:
     try:

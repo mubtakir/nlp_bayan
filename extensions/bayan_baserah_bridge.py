@@ -35,22 +35,22 @@ except ImportError as e:
     BAYAN_AVAILABLE = False
 
 # استيراد من بصيرة
+# استيراد من بصيرة (Unified)
 try:
-    from baserah_ai_main.core.enhanced_general_shape_equation import (
+    from bayan.ai.baseera.core.enhanced_general_shape_equation import (
         EnhancedGeneralShapeEquation, ShapeMetadata, ShapeType as BaserahShapeType
     )
-    from baserah_ai_main.core.revolutionary_mother_equation import RevolutionaryMotherEquation
+    from bayan.ai.baseera.core.revolutionary_mother_equation import RevolutionaryMotherEquation
     BASERAH_AVAILABLE = True
-except ImportError:
+except ImportError as e:
+    print(f"⚠️ تحذير: لم يتم العثور على بصيرة في المسار الموحد: {e}")
+    # Fallback for legacy environments (optional)
     try:
-        # محاولة استيراد من المسار البديل
-        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'baserah_ai-main'))
-        from core.enhanced_general_shape_equation import (
+        from baserah_ai_main.core.enhanced_general_shape_equation import (
             EnhancedGeneralShapeEquation, ShapeMetadata, ShapeType as BaserahShapeType
         )
         BASERAH_AVAILABLE = True
-    except ImportError as e:
-        print(f"⚠️ تحذير: لم يتم العثور على بصيرة: {e}")
+    except ImportError:
         BASERAH_AVAILABLE = False
 
 

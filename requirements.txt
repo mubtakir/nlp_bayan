@@ -1,2 +1,21 @@
 camel-tools>=1.5.2
 spacy>=3.7.0
+# نظام بصيرة الثوري - المتطلبات
+# Revolutionary Basera System - Requirements
+
+# المكتبات الأساسية
+numpy>=1.20.0
+matplotlib>=3.3.0
+
+# معالجة البيانات
+requests>=2.25.0
+
+# قواعد البيانات (مدمجة مع Python)
+# sqlite3 - built-in
+
+# اختياري - للواجهات التفاعلية
+# Deep Learning Dependencies
+torch>=2.0.0
+transformers>=4.30.0
+scikit-learn>=1.0.0
+

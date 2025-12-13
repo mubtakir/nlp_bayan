@@ -1,0 +1,365 @@
+/* 
+ * Bayan Visual Editor - CSS Styles
+ * أنماط محرر بيان البصري
+ */
+
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary-color: #10b981;
+    --accent-color: #f59e0b;
+    --bg-dark: #0f172a;
+    --bg-card: #1e293b;
+    --bg-block: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --block-variable: #3b82f6;
+    --block-control: #f59e0b;
+    --block-function: #8b5cf6;
+    --block-logic: #10b981;
+    --block-math: #ef4444;
+    --block-comparison: #ec4899;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Cairo', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    direction: rtl;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo .icon {
+    font-size: 2.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--secondary-color), #059669);
+    color: white;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Main Layout */
+.main-container {
+    display: grid;
+    grid-template-columns: 280px 1fr 400px;
+    height: calc(100vh - 80px);
+}
+
+/* Toolbox */
+.toolbox {
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.toolbox-section {
+    margin-bottom: 1.5rem;
+}
+
+.toolbox-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Blocks */
+.block {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    cursor: grab;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+}
+
+.block:hover {
+    transform: translateX(-4px);
+    box-shadow: 4px 0 12px rgba(0,0,0,0.3);
+}
+
+.block:active {
+    cursor: grabbing;
+}
+
+.block.variable { background: var(--block-variable); }
+.block.control { background: var(--block-control); color: #1e293b; }
+.block.function { background: var(--block-function); }
+.block.logic { background: var(--block-logic); }
+.block.math { background: var(--block-math); }
+.block.comparison { background: var(--block-comparison); }
+
+.block-icon {
+    font-size: 1.2rem;
+}
+
+/* Workspace */
+.workspace {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    position: relative;
+    overflow: auto;
+    background-image: 
+        radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.workspace-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.workspace-hint .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.workspace-hint p {
+    font-size: 1.2rem;
+}
+
+/* Canvas for dropped blocks */
+#canvas {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    min-height: calc(100% - 40px);
+    min-width: calc(100% - 40px);
+}
+
+.dropped-block {
+    position: relative;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: dropIn 0.3s ease;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dropped-block .delete-btn {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ef4444;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.dropped-block:hover .delete-btn {
+    opacity: 1;
+}
+
+.dropped-block input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 6px 10px;
+    color: white;
+    font-size: 0.9rem;
+    width: 80px;
+}
+
+.dropped-block input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Output Panel */
+.output-panel {
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+    flex: 1;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.tab.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.code-output, .run-output {
+    flex: 1;
+    padding: 1rem;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    direction: ltr;
+    text-align: left;
+}
+
+.code-output {
+    background: #0d1117;
+    color: #c9d1d9;
+}
+
+.run-output {
+    background: #1a1a2e;
+}
+
+.run-output.success {
+    color: var(--secondary-color);
+}
+
+.run-output.error {
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 240px 1fr 320px;
+    }
+}
+
+@media (max-width: 900px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 200px 1fr 200px;
+    }
+    
+    .toolbox {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        border-left: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .toolbox-section {
+        margin-bottom: 0;
+    }
+}

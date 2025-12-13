@@ -19,7 +19,7 @@ without modifying the locked core files in bayan/bayan/
 - AICodeAssistant: 🤖 المساعد الذكي للبرمجة (جديد في v0.6.0)
 """
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 __author__ = "باسل يحيى عبدالله"
 
 # تصدير المكونات

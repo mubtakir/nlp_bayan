@@ -1,0 +1,22 @@
+my_mcp_agent/
+├── .env
+├── main.py
+├── requirements.txt  (سيتم إنشاؤه/تحديثه بواسطة النظام)
+├── mcp_agent.log     (سيتم إنشاؤه بواسطة نظام التسجيل)
+├── agents/
+│   ├── __init__.py
+│   ├── structure_agent.py
+│   ├── file_writer.py
+│   └── validator.py
+├── utils/
+│   ├── __init__.py
+│   ├── api_handler.py
+│   └── error_handling.py
+├── tests/
+│   ├── __init__.py
+│   └── test_structure.py
+└── web/
+    ├── __init__.py
+    ├── app.py
+    └── templates/
+        └── index.html

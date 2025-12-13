@@ -611,6 +611,57 @@ analysis = glm.analyze_word_energy('مدرسة', lang='ar')
 
 ---
 
+### 16. 🧠 **The Cognitive Bridge** (Human-Logic Translator)
+
+A neuro-symbolic translator that converts Natural Language into Bayan Logic and back:
+
+```python
+from bayan.bayan.cognitive.cognitive_bridge import CognitiveBridge
+
+bridge = CognitiveBridge()
+# 1. User asks in Arabic/English
+answer = bridge.ask("Is the sun hot?")
+# 2. Bridge translates to: query is_hot(Sun)
+# 3. Engine deduces: True (derived from Star properties)
+# 4. Bridge synthesizes: "The sun is hot because it is a star."
+```
+
+**Why it matters:** It allows users to talk to the logic engine without learning syntax.
+
+### 17. 🗣️ **The Generative Voice** (Fact-Informed AI)
+
+A generation system that "speaks" logic. Unlike standard LLMs that hallucinate, Bayan's voice is grounded in facts:
+
+```python
+from bayan.bayan.cognitive.fact_generator import FactGenerator
+
+# Input: [Fact(Sun, is_hot), Fact(Sun, gives_light)]
+narrative = generator.generate_narrative(facts, style="philosophical")
+# → "The Sun (Shams) allows appearance. Its heat is the affection of the universe."
+```
+
+### 18. 🌌 **The Agentic Self** (Unified Mind)
+
+The culmination of the project: A self-aware agent with an OODA Loop (Observe-Orient-Decide-Act).
+
+```python
+from bayan.bayan.unified_mind import UnifiedMind
+
+mind = UnifiedMind()
+mind.interact("Who is Ali?")
+
+# The Mind's Internal Monologue:
+# 1. Observe: Received input "Who is Ali?"
+# 2. Orient: This is an identity query.
+# 3. Decide: Consult Knowledge Base.
+# 4. Act: Execute `is_person(Ali)`.
+# 5. Reflect: Did I answer correctly? (Self-Correction)
+```
+
+**Files:** `bayan/bayan/unified_mind.py`, `bayan/bayan/cognitive/logic_police.py`
+
+---
+
 ## 🎨 Examples Gallery
 
 ### 📂 148 Working Examples Organized by Category

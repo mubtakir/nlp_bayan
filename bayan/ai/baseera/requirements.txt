@@ -1,0 +1,15 @@
+# نظام بصيرة الثوري - المتطلبات
+# Revolutionary Basera System - Requirements
+
+# المكتبات الأساسية
+numpy>=1.20.0
+matplotlib>=3.3.0
+
+# معالجة البيانات
+requests>=2.25.0
+
+# قواعد البيانات (مدمجة مع Python)
+# sqlite3 - built-in
+
+# اختياري - للواجهات التفاعلية
+# gradio>=3.0.0  # غير مطلوب للتشغيل الأساسي

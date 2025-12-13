@@ -1,0 +1,1114 @@
+{
+  "revolutionary_knowledge_system": {
+    "creator": "باسل يحيى عبدالله",
+    "system_name": "نظام بصيرة الثوري",
+    "conversion_date": "2025-09-23 21:05:12.857759",
+    "total_concepts": 16,
+    "concepts": [
+      {
+        "concept_name": "السكري النوع الثاني",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.75,
+              1.2249999999999999,
+              0.7000000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.32499999999999996,
+              0.19499999999999998,
+              0.09749999999999999
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": null,
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.39999999999999997,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "ضغط الدم المرتفع",
+        "concept_type": "symbolic",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.62,
+              1.134,
+              0.6480000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              1000000,
+              500000,
+              250000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.28600000000000003,
+              0.1716,
+              0.0858
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 3
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": null,
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.5599999999999999,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "انحراف الحزمة",
+        "concept_type": "mathematical",
+        "visual_representation": "mathematical_curve",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.565,
+              1.0955,
+              0.626
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              1000000,
+              500000,
+              250000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.26949999999999996,
+              0.16169999999999998,
+              0.08084999999999999
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 3
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "حساب انحراف الحزمة تحت حمل موزع",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.7999999999999999,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "معادلة أويلر للانبعاج",
+        "concept_type": "mathematical",
+        "visual_representation": "mathematical_curve",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.578,
+              1.1046,
+              0.6312000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              10000000,
+              5000000,
+              2500000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.27340000000000003,
+              0.16404000000000002,
+              0.08202000000000001
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 4
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "الحمل الحرج الذي يسبب انبعاج العمود",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.7999999999999999,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "الصلب الكربوني",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.521,
+              1.0646999999999998,
+              0.6084
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.2563,
+              0.15377999999999997,
+              0.07688999999999999
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": null,
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.39999999999999997,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "العرض والطلب",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.63375,
+              1.1095,
+              0.634
+            ],
+            "k": [
+              2.372610010601259,
+              1.7600000000000002,
+              1.1
+            ],
+            "x0": [
+              -0.4025,
+              0.09749999999999998,
+              -0.9025000000000001
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.27549999999999997,
+              0.16529999999999997,
+              0.08264999999999999
+            ],
+            "gamma": [
+              0.0195,
+              0.11950000000000001,
+              -0.0805
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.09749999999999999,
+            "perpendicular_angle": 1.6493361431346414,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "النظرية التي تشرح كيفية تحديد الأسعار في السوق",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "الناتج المحلي الإجمالي",
+        "concept_type": "abstract",
+        "visual_representation": "symbolic_icon",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.7204166666666667,
+              1.1655,
+              0.666
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.38916666666666666,
+              0.11083333333333334,
+              -0.8891666666666667
+            ],
+            "n": [
+              10000000,
+              5000000,
+              2500000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.2995,
+              0.1797,
+              0.08985
+            ],
+            "gamma": [
+              0.022166666666666668,
+              0.12216666666666667,
+              -0.07783333333333334
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.11083333333333334,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 4
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": "flower_symbol",
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "القيمة الإجمالية للسلع والخدمات المنتجة في دولة خلال سنة",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.5999999999999999,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "السريالية",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.7854166666666667,
+              1.2075,
+              0.6900000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.37916666666666665,
+              0.12083333333333335,
+              -0.8791666666666667
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.3175,
+              0.1905,
+              0.09525
+            ],
+            "gamma": [
+              0.024166666666666666,
+              0.12416666666666668,
+              -0.07583333333333334
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.12083333333333332,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "حركة فنية تعتمد على اللاوعي والأحلام، تأسست في أوائل القرن العشرين.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "التجريدية",
+        "concept_type": "concrete",
+        "visual_representation": "geometric_shape",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.8363333333333334,
+              1.2404,
+              0.7088000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.37133333333333335,
+              0.12866666666666665,
+              -0.8713333333333333
+            ],
+            "n": [
+              100000,
+              50000,
+              25000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.3316,
+              0.19896,
+              0.09948
+            ],
+            "gamma": [
+              0.02573333333333333,
+              0.12573333333333334,
+              -0.07426666666666668
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.12866666666666665,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 2
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "فن يعتمد على الأشكال والألوان دون تمثيل واقعي، يركز على التعبير عن المشاعر.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.8999999999999999,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "التشكيليّة",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.567,
+              1.0969,
+              0.6268
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.2701,
+              0.16206,
+              0.08103
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "أسلوب يستخدم الأشكال الهندسية والبسيطة لتقديم الموضوعات.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "الغابات المطيرة الاستوائية",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.95225,
+              1.3153,
+              0.7516
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.35350000000000004,
+              0.14649999999999996,
+              -0.8535
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.3637,
+              0.21822,
+              0.10911
+            ],
+            "gamma": [
+              0.0293,
+              0.1293,
+              -0.07070000000000001
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.1465,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "نظام بيئي غني بالتنوع الحيوي، يلعب دورًا حاسمًا في تنظيم المناخ العالمي.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "الشعب المرجانية",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.7810000000000001,
+              1.2467,
+              0.7124000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.33430000000000004,
+              0.20058,
+              0.10029
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "نظام بيئي بحري غني بالتنوع الحيوي، يُعرف بـ'غابات الأمطار البحرية'.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "الزراعة المستدامة",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.684,
+              1.1787999999999998,
+              0.6736
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.30519999999999997,
+              0.18311999999999998,
+              0.09155999999999999
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "طرق زراعية تحافظ على الموارد الطبيعية وتقليل الأثر البيئي.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "التعلم القائم على المشاريع",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.8271666666666668,
+              1.1963,
+              0.6836000000000001
+            ],
+            "k": [
+              2.0,
+              1.6,
+              1.0
+            ],
+            "x0": [
+              -0.2636666666666667,
+              0.23633333333333328,
+              -0.7636666666666667
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.3127,
+              0.18761999999999998,
+              0.09380999999999999
+            ],
+            "gamma": [
+              0.047266666666666665,
+              0.14726666666666666,
+              -0.05273333333333334
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.2363333333333333,
+            "perpendicular_angle": 1.5707963267948966,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": "book_symbol",
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": true,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "طريقة تعليمية تعتمد على تنفيذ المشاريع العملية لحل مشاكل حقيقية.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "التعلم المقلوب",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.84175,
+              1.2438999999999998,
+              0.7108
+            ],
+            "k": [
+              2.372610010601259,
+              1.7600000000000002,
+              1.1
+            ],
+            "x0": [
+              -0.37050000000000005,
+              0.12949999999999995,
+              -0.8705
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.33309999999999995,
+              0.19985999999999995,
+              0.09992999999999998
+            ],
+            "gamma": [
+              0.025899999999999996,
+              0.1259,
+              -0.07410000000000001
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.12949999999999998,
+            "perpendicular_angle": 1.6493361431346414,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": "book_symbol",
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "طريقة تعليمية يعكس فيها الطالب والدارس الأدوار التقليدية، حيث يشاهد الطالب الدروس في المنزل ويطبقها في الصف.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      },
+      {
+        "concept_name": "نظرية الذكاءات المتعددة",
+        "concept_type": "hybrid",
+        "visual_representation": "composite_form",
+        "revolutionary_equation": {
+          "sigmoid_parameters": {
+            "alpha": [
+              1.79,
+              1.253,
+              0.7160000000000001
+            ],
+            "k": [
+              2.372610010601259,
+              1.7600000000000002,
+              1.1
+            ],
+            "x0": [
+              -0.5,
+              0.0,
+              -1.0
+            ],
+            "n": [
+              100000000,
+              50000000,
+              25000000
+            ]
+          },
+          "linear_parameters": {
+            "beta": [
+              0.33699999999999997,
+              0.20219999999999996,
+              0.10109999999999998
+            ],
+            "gamma": [
+              0.0,
+              0.1,
+              -0.1
+            ]
+          },
+          "revolutionary_theories": {
+            "zero_duality_factor": 0.0,
+            "perpendicular_angle": 1.6493361431346414,
+            "filament_complexity": 5
+          }
+        },
+        "properties": {
+          "abstract": {
+            "is_abstract": false,
+            "symbolic_meaning": null,
+            "metaphorical_content": [],
+            "emotional_associations": []
+          },
+          "physical": {
+            "has_physical_form": false,
+            "dimensions": null,
+            "color": null,
+            "texture": null,
+            "material": null
+          },
+          "semantic": {
+            "primary_meaning": "نظرية هوارد غاردنر التي تقترح وجود أنواع متعددة من الذكاء، مثل اللغوي والمنطقي والبصري.",
+            "secondary_meanings": [],
+            "context_dependent": false,
+            "cultural_significance": null
+          }
+        },
+        "confidence_score": 0.49999999999999994,
+        "usage_count": 0
+      }
+    ]
+  }
+}

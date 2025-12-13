@@ -1,0 +1,1202 @@
+<xaiArtifacts>
+    <xaiArtifact id="main_py_updated" filename="my_mcp_agent/main.py">
+        <![CDATA[
+import os
+import json
+from dotenv import load_dotenv
+from agents.structure_agent import generate_project_structure, enhance_structure, update_structure
+from agents.file_writer import create_files, generate_dependencies
+from agents.validator import validate_structure
+from utils.error_handling import error_handler # للتأكد من أن الأخطاء المسجلة
+
+def main():
+    load_dotenv()
+    project_idea = input("أدخل فكرة المشروع: ")
+
+    # 1. إنشاء الهيكلية الأولية
+    print("إنشاء الهيكلية الأولية...")
+    structure_response = generate_project_structure(project_idea)
+    if "error" in structure_response:
+        print(f"خطأ في إنشاء الهيكلية: {structure_response['error']}")
+        return
+    initial_structure = structure_response
+
+    print("الهيكلية الأولية:")
+    print(json.dumps(initial_structure, indent=2, ensure_ascii=False))
+
+    # 2. تحسين الهيكلية
+    print("\nتحسين الهيكلية...")
+    enhanced_structure_response = enhance_structure(initial_structure, project_idea)
+    if "error" in enhanced_structure_response:
+        print(f"خطأ في تحسين الهيكلية: {enhanced_structure_response['error']}")
+        # يمكن اختيار المتابعة بالهيكلية الأولية أو التوقف
+        enhanced_structure = initial_structure 
+    else:
+        enhanced_structure = enhanced_structure_response
+        
+    print("الهيكلية المحسنة:")
+    print(json.dumps(enhanced_structure, indent=2, ensure_ascii=False))
+
+    # 3. التحقق من الهيكلية المحسنة
+    if not validate_structure(enhanced_structure):
+        print("خطأ: الهيكلية المحسنة غير صالحة بعد التحسين.")
+        # يمكن محاولة التحقق من الهيكلية الأولية كخيار احتياطي
+        if not validate_structure(initial_structure):
+            print("خطأ: الهيكلية الأولية أيضًا غير صالحة.")
+            return
+        else:
+            print("سيتم استخدام الهيكلية الأولية الصالحة.")
+            final_structure = initial_structure
+    else:
+        final_structure = enhanced_structure
+
+    # 4. إنشاء الملفات بناءً على الهيكلية النهائية
+    print("\nإنشاء الملفات...")
+    creation_result = create_files(final_structure, project_idea)
+    if isinstance(creation_result, dict) and "error" in creation_result:
+        print(f"خطأ أثناء إنشاء الملفات: {creation_result['error']}")
+        # لا يمكن المتابعة إذا فشلت كتابة الملفات الرئيسية
+    else:
+        print("تم إنشاء الملفات بنجاح (أو محاولة إنشائها).")
+
+
+    # 5. إنشاء ملف requirements.txt
+    print("\nإنشاء ملف التبعيات requirements.txt...")
+    requirements_response = generate_dependencies(project_idea)
+    if isinstance(requirements_response, dict) and "error" in requirements_response:
+        print(f"خطأ في إنشاء قائمة التبعيات: {requirements_response['error']}")
+    elif requirements_response: # تأكد أنه ليس فارغًا أو None
+        try:
+            with open("requirements.txt", "w", encoding='utf-8') as req_file:
+                req_file.write(requirements_response)
+            print("تم إنشاء requirements.txt بنجاح.")
+        except IOError as e:
+            print(f"خطأ في كتابة requirements.txt: {e}")
+    else:
+        print("لم يتم إرجاع أي تبعيات لإنشائها.")
+
+    # 6. مثال بسيط للتحديث الديناميكي (اختياري)
+    update_choice = input("\nهل تريد محاولة تحديث الهيكلية؟ (نعم/لا): ").strip().lower()
+    if update_choice == 'نعم':
+        changes_description = input("صف التغييرات المطلوبة في الهيكلية: ")
+        print("\nتحديث الهيكلية بناءً على الوصف الجديد...")
+        updated_structure_response = update_structure(final_structure, changes_description, project_idea)
+        if "error" in updated_structure_response:
+            print(f"خطأ في تحديث الهيكلية: {updated_structure_response['error']}")
+        else:
+            updated_structure = updated_structure_response
+            print("الهيكلية المحدثة:")
+            print(json.dumps(updated_structure, indent=2, ensure_ascii=False))
+            if validate_structure(updated_structure):
+                print("\nإعادة إنشاء الملفات بناءً على الهيكلية المحدثة (محاكاة)...")
+                # في تطبيق حقيقي، قد تقوم بتطبيق التغييرات فقط بدلاً من إعادة الإنشاء بالكامل
+                # create_files(updated_structure, project_idea) 
+                print("تم (محاكاة) تحديث الملفات.")
+            else:
+                print("الهيكلية المحدثة غير صالحة.")
+    
+    print("\nاكتملت عملية MCP Agent.")
+
+if __name__ == "__main__":
+    # التأكد من أننا في جذر المشروع المتوقع عند التشغيل
+    # إذا كان main.py في my_mcp_agent/، يجب تغيير مسار عمل os
+    # ولكن الهيكلية المقترحة تضع main.py في my_mcp_agent/
+    # لذا، المسارات مثل "requirements.txt" ستكون داخل my_mcp_agent/
+    # إذا أردت أن تكون في المجلد الذي يحتوي my_mcp_agent/، عدل مسار العمل:
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # project_root = os.path.dirname(script_dir) # إذا كان main.py داخل my_mcp_agent
+    # os.chdir(project_root) # لتكون requirements.txt خارج my_mcp_agent
+
+    main()
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="error_handling_py_ref" filename="my_mcp_agent/utils/error_handling.py">
+        <![CDATA[
+# هذا الملف تم تقديمه في الاستجابة السابقة وهو كالتالي:
+import logging
+import json # مهم لإلتقاط json.JSONDecodeError
+from functools import wraps
+
+# إعداد التسجيل الأساسي
+logging.basicConfig(level=logging.INFO, 
+                    filename='mcp_agent.log',  # اسم ملف السجل
+                    filemode='a',  # 'a' للإضافة, 'w' للكتابة فوق الملف في كل مرة
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+def error_handler(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except json.JSONDecodeError as e:
+            logging.error(f"JSON Decode Error in {func.__name__}: {str(e)} - Input causing error might be logged separately if sensitive.")
+            return {"error": "Invalid JSON format returned from AI or service."}
+        except FileNotFoundError as e:
+            logging.error(f"File Not Found Error in {func.__name__}: {str(e)}")
+            return {"error": f"File not found: {e.filename}"}
+        except IOError as e: # أكثر عمومية من FileNotFoundError للكتابة/القراءة
+            logging.error(f"IO Error in {func.__name__}: {str(e)}")
+            return {"error": f"File system I/O error: {str(e)}"}
+        except requests.exceptions.RequestException as e: # لالتقاط أخطاء طلبات API
+            logging.error(f"API Request Error in {func.__name__}: {str(e)}")
+            return {"error": f"API request failed: {str(e)}"}
+        except ValueError as e:
+            logging.error(f"Value Error in {func.__name__}: {str(e)}")
+            return {"error": str(e)} # غالبًا ما تكون رسالة الخطأ هنا مفيدة للمستخدم
+        except Exception as e:
+            logging.critical(f"Unexpected Critical Error in {func.__name__}: {str(e)}", exc_info=True) # exc_info=True لتسجيل traceback
+            return {"error": "An critical internal error occurred. Check logs."}
+    return wrapper
+
+# لاستخدامه، قم باستيراد requests إذا لم يكن موجودًا في الملف الذي يستخدمه.
+# مثال لاستخدام requests.exceptions.RequestException
+# import requests 
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="api_handler_py_ref" filename="my_mcp_agent/utils/api_handler.py">
+        <![CDATA[
+# هذا الملف تم تقديمه في الاستجابة السابقة وهو كالتالي:
+import os
+import time
+import hashlib
+from functools import lru_cache
+import requests # تأكد من تثبيت هذه المكتبة: pip install requests
+import json # لإرسال بيانات JSON
+from dotenv import load_dotenv
+from .error_handling import error_handler # استخدام .error_handling للاستيراد النسبي
+
+load_dotenv()
+
+RATE_LIMIT = int(os.getenv('RATE_LIMIT', 3))  # طلبات في الثانية، الافتراضي 3
+MAX_TOKENS_DEFAULT = int(os.getenv('MAX_TOKENS', 2048)) # زيادة الحد الأقصى للتوكنز
+
+@lru_cache(maxsize=128) # زيادة حجم الكاش إذا لزم الأمر
+@error_handler
+def get_ai_response(prompt: str, max_tokens: int = MAX_TOKENS_DEFAULT):
+    """
+    Sends a prompt to the OpenAI API (or a local model if configured)
+    and returns the AI's response.
+    Includes rate limiting and caching.
+    """
+    # تأخير لتجنب تجاوز حدود المعدل
+    time.sleep(1.0 / RATE_LIMIT)
+
+    # تجزئة المطالبة لاستخدامها كمفتاح في سجلات أو تخزين مؤقت إذا لزم الأمر بشكل منفصل
+    # prompt_hash = hashlib.md5(prompt.encode()).hexdigest()
+    # logging.info(f"Requesting AI response for prompt hash: {prompt_hash}")
+
+    if os.getenv('USE_LOCAL_MODEL') == "true":
+        # logging.info("Using local AI model.")
+        return get_local_ai_response(prompt, max_tokens=max_tokens)
+
+    api_key = os.getenv('OPENAI_API_KEY')
+    model_name = os.getenv('MODEL_NAME', 'gpt-3.5-turbo-instruct') # أو gpt-4 إذا كان متاحًا ومطلوبًا
+
+    if not api_key:
+        # logging.error("OPENAI_API_KEY not found in environment variables.")
+        return {"error": "OpenAI API key not configured."}
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # استخدام endpoint /v1/chat/completions للنماذج الأحدث مثل gpt-3.5-turbo, gpt-4
+    # استخدام endpoint /v1/completions للنماذج الأقدم مثل text-davinci-003 أو gpt-3.5-turbo-instruct
+    if "gpt-3.5-turbo" == model_name.lower() or "gpt-4" in model_name.lower() and "instruct" not in model_name.lower() :
+        # Chat completions endpoint
+        data = {
+            "model": model_name,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens,
+            "temperature": 0.5 # يمكن تعديل درجة الحرارة للإبداع مقابل الدقة
+        }
+        # logging.info(f"Sending request to OpenAI Chat API: {model_name}")
+        api_url = "https://api.openai.com/v1/chat/completions"
+        response = requests.post(api_url, json=data, headers=headers, timeout=60) # إضافة timeout
+        response.raise_for_status() # سيرفع استثناء لأخطاء HTTP 4xx/5xx
+        # logging.info("Received response from OpenAI Chat API.")
+        return response.json()['choices'][0]['message']['content'].strip()
+    else:
+        # Legacy completions endpoint
+        data = {
+            "model": model_name,
+            "prompt": prompt,
+            "max_tokens": max_tokens,
+            "temperature": 0.5
+        }
+        # logging.info(f"Sending request to OpenAI Completions API: {model_name}")
+        api_url = "https://api.openai.com/v1/completions"
+        response = requests.post(api_url, json=data, headers=headers, timeout=60) # إضافة timeout
+        response.raise_for_status()
+        # logging.info("Received response from OpenAI Completions API.")
+        return response.json()['choices'][0]['text'].strip()
+
+
+def get_local_ai_response(prompt: str, max_tokens: int):
+    """
+    Placeholder for local AI model implementation (e.g., LLaMA, Ollama).
+    """
+    # logging.info(f"Simulating local AI model response for: {prompt[:50]}...")
+    # هذا مجرد مثال، يجب استبداله بالتنفيذ الفعلي
+    # على سبيل المثال، إذا كنت تستخدم Ollama:
+    # try:
+    #   import ollama
+    #   response = ollama.generate(model='llama2', prompt=prompt)
+    #   return response['response']
+    # except ImportError:
+    #   logging.warning("Ollama library not installed. Cannot use local model.")
+    #   return {"error": "Ollama library not installed."}
+    # except Exception as e:
+    #   logging.error(f"Error with local Ollama model: {e}")
+    #   return {"error": f"Local model error: {e}"}
+      
+    return f"Local model placeholder response for prompt: '{prompt[:100]}...'. Max tokens: {max_tokens}"
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="structure_agent_py_updated" filename="my_mcp_agent/agents/structure_agent.py">
+        <![CDATA[
+import json
+from utils.api_handler import get_ai_response
+from utils.error_handling import error_handler
+import logging
+
+@error_handler
+def generate_project_structure(idea: str):
+    prompt = f"""
+    You are an expert software architect.
+    Create a detailed and logical project structure for the following project idea: "{idea}"
+    
+    Output Requirements:
+    1.  Provide a list of folders (relative paths, ending with '/').
+    2.  Provide a list of files, each with its full relative path and type (e.g., python, html, css, js, md, json, yaml, sh, Dockerfile, .gitignore).
+    3.  The output MUST be a valid JSON object.
+    4.  Ensure all essential files for a typical project of this nature are included (e.g., README.md, .gitignore, main entry point, configuration files, example/test files if applicable).
+    5.  For Python projects, include `__init__.py` in relevant directories to make them packages.
+
+    Example of a correct JSON output format:
+    {{
+        "folders": ["src/", "src/utils/", "tests/", "docs/", "scripts/", "config/", "data/"],
+        "files": [
+            {{"path": "README.md", "type": "md"}},
+            {{"path": ".gitignore", "type": ".gitignore"}},
+            {{"path": "src/main.py", "type": "python"}},
+            {{"path": "src/__init__.py", "type": "python"}},
+            {{"path": "src/utils/__init__.py", "type": "python"}},
+            {{"path": "src/utils/helpers.py", "type": "python"}},
+            {{"path": "config/settings.yaml", "type": "yaml"}},
+            {{"path": "tests/test_main.py", "type": "python"}},
+            {{"path": "scripts/run.sh", "type": "sh"}},
+            {{"path": "Dockerfile", "type": "Dockerfile"}}
+        ]
+    }}
+
+    Now, generate the structure for the project idea: "{idea}"
+    JSON Output:
+    """
+    logging.info(f"Generating project structure for idea: {idea}")
+    response_text = get_ai_response(prompt)
+    if isinstance(response_text, dict) and "error" in response_text:
+        return response_text # Return error dict directly
+    try:
+        # محاولة تنظيف الإخراج إذا كان يحتوي على نص إضافي حول JSON
+        if "```json" in response_text:
+            response_text = response_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in response_text: # fallback if only ``` is used
+             response_text = response_text.split("```")[1].strip()
+
+        structure = json.loads(response_text)
+        logging.info(f"Successfully generated and parsed structure for: {idea}")
+        return structure
+    except json.JSONDecodeError as e:
+        logging.error(f"JSONDecodeError for structure_agent: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to parse AI response as JSON. Details: {e}. Response: {response_text[:500]}..."}
+    except IndexError as e: # إذا فشل split
+        logging.error(f"IndexError during JSON cleaning for structure_agent: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to clean AI response for JSON parsing. Response: {response_text[:500]}..."}
+
+
+@error_handler
+def enhance_structure(initial_structure: dict, project_idea: str):
+    prompt = f"""
+    You are an expert software architect.
+    The following is an initial project structure:
+    {json.dumps(initial_structure, indent=2)}
+
+    The project idea is: "{project_idea}"
+
+    Review this structure and enhance it. Consider the following:
+    1.  Completeness: Are there any missing standard files or folders for this type of project (e.g., `tests/`, `docs/`, `requirements.txt` placeholder if Python, `Dockerfile`, `.env.example`)?
+    2.  Best Practices: Does the structure follow common conventions and best practices for the likely technologies involved?
+    3.  Initialization Files: For Python, ensure `__init__.py` files are in all package directories.
+    4.  Clarity and Organization: Is the structure logical and easy to navigate?
+
+    Output the ENHANCED structure in the same valid JSON format as the input (list of folders, list of files with path and type).
+    If the initial structure is already good and needs no changes, return it as is.
+    JSON Output:
+    """
+    logging.info(f"Enhancing structure for project: {project_idea}")
+    response_text = get_ai_response(prompt)
+    if isinstance(response_text, dict) and "error" in response_text:
+        return response_text
+    try:
+        if "```json" in response_text:
+            response_text = response_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in response_text:
+             response_text = response_text.split("```")[1].strip()
+        
+        enhanced_structure = json.loads(response_text)
+        logging.info(f"Successfully enhanced and parsed structure for: {project_idea}")
+        return enhanced_structure
+    except json.JSONDecodeError as e:
+        logging.error(f"JSONDecodeError for enhance_structure: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to parse AI response for enhancement. Details: {e}. Response: {response_text[:500]}..."}
+    except IndexError as e:
+        logging.error(f"IndexError during JSON cleaning for enhance_structure: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to clean AI response for JSON parsing (enhancement). Response: {response_text[:500]}..."}
+
+@error_handler
+def update_structure(current_structure: dict, changes_description: str, project_idea: str):
+    prompt = f"""
+    You are an expert software architect.
+    The current project structure is:
+    {json.dumps(current_structure, indent=2)}
+
+    The overall project idea is: "{project_idea}"
+    The user wants to apply the following changes/updates: "{changes_description}"
+
+    Based on these requested changes, modify the current project structure. Consider:
+    1.  Adding new files/folders.
+    2.  Removing obsolete files/folders.
+    3.  Renaming/moving files/folders if implied by the changes.
+    4.  Ensure the resulting structure remains consistent and logical.
+
+    Output the UPDATED structure in the same valid JSON format (list of folders, list of files with path and type).
+    JSON Output:
+    """
+    logging.info(f"Updating structure for project: {project_idea} with changes: {changes_description}")
+    response_text = get_ai_response(prompt)
+    if isinstance(response_text, dict) and "error" in response_text:
+        return response_text
+    try:
+        if "```json" in response_text:
+            response_text = response_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in response_text:
+             response_text = response_text.split("```")[1].strip()
+
+        updated_structure = json.loads(response_text)
+        logging.info(f"Successfully updated and parsed structure for: {project_idea}")
+        return updated_structure
+    except json.JSONDecodeError as e:
+        logging.error(f"JSONDecodeError for update_structure: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to parse AI response for update. Details: {e}. Response: {response_text[:500]}..."}
+    except IndexError as e:
+        logging.error(f"IndexError during JSON cleaning for update_structure: {e}. AI Response was: {response_text}")
+        return {"error": f"Failed to clean AI response for JSON parsing (update). Response: {response_text[:500]}..."}
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="validator_py_updated" filename="my_mcp_agent/agents/validator.py">
+        <![CDATA[
+import json
+import os
+import logging
+
+# قائمة بأنواع الملفات المعروفة والمسموح بها. يمكن توسيعها.
+ALLOWED_FILE_TYPES = [
+    "python", "html", "css", "js", "md", "json", "yaml", "yml", 
+    "txt", "sh", "Dockerfile", ".gitignore", "xml", "csv", "ts", 
+    "tsx", "jsx", "java", "c", "cpp", "h", "hpp", "cs", "go", "rb", 
+    "php", "swift", "kt", "kts", "dart", "env", "toml", "ini", "sql"
+]
+
+def validate_structure(structure: dict) -> bool:
+    if not isinstance(structure, dict):
+        logging.error(f"Validation failed: Structure is not a dict, got {type(structure)}")
+        return False
+
+    required_keys = {"folders", "files"}
+    if not all(key in structure for key in required_keys):
+        logging.error(f"Validation failed: Missing one or more required keys: {required_keys - set(structure.keys())}")
+        return False
+
+    if not isinstance(structure["folders"], list):
+        logging.error("Validation failed: 'folders' is not a list.")
+        return False
+    for folder in structure["folders"]:
+        if not isinstance(folder, str):
+            logging.error(f"Validation failed: Folder entry is not a string: {folder}")
+            return False
+        if not folder.endswith('/'):
+            logging.warning(f"Validation warning: Folder '{folder}' does not end with '/'. Auto-correcting or stricter validation might be needed.")
+            # يمكن أن يكون هذا خطأً صارمًا إذا أردت:
+            # logging.error(f"Validation failed: Folder '{folder}' does not end with '/'.")
+            # return False
+        if folder == "/" or ".." in folder: # منع المسارات المطلقة أو الصعود في المسار
+            logging.error(f"Validation failed: Folder path '{folder}' is invalid (absolute or contains '..').")
+            return False
+
+
+    if not isinstance(structure["files"], list):
+        logging.error("Validation failed: 'files' is not a list.")
+        return False
+    for file_item in structure["files"]:
+        if not isinstance(file_item, dict):
+            logging.error(f"Validation failed: File entry is not a dict: {file_item}")
+            return False
+        if not all(k in file_item for k in ["path", "type"]):
+            logging.error(f"Validation failed: File entry missing 'path' or 'type': {file_item}")
+            return False
+        if not isinstance(file_item["path"], str) or not isinstance(file_item["type"], str):
+            logging.error(f"Validation failed: File 'path' or 'type' is not a string: {file_item}")
+            return False
+        if file_item["path"].endswith('/') or file_item["path"].startswith('/') or ".." in file_item["path"]:
+            logging.error(f"Validation failed: File path '{file_item['path']}' is invalid (ends with '/', absolute, or contains '..').")
+            return False
+        
+        file_type = file_item["type"].lower()
+        # إذا كان اسم الملف يحتوي على نقطة (امتداد محتمل) ولا يوجد نوع محدد أو نوعه "file"
+        # نحاول استنتاج النوع من الامتداد
+        if '.' in os.path.basename(file_item["path"]) and (not file_type or file_type == "file"):
+            derived_type = os.path.basename(file_item["path"]).split('.')[-1].lower()
+            if derived_type in ALLOWED_FILE_TYPES:
+                 logging.info(f"Derived file type '{derived_type}' for path '{file_item['path']}'")
+                 file_item["type"] = derived_type # تحديث النوع إذا تم استنتاجه
+            elif file_item["path"].startswith('.') and derived_type not in ALLOWED_FILE_TYPES: # مثل .gitignore
+                 file_item["type"] = os.path.basename(file_item["path"]) # اعتبر اسم الملف هو النوع
+                 logging.info(f"Using full filename as type for dotfile: {file_item['type']}")
+
+        elif file_type not in ALLOWED_FILE_TYPES and file_type != os.path.basename(file_item["path"]):
+            # إذا كان النوع غير معروف وليس اسم الملف نفسه (مثل Dockerfile)
+            logging.warning(f"Validation warning: File type '{file_item['type']}' for '{file_item['path']}' is not in standard ALLOWED_FILE_TYPES. Ensure this is intended.")
+
+    return True
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="file_writer_py_updated" filename="my_mcp_agent/agents/file_writer.py">
+        <![CDATA[
+import os
+import json
+import concurrent.futures
+import logging
+from utils.api_handler import get_ai_response
+from utils.error_handling import error_handler
+from .validator import validate_structure # استيراد نسبي
+
+MAX_CONTENT_GENERATION_RETRIES = 2
+
+@error_handler
+def generate_file_content(file_path: str, project_idea: str, file_type: str, structure: dict):
+    # تحسين المطالبة لتكون أكثر تحديدًا
+    context_files_info = []
+    for f_item in structure.get("files", []):
+        if f_item["path"] != file_path: # لا نريد تضمين الملف الحالي في سياقه الخاص
+             context_files_info.append(f'{f_item["path"]} ({f_item["type"]})')
+    
+    context_str = "\nOther relevant files in the project structure:\n" + "\n".join(context_files_info) if context_files_info else ""
+
+
+    prompt = f"""
+    Project Context:
+    - Project Idea: "{project_idea}"
+    - Target File Path: "{file_path}"
+    - File Type: "{file_type}"
+    {context_str}
+
+    Instructions for Generating Content for "{file_path}":
+    1.  Generate ONLY the complete, raw source code or content for this specific file.
+    2.  DO NOT include any explanations, comments about the code itself, or markdown formatting like "```python". Just the code.
+    3.  Adhere to best practices and common conventions for "{file_type}" files.
+    4.  Ensure the code is syntactically correct and functional if it's an executable or script.
+    5.  If the file is a configuration file (e.g., JSON, YAML, .gitignore), provide a sensible default configuration.
+    6.  For `__init__.py` files, they can be empty or contain necessary package-level imports/definitions.
+    7.  For `README.md`, provide a basic project description, setup, and usage instructions based on "{project_idea}".
+    8.  If this is a test file, write example test cases relevant to the project.
+
+    Content for "{file_path}":
+    """
+    logging.info(f"Generating content for: {file_path} (Type: {file_type})")
+    
+    for attempt in range(MAX_CONTENT_GENERATION_RETRIES):
+        content_response = get_ai_response(prompt)
+        if isinstance(content_response, dict) and "error" in content_response:
+            logging.error(f"Attempt {attempt+1}: API error generating content for {file_path}: {content_response['error']}")
+            if attempt == MAX_CONTENT_GENERATION_RETRIES -1: return content_response # إرجاع الخطأ بعد آخر محاولة
+            continue # محاولة مرة أخرى
+
+        # تنظيف الاستجابة من أي "code fences"
+        if "```" in content_response:
+            # محاولة استخلاص ما بين أول ``` ونظيرتها
+            parts = content_response.split("```")
+            if len(parts) > 1:
+                # قد يكون هناك نوع لغة بعد أول ```, مثل ```python
+                # نزيل هذا السطر إذا كان موجودًا
+                cleaned_content = parts[1]
+                if '\n' in cleaned_content:
+                    first_line, rest_of_content = cleaned_content.split('\n', 1)
+                    # تحقق مما إذا كان السطر الأول هو مجرد نوع لغة
+                    if first_line.strip().lower() in ['python', 'javascript', 'html', 'css', 'json', 'yaml', 'text', 'markdown', file_type.lower()]:
+                        content_response = rest_of_content
+                    else:
+                        content_response = cleaned_content # لم يكن نوع لغة
+                else: # إذا كان المحتوى سطر واحد فقط بعد ```
+                    content_response = cleaned_content
+
+        # إذا كان الملف __init__.py والذكاء الاصطناعي أعاد شيئًا معقدًا، يمكننا تركه فارغًا
+        if os.path.basename(file_path) == "__init__.py" and len(content_response.strip()) > 200: # حد افتراضي
+            logging.warning(f"Content for __init__.py {file_path} seems too long, making it empty.")
+            return "" # __init__.py يمكن أن يكون فارغًا
+
+        logging.info(f"Successfully generated content for: {file_path}")
+        return content_response.strip()
+    
+    logging.error(f"Failed to generate content for {file_path} after {MAX_CONTENT_GENERATION_RETRIES} attempts.")
+    return {"error": f"Failed to generate content for {file_path} after retries."}
+
+
+def create_single_file(file_info: dict, project_idea: str, project_structure: dict):
+    file_path = file_info["path"]
+    file_type = file_info["type"]
+    
+    # إنشاء المجلدات الأصل إذا لم تكن موجودة
+    dir_name = os.path.dirname(file_path)
+    if dir_name: # تأكد من أنه ليس ملفًا في الجذر
+        os.makedirs(dir_name, exist_ok=True)
+
+    # لا ننشئ محتوى للمجلدات، فقط للملفات
+    if file_path.endswith('/'):
+        logging.warning(f"Skipping content generation for directory-like path: {file_path}")
+        return f"Path {file_path} is a directory, skipped content generation."
+
+    # إذا كان الملف .gitignore أو requirements.txt، قد يكون له معالجة خاصة أو قالب
+    if os.path.basename(file_path) == ".gitignore":
+        content = "# Common .gitignore for Python projects\n__pycache__/\n*.py[cod]\n*$py.class\n\n# Environments\n.env\n.venv\nvenv/\nENV/\nenv/\n\n# IDE specific files\n.vscode/\n.idea/\n*.swp\n\n# Build artifacts\nbuild/\ndist/\n*.egg-info/\n"
+    elif os.path.basename(file_path) == "requirements.txt":
+        # سيتم إنشاؤه بشكل منفصل بواسطة generate_dependencies
+        # ولكن إذا كان جزءًا من الهيكل، يمكن وضع محتوى مبدئي
+        content = "# Add project dependencies here\n# Example: flask>=2.0\n"
+    else:
+        content_response = generate_file_content(file_path, project_idea, file_type, project_structure)
+        if isinstance(content_response, dict) and "error" in content_response:
+            logging.error(f"Could not generate content for {file_path}: {content_response['error']}")
+            # كتابة ملف فارغ أو ملف مع رسالة خطأ
+            content = f"# Error generating content for this file: {content_response['error']}\n"
+        else:
+            content = content_response
+
+    try:
+        with open(file_path, "w", encoding='utf-8') as f:
+            f.write(content)
+        msg = f"Successfully created: {file_path}"
+        logging.info(msg)
+        return msg
+    except IOError as e:
+        err_msg = f"Error writing file {file_path}: {e}"
+        logging.error(err_msg)
+        return {"error": err_msg, "path": file_path}
+
+
+@error_handler
+def generate_dependencies(project_idea: str, project_structure: dict):
+    # يمكن تحسين المطالبة لتأخذ الهيكل كمرجع
+    all_file_types = list(set(f['type'] for f in project_structure.get('files', [])))
+    
+    prompt = f"""
+    Project Idea: "{project_idea}"
+    The project structure includes files of these types: {', '.join(all_file_types)}.
+    Key files include: {[f['path'] for f in project_structure.get('files', []) if 'main' in f['path'] or 'app' in f['path']][:5]}
+
+    Based on the project idea and these file types/names, list the essential Python dependencies that would typically be required for such a project.
+    Output Format:
+    -   List package names, one per line.
+    -   You can optionally include version specifiers (e.g., `requests>=2.25.0`).
+    -   If no Python dependencies are obviously needed (e.g., for a pure HTML/JS project), output "No Python dependencies identified."
+
+    Example Output:
+    requests
+    flask>=2.0
+    python-dotenv
+
+    Required Python dependencies:
+    """
+    logging.info(f"Generating dependencies for project: {project_idea}")
+    response = get_ai_response(prompt)
+    if isinstance(response, dict) and "error" in response:
+        return response # إرجاع الخطأ
+
+    if "No Python dependencies identified." in response or not response.strip():
+        logging.info("No Python dependencies identified by AI.")
+        return "" # لا تبعيات
+        
+    # تنظيف بسيط: إزالة الأسطر الفارغة والتأكد من عدم وجود تكرار
+    lines = [line.strip() for line in response.splitlines() if line.strip()]
+    unique_lines = sorted(list(set(lines)))
+    
+    # التحقق من صحة أسماء الحزم (بشكل مبسط)
+    valid_dependencies = []
+    for line in unique_lines:
+        # اسم الحزمة يجب أن يكون معرفًا صالحًا، قد يحتوي على - أو _ أو أرقام
+        # هذا ليس فحصًا كاملاً ولكنه يزيل بعض المخرجات السيئة
+        package_name_part = line.split(">=")[0].split("==")[0].split("<=")[0].split("!=")[0].split("~=")[0].strip()
+        if package_name_part and all(c.isalnum() or c in ['-', '_', '.'] for c in package_name_part):
+            valid_dependencies.append(line)
+        else:
+            logging.warning(f"Invalid dependency line skipped: '{line}'")
+
+    final_deps = "\n".join(valid_dependencies)
+    logging.info(f"Generated dependencies:\n{final_deps}")
+    return final_deps
+
+
+@error_handler
+def create_files(structure: dict, project_idea: str):
+    # التحقق من صحة الهيكلية قبل البدء
+    if not validate_structure(structure):
+        logging.error("Invalid project structure provided to create_files.")
+        # لا نرفع استثناء هنا لأن error_handler سيعيد dict بالخطأ
+        return {"error": "Invalid project structure"} 
+
+    # 1. إنشاء المجلدات أولاً
+    for folder_path in structure.get("folders", []):
+        # التأكد من أننا لا نحاول إنشاء مجلدات خارج الدليل الحالي بشكل ضار
+        # مسارات مثل ../folder أو /folder ممنوعة بواسطة validator
+        # لكن كإجراء أمان إضافي هنا:
+        if not os.path.abspath(folder_path).startswith(os.getcwd()):
+             logging.warning(f"Skipping potentially unsafe folder creation: {folder_path}")
+             continue
+        try:
+            os.makedirs(folder_path, exist_ok=True)
+            logging.info(f"Ensured folder exists: {folder_path}")
+        except OSError as e:
+            logging.error(f"Error creating folder {folder_path}: {e}")
+            # يمكن إرجاع خطأ هنا أو تسجيله والمتابعة
+            return {"error": f"Failed to create directory {folder_path}: {e}"}
+
+
+    # 2. إنشاء الملفات باستخدام ThreadPoolExecutor
+    # تمرير الهيكل الكامل إلى create_single_file حتى يتمكن generate_file_content من الحصول على سياق
+    created_files_results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count() or 1) as executor:
+        # نستخدم os.cpu_count() لعدد العمال، أو 1 إذا لم يتمكن من تحديده
+        futures = [executor.submit(create_single_file, file_info, project_idea, structure)
+                   for file_info in structure.get("files", [])]
+        
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                result = future.result()
+                created_files_results.append(result)
+                if isinstance(result, dict) and "error" in result:
+                    logging.error(f"Error processing file: {result.get('path', 'N/A')} - {result['error']}")
+                else:
+                    logging.info(result) # يجب أن تكون هذه رسالة نجاح
+            except Exception as e:
+                # هذا يلتقط الأخطاء التي لم يتم التعامل معها داخل create_single_file
+                logging.critical(f"Critical error in file creation thread: {e}", exc_info=True)
+                created_files_results.append({"error": f"Unhandled exception in thread: {e}"})
+    
+    # تحقق مما إذا كانت هناك أي أخطاء جوهرية أثناء إنشاء الملفات
+    if any(isinstance(res, dict) and "error" in res for res in created_files_results):
+        logging.warning("Some files may not have been created correctly. Check logs.")
+        # لا نوقف العملية بالكامل بسبب فشل ملف واحد، ولكن نسجل ذلك.
+
+    # 3. إنشاء ملف requirements.txt (يتم الآن داخل main.py بعد create_files)
+    # هنا يمكننا فقط التأكد من وجوده إذا كان في الهيكل.
+    # أو يمكننا إزالة الجزء الخاص بـ requirements.txt من create_single_file
+    # إذا كان generate_dependencies يُستدعى دائمًا من main.py.
+    # للحفاظ على الاتساق، إذا كان requirements.txt في الهيكل، سيتم إنشاؤه بواسطة create_single_file.
+    # ثم سيتم الكتابة فوقه بواسطة generate_dependencies إذا تم استدعاؤه من main.py.
+    # من الأفضل أن يكون generate_dependencies هو المصدر الوحيد لـ requirements.txt.
+
+    logging.info("File and folder creation process completed.")
+    return {"status": "completed", "results": created_files_results}
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="dotenv_example" filename="my_mcp_agent/.env">
+        <![CDATA[
+OPENAI_API_KEY="your_openai_api_key_here"
+# MODEL_NAME="gpt-4-turbo" # or "gpt-3.5-turbo-instruct", "gpt-3.5-turbo"
+MODEL_NAME="gpt-3.5-turbo-instruct" # أكثر توافقًا مع endpoint /completions إذا كان api_handler يستخدمه
+# MODEL_NAME="gpt-3.5-turbo" # استخدم هذا إذا كان api_handler يستخدم /chat/completions
+
+# Optional: For local model usage
+# USE_LOCAL_MODEL="false" # Set to "true" to use get_local_ai_response
+
+# Optional: API Rate Limit
+RATE_LIMIT="3" # Requests per second
+
+# Optional: Max tokens for AI response
+MAX_TOKENS="2048" 
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="tests_init_py" filename="my_mcp_agent/tests/__init__.py">
+        <![CDATA[
+# This file can be empty. It indicates that the 'tests' directory is a Python package.
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="test_structure_py" filename="my_mcp_agent/tests/test_structure.py">
+        <![CDATA[
+import unittest
+import sys
+import os
+
+# أضف المسار الأصلي إلى sys.path للسماح بالاستيراد من agents
+# هذا ضروري إذا كنت تشغل الاختبارات مباشرة من مجلد tests أو باستخدام `python -m unittest` من الجذر
+# احصل على المسار إلى المجلد الذي يحتوي على my_mcp_agent
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# أضف my_mcp_agent إلى sys.path
+sys.path.insert(0, os.path.join(project_root, 'my_mcp_agent'))
+# الآن يجب أن تكون قادرًا على الاستيراد من agents و utils
+
+from agents.validator import validate_structure
+
+class TestStructureValidator(unittest.TestCase):
+
+    def test_valid_structure(self):
+        valid_data = {
+            "folders": ["src/", "src/utils/", "public/"],
+            "files": [
+                {"path": "src/main.py", "type": "python"},
+                {"path": "src/__init__.py", "type": "python"},
+                {"path": "src/utils/__init__.py", "type": "python"},
+                {"path": "public/index.html", "type": "html"},
+                {"path": "README.md", "type": "md"}
+            ]
+        }
+        self.assertTrue(validate_structure(valid_data), "Should validate correct structure")
+
+    def test_missing_keys(self):
+        invalid_data = {
+            "folders": ["src/"]
+            # "files" key is missing
+        }
+        self.assertFalse(validate_structure(invalid_data), "Should fail if 'files' key is missing")
+
+        invalid_data_2 = {
+            "files": [{"path": "main.py", "type": "python"}]
+            # "folders" key is missing
+        }
+        self.assertFalse(validate_structure(invalid_data_2), "Should fail if 'folders' key is missing")
+
+    def test_invalid_folder_format(self):
+        invalid_data = {
+            "folders": ["src"], # Missing trailing slash
+            "files": [{"path": "main.py", "type": "python"}]
+        }
+        # حاليًا، هذا يعتبر تحذيرًا وليس خطأً فادحًا في validator.py
+        # إذا أردت أن يكون خطأً، عدل validator.py وقم بتغيير هذا الاختبار إلى self.assertFalse
+        self.assertTrue(validate_structure(invalid_data), "Should pass even if folder misses slash (current validator logic)")
+        # أو إذا جعلت التحقق من الـ slash صارمًا:
+        # self.assertFalse(validate_structure(invalid_data), "Should fail if folder misses trailing slash")
+
+    def test_invalid_file_format(self):
+        invalid_data = {
+            "folders": ["src/"],
+            "files": [{"path": "main.py"}] # Missing "type"
+        }
+        self.assertFalse(validate_structure(invalid_data), "Should fail if file item misses 'type'")
+
+        invalid_data_2 = {
+            "folders": ["src/"],
+            "files": [{"type": "python"}] # Missing "path"
+        }
+        self.assertFalse(validate_structure(invalid_data_2), "Should fail if file item misses 'path'")
+    
+    def test_invalid_file_type_in_list(self):
+        # هذا الاختبار يفترض أن validator.py لديه قائمة ALLOWED_FILE_TYPES
+        # ويتحقق من أنواع الملفات.
+        # حاليًا، validator.py يصدر تحذيرًا لأنواع غير معروفة، وليس خطأ.
+        # إذا أردت أن يكون خطأً، عدل validator.py.
+        data_with_odd_type = {
+            "folders": ["src/"],
+            "files": [{"path": "main.py", "type": "unknown_type_for_sure"}]
+        }
+        self.assertTrue(validate_structure(data_with_odd_type), "Should pass with unknown type (current validator emits warning)")
+        # أو إذا جعلت التحقق من النوع صارمًا:
+        # self.assertFalse(validate_structure(data_with_odd_type), "Should fail for unknown file type if strict")
+
+    def test_empty_structure(self):
+        empty_data = {
+            "folders": [],
+            "files": []
+        }
+        self.assertTrue(validate_structure(empty_data), "Should validate an empty but correct structure")
+
+    def test_non_dict_structure(self):
+        self.assertFalse(validate_structure([]), "Should fail if structure is not a dict")
+        self.assertFalse(validate_structure(None), "Should fail if structure is None")
+
+    def test_invalid_paths(self):
+        invalid_path_data_folder = {
+            "folders": ["../outside/"], "files": []
+        }
+        self.assertFalse(validate_structure(invalid_path_data_folder), "Should fail for '..' in folder path")
+        
+        invalid_path_data_file = {
+            "folders": [], "files": [{"path":"../outside/file.txt", "type":"txt"}]
+        }
+        self.assertFalse(validate_structure(invalid_path_data_file), "Should fail for '..' in file path")
+
+        absolute_path_folder = {
+            "folders": ["/abs/folder/"], "files": []
+        }
+        self.assertFalse(validate_structure(absolute_path_folder), "Should fail for absolute folder path")
+
+if __name__ == '__main__':
+    unittest.main()
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="web_init_py" filename="my_mcp_agent/web/__init__.py">
+        <![CDATA[
+# This file can be empty. It indicates that the 'web' directory is a Python package.
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="web_app_py" filename="my_mcp_agent/web/app.py">
+        <![CDATA[
+import os
+import sys
+import json
+from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
+
+# إضافة المسار الأصلي (my_mcp_agent) إلى sys.path
+# هذا يسمح بالاستيراد الصحيح للوحدات agents و utils
+# افترض أن هذا الملف (app.py) موجود في my_mcp_agent/web/
+# المسار إلى my_mcp_agent هو os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from agents.structure_agent import generate_project_structure, enhance_structure
+from agents.validator import validate_structure
+# from agents.file_writer import create_files # قد لا نرغب في إنشاء ملفات مباشرة من الويب للمثال البسيط
+
+# تحميل متغيرات البيئة من .env الموجود في جذر المشروع المتوقع (my_mcp_agent)
+# إذا كان .env في my_mcp_agent/ وليس في my_mcp_agent/web/
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+load_dotenv(dotenv_path)
+
+
+app = Flask(__name__)
+# تأكد من أن Flask يبحث عن القوالب في المجلد الصحيح (my_mcp_agent/web/templates)
+app.template_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/generate', methods=['POST'])
+def generate_structure_route():
+    try:
+        data = request.get_json()
+        project_idea = data.get('project_idea')
+
+        if not project_idea:
+            return jsonify({"error": "Project idea is required."}), 400
+
+        # 1. إنشاء الهيكلية الأولية
+        initial_structure_response = generate_project_structure(project_idea)
+        if "error" in initial_structure_response:
+            return jsonify({"error": f"Failed to generate initial structure: {initial_structure_response['error']}"}), 500
+        
+        initial_structure = initial_structure_response
+
+        # 2. تحسين الهيكلية (اختياري، يمكن التحكم به من الواجهة لاحقًا)
+        enhanced_structure_response = enhance_structure(initial_structure, project_idea)
+        if "error" in enhanced_structure_response:
+            # استخدام الهيكلية الأولية إذا فشل التحسين
+            final_structure = initial_structure
+            enhancement_error = enhanced_structure_response['error']
+        else:
+            final_structure = enhanced_structure_response
+            enhancement_error = None
+        
+        # 3. التحقق من الهيكلية النهائية
+        is_valid = validate_structure(final_structure)
+        if not is_valid:
+            # محاولة استخدام الهيكلية الأولية إذا فشل التحقق من المحسنة
+            if final_structure != initial_structure and validate_structure(initial_structure):
+                final_structure = initial_structure
+                is_valid = True
+                validation_fallback_message = "Enhanced structure was invalid, fell back to initial valid structure."
+            else:
+                 return jsonify({"error": "Generated project structure is invalid, and initial structure was also invalid or not fallbackable.", "details": final_structure}), 500
+        else:
+            validation_fallback_message = None
+
+
+        # هنا يمكن إضافة خطوة لـ create_files إذا أردت إنشاء الملفات فعليًا
+        # ولكن هذا قد يكون بطيئًا ويتطلب معالجة أمان إضافية.
+        # للمثال، سنرجع فقط الهيكلية.
+        
+        response_data = {
+            "project_idea": project_idea,
+            "generated_structure": final_structure,
+            "is_valid": is_valid,
+        }
+        if enhancement_error:
+            response_data["enhancement_error"] = f"Enhancement failed or was skipped: {enhancement_error}. Using initial or previously valid structure."
+        if validation_fallback_message:
+            response_data["validation_note"] = validation_fallback_message
+
+        return jsonify(response_data), 200
+
+    except Exception as e:
+        app.logger.error(f"Error in /generate: {e}", exc_info=True)
+        return jsonify({"error": f"An unexpected server error occurred: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    # تأكد من أن مفتاح OpenAI متاح
+    if not os.getenv('OPENAI_API_KEY'):
+        print("CRITICAL: OPENAI_API_KEY not found in .env or environment variables.")
+        print("Please create a .env file in the 'my_mcp_agent' directory with your API key.")
+    
+    # تشغيل خادم Flask للتطوير
+    # debug=True جيد للتطوير ولكن يجب تعطيله في الإنتاج
+    # use_reloader=False لتجنب تشغيل الكود مرتين عند بدء التشغيل بسبب مراقب التغييرات
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=True)
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="web_templates_index_html" filename="my_mcp_agent/web/templates/index.html">
+        <![CDATA[
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-B">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Agent - مولد هيكلية المشروع</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box; /* 중요 */
+            min-height: 100px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        #result {
+            margin-top: 30px;
+            background-color: #e9e9e9;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        #result h2 {
+            margin-top: 0;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            white-space: pre-wrap; /* للالتفاف */
+            word-wrap: break-word; /* للالتفاف */
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none; /* Hidden by default */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid red;
+            background-color: #ffebeb;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+         .success {
+            color: green;
+            font-weight: bold;
+        }
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCP Agent - مولد هيكلية المشروع</h1>
+        <form id="projectForm">
+            <label for="project_idea">أدخل فكرة المشروع:</label>
+            <textarea id="project_idea" name="project_idea" required placeholder="مثال: تطبيق ويب لإدارة المهام باستخدام Python Flask و SQLite"></textarea>
+            <button type="submit">إنشاء الهيكلية</button>
+        </form>
+
+        <div class="loader" id="loader"></div>
+        <div id="error-message" class="error" style="display:none;"></div>
+
+        <div id="result" style="display:none;">
+            <h2>الهيكلية المُقترحة:</h2>
+            <p><strong>فكرة المشروع:</strong> <span id="resultProjectIdea"></span></p>
+            <p><strong>حالة التحقق:</strong> <span id="resultIsValid"></span></p>
+            <div id="enhancementErrorMessage" class="warning" style="display:none;"></div>
+            <div id="validationNoteMessage" class="warning" style="display:none;"></div>
+            <h3>المجلدات:</h3>
+            <pre id="resultFolders"></pre>
+            <h3>الملفات:</h3>
+            <pre id="resultFiles"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('projectForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const projectIdea = document.getElementById('project_idea').value;
+            const resultDiv = document.getElementById('result');
+            const loader = document.getElementById('loader');
+            const errorMessageDiv = document.getElementById('error-message');
+
+            resultDiv.style.display = 'none';
+            errorMessageDiv.style.display = 'none';
+            loader.style.display = 'block'; // Show loader
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ project_idea: projectIdea }),
+                });
+
+                loader.style.display = 'none'; // Hide loader
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorMessageDiv.textContent = `خطأ: ${data.error || response.statusText}`;
+                    errorMessageDiv.style.display = 'block';
+                    return;
+                }
+                
+                document.getElementById('resultProjectIdea').textContent = data.project_idea;
+
+                if(data.is_valid) {
+                    document.getElementById('resultIsValid').textContent = 'صحيحة';
+                    document.getElementById('resultIsValid').className = 'success';
+                } else {
+                    document.getElementById('resultIsValid').textContent = 'غير صحيحة';
+                    document.getElementById('resultIsValid').className = 'error';
+                }
+
+                const enhancementErrorDiv = document.getElementById('enhancementErrorMessage');
+                if (data.enhancement_error) {
+                    enhancementErrorDiv.textContent = "ملاحظة التحسين: " + data.enhancement_error;
+                    enhancementErrorDiv.style.display = 'block';
+                } else {
+                    enhancementErrorDiv.style.display = 'none';
+                }
+
+                const validationNoteDiv = document.getElementById('validationNoteMessage');
+                 if (data.validation_note) {
+                    validationNoteDiv.textContent = "ملاحظة التحقق: " + data.validation_note;
+                    validationNoteDiv.style.display = 'block';
+                } else {
+                    validationNoteDiv.style.display = 'none';
+                }
+
+
+                // عرض المجلدات
+                let foldersHtml = '';
+                if (data.generated_structure && data.generated_structure.folders) {
+                    data.generated_structure.folders.forEach(folder => {
+                        foldersHtml += `${folder}\n`;
+                    });
+                }
+                document.getElementById('resultFolders').textContent = foldersHtml || 'لا توجد مجلدات.';
+
+                // عرض الملفات
+                let filesHtml = '';
+                if (data.generated_structure && data.generated_structure.files) {
+                    data.generated_structure.files.forEach(file => {
+                        filesHtml += `${file.path} (نوع: ${file.type})\n`;
+                    });
+                }
+                document.getElementById('resultFiles').textContent = filesHtml || 'لا توجد ملفات.';
+                
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                loader.style.display = 'none'; // Hide loader
+                errorMessageDiv.textContent = `حدث خطأ في الشبكة أو خطأ غير متوقع: ${error.message}`;
+                errorMessageDiv.style.display = 'block';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="agents_init_py" filename="my_mcp_agent/agents/__init__.py">
+        <![CDATA[
+# This file can be empty. It indicates that the 'agents' directory is a Python package.
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="utils_init_py" filename="my_mcp_agent/utils/__init__.py">
+        <![CDATA[
+# This file can be empty. It indicates that the 'utils' directory is a Python package.
+        ]]>
+    </xaiArtifact>
+    <xaiArtifact id="requirements_txt_initial" filename="my_mcp_agent/requirements.txt">
+        <![CDATA[
+# This file will be auto-generated or overwritten by the MCP Agent.
+# You can add initial/manual dependencies here if needed before first run.
+# Example:
+# flask>=2.0
+# python-dotenv
+# requests
+# openai
+# langchain (if you plan to use more of its features)
+        ]]>
+    </xaiArtifact>
+</xaiArtifacts>

@@ -37,17 +37,40 @@ class Predicate:
             return False
         return self.name == other.name and self.args == other.args
 
+from enum import Enum
+
+class ModalOperator(Enum):
+    NONE = "None"
+    NECESSITY = "Necessity"   # يجب
+    POSSIBILITY = "Possibility" # يمكن
+
+class TemporalOperator(Enum):
+    NONE = "None"
+    ALWAYS = "Always"       # دائماً
+    EVENTUALLY = "Eventually" # يوماً ما
+    NEXT = "Next"           # التالي
+    UNTIL = "Until"         # حتى
+
 class Fact:
-    """Represents a logical fact (optionally probabilistic)"""
-    def __init__(self, predicate, probability=None):
+    """Represents a logical fact (optionally probabilistic) with modal/temporal properties"""
+    def __init__(self, predicate, probability=None, modal_op=ModalOperator.NONE, temporal_op=TemporalOperator.NONE):
         self.predicate = predicate
         # Probability/confidence in [0,1]; None means default 1.0
         self.probability = float(probability) if probability is not None else 1.0
+        self.modal_op = modal_op
+        self.temporal_op = temporal_op
 
     def __repr__(self):
+        extras = []
         if self.probability is not None and self.probability != 1.0:
-            return f"{self.predicate}. [p={self.probability}]"
-        return f"{self.predicate}."
+            extras.append(f"p={self.probability}")
+        if self.modal_op != ModalOperator.NONE:
+            extras.append(f"modal={self.modal_op.value}")
+        if self.temporal_op != TemporalOperator.NONE:
+            extras.append(f"temporal={self.temporal_op.value}")
+            
+        extra_str = f" [{', '.join(extras)}]" if extras else ""
+        return f"{self.predicate}.{extra_str}"
 
 class Rule:
     """Represents a logical rule: head :- body"""
@@ -856,21 +879,6 @@ class LogicalEngine:
                 return left ** right
             else:
                 return None
-
-        # Handle unary operations
-        if isinstance(expr, UnaryOp):
-            operand = self._evaluate_arithmetic(expr.operand, substitution)
-            if operand is None:
-                return None
-
-            if expr.operator == '-':
-                return -operand
-            elif expr.operator == '+':
-                return operand
-            else:
-                return None
-
-
 
         # Handle unary operations
         if isinstance(expr, UnaryOp):
