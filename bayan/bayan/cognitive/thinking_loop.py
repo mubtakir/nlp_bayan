@@ -73,11 +73,8 @@ class ThinkingLoop:
         inp = self.memory[-1]['data']
         print(f"🎬 Acting: {action}")
         
-        response = ""
-        if action == 'answer_query':
-            response = self.mind.bridge.ask(inp)
-        else:
-            response = "I noted that."
+        # Unified Action: Use the Cognitive Bridge for both Queries and Statements
+        response = self.mind.bridge.ask(inp)
             
         print(f"🗣️  Output: {response}")
         self.memory[-1]['response'] = response
@@ -87,7 +84,21 @@ class ThinkingLoop:
     def reflect(self):
         """Self-Correction / Learning."""
         print("🪞 Reflecting: Did I do well?")
-        # Using Logic Police to verify the response
-        # (Simplified: Just logging for now)
-        print("✅ Reflection complete.")
+        
+        last_input = self.memory[-1]['data']
+        last_response = self.memory[-1]['response']
+        
+        # Logic Police Check on the INPUT (Thought)
+        # We verify if we should have accepted that thought
+        verdict = self.mind.police.check_thought(last_input)
+        
+        if verdict != "SAFE":
+            print(f"🚨 CONSCIENCE ALERT: {verdict}")
+            # Corrective Action
+            if "learned" in last_response:
+                print("❌ Self-Correction: I should not have learned that.")
+                # Ideally, remove the fact. For now, just emphasize the error.
+        else:
+            print("✅ Conscience Clear.")
+            
         self.state = AgentState.IDLE

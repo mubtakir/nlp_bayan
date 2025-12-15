@@ -4,7 +4,7 @@ import os
 # Ensure we can import bayan packages
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
-from bayan.bayan.istinbat_engine import IstinbatEngine, Predicate, Term
+from bayan.bayan.istinbat_engine import IstinbatEngine, Predicate, Term, DeductionResult
 from .llm_interface import LLMInterface
 
 class CognitiveBridge:
@@ -36,15 +36,28 @@ class CognitiveBridge:
         logic_query_str = self._translate_to_logic(question)
         print(f"🤔 Thought (Logic): {logic_query_str}")
         
+        # Handle "fact" injection (Learning)
+        if logic_query_str.startswith("fact"):
+            try:
+                from bayan.bayan.logical_engine import Fact
+                content = logic_query_str.replace("fact", "").strip()
+                pred_name = content.split('(')[0].strip()
+                arg_str = content[content.find('(')+1 : content.rfind(')')]
+                args = [Term(a.strip()) for a in arg_str.split(',')]
+                
+                self.engine.logical_engine.add_fact(Fact(Predicate(pred_name, args)))
+                return f"I have learned that {arg_str} is {pred_name.replace('is_', '')}."
+            except Exception as e:
+                print(f"❌ Learning failed: {e}")
+                return "I tried to learn that, but I got confused."
+
         if not logic_query_str.startswith("query"):
             return "I am not sure how to translate that to logic yet."
 
         # 2. Execute Logic
-        # Parse "query pred(arg)" -> simple parsing for now
-        # logic_query_str expected format: "query is_hot(Sun)"
         try:
             content = logic_query_str.replace("query", "").strip()
-            pred_name = content.split('(')[0]
+            pred_name = content.split('(')[0].strip()
             arg_str = content[content.find('(')+1 : content.rfind(')')]
             args = [Term(a.strip()) for a in arg_str.split(',')]
             
@@ -65,13 +78,31 @@ class CognitiveBridge:
         prompt = f"Translate to logic: {question}"
         return self.llm.generate(prompt).strip()
 
-    def _synthesize_answer(self, question: str, logic: str, success: bool) -> str:
+    def _synthesize_answer(self, query: str, deduction_result: DeductionResult) -> str:
         """
-        Uses LLM (or Mock) to form a nice sentence.
+        Converts the logical result back into natural language.
+        Now uses the FactGenerator for stylistic variety.
         """
-        status = "True" if success else "False"
-        prompt = f"Translate to natural: Question='{question}', Logic='{logic}', Result='{status}'"
-        return self.llm.generate(prompt).strip()
+        success = deduction_result.success
+        
+        # New: Use Fact Generator for Voice
+        try:
+            from bayan.cognitive.fact_generator import FactGenerator
+            generator = FactGenerator()
+            
+            if success:
+                 # Generate a success statement
+                 facts = deduction_result.trace_log # Use trace as 'facts'
+                 return generator.generate_narrative(facts, style="philosophical")
+            else:
+                 return generator.generate_narrative(["The logic did not hold.", "The path was blocked."], style="analytical")
+                 
+        except ImportError:
+            # Fallback if generator missing
+            if success:
+                return f"Logic Confirmed. {deduction_result.reasoning}"
+            else:
+                return "Logic could not be established."
 
 if __name__ == "__main__":
     # Test

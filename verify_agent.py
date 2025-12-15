@@ -27,6 +27,14 @@ def verify():
     print("\n--- Interaction 2 ---")
     mind.interact("Who is Ali?")
     
+    # Test 3: Learning (Statement)
+    print("\n--- Interaction 3 (Learning) ---")
+    mind.interact("The moon is cold.")
+    
+    # Test 4: Contradiction Check (Logic Police)
+    print("\n--- Interaction 4 (Contradiction) ---")
+    mind.interact("The sun is cold.")
+    
     # Verification is visual based on the Thinking Loop logs
     print("\n✅ Agent Verification Complete (Check logs above for OODA Loop steps).")
 

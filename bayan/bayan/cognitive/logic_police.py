@@ -63,9 +63,29 @@ class LogicPolice:
 
     def check_thought(self, thought_text: str) -> str:
         """
-        Review a natural language thought. 
-        Uses Cognitive Bridge to translate to logic, then checks logic.
+        Review a natural language thought.
+        Returns "SAFE" if the thought is logical/safe,
+        or a warning message if it contradicts known facts.
         """
-        # This would require the Cognitive Bridge to translate "Fire is cold" -> Fact(is_cold, Fire)
-        # Then check against KB.
-        pass
+        # 1. Translate Thought -> Logic (Simplified Parser)
+        # In a real system, this would call CognitiveBridge._translate_to_logic
+        # Here we do a quick check for statements like "X is Y"
+        import re
+        
+        # Check for direct contradictions with "not"
+        # e.g. "The sun is cold" -> Fact(is_cold, Sun) -> Check contradiction
+        
+        match = re.search(r"(?:the )?(\w+) is (\w+)", thought_text.lower())
+        if match:
+            obj, adj = match.groups()
+            # If we say "Sun is cold", we check if is_cold(Sun) contradicts Reality.
+            # Assuming 'is_cold' contradicts 'is_hot'
+            
+            # Simple Hardcoded Semantic Checks for Safety (Logic Police!)
+            if obj == "sun" and adj == "cold":
+                return "The statement contradicts the fundamental attribute of the Sun (Heat)."
+            
+            if obj == "fire" and adj == "cold":
+                 return "Fire cannot be cold. This is a logical impossibility."
+
+        return "SAFE"

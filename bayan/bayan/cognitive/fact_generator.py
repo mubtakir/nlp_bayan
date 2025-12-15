@@ -13,52 +13,85 @@ class FactGenerator:
     Generates Natural Language from Logical Facts.
     Uses 'Fact-Informed Generation' to ensure truthfulness while adding stylistic flair.
     """
-    def __init__(self, llm_interface: LLMInterface):
+    def __init__(self, llm_interface: LLMInterface = None):
         self.llm = llm_interface
         self.semantics = LetterSemanticsEngine()
         
-    def generate_narrative(self, facts: list[Fact], style: str = "philosophical") -> str:
+    def generate_narrative(self, facts: list, style: str = "philosophical") -> str:
         """
         Turn a list of facts into a coherent paragraph.
+        Supports 'Template Mode' if LLM is missing.
         """
         if not facts:
             return "There are no facts to narrate."
 
-        # 1. Convert Facts to Sentences
-        fact_sentences = []
-        concepts = set()
-        for fact in facts:
-            # e.g., is_hot(Sun) -> Sun is_hot
-            args = ", ".join(str(a) for a in fact.predicate.args)
-            fact_sentences.append(f"{args} is {fact.predicate.name}")
+        # Support string list for testing/simulation
+        inputs = []
+        for f in facts:
+            if hasattr(f, 'predicate'):
+                inputs.append(f"{f.predicate.name}(" + ",".join(str(a) for a in f.predicate.args) + ")")
+            else:
+                inputs.append(str(f))
+
+        # If LLM is present, use it
+        if self.llm:
+            # 1. Convert Facts to Sentences
+            fact_sentences = []
+            concepts = set()
+            for fact in facts:
+                # e.g., is_hot(Sun) -> Sun is_hot
+                args = ", ".join(str(a) for a in fact.predicate.args)
+                fact_sentences.append(f"{args} is {fact.predicate.name}")
+                
+                # Collect concepts for semantic analysis
+                for arg in fact.predicate.args:
+                    concepts.add(str(arg))
+
+            combined_text = ". ".join(fact_sentences)
+
+            # 2. Inject Semantic Flavor
+            # Look up meanings of concepts to add to the prompt
+            flavor_text = ""
+            for concept in concepts:
+                # Heuristic: analyze first letter if existing word
+                if concept and len(concept) > 0:
+                    # Check if we have letter semantics
+                    # (Simplified for demo)
+                    pass
             
-            # Collect concepts for semantic analysis
-            for arg in fact.predicate.args:
-                concepts.add(str(arg))
+            # 3. Construct Prompt
+            prompt = (
+                f"Style: {style}.\n"
+                f"Facts: {combined_text}.\n"
+                f"Task: Rewrite the above facts into a flowing, {style} narrative. "
+                f"Use deep, meaningful language.\n"
+                f"Narrative:"
+            )
 
-        combined_text = ". ".join(fact_sentences)
-
-        # 2. Inject Semantic Flavor
-        # Look up meanings of concepts to add to the prompt
-        flavor_text = ""
-        for concept in concepts:
-            # Heuristic: analyze first letter if existing word
-            if concept and len(concept) > 0:
-                 # Check if we have letter semantics
-                 # (Simplified for demo)
-                 pass
+            # 4. Generate
+            return self.llm.generate(prompt, max_length=150)
         
-        # 3. Construct Prompt
-        prompt = (
-            f"Style: {style}.\n"
-            f"Facts: {combined_text}.\n"
-            f"Task: Rewrite the above facts into a flowing, {style} narrative. "
-            f"Use deep, meaningful language.\n"
-            f"Narrative:"
-        )
-
-        # 4. Generate
-        return self.llm.generate(prompt, max_length=150)
+        # --- TEMPLATE MODE (Phase 6) ---
+        # Stylistic Templates for Generator Voice
+        combined = " ".join(inputs)
+        
+        if style == "philosophical":
+            templates = [
+                f"Consider the truth that {combined}. It reflects the underlying order of the cosmos.",
+                f"In the grand scheme, it is known that {combined}.",
+                f"Reflecting upon the nature of reality, we observe: {combined}."
+            ]
+        elif style == "analytical":
+             templates = [
+                f"Analysis confirms: {combined}.",
+                f"Logical derivation result: {combined}.",
+                f"Data indicates: {combined}."
+             ]
+        else:
+            templates = [f"Fact: {combined}."]
+            
+        import random
+        return random.choice(templates)
 
     def generate_answer(self, question: str, facts: list[Fact]) -> str:
         """
